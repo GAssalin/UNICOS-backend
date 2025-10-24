@@ -10,10 +10,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class ProdutoServiceImpl extends AbstractCrudService<Produto, Long> implements ProdutoService {
 
     private final ProdutoRepository produtoRepository;
+
+    public ProdutoServiceImpl(ProdutoRepository produtoRepository) {
+        super(produtoRepository);
+        this.produtoRepository = produtoRepository;
+    }
 
     @Override
     @Transactional
