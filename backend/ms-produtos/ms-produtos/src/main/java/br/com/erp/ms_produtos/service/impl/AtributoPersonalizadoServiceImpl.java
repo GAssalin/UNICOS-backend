@@ -1,7 +1,8 @@
-package br.com.erp.ms_produtos.service;
+package br.com.erp.ms_produtos.service.impl;
 
 import br.com.erp.ms_produtos.model.AtributoPersonalizado;
 import br.com.erp.ms_produtos.repository.AtributoPersonalizadoRepository;
+import br.com.erp.ms_produtos.service.AtributoPersonalizadoService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

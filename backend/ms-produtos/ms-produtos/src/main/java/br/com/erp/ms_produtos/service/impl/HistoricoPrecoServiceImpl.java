@@ -1,7 +1,8 @@
-package br.com.erp.ms_produtos.service;
+package br.com.erp.ms_produtos.service.impl;
 
 import br.com.erp.ms_produtos.model.HistoricoPreco;
 import br.com.erp.ms_produtos.repository.HistoricoPrecoRepository;
+import br.com.erp.ms_produtos.service.HistoricoPrecoService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
