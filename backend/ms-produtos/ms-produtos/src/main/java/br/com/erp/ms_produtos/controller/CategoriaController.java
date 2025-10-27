@@ -3,7 +3,7 @@ package br.com.erp.ms_produtos.controller;
 import br.com.erp.ms_produtos.dto.CategoriaListDTO;
 import br.com.erp.ms_produtos.dto.CategoriaRequestDTO;
 import br.com.erp.ms_produtos.dto.CategoriaResponseDTO;
-import br.com.erp.ms_produtos.service.impl.CategoriaServiceImpl;
+import br.com.erp.ms_produtos.service.CategoriaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,93 +12,118 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Controlador REST responsável por gerenciar as operações relacionadas às Categorias de produtos.
+ * Controlador REST responsável pelo gerenciamento das categorias.
+ *
+ * Fornece endpoints para operações de CRUD e consultas específicas.
  */
 @RestController
-@RequestMapping("/categorias")
+@RequestMapping("/v1/categorias")
 public class CategoriaController {
 
-    private final CategoriaServiceImpl service;
+    private final CategoriaService categoriaService;
 
-    public CategoriaController(CategoriaServiceImpl service) {
-        this.service = service;
+    public CategoriaController(CategoriaService categoriaService) {
+        this.categoriaService = categoriaService;
     }
 
-    /**
-     * Lista todas as categorias com informações completas.
-     *
-     * @return Lista de CategoriaResponseDTO.
-     */
-    @GetMapping
-    public ResponseEntity<List<CategoriaResponseDTO>> listarTodas() {
-        List<CategoriaResponseDTO> lista = service.listarTodos()
-                .stream()
-                .map(c -> CategoriaResponseDTO.builder()
-                        .id(c.getId())
-                        .nome(c.getNome())
-                        .descricao(c.getDescricao())
-                        .build())
-                .toList();
-
-        return ResponseEntity.ok(lista);
-    }
-
-    /**
-     * Lista todas as categorias em formato reduzido (id e nome).
-     *
-     * @return Lista de CategoriaListDTO.
-     */
-    @GetMapping("/resumido")
-    public ResponseEntity<List<CategoriaListDTO>> listarResumido() {
-        return ResponseEntity.ok(service.listarResumido());
-    }
-
-    /**
-     * Busca uma categoria específica pelo ID.
-     *
-     * @param id ID da categoria.
-     * @return CategoriaResponseDTO.
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<CategoriaResponseDTO> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscarDTOporId(id));
-    }
+    // ==================================
+    // 🔹 CRUD
+    // ==================================
 
     /**
      * Cria uma nova categoria.
      *
-     * @param dto Dados da nova categoria.
-     * @return CategoriaResponseDTO.
+     * @param request Dados da categoria a ser criada.
+     * @return CategoriaResponseDTO representando a categoria criada.
      */
     @PostMapping
-    public ResponseEntity<CategoriaResponseDTO> criar(@Valid @RequestBody CategoriaRequestDTO dto) {
-        CategoriaResponseDTO criada = service.criar(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(criada);
+    public ResponseEntity<CategoriaResponseDTO> criarCategoria(@Valid @RequestBody CategoriaRequestDTO request) {
+        CategoriaResponseDTO response = categoriaService.salvar(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
      * Atualiza uma categoria existente.
      *
-     * @param id  ID da categoria.
-     * @param dto Dados atualizados da categoria.
-     * @return CategoriaResponseDTO.
+     * @param id      Identificador da categoria.
+     * @param request Dados atualizados da categoria.
+     * @return CategoriaResponseDTO atualizada.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<CategoriaResponseDTO> atualizar(@PathVariable Long id,
-                                                          @Valid @RequestBody CategoriaRequestDTO dto) {
-        CategoriaResponseDTO atualizada = service.atualizarDTO(id, dto);
-        return ResponseEntity.ok(atualizada);
+    public ResponseEntity<CategoriaResponseDTO> atualizarCategoria(@PathVariable Long id,
+                                                                @Valid @RequestBody CategoriaRequestDTO request) {
+        CategoriaResponseDTO response = categoriaService.atualizar(id, request);
+        return ResponseEntity.ok(response);
     }
 
     /**
-     * Remove uma categoria pelo ID.
+     * Busca uma categoria pelo ID.
      *
-     * @param id ID da categoria.
-     * @return Mensagem de sucesso.
+     * @param id Identificador da categoria.
+     * @return CategoriaResponseDTO encontrada, se existir.
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoriaResponseDTO> buscarPorId(@PathVariable Long id) {
+        return categoriaService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Lista todas as categorias.
+     *
+     * @return Lista completa de categorias.
+     */
+    @GetMapping
+    public ResponseEntity<List<CategoriaResponseDTO>> listarTodas() {
+        List<CategoriaResponseDTO> categorias = categoriaService.listarTodas();
+        return ResponseEntity.ok(categorias);
+    }
+
+    /**
+     * Lista categorias simplificadas (id + nome), ideal para combos e seletores.
+     *
+     * @return Lista simples de categorias.
+     */
+    @GetMapping("/simples")
+    public ResponseEntity<List<CategoriaListDTO>> listarSimples() {
+        List<CategoriaListDTO> categorias = categoriaService.listarSimples();
+        return ResponseEntity.ok(categorias);
+    }
+
+    /**
+     * Busca categorias pelo nome (parcial ou completo).
+     *
+     * @param nome Nome ou parte do nome da categoria.
+     * @return Lista de categorias que correspondem ao termo.
+     */
+    @GetMapping("/buscar")
+    public ResponseEntity<List<CategoriaResponseDTO>> buscarPorNome(@RequestParam String nome) {
+        List<CategoriaResponseDTO> categorias = categoriaService.buscarPorNome(nome);
+        return ResponseEntity.ok(categorias);
+    }
+
+    /**
+     * Exclui uma categoria pelo ID.
+     *
+     * @param id Identificador da categoria.
+     * @return Resposta 204 (sem conteúdo) se a exclusão for bem-sucedida.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletar(@PathVariable Long id) {
-        service.deletarPorId(id);
-        return ResponseEntity.ok("Categoria removida com sucesso!");
+    public ResponseEntity<Void> deletarCategoria(@PathVariable Long id) {
+        categoriaService.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Verifica se já existe uma categoria com o nome informado.
+     *
+     * @param nome Nome da categoria.
+     * @return true se o nome já estiver cadastrado, false caso contrário.
+     */
+    @GetMapping("/verificar-nome")
+    public ResponseEntity<Boolean> verificarNome(@RequestParam String nome) {
+        boolean existe = categoriaService.existePorNome(nome);
+        return ResponseEntity.ok(existe);
     }
 }
