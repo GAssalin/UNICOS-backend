@@ -2,183 +2,229 @@ package br.com.erp.ms_produtos.controller;
 
 import br.com.erp.ms_produtos.dto.ProdutoRequest;
 import br.com.erp.ms_produtos.dto.ProdutoResponse;
-import br.com.erp.ms_produtos.model.Categoria;
-import br.com.erp.ms_produtos.model.Marca;
-import br.com.erp.ms_produtos.model.Produto;
-import br.com.erp.ms_produtos.service.CategoriaService;
-import br.com.erp.ms_produtos.service.MarcaService;
 import br.com.erp.ms_produtos.service.ProdutoService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
  * Controlador REST responsável pelo gerenciamento dos produtos.
- * Fornece endpoints para operações CRUD e consultas específicas.
  *
- * @author Gustavo
+ * Fornece endpoints para operações de CRUD e consultas específicas.
  */
 @RestController
-@RequestMapping("/api/v1/produtos")
-@RequiredArgsConstructor
+@RequestMapping("/v1/produtos")
 public class ProdutoController {
 
     private final ProdutoService produtoService;
-    private final CategoriaService categoriaService;
-    private final MarcaService marcaService;
-    private final ModelMapper modelMapper;
+
+    public ProdutoController(ProdutoService produtoService) {
+        this.produtoService = produtoService;
+    }
+
+    // ==================================
+    // 🔹 CRUD
+    // ==================================
 
     /**
-     * Cria um novo produto.
+     * Cadastra um novo produto.
      *
-     * @param request dados do produto
-     * @return produto criado
+     * @param request Dados do produto a ser criado.
+     * @return ProdutoResponse com os dados do produto criado.
      */
     @PostMapping
-    public ResponseEntity<ProdutoResponse> criar(@Valid @RequestBody ProdutoRequest request) {
-        Produto produto = toEntity(request);
-        Produto salvo = produtoService.salvar(produto);
-        return ResponseEntity.created(URI.create("/api/v1/produtos/" + salvo.getId()))
-                .body(toResponse(salvo));
+    public ResponseEntity<ProdutoResponse> criarProduto(@Valid @RequestBody ProdutoRequest request) {
+        ProdutoResponse response = produtoService.salvar(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
-     * Atualiza um produto existente.
+     * Atualiza os dados de um produto existente.
      *
-     * @param id      identificador do produto
-     * @param request novos dados
-     * @return produto atualizado
+     * @param id      Identificador do produto.
+     * @param request Dados atualizados do produto.
+     * @return ProdutoResponse atualizado.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ProdutoResponse> atualizar(@PathVariable Long id,
-                                                     @Valid @RequestBody ProdutoRequest request) {
-        Produto produto = toEntity(request);
-        Produto atualizado = produtoService.atualizar(id, produto);
-        return ResponseEntity.ok(toResponse(atualizado));
+    public ResponseEntity<ProdutoResponse> atualizarProduto(@PathVariable Long id,
+                                                            @Valid @RequestBody ProdutoRequest request) {
+        ProdutoResponse response = produtoService.atualizar(id, request);
+        return ResponseEntity.ok(response);
     }
 
     /**
      * Busca um produto pelo seu ID.
      *
-     * @param id identificador do produto
-     * @return produto encontrado
+     * @param id Identificador do produto.
+     * @return ProdutoResponse encontrado.
      */
     @GetMapping("/{id}")
     public ResponseEntity<ProdutoResponse> buscarPorId(@PathVariable Long id) {
         return produtoService.buscarPorId(id)
-                .map(produto -> ResponseEntity.ok(toResponse(produto)))
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     /**
-     * Lista todos os produtos cadastrados.
+     * Lista todos os produtos.
      *
-     * @return lista de produtos
+     * @return Lista de ProdutoResponse.
      */
     @GetMapping
     public ResponseEntity<List<ProdutoResponse>> listarTodos() {
-        List<ProdutoResponse> lista = produtoService.listarTodos()
-                .stream()
-                .map(this::toResponse)
-                .toList();
-        return ResponseEntity.ok(lista);
+        List<ProdutoResponse> produtos = produtoService.listarTodos();
+        return ResponseEntity.ok(produtos);
     }
 
     /**
-     * Lista produtos ativos.
+     * Remove um produto pelo seu ID.
      *
-     * @return lista de produtos ativos
-     */
-    @GetMapping("/ativos")
-    public ResponseEntity<List<ProdutoResponse>> listarAtivos() {
-        List<ProdutoResponse> lista = produtoService.listarAtivos()
-                .stream()
-                .map(this::toResponse)
-                .toList();
-        return ResponseEntity.ok(lista);
-    }
-
-    /**
-     * Lista produtos por categoria.
-     *
-     * @param categoriaId ID da categoria
-     * @return lista de produtos
-     */
-    @GetMapping("/categoria/{categoriaId}")
-    public ResponseEntity<List<ProdutoResponse>> listarPorCategoria(@PathVariable Long categoriaId) {
-        List<ProdutoResponse> lista = produtoService.listarPorCategoria(categoriaId)
-                .stream()
-                .map(this::toResponse)
-                .toList();
-        return ResponseEntity.ok(lista);
-    }
-
-    /**
-     * Lista produtos por marca.
-     *
-     * @param marcaId ID da marca
-     * @return lista de produtos
-     */
-    @GetMapping("/marca/{marcaId}")
-    public ResponseEntity<List<ProdutoResponse>> listarPorMarca(@PathVariable Long marcaId) {
-        List<ProdutoResponse> lista = produtoService.listarPorMarca(marcaId)
-                .stream()
-                .map(this::toResponse)
-                .toList();
-        return ResponseEntity.ok(lista);
-    }
-
-    /**
-     * Remove um produto pelo ID.
-     *
-     * @param id identificador do produto
-     * @return 204 No Content em caso de sucesso
+     * @param id Identificador do produto.
+     * @return Resposta 204 (sem conteúdo).
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+    public ResponseEntity<Void> deletarProduto(@PathVariable Long id) {
         produtoService.deletar(id);
         return ResponseEntity.noContent().build();
     }
 
+    // ==================================
+    // 🔹 CONSULTAS ESPECÍFICAS
+    // ==================================
+
     /**
-     * Converte um DTO de requisição em entidade Produto.
+     * Busca produto pelo SKU.
+     *
+     * @param sku Código SKU.
+     * @return ProdutoResponse correspondente.
      */
-    private Produto toEntity(ProdutoRequest request) {
-        Produto produto = modelMapper.map(request, Produto.class);
-
-        Categoria categoria = categoriaService.buscarPorId(request.categoriaId())
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada."));
-        produto.setCategoria(categoria);
-
-        if (request.marcaId() != null) {
-            Marca marca = marcaService.buscarPorId(request.marcaId())
-                    .orElseThrow(() -> new IllegalArgumentException("Marca não encontrada."));
-            produto.setMarca(marca);
-        } else {
-            produto.setMarca(null);
-        }
-
-        return produto;
+    @GetMapping("/sku/{sku}")
+    public ResponseEntity<ProdutoResponse> buscarPorSku(@PathVariable String sku) {
+        return produtoService.buscarPorSku(sku)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
-     * Converte uma entidade Produto em DTO de resposta.
+     * Busca produtos por nome (parcial ou completo).
+     *
+     * @param nome Nome do produto.
+     * @return Lista de produtos que correspondem ao nome.
      */
-    private ProdutoResponse toResponse(Produto produto) {
-        return new ProdutoResponse(
-                produto.getId(),
-                produto.getNome(),
-                produto.getDescricao(),
-                produto.getPreco(),
-                produto.getSku(),
-                produto.getCategoria() != null ? produto.getCategoria().getNome() : null,
-                produto.getMarca() != null ? produto.getMarca().getNome() : null,
-                produto.getAtivo()
-        );
+    @GetMapping("/buscar")
+    public ResponseEntity<List<ProdutoResponse>> buscarPorNome(@RequestParam String nome) {
+        List<ProdutoResponse> produtos = produtoService.buscarPorNome(nome);
+        return ResponseEntity.ok(produtos);
+    }
+
+    /**
+     * Lista produtos de uma determinada categoria.
+     *
+     * @param categoriaId ID da categoria.
+     * @return Lista de produtos dessa categoria.
+     */
+    @GetMapping("/categoria/{categoriaId}")
+    public ResponseEntity<List<ProdutoResponse>> listarPorCategoria(@PathVariable Long categoriaId) {
+        List<ProdutoResponse> produtos = produtoService.listarPorCategoria(categoriaId);
+        return ResponseEntity.ok(produtos);
+    }
+
+    /**
+     * Lista produtos de uma determinada marca.
+     *
+     * @param marcaId ID da marca.
+     * @return Lista de produtos dessa marca.
+     */
+    @GetMapping("/marca/{marcaId}")
+    public ResponseEntity<List<ProdutoResponse>> listarPorMarca(@PathVariable Long marcaId) {
+        List<ProdutoResponse> produtos = produtoService.listarPorMarca(marcaId);
+        return ResponseEntity.ok(produtos);
+    }
+
+    /**
+     * Lista apenas os produtos ativos.
+     *
+     * @return Lista de produtos ativos.
+     */
+    @GetMapping("/ativos")
+    public ResponseEntity<List<ProdutoResponse>> listarAtivos() {
+        return ResponseEntity.ok(produtoService.listarAtivos());
+    }
+
+    /**
+     * Lista apenas os produtos inativos.
+     *
+     * @return Lista de produtos inativos.
+     */
+    @GetMapping("/inativos")
+    public ResponseEntity<List<ProdutoResponse>> listarInativos() {
+        return ResponseEntity.ok(produtoService.listarInativos());
+    }
+
+    /**
+     * Lista produtos dentro de uma faixa de preço.
+     *
+     * @param precoMin Preço mínimo.
+     * @param precoMax Preço máximo.
+     * @return Lista de produtos dentro do intervalo.
+     */
+    @GetMapping("/faixa-preco")
+    public ResponseEntity<List<ProdutoResponse>> listarPorFaixaDePreco(@RequestParam BigDecimal precoMin,
+                                                                       @RequestParam BigDecimal precoMax) {
+        return ResponseEntity.ok(produtoService.listarPorFaixaDePreco(precoMin, precoMax));
+    }
+
+    // ==================================
+    // 💼 OPERAÇÕES DE NEGÓCIO
+    // ==================================
+
+    /**
+     * Ativa um produto.
+     *
+     * @param id ID do produto.
+     * @return ProdutoResponse com o status atualizado.
+     */
+    @PatchMapping("/{id}/ativar")
+    public ResponseEntity<ProdutoResponse> ativarProduto(@PathVariable Long id) {
+        return ResponseEntity.ok(produtoService.ativarProduto(id));
+    }
+
+    /**
+     * Inativa um produto.
+     *
+     * @param id ID do produto.
+     * @return ProdutoResponse com o status atualizado.
+     */
+    @PatchMapping("/{id}/inativar")
+    public ResponseEntity<ProdutoResponse> inativarProduto(@PathVariable Long id) {
+        return ResponseEntity.ok(produtoService.inativarProduto(id));
+    }
+
+    /**
+     * Atualiza o preço de um produto.
+     *
+     * @param id        ID do produto.
+     * @param novoPreco Novo preço.
+     * @return ProdutoResponse com o novo valor.
+     */
+    @PatchMapping("/{id}/preco")
+    public ResponseEntity<ProdutoResponse> atualizarPreco(@PathVariable Long id,
+                                                          @RequestParam BigDecimal novoPreco) {
+        return ResponseEntity.ok(produtoService.atualizarPreco(id, novoPreco));
+    }
+
+    /**
+     * Verifica se um SKU está disponível (não cadastrado ainda).
+     *
+     * @param sku Código SKU.
+     * @return true se disponível, false se já em uso.
+     */
+    @GetMapping("/verificar-sku/{sku}")
+    public ResponseEntity<Boolean> verificarDisponibilidadeSku(@PathVariable String sku) {
+        return ResponseEntity.ok(produtoService.verificarDisponibilidadeSku(sku));
     }
 }
