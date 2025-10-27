@@ -3,107 +3,122 @@ package br.com.erp.ms_produtos.service.impl;
 import br.com.erp.ms_produtos.dto.CategoriaListDTO;
 import br.com.erp.ms_produtos.dto.CategoriaRequestDTO;
 import br.com.erp.ms_produtos.dto.CategoriaResponseDTO;
-import br.com.erp.ms_produtos.mapper.CategoriaMapper;
 import br.com.erp.ms_produtos.model.Categoria;
 import br.com.erp.ms_produtos.repository.CategoriaRepository;
-import br.com.erp.ms_produtos.service.AbstractCrudService;
+import br.com.erp.ms_produtos.service.CategoriaService;
 import jakarta.transaction.Transactional;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Serviço responsável pelas operações de negócio relacionadas à entidade Categoria.
+ * Implementação da interface CategoriaService.
+ * Responsável pela lógica de negócio e orquestração das operações
+ * de criação, atualização, exclusão e consulta de categorias.
  */
 @Service
-public class CategoriaServiceImpl extends AbstractCrudService<Categoria, Long> {
+@Transactional
+public class CategoriaServiceImpl implements CategoriaService {
 
     private final CategoriaRepository repository;
+    private final ModelMapper mapper;
 
-    public CategoriaServiceImpl(CategoriaRepository repository) {
-        super(repository);
+    public CategoriaServiceImpl(CategoriaRepository repository, ModelMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
-    /**
-     * Atualiza uma entidade Categoria existente no banco.
-     */
+    // ==================================
+    // 🔹 CRUD
+    // ==================================
+
     @Override
-    @Transactional
-    public Categoria atualizar(Long id, Categoria entity) {
-        Categoria existente = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoria não encontrada com ID: " + id));
-
-        existente.setNome(entity.getNome());
-        existente.setDescricao(entity.getDescricao());
-
-        return repository.save(existente);
-    }
-
-    /**
-     * Lista todas as categorias em formato reduzido (id e nome).
-     *
-     * @return Lista de CategoriaListDTO.
-     */
-    public List<CategoriaListDTO> listarResumido() {
-        List<Categoria> categorias = listarTodos();
-        return CategoriaMapper.toListDTO(categorias);
-    }
-
-    /**
-     * Cria uma nova categoria.
-     *
-     * @param dto CategoriaRequestDTO com os dados da categoria.
-     * @return CategoriaResponseDTO com os dados da categoria criada.
-     */
-    @Transactional
-    public CategoriaResponseDTO criar(CategoriaRequestDTO dto) {
-        Categoria categoria = CategoriaMapper.toEntity(dto);
-        Categoria salvo = salvar(categoria);
-        return CategoriaMapper.toResponseDTO(salvo);
-    }
-
-    /**
-     * Atualiza uma categoria existente via DTO.
-     *
-     * @param id  ID da categoria.
-     * @param dto CategoriaRequestDTO com os novos dados.
-     * @return CategoriaResponseDTO com os dados atualizados.
-     */
-    @Transactional
-    public CategoriaResponseDTO atualizarDTO(Long id, CategoriaRequestDTO dto) {
-        Categoria existente = buscarPorId(id)
-                .orElseThrow(() -> new RuntimeException("Categoria não encontrada com ID: " + id));
-
-        CategoriaMapper.updateEntity(existente, dto);
-        Categoria atualizado = salvar(existente);
-
-        return CategoriaMapper.toResponseDTO(atualizado);
-    }
-
-    /**
-     * Retorna os detalhes de uma categoria específica.
-     *
-     * @param id ID da categoria.
-     * @return CategoriaResponseDTO.
-     */
-    public CategoriaResponseDTO buscarDTOporId(Long id) {
-        Categoria categoria = buscarPorId(id)
-                .orElseThrow(() -> new RuntimeException("Categoria não encontrada com ID: " + id));
-
-        return CategoriaMapper.toResponseDTO(categoria);
-    }
-
-    /**
-     * Remove uma categoria pelo ID.
-     *
-     * @param id ID da categoria.
-     */
-    @Transactional
-    public void deletarPorId(Long id) {
-        if (buscarPorId(id).isEmpty()) {
-            throw new RuntimeException("Categoria não encontrada com ID: " + id);
+    public CategoriaResponseDTO salvar(CategoriaRequestDTO request) {
+        // Verifica duplicidade de nome
+        if (repository.existsByNomeIgnoreCase(request.getNome())) {
+            throw new IllegalArgumentException("Já existe uma categoria com o nome informado.");
         }
-        deletar(id);
+
+        Categoria categoria = mapper.map(request, Categoria.class);
+        Categoria salva = repository.save(categoria);
+        return toResponse(salva);
+    }
+
+    @Override
+    public CategoriaResponseDTO atualizar(Long id, CategoriaRequestDTO request) {
+        Categoria existente = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada com ID: " + id));
+
+        // Evita duplicidade ao atualizar
+        Optional<Categoria> categoriaDuplicada = repository.findByNomeIgnoreCase(request.getNome());
+        if (categoriaDuplicada.isPresent() && !categoriaDuplicada.get().getId().equals(id)) {
+            throw new IllegalArgumentException("Já existe uma categoria com esse nome.");
+        }
+
+        existente.setNome(request.getNome());
+        existente.setDescricao(request.getDescricao());
+
+        Categoria atualizada = repository.save(existente);
+        return toResponse(atualizada);
+    }
+
+    @Override
+    public Optional<CategoriaResponseDTO> buscarPorId(Long id) {
+        return repository.findById(id).map(this::toResponse);
+    }
+
+    @Override
+    public List<CategoriaResponseDTO> listarTodas() {
+        return repository.findAllByOrderByNomeAsc()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<CategoriaListDTO> listarSimples() {
+        return repository.findAllByOrderByNomeAsc()
+                .stream()
+                .map(c -> CategoriaListDTO.builder()
+                        .id(c.getId())
+                        .nome(c.getNome())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    public List<CategoriaResponseDTO> buscarPorNome(String nome) {
+        return repository.findByNomeContainingIgnoreCase(nome)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    public void deletar(Long id) {
+        Categoria categoria = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada com ID: " + id));
+
+        // Se houver produtos associados, poderia lançar uma exceção de regra de negócio
+        if (categoria.getProdutos() != null && !categoria.getProdutos().isEmpty()) {
+            throw new IllegalStateException("Não é possível excluir uma categoria com produtos associados.");
+        }
+
+        repository.deleteById(id);
+    }
+
+    @Override
+    public boolean existePorNome(String nome) {
+        return repository.existsByNomeIgnoreCase(nome);
+    }
+
+    // ==================================
+    // 🧭 MÉTODOS AUXILIARES
+    // ==================================
+
+    private CategoriaResponseDTO toResponse(Categoria categoria) {
+        return mapper.map(categoria, CategoriaResponseDTO.class);
     }
 }
