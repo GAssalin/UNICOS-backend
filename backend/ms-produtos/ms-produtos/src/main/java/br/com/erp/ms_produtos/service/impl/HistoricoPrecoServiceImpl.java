@@ -1,49 +1,116 @@
 package br.com.erp.ms_produtos.service.impl;
 
+import br.com.erp.ms_produtos.dto.HistoricoPrecoListDTO;
+import br.com.erp.ms_produtos.dto.HistoricoPrecoRequest;
+import br.com.erp.ms_produtos.dto.HistoricoPrecoResponse;
 import br.com.erp.ms_produtos.model.HistoricoPreco;
+import br.com.erp.ms_produtos.model.Produto;
 import br.com.erp.ms_produtos.repository.HistoricoPrecoRepository;
+import br.com.erp.ms_produtos.repository.ProdutoRepository;
 import br.com.erp.ms_produtos.service.HistoricoPrecoService;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementação da interface HistoricoPrecoService.
+ * Responsável pela lógica de negócio e manipulação dos registros
+ * de alterações de preço de produtos.
+ */
 @Service
-@RequiredArgsConstructor
+@Transactional
 public class HistoricoPrecoServiceImpl implements HistoricoPrecoService {
 
-    private final HistoricoPrecoRepository historicoPrecoRepository;
+    private final HistoricoPrecoRepository repository;
+    private final ProdutoRepository produtoRepository;
+    private final ModelMapper mapper;
+
+    public HistoricoPrecoServiceImpl(HistoricoPrecoRepository repository,
+                                     ProdutoRepository produtoRepository,
+                                     ModelMapper mapper) {
+        this.repository = repository;
+        this.produtoRepository = produtoRepository;
+        this.mapper = mapper;
+    }
+
+    // ==================================
+    // 🔹 CRUD
+    // ==================================
 
     @Override
-    @Transactional
-    public HistoricoPreco salvar(HistoricoPreco historico) {
-        return historicoPrecoRepository.save(historico);
+    public HistoricoPrecoResponse salvar(HistoricoPrecoRequest request) {
+        Produto produto = produtoRepository.findById(request.getProdutoId())
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + request.getProdutoId()));
+
+        HistoricoPreco historico = HistoricoPreco.builder()
+                .produto(produto)
+                .precoAnterior(request.getPrecoAnterior())
+                .novoPreco(request.getNovoPreco())
+                .motivo(request.getMotivo())
+                .build();
+
+        HistoricoPreco salvo = repository.save(historico);
+        return toResponse(salvo);
     }
 
     @Override
-    @Transactional
-    public HistoricoPreco atualizar(Long id, HistoricoPreco historico) {
-        HistoricoPreco existente = historicoPrecoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Histórico de preço não encontrado"));
-        historico.setId(existente.getId());
-        return historicoPrecoRepository.save(historico);
+    public Optional<HistoricoPrecoResponse> buscarPorId(Long id) {
+        return repository.findById(id).map(this::toResponse);
     }
 
     @Override
-    public Optional<HistoricoPreco> buscarPorId(Long id) {
-        return historicoPrecoRepository.findById(id);
+    public List<HistoricoPrecoResponse> listarTodos() {
+        return repository.findAllByOrderByDataAlteracaoDesc()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override
-    public List<HistoricoPreco> listarPorProduto(Long produtoId) {
-        return historicoPrecoRepository.findByProdutoIdOrderByDataAlteracaoDesc(produtoId);
+    public List<HistoricoPrecoResponse> listarPorProduto(Long produtoId) {
+        return repository.findByProdutoIdOrderByDataAlteracaoDesc(produtoId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override
-    @Transactional
+    public List<HistoricoPrecoListDTO> listarUltimosPorProduto(Long produtoId) {
+        return repository.findTop10ByProdutoIdOrderByDataAlteracaoDesc(produtoId)
+                .stream()
+                .map(h -> HistoricoPrecoListDTO.builder()
+                        .id(h.getId())
+                        .precoAnterior(h.getPrecoAnterior())
+                        .novoPreco(h.getNovoPreco())
+                        .dataAlteracao(h.getDataAlteracao())
+                        .build())
+                .toList();
+    }
+
+    @Override
     public void deletar(Long id) {
-        historicoPrecoRepository.deleteById(id);
+        if (!repository.existsById(id)) {
+            throw new IllegalArgumentException("Histórico de preço não encontrado com ID: " + id);
+        }
+        repository.deleteById(id);
+    }
+
+    // ==================================
+    // 🧭 MÉTODOS AUXILIARES
+    // ==================================
+
+    private HistoricoPrecoResponse toResponse(HistoricoPreco entity) {
+        return HistoricoPrecoResponse.builder()
+                .id(entity.getId())
+                .produtoId(entity.getProduto().getId())
+                .produtoNome(entity.getProduto().getNome())
+                .precoAnterior(entity.getPrecoAnterior())
+                .novoPreco(entity.getNovoPreco())
+                .dataAlteracao(entity.getDataAlteracao())
+                .motivo(entity.getMotivo())
+                .build();
     }
 }
