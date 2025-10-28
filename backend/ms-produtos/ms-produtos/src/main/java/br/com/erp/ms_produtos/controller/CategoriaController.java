@@ -1,8 +1,8 @@
 package br.com.erp.ms_produtos.controller;
 
 import br.com.erp.ms_produtos.dto.CategoriaListDTO;
-import br.com.erp.ms_produtos.dto.CategoriaRequestDTO;
-import br.com.erp.ms_produtos.dto.CategoriaResponseDTO;
+import br.com.erp.ms_produtos.dto.CategoriaRequest;
+import br.com.erp.ms_produtos.dto.CategoriaResponse;
 import br.com.erp.ms_produtos.service.CategoriaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -37,8 +37,8 @@ public class CategoriaController {
      * @return CategoriaResponseDTO representando a categoria criada.
      */
     @PostMapping
-    public ResponseEntity<CategoriaResponseDTO> criarCategoria(@Valid @RequestBody CategoriaRequestDTO request) {
-        CategoriaResponseDTO response = categoriaService.salvar(request);
+    public ResponseEntity<CategoriaResponse> criarCategoria(@Valid @RequestBody CategoriaRequest request) {
+        CategoriaResponse response = categoriaService.salvar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -50,9 +50,9 @@ public class CategoriaController {
      * @return CategoriaResponseDTO atualizada.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<CategoriaResponseDTO> atualizarCategoria(@PathVariable Long id,
-                                                                @Valid @RequestBody CategoriaRequestDTO request) {
-        CategoriaResponseDTO response = categoriaService.atualizar(id, request);
+    public ResponseEntity<CategoriaResponse> atualizarCategoria(@PathVariable Long id,
+                                                                @Valid @RequestBody CategoriaRequest request) {
+        CategoriaResponse response = categoriaService.atualizar(id, request);
         return ResponseEntity.ok(response);
     }
 
@@ -63,7 +63,7 @@ public class CategoriaController {
      * @return CategoriaResponseDTO encontrada, se existir.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<CategoriaResponseDTO> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<CategoriaResponse> buscarPorId(@PathVariable Long id) {
         return categoriaService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -75,8 +75,8 @@ public class CategoriaController {
      * @return Lista completa de categorias.
      */
     @GetMapping
-    public ResponseEntity<List<CategoriaResponseDTO>> listarTodas() {
-        List<CategoriaResponseDTO> categorias = categoriaService.listarTodas();
+    public ResponseEntity<List<CategoriaResponse>> listarTodas() {
+        List<CategoriaResponse> categorias = categoriaService.listarTodas();
         return ResponseEntity.ok(categorias);
     }
 
@@ -98,8 +98,8 @@ public class CategoriaController {
      * @return Lista de categorias que correspondem ao termo.
      */
     @GetMapping("/buscar")
-    public ResponseEntity<List<CategoriaResponseDTO>> buscarPorNome(@RequestParam String nome) {
-        List<CategoriaResponseDTO> categorias = categoriaService.buscarPorNome(nome);
+    public ResponseEntity<List<CategoriaResponse>> buscarPorNome(@RequestParam String nome) {
+        List<CategoriaResponse> categorias = categoriaService.buscarPorNome(nome);
         return ResponseEntity.ok(categorias);
     }
 
