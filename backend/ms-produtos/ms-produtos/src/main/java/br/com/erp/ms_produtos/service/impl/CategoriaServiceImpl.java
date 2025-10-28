@@ -1,8 +1,8 @@
 package br.com.erp.ms_produtos.service.impl;
 
 import br.com.erp.ms_produtos.dto.CategoriaListDTO;
-import br.com.erp.ms_produtos.dto.CategoriaRequestDTO;
-import br.com.erp.ms_produtos.dto.CategoriaResponseDTO;
+import br.com.erp.ms_produtos.dto.CategoriaRequest;
+import br.com.erp.ms_produtos.dto.CategoriaResponse;
 import br.com.erp.ms_produtos.model.Categoria;
 import br.com.erp.ms_produtos.repository.CategoriaRepository;
 import br.com.erp.ms_produtos.service.CategoriaService;
@@ -35,7 +35,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     // ==================================
 
     @Override
-    public CategoriaResponseDTO salvar(CategoriaRequestDTO request) {
+    public CategoriaResponse salvar(CategoriaRequest request) {
         // Verifica duplicidade de nome
         if (repository.existsByNomeIgnoreCase(request.getNome())) {
             throw new IllegalArgumentException("Já existe uma categoria com o nome informado.");
@@ -47,7 +47,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
 
     @Override
-    public CategoriaResponseDTO atualizar(Long id, CategoriaRequestDTO request) {
+    public CategoriaResponse atualizar(Long id, CategoriaRequest request) {
         Categoria existente = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada com ID: " + id));
 
@@ -65,12 +65,12 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
 
     @Override
-    public Optional<CategoriaResponseDTO> buscarPorId(Long id) {
+    public Optional<CategoriaResponse> buscarPorId(Long id) {
         return repository.findById(id).map(this::toResponse);
     }
 
     @Override
-    public List<CategoriaResponseDTO> listarTodas() {
+    public List<CategoriaResponse> listarTodas() {
         return repository.findAllByOrderByNomeAsc()
                 .stream()
                 .map(this::toResponse)
@@ -89,7 +89,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
 
     @Override
-    public List<CategoriaResponseDTO> buscarPorNome(String nome) {
+    public List<CategoriaResponse> buscarPorNome(String nome) {
         return repository.findByNomeContainingIgnoreCase(nome)
                 .stream()
                 .map(this::toResponse)
@@ -118,7 +118,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     // 🧭 MÉTODOS AUXILIARES
     // ==================================
 
-    private CategoriaResponseDTO toResponse(Categoria categoria) {
-        return mapper.map(categoria, CategoriaResponseDTO.class);
+    private CategoriaResponse toResponse(Categoria categoria) {
+        return mapper.map(categoria, CategoriaResponse.class);
     }
 }

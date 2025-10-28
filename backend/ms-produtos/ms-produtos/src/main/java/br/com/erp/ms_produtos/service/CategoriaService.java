@@ -1,7 +1,7 @@
 package br.com.erp.ms_produtos.service;
 
-import br.com.erp.ms_produtos.dto.CategoriaRequestDTO;
-import br.com.erp.ms_produtos.dto.CategoriaResponseDTO;
+import br.com.erp.ms_produtos.dto.CategoriaRequest;
+import br.com.erp.ms_produtos.dto.CategoriaResponse;
 import br.com.erp.ms_produtos.dto.CategoriaListDTO;
 
 import java.util.List;
@@ -15,7 +15,7 @@ public interface CategoriaService {
      * @param request Dados da categoria a ser criada.
      * @return CategoriaResponseDTO representando a categoria criada.
      */
-    CategoriaResponseDTO salvar(CategoriaRequestDTO request);
+    CategoriaResponse salvar(CategoriaRequest request);
 
     /**
      * Atualiza os dados de uma categoria existente.
@@ -24,7 +24,7 @@ public interface CategoriaService {
      * @param request Dados atualizados da categoria.
      * @return CategoriaResponseDTO com os dados atualizados.
      */
-    CategoriaResponseDTO atualizar(Long id, CategoriaRequestDTO request);
+    CategoriaResponse atualizar(Long id, CategoriaRequest request);
 
     /**
      * Busca uma categoria pelo ID.
@@ -32,14 +32,14 @@ public interface CategoriaService {
      * @param id Identificador da categoria.
      * @return CategoriaResponse, se encontrada.
      */
-    Optional<CategoriaResponseDTO> buscarPorId(Long id);
+    Optional<CategoriaResponse> buscarPorId(Long id);
 
     /**
      * Lista todas as categorias.
      *
      * @return Lista de CategoriaResponse.
      */
-    List<CategoriaResponseDTO> listarTodas();
+    List<CategoriaResponse> listarTodas();
 
     /**
      * Lista todas as categorias de forma simplificada (id + nome).
@@ -54,7 +54,7 @@ public interface CategoriaService {
      * @param nome Termo de busca.
      * @return Lista de CategoriaResponseDTO que correspondem ao nome informado.
      */
-    List<CategoriaResponseDTO> buscarPorNome(String nome);
+    List<CategoriaResponse> buscarPorNome(String nome);
 
     /**
      * Exclui uma categoria pelo ID.
