@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoriaRequestDTO {
+public class CategoriaRequest {
 
     @NotBlank(message = "O nome da categoria é obrigatório.")
     @Size(max = 100, message = "O nome da categoria deve ter no máximo 100 caracteres.")

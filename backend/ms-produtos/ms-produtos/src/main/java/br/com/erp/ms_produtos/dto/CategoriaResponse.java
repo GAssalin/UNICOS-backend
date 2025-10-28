@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoriaResponseDTO {
+public class CategoriaResponse {
 
     private Long id;
     private String nome;
