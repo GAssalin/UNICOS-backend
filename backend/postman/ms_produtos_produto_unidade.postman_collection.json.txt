@@ -1,0 +1,132 @@
+{
+  "info": {
+    "name": "ERP - ms_produtos (ProdutoUnidade)",
+    "_postman_id": "c0a80128-4567-89ab-cdef-0123456789ab",
+    "description": "Coleção de endpoints do microserviço ms_produtos para gerenciamento dos vínculos entre produtos e unidades de medida.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Vínculo Produto-Unidade",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"produtoId\": 1,\n  \"unidadeMedidaId\": 2,\n  \"quantidadePadrao\": 12\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/v1/produtos-unidades",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "produtos-unidades"]
+        }
+      }
+    },
+    {
+      "name": "Atualizar Vínculo Produto-Unidade",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"produtoId\": 1,\n  \"unidadeMedidaId\": 2,\n  \"quantidadePadrao\": 24\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/v1/produtos-unidades/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "produtos-unidades", "1"]
+        }
+      }
+    },
+    {
+      "name": "Buscar Vínculo por ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/produtos-unidades/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "produtos-unidades", "1"]
+        }
+      }
+    },
+    {
+      "name": "Listar Todos os Vínculos",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/produtos-unidades",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "produtos-unidades"]
+        }
+      }
+    },
+    {
+      "name": "Listar Vínculos por Produto",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/produtos-unidades/produto/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "produtos-unidades", "produto", "1"]
+        }
+      }
+    },
+    {
+      "name": "Listar Vínculos por Unidade de Medida",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/produtos-unidades/unidade/2",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "produtos-unidades", "unidade", "2"]
+        }
+      }
+    },
+    {
+      "name": "Verificar Vínculo Existente",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/produtos-unidades/verificar?produtoId=1&unidadeMedidaId=2",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "produtos-unidades", "verificar"],
+          "query": [
+            { "key": "produtoId", "value": "1" },
+            { "key": "unidadeMedidaId", "value": "2" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Excluir Vínculo Produto-Unidade",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:8080/v1/produtos-unidades/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "produtos-unidades", "1"]
+        }
+      }
+    }
+  ]
+}
