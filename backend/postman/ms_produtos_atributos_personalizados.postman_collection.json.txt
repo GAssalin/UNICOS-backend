@@ -1,0 +1,135 @@
+{
+  "info": {
+    "name": "ERP - ms_produtos (AtributoPersonalizado)",
+    "_postman_id": "c0a8012a-4567-89ab-cdef-0123456789ab",
+    "description": "Coleção de endpoints do microserviço ms_produtos para gerenciamento dos atributos personalizados de produtos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Atributo Personalizado",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"produtoId\": 1,\n  \"nome\": \"Cor\",\n  \"valor\": \"Vermelho\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/v1/atributos-personalizados",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "atributos-personalizados"]
+        }
+      }
+    },
+    {
+      "name": "Atualizar Atributo Personalizado",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"produtoId\": 1,\n  \"nome\": \"Cor\",\n  \"valor\": \"Azul\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/v1/atributos-personalizados/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "atributos-personalizados", "1"]
+        }
+      }
+    },
+    {
+      "name": "Buscar Atributo por ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/atributos-personalizados/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "atributos-personalizados", "1"]
+        }
+      }
+    },
+    {
+      "name": "Listar Todos os Atributos Personalizados",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/atributos-personalizados",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "atributos-personalizados"]
+        }
+      }
+    },
+    {
+      "name": "Deletar Atributo Personalizado",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:8080/v1/atributos-personalizados/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "atributos-personalizados", "1"]
+        }
+      }
+    },
+    {
+      "name": "Listar Atributos por Produto",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/atributos-personalizados/produto/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "atributos-personalizados", "produto", "1"]
+        }
+      }
+    },
+    {
+      "name": "Buscar Atributos Contendo Nome",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/atributos-personalizados/buscar?nome=cor",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "atributos-personalizados", "buscar"],
+          "query": [
+            { "key": "nome", "value": "cor" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Verificar Duplicidade de Nome",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/atributos-personalizados/verificar?produtoId=1&nome=Cor",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "atributos-personalizados", "verificar"],
+          "query": [
+            { "key": "produtoId", "value": "1" },
+            { "key": "nome", "value": "Cor" }
+          ]
+        }
+      }
+    }
+  ]
+}
