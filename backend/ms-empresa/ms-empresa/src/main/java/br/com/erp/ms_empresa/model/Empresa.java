@@ -2,7 +2,6 @@ package br.com.erp.ms_empresa.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,17 +39,6 @@ public class Empresa {
     @Column(length = 20)
     private String inscricaoMunicipal;
 
-    @NotNull
-    @Column(nullable = false)
-    private Boolean matriz = true;
-
-    @ManyToOne
-    @JoinColumn(name = "empresa_matriz_id")
-    private Empresa empresaMatriz;
-
     @OneToMany(mappedBy = "empresa", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EnderecoEmpresa> enderecos;
-
-    @OneToMany(mappedBy = "empresa", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ContatoEmpresa> contatos;
+    private List<Filial> filiais;
 }
