@@ -1,0 +1,136 @@
+{
+  "info": {
+    "_postman_id": "b7ad7c36-3a59-42f8-b482-5b8ffb2b7ecf",
+    "name": "ERP - Departamento Empresa",
+    "description": "Collection para testar o controller DepartamentoEmpresaController. Base URL configurável via variável {{base_url}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Departamento",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"empresaId\": 1,\n  \"nome\": \"Departamento de Vendas\",\n  \"descricao\": \"Responsável pelas vendas nacionais\",\n  \"ativo\": true\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/v1/departamentos-empresa",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "departamentos-empresa"]
+        },
+        "description": "Cria um novo departamento empresarial."
+      }
+    },
+    {
+      "name": "Atualizar Departamento",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"empresaId\": 1,\n  \"nome\": \"Departamento de Marketing\",\n  \"descricao\": \"Atua na comunicação e divulgação\",\n  \"ativo\": true\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/v1/departamentos-empresa/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "departamentos-empresa", "1"]
+        },
+        "description": "Atualiza os dados de um departamento existente."
+      }
+    },
+    {
+      "name": "Buscar Departamento por ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/departamentos-empresa/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "departamentos-empresa", "1"]
+        },
+        "description": "Busca um departamento pelo seu ID."
+      }
+    },
+    {
+      "name": "Listar Todos os Departamentos",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/departamentos-empresa",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "departamentos-empresa"]
+        },
+        "description": "Lista todos os departamentos cadastrados."
+      }
+    },
+    {
+      "name": "Listar Departamentos por Empresa",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/departamentos-empresa/empresa/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "departamentos-empresa", "empresa", "1"]
+        },
+        "description": "Lista todos os departamentos de uma empresa específica."
+      }
+    },
+    {
+      "name": "Buscar Departamento por Nome",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/departamentos-empresa/buscar/nome?nome=Vendas",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "departamentos-empresa", "buscar", "nome"],
+          "query": [{ "key": "nome", "value": "Vendas" }]
+        },
+        "description": "Busca departamentos cujo nome contenha o termo informado."
+      }
+    },
+    {
+      "name": "Listar Departamentos Ativos",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/departamentos-empresa/ativos",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "departamentos-empresa", "ativos"]
+        },
+        "description": "Lista apenas os departamentos ativos."
+      }
+    },
+    {
+      "name": "Listar Departamentos Inativos",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/departamentos-empresa/inativos",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "departamentos-empresa", "inativos"]
+        },
+        "description": "Lista apenas os departamentos inativos."
+      }
+    },
+    {
+      "name": "Excluir Departamento",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{base_url}}/v1/departamentos-empresa/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "departamentos-empresa", "1"]
+        },
+        "description": "Exclui um departamento pelo ID informado."
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ]
+}
