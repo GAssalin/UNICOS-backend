@@ -1,0 +1,125 @@
+{
+  "info": {
+    "_postman_id": "e2f2cb42-03b2-4fd1-81b9-d503f2e81c9c",
+    "name": "ERP - Contato Empresa",
+    "description": "Collection para testar o controller ContatoEmpresaController. Base URL configurável via variável {{base_url}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Contato",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"empresaId\": 1,\n  \"nome\": \"Maria Silva\",\n  \"cargo\": \"Gerente Comercial\",\n  \"email\": \"maria.silva@empresa.com\",\n  \"telefone\": \"+55 11 91234-5678\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/v1/contatos-empresa",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "contatos-empresa"]
+        },
+        "description": "Cria um novo contato vinculado a uma empresa."
+      }
+    },
+    {
+      "name": "Atualizar Contato",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"empresaId\": 1,\n  \"nome\": \"Maria S. Lima\",\n  \"cargo\": \"Coordenadora de Vendas\",\n  \"email\": \"maria.lima@empresa.com\",\n  \"telefone\": \"+55 11 98888-2222\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/v1/contatos-empresa/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "contatos-empresa", "1"]
+        },
+        "description": "Atualiza os dados de um contato existente."
+      }
+    },
+    {
+      "name": "Buscar Contato por ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/contatos-empresa/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "contatos-empresa", "1"]
+        },
+        "description": "Busca um contato pelo seu ID."
+      }
+    },
+    {
+      "name": "Listar Todos os Contatos",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/contatos-empresa",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "contatos-empresa"]
+        },
+        "description": "Lista todos os contatos cadastrados."
+      }
+    },
+    {
+      "name": "Listar Contatos por Empresa",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/contatos-empresa/empresa/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "contatos-empresa", "empresa", "1"]
+        },
+        "description": "Lista todos os contatos vinculados a uma empresa específica."
+      }
+    },
+    {
+      "name": "Buscar Contato por Nome",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/contatos-empresa/buscar/nome?nome=Maria",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "contatos-empresa", "buscar", "nome"],
+          "query": [{ "key": "nome", "value": "Maria" }]
+        },
+        "description": "Busca contatos cujo nome contenha o termo informado."
+      }
+    },
+    {
+      "name": "Buscar Contato por Email",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/contatos-empresa/buscar/email?email=maria.silva@empresa.com",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "contatos-empresa", "buscar", "email"],
+          "query": [{ "key": "email", "value": "maria.silva@empresa.com" }]
+        },
+        "description": "Busca um contato pelo e-mail informado."
+      }
+    },
+    {
+      "name": "Excluir Contato",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{base_url}}/v1/contatos-empresa/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "contatos-empresa", "1"]
+        },
+        "description": "Exclui um contato pelo ID informado."
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ]
+}

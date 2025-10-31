@@ -1,0 +1,95 @@
+{
+  "info": {
+    "name": "ERP - ms_produtos (Histórico de Preço)",
+    "_postman_id": "c0a80127-4567-89ab-cdef-0123456789ab",
+    "description": "Coleção de endpoints do microserviço ms_produtos para gerenciamento dos históricos de preço dos produtos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Histórico de Preço",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"produtoId\": 1,\n  \"precoAnterior\": 49.90,\n  \"novoPreco\": 59.90,\n  \"motivo\": \"Ajuste de custo do fornecedor\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/v1/historicos-preco",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "historicos-preco"]
+        }
+      }
+    },
+    {
+      "name": "Listar Todos os Históricos de Preço",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/historicos-preco",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "historicos-preco"]
+        }
+      }
+    },
+    {
+      "name": "Buscar Histórico de Preço por ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/historicos-preco/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "historicos-preco", "1"]
+        }
+      }
+    },
+    {
+      "name": "Listar Histórico de Preço por Produto",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/historicos-preco/produto/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "historicos-preco", "produto", "1"]
+        }
+      }
+    },
+    {
+      "name": "Listar Últimos 10 Históricos de Preço por Produto",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/historicos-preco/produto/1/ultimos",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "historicos-preco", "produto", "1", "ultimos"]
+        }
+      }
+    },
+    {
+      "name": "Excluir Histórico de Preço",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:8080/v1/historicos-preco/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "historicos-preco", "1"]
+        }
+      }
+    }
+  ]
+}

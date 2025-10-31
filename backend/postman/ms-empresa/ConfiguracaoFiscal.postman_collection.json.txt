@@ -1,0 +1,109 @@
+{
+  "info": {
+    "_postman_id": "b2e1344d-cc50-4f1f-9544-f59fbd47f314",
+    "name": "ERP - Configuração Fiscal",
+    "description": "Collection para testar os endpoints do ConfiguracaoFiscalController.\nBase URL configurável via variável {{base_url}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Configuração Fiscal",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"empresaId\": 1,\n  \"regimeTributario\": \"SIMPLES_NACIONAL\",\n  \"inscricaoEstadual\": \"123456789\",\n  \"inscricaoMunicipal\": \"987654321\",\n  \"cnaePrincipal\": \"6201-5/01\",\n  \"aliquotaIss\": 5.0,\n  \"incentivoFiscal\": false\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/v1/configuracoes-fiscais",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "configuracoes-fiscais"]
+        },
+        "description": "Cria uma nova configuração fiscal vinculada à empresa informada."
+      },
+      "response": []
+    },
+    {
+      "name": "Atualizar Configuração Fiscal",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"empresaId\": 1,\n  \"regimeTributario\": \"LUCRO_PRESUMIDO\",\n  \"inscricaoEstadual\": \"123456789\",\n  \"inscricaoMunicipal\": \"987654321\",\n  \"cnaePrincipal\": \"6202-3/00\",\n  \"aliquotaIss\": 3.0,\n  \"incentivoFiscal\": true\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/v1/configuracoes-fiscais/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "configuracoes-fiscais", "1"]
+        },
+        "description": "Atualiza os dados de uma configuração fiscal existente."
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar Configuração Fiscal por ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/configuracoes-fiscais/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "configuracoes-fiscais", "1"]
+        },
+        "description": "Retorna os detalhes da configuração fiscal para o ID informado."
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar Configuração Fiscal por Empresa",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/configuracoes-fiscais/empresa/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "configuracoes-fiscais", "empresa", "1"]
+        },
+        "description": "Busca a configuração fiscal vinculada a uma empresa específica."
+      },
+      "response": []
+    },
+    {
+      "name": "Listar Todas as Configurações Fiscais",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/configuracoes-fiscais",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "configuracoes-fiscais"]
+        },
+        "description": "Lista todas as configurações fiscais cadastradas no sistema."
+      },
+      "response": []
+    },
+    {
+      "name": "Excluir Configuração Fiscal",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{base_url}}/v1/configuracoes-fiscais/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "configuracoes-fiscais", "1"]
+        },
+        "description": "Exclui uma configuração fiscal pelo ID informado."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ]
+}

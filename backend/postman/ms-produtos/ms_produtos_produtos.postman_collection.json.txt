@@ -1,0 +1,151 @@
+{
+  "info": {
+    "name": "ERP - ms_produtos",
+    "_postman_id": "c0a80123-4567-89ab-cdef-0123456789ab",
+    "description": "Coleção de endpoints do microserviço ms_produtos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Produto",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Camiseta Preta\",\n  \"descricao\": \"Camiseta 100% algodão\",\n  \"preco\": 79.90,\n  \"categoriaId\": 1,\n  \"marcaId\": 1,\n  \"sku\": \"CAMPRETA-001\",\n  \"ativo\": true\n}"
+        },
+        "url": { "raw": "http://localhost:8080/v1/produtos", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["v1", "produtos"] }
+      }
+    },
+    {
+      "name": "Listar Todos",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/v1/produtos", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["v1", "produtos"] }
+      }
+    },
+    {
+      "name": "Buscar por ID",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/v1/produtos/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["v1", "produtos", "1"] }
+      }
+    },
+    {
+      "name": "Atualizar Produto",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Camiseta Preta Premium\",\n  \"descricao\": \"Camiseta de algodão penteado\",\n  \"preco\": 89.90,\n  \"categoriaId\": 1,\n  \"marcaId\": 1,\n  \"sku\": \"CAMPRETA-001\",\n  \"ativo\": true\n}"
+        },
+        "url": { "raw": "http://localhost:8080/v1/produtos/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["v1", "produtos", "1"] }
+      }
+    },
+    {
+      "name": "Deletar Produto",
+      "request": {
+        "method": "DELETE",
+        "url": { "raw": "http://localhost:8080/v1/produtos/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["v1", "produtos", "1"] }
+      }
+    },
+    {
+      "name": "Buscar por SKU",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/v1/produtos/sku/CAMPRETA-001", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["v1", "produtos", "sku", "CAMPRETA-001"] }
+      }
+    },
+    {
+      "name": "Buscar por Nome",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/v1/produtos/buscar?nome=Camiseta", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["v1", "produtos", "buscar"], "query": [{ "key": "nome", "value": "Camiseta" }] }
+      }
+    },
+    {
+      "name": "Listar por Categoria",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/v1/produtos/categoria/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["v1", "produtos", "categoria", "1"] }
+      }
+    },
+    {
+      "name": "Listar por Marca",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/v1/produtos/marca/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["v1", "produtos", "marca", "1"] }
+      }
+    },
+    {
+      "name": "Listar Ativos",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/v1/produtos/ativos", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["v1", "produtos", "ativos"] }
+      }
+    },
+    {
+      "name": "Listar Inativos",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/v1/produtos/inativos", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["v1", "produtos", "inativos"] }
+      }
+    },
+    {
+      "name": "Listar por Faixa de Preço",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/produtos/faixa-preco?precoMin=50&precoMax=100",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "produtos", "faixa-preco"],
+          "query": [
+            { "key": "precoMin", "value": "50" },
+            { "key": "precoMax", "value": "100" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Ativar Produto",
+      "request": {
+        "method": "PATCH",
+        "url": { "raw": "http://localhost:8080/v1/produtos/1/ativar", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["v1", "produtos", "1", "ativar"] }
+      }
+    },
+    {
+      "name": "Inativar Produto",
+      "request": {
+        "method": "PATCH",
+        "url": { "raw": "http://localhost:8080/v1/produtos/1/inativar", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["v1", "produtos", "1", "inativar"] }
+      }
+    },
+    {
+      "name": "Atualizar Preço",
+      "request": {
+        "method": "PATCH",
+        "url": {
+          "raw": "http://localhost:8080/v1/produtos/1/preco?novoPreco=99.90",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "produtos", "1", "preco"],
+          "query": [{ "key": "novoPreco", "value": "99.90" }]
+        }
+      }
+    },
+    {
+      "name": "Verificar Disponibilidade SKU",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/v1/produtos/verificar-sku/CAMPRETA-001", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["v1", "produtos", "verificar-sku", "CAMPRETA-001"] }
+      }
+    }
+  ]
+}

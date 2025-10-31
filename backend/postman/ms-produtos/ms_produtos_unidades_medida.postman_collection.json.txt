@@ -1,0 +1,166 @@
+{
+  "info": {
+    "name": "ERP - ms_produtos (UnidadeMedida)",
+    "_postman_id": "c0a80129-4567-89ab-cdef-0123456789ab",
+    "description": "Coleção de endpoints do microserviço ms_produtos para gerenciamento das unidades de medida.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Unidade de Medida",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Litro\",\n  \"sigla\": \"L\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/v1/unidades-medida",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "unidades-medida"]
+        }
+      }
+    },
+    {
+      "name": "Atualizar Unidade de Medida",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Mililitro\",\n  \"sigla\": \"ML\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/v1/unidades-medida/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "unidades-medida", "1"]
+        }
+      }
+    },
+    {
+      "name": "Buscar Unidade por ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/unidades-medida/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "unidades-medida", "1"]
+        }
+      }
+    },
+    {
+      "name": "Listar Todas as Unidades de Medida",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/unidades-medida",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "unidades-medida"]
+        }
+      }
+    },
+    {
+      "name": "Deletar Unidade de Medida",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:8080/v1/unidades-medida/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "unidades-medida", "1"]
+        }
+      }
+    },
+    {
+      "name": "Buscar por Nome (Exato)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/unidades-medida/buscar/nome?nome=Litro",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "unidades-medida", "buscar", "nome"],
+          "query": [
+            { "key": "nome", "value": "Litro" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Buscar por Sigla",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/unidades-medida/buscar/sigla?sigla=L",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "unidades-medida", "buscar", "sigla"],
+          "query": [
+            { "key": "sigla", "value": "L" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Buscar Nome Contendo",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/unidades-medida/buscar/contem?nome=li",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "unidades-medida", "buscar", "contem"],
+          "query": [
+            { "key": "nome", "value": "li" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Listar Unidades (Simples)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/unidades-medida/simples",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "unidades-medida", "simples"]
+        }
+      }
+    },
+    {
+      "name": "Verificar Sigla Existente",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/unidades-medida/verificar-sigla?sigla=KG",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "unidades-medida", "verificar-sigla"],
+          "query": [
+            { "key": "sigla", "value": "KG" }
+          ]
+        }
+      }
+    }
+  ]
+}
