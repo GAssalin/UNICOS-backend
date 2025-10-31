@@ -1,0 +1,134 @@
+{
+  "info": {
+    "_postman_id": "5a12b9cb-9078-4ee4-9984-50a4dc1a8b6c",
+    "name": "ERP - Filial",
+    "description": "Collection para testar o controller FilialController. Base URL configurável via variável {{base_url}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Filial",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"empresaId\": 1,\n  \"matriz\": false,\n  \"razaoSocial\": \"Filial Zona Norte LTDA\",\n  \"nomeFantasia\": \"TechSol Norte\",\n  \"cnpj\": \"45.678.123/0002-33\",\n  \"inscricaoEstadual\": \"1122334455\",\n  \"telefone\": \"+55 11 90000-1111\",\n  \"email\": \"filial.norte@techsol.com\",\n  \"endereco\": \"Av. Imirim, 500\",\n  \"cidade\": \"São Paulo\",\n  \"uf\": \"SP\",\n  \"cep\": \"02500-000\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/v1/filiais",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "filiais"]
+        },
+        "description": "Cria uma nova filial vinculada a uma empresa."
+      }
+    },
+    {
+      "name": "Atualizar Filial",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"empresaId\": 1,\n  \"matriz\": false,\n  \"razaoSocial\": \"Filial Zona Leste LTDA\",\n  \"nomeFantasia\": \"TechSol Leste\",\n  \"cnpj\": \"45.678.123/0002-33\",\n  \"telefone\": \"+55 11 97777-2222\",\n  \"email\": \"filial.leste@techsol.com\",\n  \"endereco\": \"Av. Sapopemba, 800\",\n  \"cidade\": \"São Paulo\",\n  \"uf\": \"SP\",\n  \"cep\": \"03300-000\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/v1/filiais/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "filiais", "1"]
+        },
+        "description": "Atualiza os dados de uma filial existente."
+      }
+    },
+    {
+      "name": "Buscar Filial por ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/filiais/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "filiais", "1"]
+        },
+        "description": "Busca uma filial pelo seu ID."
+      }
+    },
+    {
+      "name": "Listar Filiais por Empresa",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/filiais/empresa/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "filiais", "empresa", "1"]
+        },
+        "description": "Lista todas as filiais de uma empresa."
+      }
+    },
+    {
+      "name": "Buscar Filial por CNPJ",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/filiais/buscar/cnpj?cnpj=45.678.123/0002-33",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "filiais", "buscar", "cnpj"],
+          "query": [{ "key": "cnpj", "value": "45.678.123/0002-33" }]
+        },
+        "description": "Busca uma filial pelo CNPJ informado."
+      }
+    },
+    {
+      "name": "Buscar Filiais por Cidade",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/filiais/buscar/cidade?cidade=São Paulo",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "filiais", "buscar", "cidade"],
+          "query": [{ "key": "cidade", "value": "São Paulo" }]
+        },
+        "description": "Busca filiais localizadas em uma cidade específica."
+      }
+    },
+    {
+      "name": "Buscar Filiais por UF",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/filiais/buscar/uf?uf=SP",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "filiais", "buscar", "uf"],
+          "query": [{ "key": "uf", "value": "SP" }]
+        },
+        "description": "Busca filiais por unidade federativa."
+      }
+    },
+    {
+      "name": "Listar Filiais Ordenadas",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/filiais/ordenadas",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "filiais", "ordenadas"]
+        },
+        "description": "Lista todas as filiais ordenadas por razão social."
+      }
+    },
+    {
+      "name": "Excluir Filial",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{base_url}}/v1/filiais/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "filiais", "1"]
+        },
+        "description": "Exclui uma filial pelo ID informado."
+      }
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080", "type": "string" }
+  ]
+}
