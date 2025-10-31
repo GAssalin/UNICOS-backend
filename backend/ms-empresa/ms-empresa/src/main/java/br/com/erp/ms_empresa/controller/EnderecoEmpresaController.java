@@ -3,7 +3,7 @@ package br.com.erp.ms_empresa.controller;
 import br.com.erp.ms_empresa.dto.EnderecoEmpresaListDTO;
 import br.com.erp.ms_empresa.dto.EnderecoEmpresaRequest;
 import br.com.erp.ms_empresa.dto.EnderecoEmpresaResponse;
-import br.com.erp.ms_empresa.model.TipoEnderecoEmpresa;
+import br.com.erp.ms_empresa.enums.TipoEnderecoEmpresa;
 import br.com.erp.ms_empresa.service.EnderecoEmpresaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

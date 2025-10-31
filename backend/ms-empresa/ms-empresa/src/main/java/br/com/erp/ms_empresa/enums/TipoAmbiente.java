@@ -1,4 +1,4 @@
-package br.com.erp.ms_empresa.model;
+package br.com.erp.ms_empresa.enums;
 
 /**
  * Enum que representa o ambiente de operação fiscal da empresa.

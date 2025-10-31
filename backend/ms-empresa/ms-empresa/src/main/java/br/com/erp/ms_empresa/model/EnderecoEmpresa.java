@@ -1,5 +1,6 @@
 package br.com.erp.ms_empresa.model;
 
+import br.com.erp.ms_empresa.enums.TipoEnderecoEmpresa;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

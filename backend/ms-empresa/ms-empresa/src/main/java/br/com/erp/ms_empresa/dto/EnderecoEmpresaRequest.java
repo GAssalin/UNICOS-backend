@@ -1,6 +1,6 @@
 package br.com.erp.ms_empresa.dto;
 
-import br.com.erp.ms_empresa.model.TipoEnderecoEmpresa;
+import br.com.erp.ms_empresa.enums.TipoEnderecoEmpresa;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

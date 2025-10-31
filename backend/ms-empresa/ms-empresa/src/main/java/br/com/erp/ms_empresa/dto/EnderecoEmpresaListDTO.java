@@ -1,6 +1,6 @@
 package br.com.erp.ms_empresa.dto;
 
-import br.com.erp.ms_empresa.model.TipoEnderecoEmpresa;
+import br.com.erp.ms_empresa.enums.TipoEnderecoEmpresa;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

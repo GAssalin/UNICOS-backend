@@ -1,7 +1,7 @@
 package br.com.erp.ms_empresa.repository;
 
 import br.com.erp.ms_empresa.model.ConfiguracaoFiscal;
-import br.com.erp.ms_empresa.model.TipoAmbiente;
+import br.com.erp.ms_empresa.enums.TipoAmbiente;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

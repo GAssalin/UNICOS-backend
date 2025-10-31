@@ -5,7 +5,7 @@ import br.com.erp.ms_empresa.dto.EnderecoEmpresaRequest;
 import br.com.erp.ms_empresa.dto.EnderecoEmpresaResponse;
 import br.com.erp.ms_empresa.model.Empresa;
 import br.com.erp.ms_empresa.model.EnderecoEmpresa;
-import br.com.erp.ms_empresa.model.TipoEnderecoEmpresa;
+import br.com.erp.ms_empresa.enums.TipoEnderecoEmpresa;
 import br.com.erp.ms_empresa.repository.EmpresaRepository;
 import br.com.erp.ms_empresa.repository.EnderecoEmpresaRepository;
 import br.com.erp.ms_empresa.service.EnderecoEmpresaService;

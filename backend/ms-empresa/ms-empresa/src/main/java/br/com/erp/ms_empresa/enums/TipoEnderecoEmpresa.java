@@ -1,4 +1,4 @@
-package br.com.erp.ms_empresa.model;
+package br.com.erp.ms_empresa.enums;
 
 public enum TipoEnderecoEmpresa {
     MATRIZ,

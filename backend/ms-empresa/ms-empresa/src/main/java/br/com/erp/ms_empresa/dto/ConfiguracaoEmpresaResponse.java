@@ -1,6 +1,6 @@
 package br.com.erp.ms_empresa.dto;
 
-import br.com.erp.ms_empresa.model.TipoAmbiente;
+import br.com.erp.ms_empresa.enums.TipoAmbiente;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

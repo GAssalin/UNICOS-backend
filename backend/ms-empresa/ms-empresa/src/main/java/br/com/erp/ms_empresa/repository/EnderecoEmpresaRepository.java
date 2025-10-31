@@ -1,7 +1,7 @@
 package br.com.erp.ms_empresa.repository;
 
 import br.com.erp.ms_empresa.model.EnderecoEmpresa;
-import br.com.erp.ms_empresa.model.TipoEnderecoEmpresa;
+import br.com.erp.ms_empresa.enums.TipoEnderecoEmpresa;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

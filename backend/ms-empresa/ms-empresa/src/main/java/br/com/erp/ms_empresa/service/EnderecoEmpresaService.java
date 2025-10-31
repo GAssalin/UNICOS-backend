@@ -3,7 +3,7 @@ package br.com.erp.ms_empresa.service;
 import br.com.erp.ms_empresa.dto.EnderecoEmpresaListDTO;
 import br.com.erp.ms_empresa.dto.EnderecoEmpresaRequest;
 import br.com.erp.ms_empresa.dto.EnderecoEmpresaResponse;
-import br.com.erp.ms_empresa.model.TipoEnderecoEmpresa;
+import br.com.erp.ms_empresa.enums.TipoEnderecoEmpresa;
 
 import java.util.List;
 import java.util.Optional;
