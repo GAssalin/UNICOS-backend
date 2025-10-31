@@ -1,0 +1,122 @@
+{
+  "info": {
+    "_postman_id": "d12ab5d4-4d6b-4b02-8aa3-6a5e9f95c741",
+    "name": "ERP - Empresa",
+    "description": "Collection para testar o controller EmpresaController. Base URL configurável via variável {{base_url}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Empresa",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"empresaRequest\": {\n    \"razaoSocial\": \"Tech Solutions LTDA\",\n    \"nomeFantasia\": \"TechSol\",\n    \"cnpj\": \"12.345.678/0001-99\",\n    \"inscricaoEstadual\": \"123456789\",\n    \"inscricaoMunicipal\": \"987654321\",\n    \"email\": \"contato@techsol.com\",\n    \"telefone\": \"+55 11 99999-0000\"\n  },\n  \"enderecoRequest\": {\n    \"empresaId\": 1,\n    \"logradouro\": \"Rua das Flores\",\n    \"numero\": \"123\",\n    \"bairro\": \"Centro\",\n    \"cidade\": \"São Paulo\",\n    \"uf\": \"SP\",\n    \"cep\": \"01000-000\",\n    \"tipo\": \"MATRIZ\"\n  },\n  \"filialRequest\": {\n    \"empresaId\": 1,\n    \"razaoSocial\": \"Tech Solutions LTDA\",\n    \"nomeFantasia\": \"TechSol Matriz\",\n    \"cnpj\": \"12.345.678/0001-99\",\n    \"cidade\": \"São Paulo\",\n    \"uf\": \"SP\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/v1/empresas",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "empresas"]
+        },
+        "description": "Cria uma nova empresa, endereço e filial matriz."
+      }
+    },
+    {
+      "name": "Atualizar Empresa",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"razaoSocial\": \"Tech Solutions Brasil LTDA\",\n  \"nomeFantasia\": \"TechSol BR\",\n  \"cnpj\": \"12.345.678/0001-99\",\n  \"inscricaoEstadual\": \"123456789\",\n  \"inscricaoMunicipal\": \"987654321\",\n  \"email\": \"brasil@techsol.com\",\n  \"telefone\": \"+55 11 98888-1111\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/v1/empresas/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "empresas", "1"]
+        },
+        "description": "Atualiza os dados de uma empresa existente."
+      }
+    },
+    {
+      "name": "Buscar Empresa por ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/empresas/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "empresas", "1"]
+        },
+        "description": "Busca uma empresa pelo ID."
+      }
+    },
+    {
+      "name": "Buscar Empresa por CNPJ",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/empresas/buscar/cnpj?cnpj=12.345.678/0001-99",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "empresas", "buscar", "cnpj"],
+          "query": [{ "key": "cnpj", "value": "12.345.678/0001-99" }]
+        },
+        "description": "Busca empresa pelo CNPJ informado."
+      }
+    },
+    {
+      "name": "Listar Todas as Empresas",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/empresas",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "empresas"]
+        },
+        "description": "Lista todas as empresas cadastradas."
+      }
+    },
+    {
+      "name": "Buscar por Razão Social",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/empresas/buscar/razao-social?razaoSocial=Tech",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "empresas", "buscar", "razao-social"],
+          "query": [{ "key": "razaoSocial", "value": "Tech" }]
+        },
+        "description": "Busca empresas pela razão social (contém)."
+      }
+    },
+    {
+      "name": "Buscar por Nome Fantasia",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/v1/empresas/buscar/nome-fantasia?nomeFantasia=Sol",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "empresas", "buscar", "nome-fantasia"],
+          "query": [{ "key": "nomeFantasia", "value": "Sol" }]
+        },
+        "description": "Busca empresas pelo nome fantasia (contém)."
+      }
+    },
+    {
+      "name": "Excluir Empresa",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{base_url}}/v1/empresas/1",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "empresas", "1"]
+        },
+        "description": "Exclui uma empresa pelo ID informado."
+      }
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080", "type": "string" }
+  ]
+}
