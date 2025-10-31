@@ -22,7 +22,7 @@ public class FilialResponse {
     private String cnpj;
     private String inscricaoEstadual;
     private String inscricaoMunicipal;
-    private String responsavel;
+    private Boolean matriz;
     private String telefone;
     private String email;
     private String endereco;

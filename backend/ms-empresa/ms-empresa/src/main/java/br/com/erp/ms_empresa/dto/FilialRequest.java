@@ -21,6 +21,8 @@ public class FilialRequest {
     @NotNull(message = "O ID da empresa matriz é obrigatório.")
     private Long empresaId;
 
+    private Boolean matriz;
+
     @NotBlank(message = "A razão social da filial é obrigatória.")
     @Size(max = 150, message = "A razão social deve ter no máximo 150 caracteres.")
     private String razaoSocial;
@@ -38,9 +40,6 @@ public class FilialRequest {
 
     @Size(max = 20, message = "A inscrição municipal deve ter no máximo 20 caracteres.")
     private String inscricaoMunicipal;
-
-    @Size(max = 150, message = "O nome do responsável deve ter no máximo 150 caracteres.")
-    private String responsavel;
 
     @Size(max = 50, message = "O telefone deve ter no máximo 50 caracteres.")
     private String telefone;

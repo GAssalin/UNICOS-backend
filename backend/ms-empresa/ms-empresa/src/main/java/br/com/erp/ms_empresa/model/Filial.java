@@ -23,6 +23,9 @@ public class Filial {
     @JoinColumn(name = "empresa_id", nullable = false)
     private Empresa empresa;
 
+    @Column(nullable = false)
+    private Boolean matriz = false;
+
     @Column(name = "empresa_matriz_nome", length = 150)
     private String empresaMatrizNome;
 
@@ -43,9 +46,6 @@ public class Filial {
 
     @Column(length = 20)
     private String inscricaoMunicipal;
-
-    @Column(length = 150)
-    private String responsavel;
 
     @Column(length = 50)
     private String telefone;
