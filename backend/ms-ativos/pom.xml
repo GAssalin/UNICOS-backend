@@ -11,7 +11,7 @@
         <relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
-	<groupId>br.com.erp</groupId>
+	<groupId>br.com.unicos</groupId>
 	<artifactId>ms-ativos</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>ms-ativos</name>
