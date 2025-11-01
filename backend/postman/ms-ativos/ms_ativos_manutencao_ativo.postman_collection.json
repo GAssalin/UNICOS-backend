@@ -1,0 +1,129 @@
+{
+  "info": {
+    "name": "ms_ativos_manutencao_ativo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Manutenção",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/manutencoes",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "manutencoes"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ativoId\": 1,\n  \"dataManutencao\": \"2025-10-20\",\n  \"tipo\": \"PREVENTIVA\",\n  \"descricaoServico\": \"Troca de pasta t\\u00e9rmica e limpeza interna\",\n  \"custo\": 250.0,\n  \"status\": \"CONCLUIDA\"\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Atualizar Manutenção",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/manutencoes/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "manutencoes",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ativoId\": 1,\n  \"dataManutencao\": \"2025-10-21\",\n  \"tipo\": \"CORRETIVA\",\n  \"descricaoServico\": \"Substitui\\u00e7\\u00e3o da fonte de energia\",\n  \"custo\": 450.0,\n  \"status\": \"CONCLUIDA\"\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Listar Todas as Manutenções",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/manutencoes",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "manutencoes"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar Manutenção por ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/manutencoes/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "manutencoes",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Deletar Manutenção",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/manutencoes/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "manutencoes",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

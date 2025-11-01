@@ -1,0 +1,129 @@
+{
+  "info": {
+    "name": "ms_ativos_ativo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Ativo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/ativos",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "ativos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Notebook Dell\",\n  \"codigoPatrimonial\": \"ATV-001\",\n  \"descricao\": \"Notebook Dell Inspiron 15\",\n  \"tipo\": \"EQUIPAMENTO\",\n  \"status\": \"ATIVO\",\n  \"dataAquisicao\": \"2024-10-10\",\n  \"valorAquisicao\": 5000.0,\n  \"empresaId\": 1,\n  \"filialId\": 1\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Atualizar Ativo",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/ativos/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "ativos",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Notebook Dell XPS\",\n  \"codigoPatrimonial\": \"ATV-001\",\n  \"descricao\": \"Notebook Dell XPS 13 atualizado\",\n  \"tipo\": \"EQUIPAMENTO\",\n  \"status\": \"ATIVO\",\n  \"dataAquisicao\": \"2024-10-10\",\n  \"valorAquisicao\": 6000.0,\n  \"empresaId\": 1,\n  \"filialId\": 1\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Listar Todos os Ativos",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/ativos",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "ativos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar Ativo por ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/ativos/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "ativos",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Deletar Ativo",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/ativos/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "ativos",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

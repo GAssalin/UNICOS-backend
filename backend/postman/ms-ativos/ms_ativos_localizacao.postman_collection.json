@@ -1,0 +1,129 @@
+{
+  "info": {
+    "name": "ms_ativos_localizacao",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Localização",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/localizacoes",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "localizacoes"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"descricao\": \"Sala TI\",\n  \"andar\": \"2\",\n  \"bloco\": \"A\",\n  \"filialId\": 1\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Atualizar Localização",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/localizacoes/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "localizacoes",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"descricao\": \"Sala Servidores\",\n  \"andar\": \"2\",\n  \"bloco\": \"B\",\n  \"filialId\": 1\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Listar Todas as Localizações",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/localizacoes",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "localizacoes"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar Localização por ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/localizacoes/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "localizacoes",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Deletar Localização",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/localizacoes/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "localizacoes",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
