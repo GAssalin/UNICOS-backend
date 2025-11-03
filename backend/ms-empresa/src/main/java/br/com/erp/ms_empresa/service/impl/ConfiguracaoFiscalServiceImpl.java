@@ -8,7 +8,6 @@ import br.com.erp.ms_empresa.repository.ConfiguracaoFiscalRepository;
 import br.com.erp.ms_empresa.repository.EmpresaRepository;
 import br.com.erp.ms_empresa.service.ConfiguracaoFiscalService;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,22 +21,32 @@ import java.util.Optional;
  * Contém as regras de negócio e interações com o repositório de ConfiguracaoFiscal.
  */
 @Service
-@RequiredArgsConstructor
+@Transactional
 public class ConfiguracaoFiscalServiceImpl implements ConfiguracaoFiscalService {
 
     private final ConfiguracaoFiscalRepository configuracaoFiscalRepository;
     private final EmpresaRepository empresaRepository;
     private final ModelMapper modelMapper;
 
+    public ConfiguracaoFiscalServiceImpl(ConfiguracaoFiscalRepository configuracaoFiscalRepository,
+                                         EmpresaRepository empresaRepository,
+                                         ModelMapper modelMapper) {
+        this.configuracaoFiscalRepository = configuracaoFiscalRepository;
+        this.empresaRepository = empresaRepository;
+        this.modelMapper = modelMapper;
+    }
+
+    // ==================================
+    // 🔹 CRUD
+    // ==================================
+
     @Override
-    @Transactional
     public ConfiguracaoEmpresaResponse salvar(ConfiguracaoEmpresaRequest request) {
-        Empresa empresa = empresaRepository.findById(request.getEmpresaId())
+        Empresa empresa = empresaRepository.findById(request.empresaId())
                 .orElseThrow(() -> new EntityNotFoundException("Empresa não encontrada para o ID informado."));
 
         // Verifica se já existe configuração para a empresa
-        Optional<ConfiguracaoFiscal> existente = configuracaoFiscalRepository.findByEmpresaId(empresa.getId());
-        if (existente.isPresent()) {
+        if (configuracaoFiscalRepository.findByEmpresaId(empresa.getId()).isPresent()) {
             throw new IllegalStateException("Já existe uma configuração fiscal cadastrada para esta empresa.");
         }
 
@@ -45,39 +54,41 @@ public class ConfiguracaoFiscalServiceImpl implements ConfiguracaoFiscalService 
         entity.setEmpresa(empresa);
 
         ConfiguracaoFiscal salva = configuracaoFiscalRepository.save(entity);
-        return modelMapper.map(salva, ConfiguracaoEmpresaResponse.class);
+        return toResponse(salva);
     }
 
     @Override
-    @Transactional
     public ConfiguracaoEmpresaResponse atualizar(Long id, ConfiguracaoEmpresaRequest request) {
         ConfiguracaoFiscal existente = configuracaoFiscalRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Configuração fiscal não encontrada."));
 
+        Empresa empresa = empresaRepository.findById(request.empresaId())
+                .orElseThrow(() -> new EntityNotFoundException("Empresa não encontrada para o ID informado."));
+
         modelMapper.map(request, existente);
-        existente.setEmpresa(empresaRepository.findById(request.getEmpresaId())
-                .orElseThrow(() -> new EntityNotFoundException("Empresa não encontrada para o ID informado.")));
+        existente.setEmpresa(empresa);
 
         ConfiguracaoFiscal atualizada = configuracaoFiscalRepository.save(existente);
-        return modelMapper.map(atualizada, ConfiguracaoEmpresaResponse.class);
+        return toResponse(atualizada);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<ConfiguracaoEmpresaResponse> buscarPorId(Long id) {
         return configuracaoFiscalRepository.findById(id)
-                .map(entity -> modelMapper.map(entity, ConfiguracaoEmpresaResponse.class));
+                .map(this::toResponse);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ConfiguracaoEmpresaResponse> listarTodas() {
         return configuracaoFiscalRepository.findAll()
                 .stream()
-                .map(entity -> modelMapper.map(entity, ConfiguracaoEmpresaResponse.class))
+                .map(this::toResponse)
                 .toList();
     }
 
     @Override
-    @Transactional
     public void deletar(Long id) {
         if (!configuracaoFiscalRepository.existsById(id)) {
             throw new EntityNotFoundException("Configuração fiscal não encontrada para exclusão.");
@@ -86,8 +97,26 @@ public class ConfiguracaoFiscalServiceImpl implements ConfiguracaoFiscalService 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<ConfiguracaoEmpresaResponse> buscarPorEmpresa(Long empresaId) {
         return configuracaoFiscalRepository.findByEmpresaId(empresaId)
-                .map(entity -> modelMapper.map(entity, ConfiguracaoEmpresaResponse.class));
+                .map(this::toResponse);
+    }
+
+    // ==================================
+    // 🧭 MÉTODO AUXILIAR
+    // ==================================
+
+    private ConfiguracaoEmpresaResponse toResponse(ConfiguracaoFiscal entity) {
+        Empresa empresa = entity.getEmpresa();
+        return new ConfiguracaoEmpresaResponse(
+                entity.getId(),
+                empresa != null ? empresa.getId() : null,
+                empresa != null ? empresa.getRazaoSocial() : null,
+                entity.getRegimeTributario(),
+                entity.getCertificadoDigital(),
+                entity.getTipoAmbiente(),
+                entity.getTipoAmbiente() != null ? entity.getTipoAmbiente().getDescricao() : null
+        );
     }
 }

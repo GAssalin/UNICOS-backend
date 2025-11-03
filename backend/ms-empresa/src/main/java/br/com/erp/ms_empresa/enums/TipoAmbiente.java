@@ -7,15 +7,26 @@ package br.com.erp.ms_empresa.enums;
  * HOMOLOGAÇÃO (testes) ou PRODUÇÃO (real) junto aos órgãos fiscais.
  */
 public enum TipoAmbiente {
+
     /**
      * Ambiente de testes, utilizado para validação de integrações
      * e simulações de emissão de notas fiscais sem valor jurídico.
      */
-    HOMOLOGACAO,
+    HOMOLOGACAO("Homologação"),
 
     /**
      * Ambiente real da SEFAZ, utilizado para emissão de documentos
      * fiscais válidos e operações efetivas da empresa.
      */
-    PRODUCAO
+    PRODUCAO("Produção");
+
+    private final String descricao;
+
+    TipoAmbiente(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
 }

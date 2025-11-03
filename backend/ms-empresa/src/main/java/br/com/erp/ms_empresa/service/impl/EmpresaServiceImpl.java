@@ -1,19 +1,15 @@
 package br.com.erp.ms_empresa.service.impl;
 
-import br.com.erp.ms_empresa.dto.EmpresaRequest;
-import br.com.erp.ms_empresa.dto.EmpresaResponse;
-import br.com.erp.ms_empresa.dto.EnderecoEmpresaRequest;
-import br.com.erp.ms_empresa.dto.FilialRequest;
+import br.com.erp.ms_empresa.dto.*;
+import br.com.erp.ms_empresa.enums.TipoEnderecoEmpresa;
 import br.com.erp.ms_empresa.model.Empresa;
 import br.com.erp.ms_empresa.model.EnderecoEmpresa;
 import br.com.erp.ms_empresa.model.Filial;
-import br.com.erp.ms_empresa.enums.TipoEnderecoEmpresa;
 import br.com.erp.ms_empresa.repository.EmpresaRepository;
 import br.com.erp.ms_empresa.repository.EnderecoEmpresaRepository;
 import br.com.erp.ms_empresa.repository.FilialRepository;
 import br.com.erp.ms_empresa.service.EmpresaService;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,11 +19,11 @@ import java.util.Optional;
 
 /**
  * Implementação da interface {@link EmpresaService}.
- *
+ * <p>
  * Contém as regras de negócio e interações com o repositório de Empresa.
  */
 @Service
-@RequiredArgsConstructor
+@Transactional
 public class EmpresaServiceImpl implements EmpresaService {
 
     private final EmpresaRepository empresaRepository;
@@ -35,92 +31,164 @@ public class EmpresaServiceImpl implements EmpresaService {
     private final FilialRepository filialRepository;
     private final ModelMapper modelMapper;
 
+    public EmpresaServiceImpl(EmpresaRepository empresaRepository,
+                              EnderecoEmpresaRepository enderecoEmpresaRepository,
+                              FilialRepository filialRepository,
+                              ModelMapper modelMapper) {
+        this.empresaRepository = empresaRepository;
+        this.enderecoEmpresaRepository = enderecoEmpresaRepository;
+        this.filialRepository = filialRepository;
+        this.modelMapper = modelMapper;
+    }
+
+    // ==================================
+    // 🔹 CRUD
+    // ==================================
+
     @Override
-    @Transactional
-    public EmpresaResponse salvar(EmpresaRequest request, EnderecoEmpresaRequest enderecoRequest, FilialRequest filialRequest) {
+    public EmpresaResponse salvar(EmpresaRequest request,
+                                  EnderecoEmpresaRequest enderecoRequest,
+                                  FilialRequest filialRequest) {
+
         // Verifica duplicidade de CNPJ
-        if (empresaRepository.existsByCnpj(request.getCnpj())) {
+        if (empresaRepository.existsByCnpj(request.cnpj())) {
             throw new IllegalStateException("Já existe uma empresa cadastrada com este CNPJ.");
         }
 
-        Empresa entity = modelMapper.map(request, Empresa.class);
-        Empresa salva = empresaRepository.save(entity);
+        // Cria e salva a empresa
+        Empresa empresa = modelMapper.map(request, Empresa.class);
+        Empresa salva = empresaRepository.save(empresa);
 
+        // Cria e associa a filial
         Filial filial = modelMapper.map(filialRequest, Filial.class);
         filial.setEmpresa(salva);
-
-        // marca a filial como matriz
-        filial.setMatriz(true);
+        filial.setMatriz(true); // marca como matriz
         filialRepository.save(filial);
 
+        // Cria e associa o endereço da matriz
         EnderecoEmpresa endereco = modelMapper.map(enderecoRequest, EnderecoEmpresa.class);
         endereco.setEmpresa(salva);
-        endereco.setTipo(TipoEnderecoEmpresa.MATRIZ); // Define tipo fixo MATRIZ
-
+        endereco.setTipo(TipoEnderecoEmpresa.MATRIZ);
         enderecoEmpresaRepository.save(endereco);
 
-        return modelMapper.map(salva, EmpresaResponse.class);
+        return toResponse(salva);
     }
 
     @Override
-    @Transactional
     public EmpresaResponse atualizar(Long id, EmpresaRequest request) {
         Empresa existente = empresaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Empresa não encontrada."));
 
-        // Se o CNPJ foi alterado, valida duplicidade
-        if (!existente.getCnpj().equals(request.getCnpj())
-                && empresaRepository.existsByCnpj(request.getCnpj())) {
+        // Verifica duplicidade de CNPJ
+        if (!existente.getCnpj().equals(request.cnpj())
+                && empresaRepository.existsByCnpj(request.cnpj())) {
             throw new IllegalStateException("Já existe uma empresa cadastrada com este CNPJ.");
         }
 
         modelMapper.map(request, existente);
         Empresa atualizada = empresaRepository.save(existente);
-        return modelMapper.map(atualizada, EmpresaResponse.class);
+        return toResponse(atualizada);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<EmpresaResponse> buscarPorId(Long id) {
         return empresaRepository.findById(id)
-                .map(entity -> modelMapper.map(entity, EmpresaResponse.class));
+                .map(this::toResponse);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<EmpresaResponse> buscarPorCnpj(String cnpj) {
         return empresaRepository.findByCnpj(cnpj)
-                .map(entity -> modelMapper.map(entity, EmpresaResponse.class));
+                .map(this::toResponse);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EmpresaResponse> listarTodas() {
         return empresaRepository.findAllByOrderByRazaoSocialAsc()
                 .stream()
-                .map(entity -> modelMapper.map(entity, EmpresaResponse.class))
+                .map(this::toResponse)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EmpresaResponse> buscarPorRazaoSocial(String razaoSocial) {
         return empresaRepository.findByRazaoSocialContainingIgnoreCase(razaoSocial)
                 .stream()
-                .map(entity -> modelMapper.map(entity, EmpresaResponse.class))
+                .map(this::toResponse)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EmpresaResponse> buscarPorNomeFantasia(String nomeFantasia) {
         return empresaRepository.findByNomeFantasiaContainingIgnoreCase(nomeFantasia)
                 .stream()
-                .map(entity -> modelMapper.map(entity, EmpresaResponse.class))
+                .map(this::toResponse)
                 .toList();
     }
 
     @Override
-    @Transactional
     public void deletar(Long id) {
         if (!empresaRepository.existsById(id)) {
             throw new EntityNotFoundException("Empresa não encontrada para exclusão.");
         }
         empresaRepository.deleteById(id);
+    }
+
+    // ==================================
+    // 🧭 MÉTODO AUXILIAR
+    // ==================================
+
+    private EmpresaResponse toResponse(Empresa entity) {
+        return new EmpresaResponse(
+                entity.getId(),
+                entity.getRazaoSocial(),
+                entity.getNomeFantasia(),
+                entity.getCnpj(),
+                entity.getInscricaoEstadual(),
+                entity.getInscricaoMunicipal(),
+                entity.getFiliais() != null ? entity.getFiliais()
+                        .stream()
+                        .map(f -> new FilialListDTO(
+                                f.getId(),
+                                f.getRazaoSocial(),
+                                f.getNomeFantasia(),
+                                f.getCnpj(),
+                                f.getCidade(),
+                                f.getUf()
+                        )).toList() : List.of(),
+                entity.getEnderecos() != null ? entity.getEnderecos()
+                        .stream()
+                        .map(e -> new EnderecoEmpresaListDTO(
+                                e.getId(),
+                                e.getLogradouro(),
+                                e.getNumero(),
+                                e.getCidade(),
+                                e.getUf(),
+                                e.getTipo()
+                        )).toList() : List.of(),
+                entity.getContatos() != null ? entity.getContatos()
+                        .stream()
+                        .map(c -> new ContatoEmpresaListDTO(
+                                c.getId(),
+                                c.getNomeContato(),
+                                c.getCargo(),
+                                c.getTelefone(),
+                                c.getCelular(),
+                                c.getEmail()
+                        )).toList() : List.of(),
+                entity.getDepartamentos() != null ? entity.getDepartamentos()
+                        .stream()
+                        .map(d -> new DepartamentoEmpresaListDTO(
+                                d.getId(),
+                                d.getNome(),
+                                d.getDescricao(),
+                                d.getAtivo()
+                        )).toList() : List.of()
+        );
     }
 }
