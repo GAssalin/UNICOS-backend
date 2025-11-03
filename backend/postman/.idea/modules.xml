@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/ms-auth.iml" filepath="$PROJECT_DIR$/.idea/ms-auth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/postman.iml" filepath="$PROJECT_DIR$/.idea/postman.iml" />
     </modules>
   </component>
 </project>
