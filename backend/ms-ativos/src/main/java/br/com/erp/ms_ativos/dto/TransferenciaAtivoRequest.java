@@ -3,32 +3,25 @@ package br.com.erp.ms_ativos.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class TransferenciaAtivoRequest {
+/**
+ * DTO usado para criação e atualização de transferências de ativo.
+ */
+public record TransferenciaAtivoRequest(
+        @NotNull
+        Long ativoId,
 
-    @NotNull
-    private Long ativoId;
+        @NotNull
+        Long origemId,
 
-    @NotNull
-    private Long origemId;
+        @NotNull
+        Long destinoId,
 
-    @NotNull
-    private Long destinoId;
+        @NotNull @PastOrPresent
+        LocalDate dataTransferencia,
 
-    @NotNull
-    @PastOrPresent
-    private LocalDate dataTransferencia;
-
-    @Size(max = 255)
-    private String motivo;
-}
+        @Size(max = 255)
+        String motivo
+) {}
