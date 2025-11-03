@@ -1,10 +1,13 @@
 package br.com.unicos.ms_pedido.enums;
 
+import lombok.Getter;
+
 /**
  * Enum que representa o status atual de um pedido.
- *
+ * <p>
  * Indica em qual etapa do fluxo de processamento o pedido se encontra.
  */
+@Getter
 public enum StatusPedido {
 
     /**
@@ -36,9 +39,5 @@ public enum StatusPedido {
 
     StatusPedido(String descricao) {
         this.descricao = descricao;
-    }
-
-    public String getDescricao() {
-        return descricao;
     }
 }

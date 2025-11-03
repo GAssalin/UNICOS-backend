@@ -1,10 +1,13 @@
 package br.com.unicos.ms_pedido.enums;
 
+import lombok.Getter;
+
 /**
  * Enum que representa o status de um pagamento de pedido.
- *
+ * <p>
  * Usado para controlar o andamento do processo financeiro do pedido.
  */
+@Getter
 public enum StatusPagamento {
 
     /**
@@ -33,7 +36,4 @@ public enum StatusPagamento {
         this.descricao = descricao;
     }
 
-    public String getDescricao() {
-        return descricao;
-    }
 }

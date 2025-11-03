@@ -1,10 +1,13 @@
 package br.com.unicos.ms_pedido.enums;
 
+import lombok.Getter;
+
 /**
  * Enum que define o tipo de origem do pedido.
- *
+ * <p>
  * Usado para classificar o canal de venda que originou o pedido.
  */
+@Getter
 public enum TipoPedido {
 
     /**
@@ -28,7 +31,4 @@ public enum TipoPedido {
         this.descricao = descricao;
     }
 
-    public String getDescricao() {
-        return descricao;
-    }
 }

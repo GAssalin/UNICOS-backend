@@ -1,10 +1,13 @@
 package br.com.unicos.ms_pedido.enums;
 
+import lombok.Getter;
+
 /**
  * Enum que representa o tipo de desconto aplicado ao pedido.
- *
+ * <p>
  * Utilizado para determinar como o valor do desconto será calculado.
  */
+@Getter
 public enum TipoDesconto {
 
     /**
@@ -23,7 +26,4 @@ public enum TipoDesconto {
         this.descricao = descricao;
     }
 
-    public String getDescricao() {
-        return descricao;
-    }
 }

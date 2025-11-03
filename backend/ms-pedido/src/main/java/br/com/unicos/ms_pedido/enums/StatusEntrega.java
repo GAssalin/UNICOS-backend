@@ -1,10 +1,13 @@
 package br.com.unicos.ms_pedido.enums;
 
+import lombok.Getter;
+
 /**
  * Enum que representa o status logístico da entrega de um pedido.
  *
  * Indica o andamento do processo de envio até a entrega ao cliente.
  */
+@Getter
 public enum StatusEntrega {
 
     /**
@@ -33,7 +36,4 @@ public enum StatusEntrega {
         this.descricao = descricao;
     }
 
-    public String getDescricao() {
-        return descricao;
-    }
 }

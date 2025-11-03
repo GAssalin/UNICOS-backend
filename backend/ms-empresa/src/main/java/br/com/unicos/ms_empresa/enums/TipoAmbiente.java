@@ -1,11 +1,14 @@
 package br.com.unicos.ms_empresa.enums;
 
+import lombok.Getter;
+
 /**
  * Enum que representa o ambiente de operação fiscal da empresa.
- *
+ * <p>
  * Usado para definir se a empresa está operando no ambiente de
  * HOMOLOGAÇÃO (testes) ou PRODUÇÃO (real) junto aos órgãos fiscais.
  */
+@Getter
 public enum TipoAmbiente {
 
     /**
@@ -24,9 +27,5 @@ public enum TipoAmbiente {
 
     TipoAmbiente(String descricao) {
         this.descricao = descricao;
-    }
-
-    public String getDescricao() {
-        return descricao;
     }
 }
