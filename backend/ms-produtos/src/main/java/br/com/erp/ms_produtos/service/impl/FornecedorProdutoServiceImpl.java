@@ -43,18 +43,18 @@ public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
 
     @Override
     public FornecedorProdutoResponse salvar(FornecedorProdutoRequest request) {
-        if (repository.existsByFornecedorIdAndProdutoId(request.getFornecedorId(), request.getProdutoId())) {
+        if (repository.existsByFornecedorIdAndProdutoId(request.fornecedorId(), request.produtoId())) {
             throw new IllegalArgumentException("Já existe um vínculo entre esse fornecedor e produto.");
         }
 
-        Produto produto = produtoRepository.findById(request.getProdutoId())
+        Produto produto = produtoRepository.findById(request.produtoId())
                 .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
 
         FornecedorProduto entidade = FornecedorProduto.builder()
-                .fornecedorId(request.getFornecedorId())
+                .fornecedorId(request.fornecedorId())
                 .produto(produto)
-                .precoCusto(request.getPrecoCusto())
-                .prazoEntregaDias(request.getPrazoEntregaDias())
+                .precoCusto(request.precoCusto())
+                .prazoEntregaDias(request.prazoEntregaDias())
                 .build();
 
         FornecedorProduto salvo = repository.save(entidade);
@@ -66,13 +66,13 @@ public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
         FornecedorProduto existente = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Vínculo não encontrado com ID: " + id));
 
-        Produto produto = produtoRepository.findById(request.getProdutoId())
+        Produto produto = produtoRepository.findById(request.produtoId())
                 .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
 
-        existente.setFornecedorId(request.getFornecedorId());
+        existente.setFornecedorId(request.fornecedorId());
         existente.setProduto(produto);
-        existente.setPrecoCusto(request.getPrecoCusto());
-        existente.setPrazoEntregaDias(request.getPrazoEntregaDias());
+        existente.setPrecoCusto(request.precoCusto());
+        existente.setPrazoEntregaDias(request.prazoEntregaDias());
 
         FornecedorProduto atualizado = repository.save(existente);
         return toResponse(atualizado);
@@ -95,12 +95,12 @@ public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
     public List<FornecedorProdutoListDTO> listarPorProduto(Long produtoId) {
         return repository.findByProdutoId(produtoId)
                 .stream()
-                .map(fp -> FornecedorProdutoListDTO.builder()
-                        .id(fp.getId())
-                        .fornecedorId(fp.getFornecedorId())
-                        .produtoNome(fp.getProduto().getNome())
-                        .precoCusto(fp.getPrecoCusto())
-                        .build())
+                .map(fp -> new FornecedorProdutoListDTO(
+                        fp.getId(),
+                        fp.getFornecedorId(),
+                        fp.getProduto().getNome(),
+                        fp.getPrecoCusto()
+                ))
                 .toList();
     }
 
@@ -108,12 +108,12 @@ public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
     public List<FornecedorProdutoListDTO> listarPorFornecedor(Long fornecedorId) {
         return repository.findByFornecedorId(fornecedorId)
                 .stream()
-                .map(fp -> FornecedorProdutoListDTO.builder()
-                        .id(fp.getId())
-                        .fornecedorId(fp.getFornecedorId())
-                        .produtoNome(fp.getProduto().getNome())
-                        .precoCusto(fp.getPrecoCusto())
-                        .build())
+                .map(fp -> new FornecedorProdutoListDTO(
+                        fp.getId(),
+                        fp.getFornecedorId(),
+                        fp.getProduto().getNome(),
+                        fp.getPrecoCusto()
+                ))
                 .toList();
     }
 
@@ -145,13 +145,13 @@ public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
     // ==================================
 
     private FornecedorProdutoResponse toResponse(FornecedorProduto entity) {
-        return FornecedorProdutoResponse.builder()
-                .id(entity.getId())
-                .fornecedorId(entity.getFornecedorId())
-                .produtoId(entity.getProduto().getId())
-                .produtoNome(entity.getProduto().getNome())
-                .precoCusto(entity.getPrecoCusto())
-                .prazoEntregaDias(entity.getPrazoEntregaDias())
-                .build();
+        return new FornecedorProdutoResponse(
+                entity.getId(),
+                entity.getFornecedorId(),
+                entity.getProduto().getId(),
+                entity.getProduto().getNome(),
+                entity.getPrecoCusto(),
+                entity.getPrazoEntregaDias()
+        );
     }
 }

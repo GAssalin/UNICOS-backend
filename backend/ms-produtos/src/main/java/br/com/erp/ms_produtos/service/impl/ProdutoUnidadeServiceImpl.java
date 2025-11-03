@@ -19,7 +19,6 @@ import java.util.Optional;
 
 /**
  * Implementação da interface ProdutoUnidadeService.
- *
  * Responsável pela lógica de negócio relacionada à criação,
  * atualização e consulta de vínculos entre produtos e unidades de medida.
  */
@@ -48,11 +47,11 @@ public class ProdutoUnidadeServiceImpl implements ProdutoUnidadeService {
 
     @Override
     public ProdutoUnidadeResponse salvar(ProdutoUnidadeRequest request) {
-        Produto produto = produtoRepository.findById(request.getProdutoId())
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + request.getProdutoId()));
+        Produto produto = produtoRepository.findById(request.produtoId())
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + request.produtoId()));
 
-        UnidadeMedida unidade = unidadeMedidaRepository.findById(request.getUnidadeMedidaId())
-                .orElseThrow(() -> new IllegalArgumentException("Unidade de medida não encontrada com ID: " + request.getUnidadeMedidaId()));
+        UnidadeMedida unidade = unidadeMedidaRepository.findById(request.unidadeMedidaId())
+                .orElseThrow(() -> new IllegalArgumentException("Unidade de medida não encontrada com ID: " + request.unidadeMedidaId()));
 
         // Evita vínculos duplicados
         repository.findByProdutoIdAndUnidadeMedidaId(produto.getId(), unidade.getId())
@@ -61,7 +60,7 @@ public class ProdutoUnidadeServiceImpl implements ProdutoUnidadeService {
         ProdutoUnidade entity = ProdutoUnidade.builder()
                 .produto(produto)
                 .unidadeMedida(unidade)
-                .quantidadePadrao(request.getQuantidadePadrao())
+                .quantidadePadrao(request.quantidadePadrao())
                 .build();
 
         ProdutoUnidade salvo = repository.save(entity);
@@ -73,11 +72,11 @@ public class ProdutoUnidadeServiceImpl implements ProdutoUnidadeService {
         ProdutoUnidade existente = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Vínculo não encontrado com ID: " + id));
 
-        UnidadeMedida unidade = unidadeMedidaRepository.findById(request.getUnidadeMedidaId())
-                .orElseThrow(() -> new IllegalArgumentException("Unidade de medida não encontrada com ID: " + request.getUnidadeMedidaId()));
+        UnidadeMedida unidade = unidadeMedidaRepository.findById(request.unidadeMedidaId())
+                .orElseThrow(() -> new IllegalArgumentException("Unidade de medida não encontrada com ID: " + request.unidadeMedidaId()));
 
         existente.setUnidadeMedida(unidade);
-        existente.setQuantidadePadrao(request.getQuantidadePadrao());
+        existente.setQuantidadePadrao(request.quantidadePadrao());
 
         ProdutoUnidade atualizado = repository.save(existente);
         return toResponse(atualizado);
@@ -130,13 +129,13 @@ public class ProdutoUnidadeServiceImpl implements ProdutoUnidadeService {
     // ==================================
 
     private ProdutoUnidadeResponse toResponse(ProdutoUnidade entity) {
-        return ProdutoUnidadeResponse.builder()
-                .id(entity.getId())
-                .produtoId(entity.getProduto().getId())
-                .produtoNome(entity.getProduto().getNome())
-                .unidadeMedidaId(entity.getUnidadeMedida().getId())
-                .unidadeMedidaNome(entity.getUnidadeMedida().getNome())
-                .quantidadePadrao(entity.getQuantidadePadrao())
-                .build();
+        return new ProdutoUnidadeResponse(
+                entity.getId(),
+                entity.getProduto().getId(),
+                entity.getProduto().getNome(),
+                entity.getUnidadeMedida().getId(),
+                entity.getUnidadeMedida().getNome(),
+                entity.getQuantidadePadrao()
+        );
     }
 }

@@ -42,14 +42,14 @@ public class HistoricoPrecoServiceImpl implements HistoricoPrecoService {
 
     @Override
     public HistoricoPrecoResponse salvar(HistoricoPrecoRequest request) {
-        Produto produto = produtoRepository.findById(request.getProdutoId())
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + request.getProdutoId()));
+        Produto produto = produtoRepository.findById(request.produtoId())
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + request.produtoId()));
 
         HistoricoPreco historico = HistoricoPreco.builder()
                 .produto(produto)
-                .precoAnterior(request.getPrecoAnterior())
-                .novoPreco(request.getNovoPreco())
-                .motivo(request.getMotivo())
+                .precoAnterior(request.precoAnterior())
+                .novoPreco(request.novoPreco())
+                .motivo(request.motivo())
                 .build();
 
         HistoricoPreco salvo = repository.save(historico);
@@ -81,12 +81,12 @@ public class HistoricoPrecoServiceImpl implements HistoricoPrecoService {
     public List<HistoricoPrecoListDTO> listarUltimosPorProduto(Long produtoId) {
         return repository.findTop10ByProdutoIdOrderByDataAlteracaoDesc(produtoId)
                 .stream()
-                .map(h -> HistoricoPrecoListDTO.builder()
-                        .id(h.getId())
-                        .precoAnterior(h.getPrecoAnterior())
-                        .novoPreco(h.getNovoPreco())
-                        .dataAlteracao(h.getDataAlteracao())
-                        .build())
+                .map(h -> new HistoricoPrecoListDTO(
+                        h.getId(),
+                        h.getPrecoAnterior(),
+                        h.getNovoPreco(),
+                        h.getDataAlteracao()
+                ))
                 .toList();
     }
 
@@ -103,14 +103,14 @@ public class HistoricoPrecoServiceImpl implements HistoricoPrecoService {
     // ==================================
 
     private HistoricoPrecoResponse toResponse(HistoricoPreco entity) {
-        return HistoricoPrecoResponse.builder()
-                .id(entity.getId())
-                .produtoId(entity.getProduto().getId())
-                .produtoNome(entity.getProduto().getNome())
-                .precoAnterior(entity.getPrecoAnterior())
-                .novoPreco(entity.getNovoPreco())
-                .dataAlteracao(entity.getDataAlteracao())
-                .motivo(entity.getMotivo())
-                .build();
+        return new HistoricoPrecoResponse(
+                entity.getId(),
+                entity.getProduto().getId(),
+                entity.getProduto().getNome(),
+                entity.getPrecoAnterior(),
+                entity.getNovoPreco(),
+                entity.getDataAlteracao(),
+                entity.getMotivo()
+        );
     }
 }

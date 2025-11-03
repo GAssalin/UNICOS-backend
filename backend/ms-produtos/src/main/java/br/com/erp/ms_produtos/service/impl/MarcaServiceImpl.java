@@ -36,7 +36,7 @@ public class MarcaServiceImpl implements MarcaService {
 
     @Override
     public MarcaResponse salvar(MarcaRequest request) {
-        if (repository.existsByNomeIgnoreCase(request.getNome())) {
+        if (repository.existsByNomeIgnoreCase(request.nome())) {
             throw new IllegalArgumentException("Já existe uma marca com o nome informado.");
         }
 
@@ -50,12 +50,12 @@ public class MarcaServiceImpl implements MarcaService {
         Marca existente = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Marca não encontrada com ID: " + id));
 
-        Optional<Marca> duplicada = repository.findByNomeIgnoreCase(request.getNome());
+        Optional<Marca> duplicada = repository.findByNomeIgnoreCase(request.nome());
         if (duplicada.isPresent() && !duplicada.get().getId().equals(id)) {
             throw new IllegalArgumentException("Já existe uma marca com esse nome.");
         }
 
-        existente.setNome(request.getNome());
+        existente.setNome(request.nome());
         Marca atualizada = repository.save(existente);
         return toResponse(atualizada);
     }
@@ -77,10 +77,7 @@ public class MarcaServiceImpl implements MarcaService {
     public List<MarcaListDTO> listarSimples() {
         return repository.findAllByOrderByNomeAsc()
                 .stream()
-                .map(m -> MarcaListDTO.builder()
-                        .id(m.getId())
-                        .nome(m.getNome())
-                        .build())
+                .map(m -> new MarcaListDTO(m.getId(), m.getNome()))
                 .toList();
     }
 
@@ -114,12 +111,10 @@ public class MarcaServiceImpl implements MarcaService {
     // ==================================
 
     private MarcaResponse toResponse(Marca marca) {
-        int qtdProdutos = (marca.getProdutos() != null) ? marca.getProdutos().size() : 0;
-
-        return MarcaResponse.builder()
-                .id(marca.getId())
-                .nome(marca.getNome())
-                .quantidadeProdutos(qtdProdutos)
-                .build();
+        return new MarcaResponse(
+                marca.getId(),
+                marca.getNome(),
+                (marca.getProdutos() != null) ? marca.getProdutos().size() : 0
+        );
     }
 }

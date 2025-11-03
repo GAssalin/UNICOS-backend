@@ -14,6 +14,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementação da interface ProdutoService.
+ * Responsável pela lógica de negócio e orquestração das operações
+ * de criação, atualização, exclusão e consulta de produtos.
+ */
 @Service
 @Transactional
 public class ProdutoServiceImpl implements ProdutoService {
@@ -41,6 +46,7 @@ public class ProdutoServiceImpl implements ProdutoService {
     public ProdutoResponse salvar(ProdutoRequest request) {
         Categoria categoria = categoriaRepository.findById(request.categoriaId())
                 .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada."));
+
         Marca marca = null;
         if (request.marcaId() != null) {
             marca = marcaRepository.findById(request.marcaId())
@@ -62,6 +68,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 
         Categoria categoria = categoriaRepository.findById(request.categoriaId())
                 .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada."));
+
         Marca marca = request.marcaId() != null
                 ? marcaRepository.findById(request.marcaId()).orElse(null)
                 : null;
@@ -102,43 +109,56 @@ public class ProdutoServiceImpl implements ProdutoService {
 
     @Override
     public Optional<ProdutoResponse> buscarPorSku(String sku) {
-        return produtoRepository.findBySku(sku).map(this::toResponse);
+        return produtoRepository.findBySku(sku)
+                .map(this::toResponse);
     }
 
     @Override
     public List<ProdutoResponse> buscarPorNome(String nome) {
         return produtoRepository.findByNomeContainingIgnoreCase(nome)
-                .stream().map(this::toResponse).toList();
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override
     public List<ProdutoResponse> listarPorCategoria(Long categoriaId) {
         return produtoRepository.findByCategoriaId(categoriaId)
-                .stream().map(this::toResponse).toList();
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override
     public List<ProdutoResponse> listarPorMarca(Long marcaId) {
         return produtoRepository.findByMarcaId(marcaId)
-                .stream().map(this::toResponse).toList();
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override
     public List<ProdutoResponse> listarAtivos() {
         return produtoRepository.findByAtivoTrue()
-                .stream().map(this::toResponse).toList();
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override
     public List<ProdutoResponse> listarInativos() {
         return produtoRepository.findByAtivoFalse()
-                .stream().map(this::toResponse).toList();
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override
     public List<ProdutoResponse> listarPorFaixaDePreco(BigDecimal precoMin, BigDecimal precoMax) {
         return produtoRepository.findByPrecoBetween(precoMin, precoMax)
-                .stream().map(this::toResponse).toList();
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     // ==================================
@@ -173,7 +193,6 @@ public class ProdutoServiceImpl implements ProdutoService {
                 .produto(produto)
                 .precoAnterior(precoAntigo)
                 .novoPreco(novoPreco)
-                .dataAlteracao(LocalDateTime.now())
                 .build();
 
         produto.getHistoricosPreco().add(historico);

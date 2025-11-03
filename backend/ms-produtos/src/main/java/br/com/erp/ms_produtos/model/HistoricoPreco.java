@@ -36,6 +36,7 @@ public class HistoricoPreco {
 
     @NotNull
     @Column(nullable = false)
+    @Builder.Default
     private LocalDateTime dataAlteracao = LocalDateTime.now();
 
     @Column(length = 255)

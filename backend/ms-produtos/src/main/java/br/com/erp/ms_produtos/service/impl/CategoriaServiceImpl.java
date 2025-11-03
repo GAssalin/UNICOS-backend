@@ -37,7 +37,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     public CategoriaResponse salvar(CategoriaRequest request) {
         // Verifica duplicidade de nome
-        if (repository.existsByNomeIgnoreCase(request.getNome())) {
+        if (repository.existsByNomeIgnoreCase(request.nome())) {
             throw new IllegalArgumentException("Já existe uma categoria com o nome informado.");
         }
 
@@ -52,13 +52,13 @@ public class CategoriaServiceImpl implements CategoriaService {
                 .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada com ID: " + id));
 
         // Evita duplicidade ao atualizar
-        Optional<Categoria> categoriaDuplicada = repository.findByNomeIgnoreCase(request.getNome());
+        Optional<Categoria> categoriaDuplicada = repository.findByNomeIgnoreCase(request.nome());
         if (categoriaDuplicada.isPresent() && !categoriaDuplicada.get().getId().equals(id)) {
             throw new IllegalArgumentException("Já existe uma categoria com esse nome.");
         }
 
-        existente.setNome(request.getNome());
-        existente.setDescricao(request.getDescricao());
+        existente.setNome(request.nome());
+        existente.setDescricao(request.descricao());
 
         Categoria atualizada = repository.save(existente);
         return toResponse(atualizada);
@@ -81,10 +81,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     public List<CategoriaListDTO> listarSimples() {
         return repository.findAllByOrderByNomeAsc()
                 .stream()
-                .map(c -> CategoriaListDTO.builder()
-                        .id(c.getId())
-                        .nome(c.getNome())
-                        .build())
+                .map(c -> new CategoriaListDTO(c.getId(), c.getNome()))
                 .toList();
     }
 
