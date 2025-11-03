@@ -1,0 +1,70 @@
+{
+  "info": {
+    "name": "ms-pagamentos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "pagamento-collection-id"
+  },
+  "item": [
+    {
+      "name": "Listar todos",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/pagamentos"
+      }
+    },
+    {
+      "name": "Buscar por ID",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/pagamentos/1"
+      }
+    },
+    {
+      "name": "Criar",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"valor\": 350.75,\n  \"descricao\": \"Pagamento de serviço\",\n  \"status\": \"PENDENTE\",\n  \"tipoTransacao\": \"VENDA\",\n  \"dataPagamento\": \"2025-11-03\"\n}"
+        },
+        "url": "{{baseUrl}}/pagamentos"
+      }
+    },
+    {
+      "name": "Atualizar",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"valor\": 350.75,\n  \"descricao\": \"Pagamento de serviço\",\n  \"status\": \"PENDENTE\",\n  \"tipoTransacao\": \"VENDA\",\n  \"dataPagamento\": \"2025-11-03\"\n}"
+        },
+        "url": "{{baseUrl}}/pagamentos/1"
+      }
+    },
+    {
+      "name": "Deletar",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/pagamentos/1"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/v1"
+    }
+  ]
+}

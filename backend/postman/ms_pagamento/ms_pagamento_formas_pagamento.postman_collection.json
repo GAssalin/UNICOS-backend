@@ -1,0 +1,70 @@
+{
+  "info": {
+    "name": "ms-pagamentos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "forma-collection-id"
+  },
+  "item": [
+    {
+      "name": "Listar todos",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/formas-pagamento"
+      }
+    },
+    {
+      "name": "Buscar por ID",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/formas-pagamento/1"
+      }
+    },
+    {
+      "name": "Criar",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"descricao\": \"Cartão de Crédito\",\n  \"tipo\": \"CARTAO\",\n  \"ativo\": true\n}"
+        },
+        "url": "{{baseUrl}}/formas-pagamento"
+      }
+    },
+    {
+      "name": "Atualizar",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"descricao\": \"Cartão de Crédito\",\n  \"tipo\": \"CARTAO\",\n  \"ativo\": true\n}"
+        },
+        "url": "{{baseUrl}}/formas-pagamento/1"
+      }
+    },
+    {
+      "name": "Deletar",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/formas-pagamento/1"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/v1"
+    }
+  ]
+}
