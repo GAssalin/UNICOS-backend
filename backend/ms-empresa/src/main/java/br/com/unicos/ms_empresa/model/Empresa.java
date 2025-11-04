@@ -2,13 +2,20 @@ package br.com.unicos.ms_empresa.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Entidade que representa a empresa matriz ou unidade principal.
+ * Representa a empresa matriz do sistema.
+ * <p>
+ * Esta entidade contém as informações principais da organização,
+ * servindo como ponto central de vínculo para filiais, departamentos,
+ * endereços, contatos e configurações fiscais.
  */
 @Entity
 @Table(name = "empresa")

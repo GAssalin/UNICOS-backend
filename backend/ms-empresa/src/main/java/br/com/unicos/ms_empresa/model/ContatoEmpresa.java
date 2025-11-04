@@ -3,10 +3,16 @@ package br.com.unicos.ms_empresa.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * Entidade que armazena informações de contato da empresa.
+ * Armazena informações de contato da empresa, como telefone e e-mail.
+ * <p>
+ * Pode ser expandida futuramente para suportar múltiplos tipos de
+ * comunicação (comercial, fiscal, suporte, etc.).
  */
 @Entity
 @Table(name = "contato_empresa")

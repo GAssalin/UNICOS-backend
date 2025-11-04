@@ -2,10 +2,15 @@ package br.com.unicos.ms_empresa.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * Entidade que representa subdivisões de um departamento (ex: “Financeiro > Contas a pagar”).
+ * Representa a subdivisão de um departamento dentro da empresa.
+ * <p>
+ * Exemplo: Departamento Financeiro → Setor de Contas a Pagar.
  */
 @Entity
 @Table(name = "setor")

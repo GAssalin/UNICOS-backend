@@ -3,11 +3,13 @@ package br.com.unicos.ms_empresa.model;
 import br.com.unicos.ms_empresa.enums.TipoAmbiente;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+/**
+ * Entidade responsável por armazenar as configurações fiscais da empresa.
+ * Inclui informações sobre o ambiente fiscal (produção ou homologação),
+ * regime tributário e certificado digital.
+ */
 @Entity
 @Table(name = "configuracao_empresa")
 @Data

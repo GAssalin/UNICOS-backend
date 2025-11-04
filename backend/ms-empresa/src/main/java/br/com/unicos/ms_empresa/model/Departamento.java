@@ -2,13 +2,20 @@ package br.com.unicos.ms_empresa.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Entidade que representa a estrutura organizacional interna da empresa.
+ * Representa a estrutura organizacional interna de uma empresa.
+ * <p>
+ * Pode ser utilizada para controle de permissões, gestão interna
+ * ou definição de centros de custo. Cada departamento pode conter
+ * diversos setores.
  */
 @Entity
 @Table(name = "departamento")

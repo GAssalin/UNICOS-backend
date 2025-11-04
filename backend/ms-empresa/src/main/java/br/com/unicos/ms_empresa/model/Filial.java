@@ -5,7 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 /**
- * Entidade que representa as filiais ou unidades vinculadas à empresa matriz.
+ * Representa uma filial, centro de distribuição ou unidade produtiva
+ * vinculada a uma empresa matriz.
  */
 @Entity
 @Table(name = "filial")
