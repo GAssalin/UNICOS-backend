@@ -1,0 +1,60 @@
+{
+  "info": {
+    "name": "ms-pessoas - Endereço Pessoa",
+    "_postman_id": "auto-generated",
+    "description": "Collection de endpoints do ms-pessoas - Endereço Pessoa.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Endereço",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/enderecos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "enderecos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"logradouro\": \"Rua A\",\n  \"numero\": \"100\",\n  \"pessoaId\": 1\n}"
+        }
+      }
+    },
+    {
+      "name": "Listar Endereços por Pessoa",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/enderecos/pessoa/1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "enderecos",
+            "pessoa",
+            "1"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "info": {
+    "name": "ms-pessoas - Pessoa Relação",
+    "_postman_id": "auto-generated",
+    "description": "Collection de endpoints do ms-pessoas - Pessoa Relação.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Relação Pessoa",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/pessoas/relacoes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "pessoas",
+            "relacoes"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"pessoaId\": 1,\n  \"tipoRelacaoId\": 1\n}"
+        }
+      }
+    },
+    {
+      "name": "Listar Relações por Pessoa",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/pessoas/relacoes/pessoa/1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "pessoas",
+            "relacoes",
+            "pessoa",
+            "1"
+          ]
+        }
+      }
+    }
+  ]
+}

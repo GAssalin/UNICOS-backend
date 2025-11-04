@@ -1,0 +1,60 @@
+{
+  "info": {
+    "name": "ms-pessoas - Documento Pessoa",
+    "_postman_id": "auto-generated",
+    "description": "Collection de endpoints do ms-pessoas - Documento Pessoa.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Documento",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/documentos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "documentos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipoDocumento\": \"RG\",\n  \"numero\": \"123456\",\n  \"pessoaId\": 1\n}"
+        }
+      }
+    },
+    {
+      "name": "Listar Documentos por Pessoa",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/documentos/pessoa/1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "documentos",
+            "pessoa",
+            "1"
+          ]
+        }
+      }
+    }
+  ]
+}
