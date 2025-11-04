@@ -33,6 +33,7 @@ public class AuditoriaAcesso {
     private String detalhes;
 
     @Column(nullable = false)
+    @Builder.Default
     private LocalDateTime dataEvento = LocalDateTime.now();
 
     @Column(length = 50)

@@ -43,5 +43,6 @@ public class Departamento {
 
     @NotNull
     @Column(nullable = false)
+    @Builder.Default
     private Boolean ativo = true;
 }
