@@ -2,6 +2,7 @@ package br.com.unicos.ms_empresa.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -39,4 +40,8 @@ public class Departamento {
 
     @OneToMany(mappedBy = "departamento", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Setor> setores = new ArrayList<>();
+
+    @NotNull
+    @Column(nullable = false)
+    private Boolean ativo = true;
 }

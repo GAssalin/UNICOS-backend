@@ -41,16 +41,26 @@ public class Empresa {
     @Column(nullable = false, unique = true, length = 18)
     private String cnpj;
 
+    @Column(length = 20)
+    private String inscricaoEstadual;
+
+    @Column(length = 20)
+    private String inscricaoMunicipal;
+
     @OneToMany(mappedBy = "empresa", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Filial> filiais = new ArrayList<>();
 
     @OneToMany(mappedBy = "empresa", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<EnderecoEmpresa> enderecos = new ArrayList<>();
 
     @OneToMany(mappedBy = "empresa", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Departamento> departamentos = new ArrayList<>();
 
     @OneToMany(mappedBy = "empresa", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ContatoEmpresa> contatos = new ArrayList<>();
 
     @OneToOne(mappedBy = "empresa", cascade = CascadeType.ALL)

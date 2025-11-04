@@ -2,6 +2,7 @@ package br.com.unicos.ms_empresa.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,4 +32,9 @@ public class Setor {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "departamento_id", nullable = false)
     private Departamento departamento;
+
+    @NotNull
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean ativo = true;
 }

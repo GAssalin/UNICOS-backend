@@ -3,6 +3,7 @@ package br.com.unicos.ms_empresa.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,4 +38,9 @@ public class ContatoEmpresa {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "empresa_id", nullable = false)
     private Empresa empresa;
+
+    @NotNull
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean ativo = true;
 }

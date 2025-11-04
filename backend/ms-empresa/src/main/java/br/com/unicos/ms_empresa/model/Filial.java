@@ -2,6 +2,7 @@ package br.com.unicos.ms_empresa.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 /**
@@ -34,4 +35,9 @@ public class Filial {
 
     @OneToOne(mappedBy = "filial", cascade = CascadeType.ALL)
     private EnderecoEmpresa endereco;
+
+    @NotNull
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean ativo = true;
 }

@@ -36,4 +36,9 @@ public class ConfiguracaoFiscal {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private TipoAmbiente tipoAmbiente;
+
+    @NotNull
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean ativo = true;
 }
