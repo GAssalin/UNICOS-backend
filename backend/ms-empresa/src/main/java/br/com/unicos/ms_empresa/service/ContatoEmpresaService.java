@@ -8,14 +8,14 @@ import java.util.Optional;
 
 /**
  * Interface de serviço responsável pelas regras de negócio
- * relacionadas à entidade ContatoEmpresa.
- *
+ * relacionadas à entidade {@link br.com.unicos.ms_empresa.model.ContatoEmpresa}.
+ * <p>
  * Define os métodos para criação, atualização, listagem e exclusão de contatos corporativos.
  */
 public interface ContatoEmpresaService {
 
     /**
-     * Salva um novo contato vinculado a uma empresa.
+     * Cria e salva um novo contato vinculado a uma empresa.
      *
      * @param request DTO contendo os dados do contato.
      * @return DTO representando o contato salvo.
@@ -23,10 +23,10 @@ public interface ContatoEmpresaService {
     ContatoEmpresaResponse salvar(ContatoEmpresaRequest request);
 
     /**
-     * Atualiza um contato existente.
+     * Atualiza os dados de um contato existente.
      *
-     * @param id ID do contato.
-     * @param request DTO contendo os novos dados do contato.
+     * @param id      ID do contato.
+     * @param request DTO contendo as novas informações.
      * @return DTO representando o contato atualizado.
      */
     ContatoEmpresaResponse atualizar(Long id, ContatoEmpresaRequest request);
@@ -47,23 +47,45 @@ public interface ContatoEmpresaService {
     List<ContatoEmpresaResponse> listarTodos();
 
     /**
-     * Lista todos os contatos de uma empresa específica.
+     * Lista todos os contatos ativos.
+     *
+     * @return Lista de contatos com o campo "ativo" igual a true.
+     */
+    List<ContatoEmpresaResponse> listarAtivos();
+
+    /**
+     * Lista todos os contatos inativos.
+     *
+     * @return Lista de contatos com o campo "ativo" igual a false.
+     */
+    List<ContatoEmpresaResponse> listarInativos();
+
+    /**
+     * Lista todos os contatos vinculados a uma empresa específica.
      *
      * @param empresaId ID da empresa.
-     * @return Lista de contatos vinculados à empresa.
+     * @return Lista de contatos pertencentes à empresa informada.
      */
     List<ContatoEmpresaResponse> listarPorEmpresa(Long empresaId);
 
     /**
+     * Lista os contatos ativos vinculados a uma empresa específica.
+     *
+     * @param empresaId ID da empresa.
+     * @return Lista de contatos ativos da empresa informada.
+     */
+    List<ContatoEmpresaResponse> listarPorEmpresaAtivos(Long empresaId);
+
+    /**
      * Busca contatos cujo nome contenha um determinado termo.
      *
-     * @param nome Nome ou parte do nome do contato.
-     * @return Lista de contatos correspondentes.
+     * @param nome Termo parcial do nome do contato.
+     * @return Lista de contatos correspondentes ao termo informado.
      */
     List<ContatoEmpresaResponse> buscarPorNome(String nome);
 
     /**
-     * Busca um contato pelo e-mail.
+     * Busca um contato pelo e-mail exato.
      *
      * @param email E-mail do contato.
      * @return Optional contendo o contato, se encontrado.
@@ -71,7 +93,16 @@ public interface ContatoEmpresaService {
     Optional<ContatoEmpresaResponse> buscarPorEmail(String email);
 
     /**
-     * Remove um contato pelo ID.
+     * Busca contatos de uma empresa cujo e-mail contenha o termo informado.
+     *
+     * @param empresaId ID da empresa.
+     * @param email Termo parcial do e-mail.
+     * @return Lista de contatos correspondentes ao termo informado.
+     */
+    List<ContatoEmpresaResponse> buscarPorEmailParcial(Long empresaId, String email);
+
+    /**
+     * Remove um contato do sistema pelo seu ID.
      *
      * @param id ID do contato a ser removido.
      */

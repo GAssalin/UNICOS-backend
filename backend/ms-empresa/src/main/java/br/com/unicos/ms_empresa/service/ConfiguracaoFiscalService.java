@@ -1,35 +1,36 @@
 package br.com.unicos.ms_empresa.service;
 
-import br.com.unicos.ms_empresa.dto.ConfiguracaoEmpresaRequest;
-import br.com.unicos.ms_empresa.dto.ConfiguracaoEmpresaResponse;
+import br.com.unicos.ms_empresa.dto.ConfiguracaoFiscalRequest;
+import br.com.unicos.ms_empresa.dto.ConfiguracaoFiscalResponse;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Interface de serviço responsável pelas regras de negócio
- * relacionadas à entidade ConfiguracaoFiscal.
- *
+ * relacionadas à entidade {@link br.com.unicos.ms_empresa.model.ConfiguracaoFiscal}.
+ * <p>
  * Define os métodos para manipulação e consulta das configurações fiscais das empresas.
  */
 public interface ConfiguracaoFiscalService {
 
     /**
-     * Salva uma nova configuração fiscal para a empresa.
+     * Cria e salva uma nova configuração fiscal para a empresa.
      *
      * @param request DTO contendo os dados da configuração fiscal.
      * @return DTO representando a configuração fiscal salva.
      */
-    ConfiguracaoEmpresaResponse salvar(ConfiguracaoEmpresaRequest request);
+    ConfiguracaoFiscalResponse salvar(ConfiguracaoFiscalRequest request);
 
     /**
      * Atualiza uma configuração fiscal existente.
      *
-     * @param id ID da configuração fiscal a ser atualizada.
+     * @param id      ID da configuração fiscal a ser atualizada.
      * @param request DTO contendo os novos dados.
      * @return DTO representando a configuração fiscal atualizada.
      */
-    ConfiguracaoEmpresaResponse atualizar(Long id, ConfiguracaoEmpresaRequest request);
+    ConfiguracaoFiscalResponse atualizar(Long id, ConfiguracaoFiscalRequest request);
 
     /**
      * Busca uma configuração fiscal pelo ID.
@@ -37,14 +38,28 @@ public interface ConfiguracaoFiscalService {
      * @param id ID da configuração fiscal.
      * @return Optional contendo o DTO da configuração, se encontrada.
      */
-    Optional<ConfiguracaoEmpresaResponse> buscarPorId(Long id);
+    Optional<ConfiguracaoFiscalResponse> buscarPorId(Long id);
 
     /**
      * Lista todas as configurações fiscais cadastradas.
      *
      * @return Lista de DTOs de configuração fiscal.
      */
-    List<ConfiguracaoEmpresaResponse> listarTodas();
+    List<ConfiguracaoFiscalResponse> listarTodas();
+
+    /**
+     * Lista todas as configurações fiscais ativas.
+     *
+     * @return Lista de configurações fiscais com status ativo = true.
+     */
+    List<ConfiguracaoFiscalResponse> listarAtivas();
+
+    /**
+     * Lista todas as configurações fiscais inativas.
+     *
+     * @return Lista de configurações fiscais com status ativo = false.
+     */
+    List<ConfiguracaoFiscalResponse> listarInativas();
 
     /**
      * Remove uma configuração fiscal do sistema.
@@ -57,7 +72,7 @@ public interface ConfiguracaoFiscalService {
      * Busca uma configuração fiscal associada a uma empresa específica.
      *
      * @param empresaId ID da empresa.
-     * @return Optional contendo a configuração fiscal, se encontrada.
+     * @return Optional contendo o DTO da configuração, se encontrada.
      */
-    Optional<ConfiguracaoEmpresaResponse> buscarPorEmpresa(Long empresaId);
+    Optional<ConfiguracaoFiscalResponse> buscarPorEmpresa(Long empresaId);
 }

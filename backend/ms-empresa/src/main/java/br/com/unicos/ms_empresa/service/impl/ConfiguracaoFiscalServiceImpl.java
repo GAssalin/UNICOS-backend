@@ -1,7 +1,7 @@
 package br.com.unicos.ms_empresa.service.impl;
 
-import br.com.unicos.ms_empresa.dto.ConfiguracaoEmpresaRequest;
-import br.com.unicos.ms_empresa.dto.ConfiguracaoEmpresaResponse;
+import br.com.unicos.ms_empresa.dto.ConfiguracaoFiscalRequest;
+import br.com.unicos.ms_empresa.dto.ConfiguracaoFiscalResponse;
 import br.com.unicos.ms_empresa.model.ConfiguracaoFiscal;
 import br.com.unicos.ms_empresa.model.Empresa;
 import br.com.unicos.ms_empresa.repository.ConfiguracaoFiscalRepository;
@@ -9,6 +9,7 @@ import br.com.unicos.ms_empresa.repository.EmpresaRepository;
 import br.com.unicos.ms_empresa.service.ConfiguracaoFiscalService;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +18,8 @@ import java.util.Optional;
 
 /**
  * Implementação da interface {@link ConfiguracaoFiscalService}.
- *
- * Contém as regras de negócio e interações com o repositório de ConfiguracaoFiscal.
+ * <p>
+ * Contém as regras de negócio e interações com o repositório de {@link ConfiguracaoFiscal}.
  */
 @Service
 @Transactional
@@ -36,31 +37,31 @@ public class ConfiguracaoFiscalServiceImpl implements ConfiguracaoFiscalService 
         this.modelMapper = modelMapper;
     }
 
-    // ==================================
+    // =====================================================
     // 🔹 CRUD
-    // ==================================
+    // =====================================================
 
     @Override
-    public ConfiguracaoEmpresaResponse salvar(ConfiguracaoEmpresaRequest request) {
+    public ConfiguracaoFiscalResponse salvar(ConfiguracaoFiscalRequest request) {
         Empresa empresa = empresaRepository.findById(request.empresaId())
                 .orElseThrow(() -> new EntityNotFoundException("Empresa não encontrada para o ID informado."));
 
-        // Verifica se já existe configuração para a empresa
-        if (configuracaoFiscalRepository.findByEmpresaId(empresa.getId()).isPresent()) {
-            throw new IllegalStateException("Já existe uma configuração fiscal cadastrada para esta empresa.");
+        if (configuracaoFiscalRepository.existsByEmpresaId(empresa.getId())) {
+            throw new DataIntegrityViolationException("Já existe uma configuração fiscal cadastrada para esta empresa.");
         }
 
         ConfiguracaoFiscal entity = modelMapper.map(request, ConfiguracaoFiscal.class);
         entity.setEmpresa(empresa);
+        entity.setAtivo(true);
 
         ConfiguracaoFiscal salva = configuracaoFiscalRepository.save(entity);
         return toResponse(salva);
     }
 
     @Override
-    public ConfiguracaoEmpresaResponse atualizar(Long id, ConfiguracaoEmpresaRequest request) {
+    public ConfiguracaoFiscalResponse atualizar(Long id, ConfiguracaoFiscalRequest request) {
         ConfiguracaoFiscal existente = configuracaoFiscalRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Configuração fiscal não encontrada."));
+                .orElseThrow(() -> new EntityNotFoundException("Configuração fiscal não encontrada para o ID informado."));
 
         Empresa empresa = empresaRepository.findById(request.empresaId())
                 .orElseThrow(() -> new EntityNotFoundException("Empresa não encontrada para o ID informado."));
@@ -74,16 +75,36 @@ public class ConfiguracaoFiscalServiceImpl implements ConfiguracaoFiscalService 
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<ConfiguracaoEmpresaResponse> buscarPorId(Long id) {
+    public Optional<ConfiguracaoFiscalResponse> buscarPorId(Long id) {
         return configuracaoFiscalRepository.findById(id)
                 .map(this::toResponse);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ConfiguracaoEmpresaResponse> listarTodas() {
+    public List<ConfiguracaoFiscalResponse> listarTodas() {
         return configuracaoFiscalRepository.findAll()
                 .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ConfiguracaoFiscalResponse> listarAtivas() {
+        return configuracaoFiscalRepository.findAll()
+                .stream()
+                .filter(ConfiguracaoFiscal::getAtivo)
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ConfiguracaoFiscalResponse> listarInativas() {
+        return configuracaoFiscalRepository.findAll()
+                .stream()
+                .filter(c -> !c.getAtivo())
                 .map(this::toResponse)
                 .toList();
     }
@@ -98,25 +119,24 @@ public class ConfiguracaoFiscalServiceImpl implements ConfiguracaoFiscalService 
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<ConfiguracaoEmpresaResponse> buscarPorEmpresa(Long empresaId) {
+    public Optional<ConfiguracaoFiscalResponse> buscarPorEmpresa(Long empresaId) {
         return configuracaoFiscalRepository.findByEmpresaId(empresaId)
                 .map(this::toResponse);
     }
 
-    // ==================================
-    // 🧭 MÉTODO AUXILIAR
-    // ==================================
+    // =====================================================
+    // MÉTODOS AUXILIARES
+    // =====================================================
 
-    private ConfiguracaoEmpresaResponse toResponse(ConfiguracaoFiscal entity) {
+    private ConfiguracaoFiscalResponse toResponse(ConfiguracaoFiscal entity) {
         Empresa empresa = entity.getEmpresa();
-        return new ConfiguracaoEmpresaResponse(
+
+        return new ConfiguracaoFiscalResponse(
                 entity.getId(),
-                empresa != null ? empresa.getId() : null,
-                empresa != null ? empresa.getRazaoSocial() : null,
                 entity.getRegimeTributario(),
                 entity.getCertificadoDigital(),
                 entity.getTipoAmbiente(),
-                entity.getTipoAmbiente() != null ? entity.getTipoAmbiente().getDescricao() : null
+                entity.getAtivo()
         );
     }
 }

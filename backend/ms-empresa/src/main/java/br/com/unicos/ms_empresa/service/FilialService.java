@@ -8,78 +8,111 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Service responsável por operações relacionadas à entidade Filial.
+ * Interface de serviço responsável pelas regras de negócio
+ * relacionadas à entidade {@link br.com.unicos.ms_empresa.model.Filial}.
+ * <p>
+ * Define os métodos de criação, atualização, listagem e exclusão
+ * das filiais vinculadas às empresas.
  */
 public interface FilialService {
 
     /**
-     * Cria uma nova filial.
+     * Cria e salva uma nova filial.
      *
-     * @param request dados da filial a ser criada
-     * @return dados da filial criada
+     * @param request DTO contendo os dados da filial.
+     * @return DTO representando a filial criada.
      */
-    FilialResponse create(FilialRequest request);
+    FilialResponse salvar(FilialRequest request);
 
     /**
-     * Atualiza uma filial existente.
+     * Atualiza os dados de uma filial existente.
      *
-     * @param id identificador da filial
-     * @param request dados atualizados da filial
-     * @return dados da filial atualizada
+     * @param id      ID da filial a ser atualizada.
+     * @param request DTO contendo os novos dados.
+     * @return DTO representando a filial atualizada.
      */
-    FilialResponse update(Long id, FilialRequest request);
+    FilialResponse atualizar(Long id, FilialRequest request);
 
     /**
-     * Retorna os detalhes completos de uma filial.
+     * Busca uma filial pelo seu ID.
      *
-     * @param id identificador da filial
-     * @return detalhes da filial
+     * @param id ID da filial.
+     * @return Optional contendo os dados da filial, se encontrada.
      */
-    FilialResponse findById(Long id);
+    Optional<FilialResponse> buscarPorId(Long id);
 
     /**
-     * Retorna uma lista simplificada das filiais de uma empresa.
+     * Busca uma filial pelo seu CNPJ.
      *
-     * @param empresaId identificador da empresa
-     * @return lista de filiais
+     * @param cnpj CNPJ da filial.
+     * @return Optional contendo os dados da filial, se encontrada.
      */
-    List<FilialListDTO> findByEmpresa(Long empresaId);
+    Optional<FilialResponse> buscarPorCnpj(String cnpj);
 
     /**
-     * Busca uma filial pelo CNPJ.
+     * Lista todas as filiais cadastradas no sistema.
      *
-     * @param cnpj número do CNPJ
-     * @return Optional contendo os dados da filial, se encontrada
+     * @return Lista de filiais.
      */
-    Optional<FilialResponse> findByCnpj(String cnpj);
+    List<FilialListDTO> listarTodas();
 
     /**
-     * Retorna as filiais localizadas em uma determinada cidade.
+     * Lista todas as filiais vinculadas a uma empresa específica.
      *
-     * @param cidade nome da cidade
-     * @return lista de filiais
+     * @param empresaId ID da empresa.
+     * @return Lista de filiais pertencentes à empresa informada.
      */
-    List<FilialListDTO> findByCidade(String cidade);
+    List<FilialListDTO> listarPorEmpresa(Long empresaId);
 
     /**
-     * Retorna as filiais de uma determinada UF.
+     * Lista todas as filiais ativas.
      *
-     * @param uf sigla da unidade federativa (ex: SP, RJ)
-     * @return lista de filiais
+     * @return Lista de filiais com o campo "ativo" igual a true.
      */
-    List<FilialListDTO> findByUf(String uf);
+    List<FilialListDTO> listarAtivas();
 
     /**
-     * Lista todas as filiais ordenadas pela razão social.
+     * Lista todas as filiais inativas.
      *
-     * @return lista de filiais
+     * @return Lista de filiais com o campo "ativo" igual a false.
      */
-    List<FilialListDTO> findAllOrderedByRazaoSocial();
+    List<FilialListDTO> listarInativas();
 
     /**
-     * Exclui uma filial.
+     * Lista todas as filiais ativas vinculadas a uma empresa específica.
      *
-     * @param id identificador da filial a ser excluída
+     * @param empresaId ID da empresa.
+     * @return Lista de filiais ativas pertencentes à empresa informada.
      */
-    void delete(Long id);
+    List<FilialListDTO> listarPorEmpresaAtivas(Long empresaId);
+
+    /**
+     * Busca filiais cujo nome contenha um determinado termo.
+     *
+     * @param nome Termo parcial de busca.
+     * @return Lista de filiais correspondentes ao termo informado.
+     */
+    List<FilialListDTO> buscarPorNome(String nome);
+
+    /**
+     * Lista todas as filiais ordenadas alfabeticamente pelo nome.
+     *
+     * @return Lista de filiais ordenadas por nome.
+     */
+    List<FilialListDTO> listarOrdenadasPorNome();
+
+    /**
+     * Lista todas as filiais de uma empresa ordenadas alfabeticamente pelo nome.
+     *
+     * @param empresaId ID da empresa.
+     * @return Lista de filiais ordenadas por nome.
+     */
+    List<FilialListDTO> listarPorEmpresaOrdenadas(Long empresaId);
+
+    /**
+     * Remove uma filial do sistema.
+     *
+     * @param id ID da filial a ser removida.
+     */
+    void deletar(Long id);
 }

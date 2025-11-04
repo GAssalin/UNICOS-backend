@@ -10,17 +10,20 @@ import java.util.Optional;
 
 /**
  * Interface de serviço responsável pelas regras de negócio
- * relacionadas à entidade Empresa.
- *
+ * relacionadas à entidade {@link br.com.unicos.ms_empresa.model.Empresa}.
+ * <p>
  * Define os métodos de criação, atualização, listagem e exclusão
  * das empresas cadastradas no sistema.
  */
 public interface EmpresaService {
 
     /**
-     * Salva uma nova empresa e cria automaticamente sua filial matriz, juntamente com seu endereço principal
+     * Cria e salva uma nova empresa, gerando automaticamente
+     * sua filial matriz e endereço principal.
      *
-     * @param request DTO contendo os dados da empresa.
+     * @param request         DTO contendo os dados da empresa.
+     * @param enderecoRequest DTO contendo os dados do endereço principal.
+     * @param filialRequest   DTO contendo os dados da filial matriz.
      * @return DTO representando a empresa salva.
      */
     EmpresaResponse salvar(EmpresaRequest request, EnderecoEmpresaRequest enderecoRequest, FilialRequest filialRequest);
@@ -28,17 +31,17 @@ public interface EmpresaService {
     /**
      * Atualiza os dados de uma empresa existente.
      *
-     * @param id ID da empresa a ser atualizada.
+     * @param id      ID da empresa a ser atualizada.
      * @param request DTO contendo os novos dados da empresa.
      * @return DTO representando a empresa atualizada.
      */
     EmpresaResponse atualizar(Long id, EmpresaRequest request);
 
     /**
-     * Busca uma empresa pelo ID.
+     * Busca uma empresa pelo seu ID.
      *
      * @param id ID da empresa.
-     * @return Optional contendo o DTO da empresa, se encontrada.
+     * @return Optional contendo a empresa, se encontrada.
      */
     Optional<EmpresaResponse> buscarPorId(Long id);
 
@@ -46,7 +49,7 @@ public interface EmpresaService {
      * Busca uma empresa pelo CNPJ.
      *
      * @param cnpj CNPJ da empresa.
-     * @return Optional contendo o DTO da empresa, se encontrada.
+     * @return Optional contendo a empresa, se encontrada.
      */
     Optional<EmpresaResponse> buscarPorCnpj(String cnpj);
 
@@ -58,9 +61,16 @@ public interface EmpresaService {
     List<EmpresaResponse> listarTodas();
 
     /**
+     * Lista todas as empresas ordenadas alfabeticamente pela razão social.
+     *
+     * @return Lista de empresas ordenadas.
+     */
+    List<EmpresaResponse> listarOrdenadasPorRazaoSocial();
+
+    /**
      * Busca empresas cuja razão social contenha um termo específico.
      *
-     * @param razaoSocial Termo de busca.
+     * @param razaoSocial Termo parcial da razão social.
      * @return Lista de empresas correspondentes ao termo informado.
      */
     List<EmpresaResponse> buscarPorRazaoSocial(String razaoSocial);
@@ -68,13 +78,27 @@ public interface EmpresaService {
     /**
      * Busca empresas cujo nome fantasia contenha um termo específico.
      *
-     * @param nomeFantasia Termo de busca.
+     * @param nomeFantasia Termo parcial do nome fantasia.
      * @return Lista de empresas correspondentes ao termo informado.
      */
     List<EmpresaResponse> buscarPorNomeFantasia(String nomeFantasia);
 
     /**
-     * Exclui uma empresa do sistema.
+     * Lista todas as empresas que possuem inscrição estadual cadastrada.
+     *
+     * @return Lista de empresas com inscrição estadual.
+     */
+    List<EmpresaResponse> listarComInscricaoEstadual();
+
+    /**
+     * Lista todas as empresas que possuem inscrição municipal cadastrada.
+     *
+     * @return Lista de empresas com inscrição municipal.
+     */
+    List<EmpresaResponse> listarComInscricaoMunicipal();
+
+    /**
+     * Remove uma empresa do sistema.
      *
      * @param id ID da empresa a ser removida.
      */

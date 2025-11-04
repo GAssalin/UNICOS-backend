@@ -110,4 +110,19 @@ public interface FilialRepository extends JpaRepository<Filial, Long> {
      * @return Lista de filiais ativas que correspondem ao termo informado.
      */
     List<Filial> findByNomeContainingIgnoreCaseAndAtivoTrue(String nome);
+
+    /**
+     * Busca filiais cujo nome fantasia contenha o termo informado.
+     *
+     * @param nomeFantasia Termo parcial de busca.
+     * @return Lista de filiais correspondentes.
+     */
+    List<Filial> findByNomeFantasiaContainingIgnoreCase(String nomeFantasia);
+
+    /**
+     * Lista todas as filiais ordenadas alfabeticamente pela razão social.
+     *
+     * @return Lista ordenada por razão social.
+     */
+    List<Filial> findAllByOrderByRazaoSocialAsc();
 }

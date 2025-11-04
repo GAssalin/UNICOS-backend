@@ -50,25 +50,24 @@ public class EmpresaServiceImpl implements EmpresaService {
                                   EnderecoEmpresaRequest enderecoRequest,
                                   FilialRequest filialRequest) {
 
-        // Verifica duplicidade de CNPJ
         if (empresaRepository.existsByCnpj(request.cnpj())) {
             throw new IllegalStateException("Já existe uma empresa cadastrada com este CNPJ.");
         }
 
-        // Cria e salva a empresa
+        // Salva empresa principal
         Empresa empresa = modelMapper.map(request, Empresa.class);
         Empresa salva = empresaRepository.save(empresa);
 
-        // Cria e associa a filial
+        // Cria e associa a filial matriz
         Filial filial = modelMapper.map(filialRequest, Filial.class);
         filial.setEmpresa(salva);
-        filial.setMatriz(true); // marca como matriz
-        filialRepository.save(filial);
+        Filial filialSalva = filialRepository.save(filial);
 
-        // Cria e associa o endereço da matriz
+        // Cria e associa o endereço principal
         EnderecoEmpresa endereco = modelMapper.map(enderecoRequest, EnderecoEmpresa.class);
         endereco.setEmpresa(salva);
-        endereco.setTipo(TipoEnderecoEmpresa.MATRIZ);
+        endereco.setFilial(filialSalva);
+        endereco.setTipoEndereco(TipoEnderecoEmpresa.MATRIZ);
         enderecoEmpresaRepository.save(endereco);
 
         return toResponse(salva);
@@ -79,7 +78,6 @@ public class EmpresaServiceImpl implements EmpresaService {
         Empresa existente = empresaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Empresa não encontrada."));
 
-        // Verifica duplicidade de CNPJ
         if (!existente.getCnpj().equals(request.cnpj())
                 && empresaRepository.existsByCnpj(request.cnpj())) {
             throw new IllegalStateException("Já existe uma empresa cadastrada com este CNPJ.");
@@ -107,6 +105,15 @@ public class EmpresaServiceImpl implements EmpresaService {
     @Override
     @Transactional(readOnly = true)
     public List<EmpresaResponse> listarTodas() {
+        return empresaRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EmpresaResponse> listarOrdenadasPorRazaoSocial() {
         return empresaRepository.findAllByOrderByRazaoSocialAsc()
                 .stream()
                 .map(this::toResponse)
@@ -132,6 +139,24 @@ public class EmpresaServiceImpl implements EmpresaService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<EmpresaResponse> listarComInscricaoEstadual() {
+        return empresaRepository.findAll().stream()
+                .filter(e -> e.getInscricaoEstadual() != null && !e.getInscricaoEstadual().isBlank())
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EmpresaResponse> listarComInscricaoMunicipal() {
+        return empresaRepository.findAll().stream()
+                .filter(e -> e.getInscricaoMunicipal() != null && !e.getInscricaoMunicipal().isBlank())
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
     public void deletar(Long id) {
         if (!empresaRepository.existsById(id)) {
             throw new EntityNotFoundException("Empresa não encontrada para exclusão.");
@@ -140,10 +165,107 @@ public class EmpresaServiceImpl implements EmpresaService {
     }
 
     // ==================================
-    // 🧭 MÉTODO AUXILIAR
+    // MÉTODO AUXILIAR
     // ==================================
 
     private EmpresaResponse toResponse(Empresa entity) {
+
+        // 🔹 Endereços
+        List<EnderecoEmpresaResponse> enderecoEmpresaResponses = entity.getEnderecos() != null
+                ? entity.getEnderecos().stream()
+                .map(e -> new EnderecoEmpresaResponse(
+                        e.getId(),
+                        e.getLogradouro(),
+                        e.getNumero(),
+                        e.getComplemento(),
+                        e.getBairro(),
+                        e.getCidade(),
+                        e.getEstado(),
+                        e.getCep(),
+                        e.getTipoEndereco()
+                ))
+                .toList()
+                : List.of();
+
+        // 🔹 Departamentos
+        List<DepartamentoResponse> departamentoResponses = entity.getDepartamentos() != null
+                ? entity.getDepartamentos().stream()
+                .map(d -> new DepartamentoResponse(
+                        d.getId(),
+                        d.getNome(),
+                        d.getAtivo(),
+                        new EmpresaListDTO(
+                                entity.getId(),
+                                entity.getNomeFantasia(),
+                                entity.getCnpj()
+                        ),
+                        d.getSetores() != null
+                                ? d.getSetores().stream()
+                                .map(s -> new SetorResponse(
+                                        s.getId(),
+                                        s.getNome(),
+                                        s.getAtivo()
+                                ))
+                                .toList()
+                                : List.of()
+                ))
+                .toList()
+                : List.of();
+
+        // 🔹 Contatos
+        List<ContatoEmpresaResponse> contatoEmpresaResponses = entity.getContatos() != null
+                ? entity.getContatos().stream()
+                .map(c -> new ContatoEmpresaResponse(
+                        c.getId(),
+                        c.getTelefone(),
+                        c.getEmail(),
+                        c.getAtivo()
+                ))
+                .toList()
+                : List.of();
+
+        // 🔹 Configuração Fiscal
+        ConfiguracaoFiscalResponse configuracaoFiscalResponse = entity.getConfiguracaoFiscal() != null
+                ? new ConfiguracaoFiscalResponse(
+                entity.getConfiguracaoFiscal().getId(),
+                entity.getConfiguracaoFiscal().getRegimeTributario(),
+                entity.getConfiguracaoFiscal().getCertificadoDigital(),
+                entity.getConfiguracaoFiscal().getTipoAmbiente(),
+                entity.getConfiguracaoFiscal().getAtivo()
+        )
+                : null;
+
+        // 🔹 Filiais
+        List<FilialResponse> filialResponses = entity.getFiliais() != null
+                ? entity.getFiliais().stream()
+                .map(f -> new FilialResponse(
+                        f.getId(),
+                        f.getNome(),
+                        f.getCnpj(),
+                        f.getAtivo(),
+                        new EmpresaListDTO(
+                                entity.getId(),
+                                entity.getNomeFantasia(),
+                                entity.getCnpj()
+                        ),
+                        f.getEndereco() != null
+                                ? new EnderecoEmpresaResponse(
+                                f.getEndereco().getId(),
+                                f.getEndereco().getLogradouro(),
+                                f.getEndereco().getNumero(),
+                                f.getEndereco().getComplemento(),
+                                f.getEndereco().getBairro(),
+                                f.getEndereco().getCidade(),
+                                f.getEndereco().getEstado(),
+                                f.getEndereco().getCep(),
+                                f.getEndereco().getTipoEndereco()
+                        )
+                                : null
+                ))
+                .toList()
+                : List.of();
+
+        // 🔹 Retorno final
         return new EmpresaResponse(
                 entity.getId(),
                 entity.getRazaoSocial(),
@@ -151,44 +273,11 @@ public class EmpresaServiceImpl implements EmpresaService {
                 entity.getCnpj(),
                 entity.getInscricaoEstadual(),
                 entity.getInscricaoMunicipal(),
-                entity.getFiliais() != null ? entity.getFiliais()
-                        .stream()
-                        .map(f -> new FilialListDTO(
-                                f.getId(),
-                                f.getRazaoSocial(),
-                                f.getNomeFantasia(),
-                                f.getCnpj(),
-                                f.getCidade(),
-                                f.getUf()
-                        )).toList() : List.of(),
-                entity.getEnderecos() != null ? entity.getEnderecos()
-                        .stream()
-                        .map(e -> new EnderecoEmpresaListDTO(
-                                e.getId(),
-                                e.getLogradouro(),
-                                e.getNumero(),
-                                e.getCidade(),
-                                e.getUf(),
-                                e.getTipo()
-                        )).toList() : List.of(),
-                entity.getContatos() != null ? entity.getContatos()
-                        .stream()
-                        .map(c -> new ContatoEmpresaListDTO(
-                                c.getId(),
-                                c.getNomeContato(),
-                                c.getCargo(),
-                                c.getTelefone(),
-                                c.getCelular(),
-                                c.getEmail()
-                        )).toList() : List.of(),
-                entity.getDepartamentos() != null ? entity.getDepartamentos()
-                        .stream()
-                        .map(d -> new DepartamentoEmpresaListDTO(
-                                d.getId(),
-                                d.getNome(),
-                                d.getDescricao(),
-                                d.getAtivo()
-                        )).toList() : List.of()
+                filialResponses,
+                enderecoEmpresaResponses,
+                departamentoResponses,
+                contatoEmpresaResponses,
+                configuracaoFiscalResponse
         );
     }
 }

@@ -9,6 +9,7 @@ import br.com.unicos.ms_empresa.repository.EmpresaRepository;
 import br.com.unicos.ms_empresa.service.ContatoEmpresaService;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +18,8 @@ import java.util.Optional;
 
 /**
  * Implementação da interface {@link ContatoEmpresaService}.
- *
- * Contém as regras de negócio e interações com o repositório de ContatoEmpresa.
+ * <p>
+ * Contém as regras de negócio e interações com o repositório de {@link ContatoEmpresa}.
  */
 @Service
 @Transactional
@@ -36,9 +37,9 @@ public class ContatoEmpresaServiceImpl implements ContatoEmpresaService {
         this.modelMapper = modelMapper;
     }
 
-    // ==================================
+    // =====================================================
     // 🔹 CRUD
-    // ==================================
+    // =====================================================
 
     @Override
     public ContatoEmpresaResponse salvar(ContatoEmpresaRequest request) {
@@ -46,11 +47,12 @@ public class ContatoEmpresaServiceImpl implements ContatoEmpresaService {
                 .orElseThrow(() -> new EntityNotFoundException("Empresa não encontrada para o ID informado."));
 
         if (request.email() != null && contatoEmpresaRepository.existsByEmail(request.email())) {
-            throw new IllegalStateException("Já existe um contato cadastrado com este e-mail.");
+            throw new DataIntegrityViolationException("Já existe um contato cadastrado com este e-mail.");
         }
 
         ContatoEmpresa entity = modelMapper.map(request, ContatoEmpresa.class);
         entity.setEmpresa(empresa);
+        entity.setAtivo(true);
 
         ContatoEmpresa salvo = contatoEmpresaRepository.save(entity);
         return toResponse(salvo);
@@ -89,9 +91,39 @@ public class ContatoEmpresaServiceImpl implements ContatoEmpresaService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<ContatoEmpresaResponse> listarAtivos() {
+        return contatoEmpresaRepository.findAll()
+                .stream()
+                .filter(ContatoEmpresa::getAtivo)
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ContatoEmpresaResponse> listarInativos() {
+        return contatoEmpresaRepository.findAll()
+                .stream()
+                .filter(c -> !c.getAtivo())
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<ContatoEmpresaResponse> listarPorEmpresa(Long empresaId) {
         return contatoEmpresaRepository.findByEmpresaId(empresaId)
                 .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ContatoEmpresaResponse> listarPorEmpresaAtivos(Long empresaId) {
+        return contatoEmpresaRepository.findByEmpresaId(empresaId)
+                .stream()
+                .filter(ContatoEmpresa::getAtivo)
                 .map(this::toResponse)
                 .toList();
     }
@@ -113,6 +145,15 @@ public class ContatoEmpresaServiceImpl implements ContatoEmpresaService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<ContatoEmpresaResponse> buscarPorEmailParcial(Long empresaId, String email) {
+        return contatoEmpresaRepository.findByEmpresaId(empresaId).stream()
+                .filter(c -> c.getEmail() != null && c.getEmail().toLowerCase().contains(email.toLowerCase()))
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
     public void deletar(Long id) {
         if (!contatoEmpresaRepository.existsById(id)) {
             throw new EntityNotFoundException("Contato não encontrado para exclusão.");
@@ -120,21 +161,16 @@ public class ContatoEmpresaServiceImpl implements ContatoEmpresaService {
         contatoEmpresaRepository.deleteById(id);
     }
 
-    // ==================================
-    // 🧭 MÉTODO AUXILIAR
-    // ==================================
+    // =====================================================
+    // MÉTODOS AUXILIARES
+    // =====================================================
 
     private ContatoEmpresaResponse toResponse(ContatoEmpresa entity) {
-        Empresa empresa = entity.getEmpresa();
         return new ContatoEmpresaResponse(
                 entity.getId(),
-                empresa != null ? empresa.getId() : null,
-                empresa != null ? empresa.getRazaoSocial() : null,
-                entity.getNomeContato(),
-                entity.getCargo(),
                 entity.getTelefone(),
-                entity.getCelular(),
-                entity.getEmail()
+                entity.getEmail(),
+                entity.getAtivo()
         );
     }
 }

@@ -9,79 +9,127 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Service responsável pelas operações relacionadas à entidade EnderecoEmpresa.
+ * Interface de serviço responsável pelas regras de negócio
+ * relacionadas à entidade {@link br.com.unicos.ms_empresa.model.EnderecoEmpresa}.
+ * <p>
+ * Define os métodos de criação, atualização, listagem e exclusão
+ * dos endereços vinculados a empresas e filiais.
  */
 public interface EnderecoEmpresaService {
 
     /**
-     * Cria um novo endereço empresarial.
+     * Cria e salva um novo endereço empresarial.
      *
-     * @param request dados do endereço a ser criado
-     * @return dados do endereço criado
+     * @param request DTO contendo os dados do endereço.
+     * @return DTO representando o endereço salvo.
      */
-    EnderecoEmpresaResponse create(EnderecoEmpresaRequest request);
+    EnderecoEmpresaResponse salvar(EnderecoEmpresaRequest request);
 
     /**
-     * Atualiza um endereço empresarial existente.
+     * Atualiza os dados de um endereço empresarial existente.
      *
-     * @param id identificador do endereço
-     * @param request dados atualizados do endereço
-     * @return dados do endereço atualizado
+     * @param id      ID do endereço a ser atualizado.
+     * @param request DTO contendo os novos dados.
+     * @return DTO representando o endereço atualizado.
      */
-    EnderecoEmpresaResponse update(Long id, EnderecoEmpresaRequest request);
+    EnderecoEmpresaResponse atualizar(Long id, EnderecoEmpresaRequest request);
 
     /**
-     * Busca um endereço empresarial pelo seu ID.
+     * Busca um endereço pelo seu ID.
      *
-     * @param id identificador do endereço
-     * @return dados detalhados do endereço
+     * @param id ID do endereço.
+     * @return Optional contendo o endereço, se encontrado.
      */
-    EnderecoEmpresaResponse findById(Long id);
+    Optional<EnderecoEmpresaResponse> buscarPorId(Long id);
 
     /**
-     * Lista todos os endereços vinculados a uma empresa.
+     * Lista todos os endereços vinculados a uma empresa específica.
      *
-     * @param empresaId identificador da empresa
-     * @return lista de endereços
+     * @param empresaId ID da empresa.
+     * @return Lista de endereços da empresa.
      */
-    List<EnderecoEmpresaListDTO> findByEmpresa(Long empresaId);
+    List<EnderecoEmpresaListDTO> listarPorEmpresa(Long empresaId);
+
+    /**
+     * Lista todos os endereços vinculados a uma filial específica.
+     *
+     * @param filialId ID da filial.
+     * @return Lista de endereços da filial.
+     */
+    List<EnderecoEmpresaListDTO> listarPorFilial(Long filialId);
 
     /**
      * Busca um endereço pelo CEP.
      *
-     * @param cep código postal
-     * @return Optional contendo o endereço, se encontrado
+     * @param cep Código postal do endereço.
+     * @return Optional contendo o endereço, se encontrado.
      */
-    Optional<EnderecoEmpresaResponse> findByCep(String cep);
+    Optional<EnderecoEmpresaResponse> buscarPorCep(String cep);
 
     /**
-     * Lista endereços de uma cidade específica.
+     * Lista todos os endereços localizados em uma cidade específica.
      *
-     * @param cidade nome da cidade
-     * @return lista de endereços
+     * @param cidade Nome da cidade.
+     * @return Lista de endereços da cidade informada.
      */
-    List<EnderecoEmpresaListDTO> findByCidade(String cidade);
+    List<EnderecoEmpresaListDTO> listarPorCidade(String cidade);
 
     /**
-     * Lista endereços de uma determinada UF.
+     * Lista todos os endereços de uma determinada unidade federativa (estado).
      *
-     * @param uf sigla da unidade federativa (ex: SP, RJ)
-     * @return lista de endereços
+     * @param estado Sigla do estado (ex: SP, RJ, MG).
+     * @return Lista de endereços do estado informado.
      */
-    List<EnderecoEmpresaListDTO> findByUf(String uf);
+    List<EnderecoEmpresaListDTO> listarPorEstado(String estado);
 
     /**
-     * Lista endereços de um tipo específico (ex: MATRIZ, FATURAMENTO, ENTREGA).
+     * Lista todos os endereços de um tipo específico
+     * (ex: MATRIZ, FATURAMENTO, ENTREGA).
      *
-     * @param tipo tipo de endereço
-     * @return lista de endereços
+     * @param tipo Tipo de endereço.
+     * @return Lista de endereços correspondentes ao tipo informado.
      */
-    List<EnderecoEmpresaListDTO> findByTipo(TipoEnderecoEmpresa tipo);
+    List<EnderecoEmpresaListDTO> listarPorTipo(TipoEnderecoEmpresa tipo);
 
     /**
-     * Exclui um endereço empresarial.
+     * Lista endereços filtrados por tipo e cidade.
      *
-     * @param id identificador do endereço a ser excluído
+     * @param tipo   Tipo de endereço.
+     * @param cidade Cidade do endereço.
+     * @return Lista de endereços correspondentes.
      */
-    void delete(Long id);
+    List<EnderecoEmpresaListDTO> listarPorTipoECidade(TipoEnderecoEmpresa tipo, String cidade);
+
+    /**
+     * Lista endereços filtrados por tipo e estado.
+     *
+     * @param tipo   Tipo de endereço.
+     * @param estado Estado do endereço.
+     * @return Lista de endereços correspondentes.
+     */
+    List<EnderecoEmpresaListDTO> listarPorTipoEEstado(TipoEnderecoEmpresa tipo, String estado);
+
+    /**
+     * Lista todos os endereços de uma empresa ordenados
+     * alfabeticamente por cidade.
+     *
+     * @param empresaId ID da empresa.
+     * @return Lista de endereços ordenada por cidade.
+     */
+    List<EnderecoEmpresaListDTO> listarPorEmpresaOrdenados(Long empresaId);
+
+    /**
+     * Lista todos os endereços cadastrados,
+     * ordenados por estado e cidade.
+     *
+     * @return Lista de endereços ordenada.
+     */
+    List<EnderecoEmpresaListDTO> listarOrdenadosPorEstadoECidade();
+
+    /**
+     * Remove um endereço empresarial do sistema.
+     *
+     * @param id ID do endereço a ser removido.
+     */
+    void deletar(Long id);
 }
