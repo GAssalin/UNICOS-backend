@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Repositório responsável pelo acesso aos dados da entidade Empresa.
- *
+ * Repositório responsável pelo acesso aos dados da entidade {@link Empresa}.
+ * <p>
  * Fornece métodos personalizados para consultas específicas,
- * além dos métodos CRUD padrão fornecidos pelo JpaRepository.
+ * além dos métodos CRUD padrão fornecidos pelo {@link JpaRepository}.
  */
 @Repository
 public interface EmpresaRepository extends JpaRepository<Empresa, Long> {
@@ -43,6 +43,14 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Long> {
     List<Empresa> findByNomeFantasiaContainingIgnoreCase(String nomeFantasia);
 
     /**
+     * Busca uma empresa pelo nome fantasia exato.
+     *
+     * @param nomeFantasia Nome fantasia exato.
+     * @return Optional contendo a empresa, se encontrada.
+     */
+    Optional<Empresa> findByNomeFantasia(String nomeFantasia);
+
+    /**
      * Verifica se já existe uma empresa cadastrada com o mesmo CNPJ.
      *
      * @param cnpj CNPJ da empresa.
@@ -51,9 +59,33 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Long> {
     boolean existsByCnpj(String cnpj);
 
     /**
-     * Lista todas as empresas ordenadas por razão social.
+     * Lista todas as empresas ordenadas por razão social (ordem ascendente).
      *
      * @return Lista de empresas ordenadas alfabeticamente pela razão social.
      */
     List<Empresa> findAllByOrderByRazaoSocialAsc();
+
+    /**
+     * Lista todas as empresas que possuem inscrição estadual cadastrada.
+     *
+     * @return Lista de empresas com inscrição estadual.
+     */
+    List<Empresa> findByInscricaoEstadualIsNotNull();
+
+    /**
+     * Lista todas as empresas que possuem inscrição municipal cadastrada.
+     *
+     * @return Lista de empresas com inscrição municipal.
+     */
+    List<Empresa> findByInscricaoMunicipalIsNotNull();
+
+    /**
+     * Lista empresas cuja razão social ou nome fantasia contenham o termo informado.
+     * <p>
+     * Útil para buscas genéricas no front-end.
+     *
+     * @param termo Termo parcial de busca (pode ser parte do nome fantasia ou razão social).
+     * @return Lista de empresas correspondentes ao termo.
+     */
+    List<Empresa> findByRazaoSocialContainingIgnoreCaseOrNomeFantasiaContainingIgnoreCase(String termo, String termo2);
 }

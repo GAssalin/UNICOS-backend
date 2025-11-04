@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Repositório responsável pelo acesso aos dados da entidade ContatoEmpresa.
- *
+ * Repositório responsável pelo acesso aos dados da entidade {@link ContatoEmpresa}.
+ * <p>
  * Fornece métodos personalizados para consultas específicas,
- * além dos métodos CRUD padrão fornecidos pelo JpaRepository.
+ * além dos métodos CRUD padrão fornecidos pelo {@link JpaRepository}.
  */
 @Repository
 public interface ContatoEmpresaRepository extends JpaRepository<ContatoEmpresa, Long> {
@@ -51,18 +51,73 @@ public interface ContatoEmpresaRepository extends JpaRepository<ContatoEmpresa, 
     Optional<ContatoEmpresa> findByEmail(String email);
 
     /**
-     * Busca contatos cujo telefone ou celular contenham um determinado número.
-     *
-     * @param telefone Número parcial ou completo de telefone/celular.
-     * @return Lista de contatos correspondentes ao número informado.
-     */
-    List<ContatoEmpresa> findByTelefoneContainingOrCelularContaining(String telefone, String celular);
-
-    /**
      * Verifica se já existe um contato cadastrado com o mesmo e-mail.
      *
      * @param email E-mail do contato.
      * @return true se já existir, false caso contrário.
      */
     boolean existsByEmail(String email);
+
+    /**
+     * Busca contatos cujo telefone ou celular contenham um determinado número.
+     *
+     * @param telefone Número parcial ou completo do telefone.
+     * @param celular  Número parcial ou completo do celular.
+     * @return Lista de contatos correspondentes ao número informado.
+     */
+    List<ContatoEmpresa> findByTelefoneContainingOrCelularContaining(String telefone, String celular);
+
+    /**
+     * Lista todos os contatos ativos no sistema.
+     *
+     * @return Lista de contatos com status ativo = true.
+     */
+    List<ContatoEmpresa> findByAtivoTrue();
+
+    /**
+     * Lista todos os contatos inativos no sistema.
+     *
+     * @return Lista de contatos com status ativo = false.
+     */
+    List<ContatoEmpresa> findByAtivoFalse();
+
+    /**
+     * Lista contatos ativos de uma empresa específica.
+     *
+     * @param empresaId ID da empresa.
+     * @return Lista de contatos ativos da empresa informada.
+     */
+    List<ContatoEmpresa> findByEmpresaIdAndAtivoTrue(Long empresaId);
+
+    /**
+     * Lista contatos inativos de uma empresa específica.
+     *
+     * @param empresaId ID da empresa.
+     * @return Lista de contatos inativos da empresa informada.
+     */
+    List<ContatoEmpresa> findByEmpresaIdAndAtivoFalse(Long empresaId);
+
+    /**
+     * Busca contatos de uma empresa com base em parte do e-mail informado.
+     *
+     * @param empresaId ID da empresa.
+     * @param email     Termo parcial de e-mail.
+     * @return Lista de contatos da empresa cujo e-mail corresponda ao termo informado.
+     */
+    List<ContatoEmpresa> findByEmpresaIdAndEmailContainingIgnoreCase(Long empresaId, String email);
+
+    /**
+     * Lista todos os contatos ordenados pelo nome do contato (ordem ascendente).
+     *
+     * @return Lista de contatos ordenados alfabeticamente.
+     */
+    List<ContatoEmpresa> findAllByOrderByNomeContatoAsc();
+
+    /**
+     * Lista contatos de uma empresa ordenados pelo nome do contato.
+     *
+     * @param empresaId ID da empresa.
+     * @return Lista de contatos ordenada pelo nome.
+     */
+    List<ContatoEmpresa> findByEmpresaIdOrderByNomeContatoAsc(Long empresaId);
 }
