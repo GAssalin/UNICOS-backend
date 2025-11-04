@@ -1,7 +1,8 @@
 package br.com.unicos.ms_empresa.dto;
 
-public record ContatoEmpresaListDTO(
+
+public record SetorListDTO(
         Long id,
-        String telefone,
+        String nome,
         Boolean ativo
 ) {}

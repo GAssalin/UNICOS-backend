@@ -1,8 +1,7 @@
 package br.com.unicos.ms_empresa.dto;
 
-public record FilialRequest(
+public record SetorRequest(
         String nome,
-        String cnpj,
-        Long empresaId,
+        Long departamentoId,
         Boolean ativo
 ) {}

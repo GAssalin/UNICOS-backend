@@ -2,19 +2,14 @@ package br.com.unicos.ms_empresa.dto;
 
 import br.com.unicos.ms_empresa.enums.TipoEnderecoEmpresa;
 
-/**
- * DTO usado para retorno detalhado das informações de um endereço empresarial.
- */
 public record EnderecoEmpresaResponse(
         Long id,
-        Long empresaId,
-        String empresaRazaoSocial,
         String logradouro,
         String numero,
         String complemento,
         String bairro,
         String cidade,
-        String uf,
+        String estado,
         String cep,
-        TipoEnderecoEmpresa tipo
+        TipoEnderecoEmpresa tipoEndereco
 ) {}

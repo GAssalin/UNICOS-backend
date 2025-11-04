@@ -1,10 +1,11 @@
 package br.com.unicos.ms_empresa.dto;
 
-public record FilialResponse(
+import java.util.List;
+
+public record DepartamentoResponse(
         Long id,
         String nome,
-        String cnpj,
         Boolean ativo,
         EmpresaListDTO empresa,
-        EnderecoEmpresaResponse endereco
+        List<SetorResponse> setores
 ) {}
