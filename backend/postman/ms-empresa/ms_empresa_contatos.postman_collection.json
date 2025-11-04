@@ -1,0 +1,142 @@
+{
+  "info": {
+    "name": "ms_empresa_contatos",
+    "_postman_id": "ms_empresa_contatos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Contato",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/contatos",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "contatos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    },
+    {
+      "name": "Atualizar Contato",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/contatos/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "contatos",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    },
+    {
+      "name": "Listar Contatos",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/contatos",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "contatos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    },
+    {
+      "name": "Buscar Contato por ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/contatos/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "contatos",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    },
+    {
+      "name": "Excluir Contato",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/contatos/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "contatos",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    }
+  ]
+}

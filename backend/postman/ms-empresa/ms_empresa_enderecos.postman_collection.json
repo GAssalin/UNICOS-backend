@@ -1,0 +1,142 @@
+{
+  "info": {
+    "name": "ms_empresa_enderecos",
+    "_postman_id": "ms_empresa_enderecos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Endereço",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/enderecos",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "enderecos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    },
+    {
+      "name": "Atualizar Endereço",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/enderecos/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "enderecos",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    },
+    {
+      "name": "Listar Endereços",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/enderecos",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "enderecos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    },
+    {
+      "name": "Buscar Endereço por ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/enderecos/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "enderecos",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    },
+    {
+      "name": "Excluir Endereço",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/enderecos/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "enderecos",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    }
+  ]
+}

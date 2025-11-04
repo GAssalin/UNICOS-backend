@@ -1,0 +1,170 @@
+{
+  "info": {
+    "name": "ms_empresa_empresas",
+    "_postman_id": "ms_empresa_empresas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Empresa",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/empresas",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "empresas"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"razaoSocial\": \"Empresa Exemplo\",\n  \"cnpj\": \"00.000.000/0001-00\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Atualizar Empresa",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/empresas/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "empresas",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    },
+    {
+      "name": "Listar Empresas",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/empresas",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "empresas"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    },
+    {
+      "name": "Buscar por ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/empresas/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "empresas",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    },
+    {
+      "name": "Buscar por CNPJ",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/empresas/cnpj/00000000000100",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "empresas",
+            "cnpj",
+            "00000000000100"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    },
+    {
+      "name": "Excluir Empresa",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/v1/empresas/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "empresas",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    }
+  ]
+}
