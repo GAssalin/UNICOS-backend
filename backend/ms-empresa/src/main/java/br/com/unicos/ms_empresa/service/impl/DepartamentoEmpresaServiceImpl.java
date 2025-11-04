@@ -2,7 +2,6 @@ package br.com.unicos.ms_empresa.service.impl;
 
 import br.com.unicos.ms_empresa.dto.DepartamentoEmpresaRequest;
 import br.com.unicos.ms_empresa.dto.DepartamentoEmpresaResponse;
-import br.com.unicos.ms_empresa.model.DepartamentoEmpresa;
 import br.com.unicos.ms_empresa.model.Empresa;
 import br.com.unicos.ms_empresa.repository.DepartamentoEmpresaRepository;
 import br.com.unicos.ms_empresa.repository.EmpresaRepository;

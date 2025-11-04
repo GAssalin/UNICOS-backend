@@ -2,64 +2,35 @@ package br.com.unicos.ms_empresa.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+/**
+ * Entidade que representa as filiais ou unidades vinculadas à empresa matriz.
+ */
 @Entity
 @Table(name = "filial")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Filial {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @NotBlank
+    @Column(nullable = false, length = 150)
+    private String nome;
+
+    @NotBlank
+    @Column(nullable = false, unique = true, length = 18)
+    private String cnpj;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "empresa_id", nullable = false)
     private Empresa empresa;
 
-    @Column(nullable = false)
-    private Boolean matriz = false;
-
-    @Column(name = "empresa_matriz_nome", length = 150)
-    private String empresaMatrizNome;
-
-    @NotBlank(message = "A razão social da filial é obrigatória.")
-    @Column(nullable = false, length = 150)
-    private String razaoSocial;
-
-    @NotBlank(message = "O nome fantasia da filial é obrigatório.")
-    @Column(nullable = false, length = 150)
-    private String nomeFantasia;
-
-    @NotBlank(message = "O CNPJ da filial é obrigatório.")
-    @Column(nullable = false, length = 18, unique = true)
-    private String cnpj;
-
-    @Column(length = 20)
-    private String inscricaoEstadual;
-
-    @Column(length = 20)
-    private String inscricaoMunicipal;
-
-    @Column(length = 50)
-    private String telefone;
-
-    @Column(length = 100)
-    private String email;
-
-    @Column(length = 255)
-    private String endereco;
-
-    @Column(length = 100)
-    private String cidade;
-
-    @Column(length = 2)
-    private String uf;
-
-    @Column(length = 10)
-    private String cep;
+    @OneToOne(mappedBy = "filial", cascade = CascadeType.ALL)
+    private EnderecoEmpresa endereco;
 }

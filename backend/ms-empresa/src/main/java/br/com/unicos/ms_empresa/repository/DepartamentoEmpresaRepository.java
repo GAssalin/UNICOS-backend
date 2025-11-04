@@ -1,6 +1,5 @@
 package br.com.unicos.ms_empresa.repository;
 
-import br.com.unicos.ms_empresa.model.DepartamentoEmpresa;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
