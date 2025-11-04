@@ -1,0 +1,63 @@
+{
+  "info": {
+    "name": "ms_auth_auditoria",
+    "description": "Endpoints da controller de Auditoria de Acesso do ms-auth",
+    "_postman_id": "auto-ms_auth_auditoria",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ],
+  "item": [
+    {
+      "name": "Listar por Usu\u00e1rio",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/auth/v1/auditoria/usuario/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "v1",
+            "auditoria",
+            "usuario",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Listar por Per\u00edodo",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/auth/v1/auditoria/periodo?inicio=2025-11-04T00:00:00&fim=2025-11-04T23:59:59",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "v1",
+            "auditoria",
+            "periodo"
+          ],
+          "query": [
+            {
+              "key": "inicio",
+              "value": "2025-11-04T00:00:00"
+            },
+            {
+              "key": "fim",
+              "value": "2025-11-04T23:59:59"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

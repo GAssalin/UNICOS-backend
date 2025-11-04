@@ -1,0 +1,60 @@
+{
+  "info": {
+    "name": "ms_auth_roles",
+    "description": "Endpoints da controller de Roles do ms-auth",
+    "_postman_id": "auto-ms_auth_roles",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ],
+  "item": [
+    {
+      "name": "Criar Role",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"ADMIN\",\n  \"descricao\": \"Acesso total\",\n  \"permissoesIds\": [1,2]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/v1/roles",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "v1",
+            "roles"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Listar Roles",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/auth/v1/roles",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "v1",
+            "roles"
+          ]
+        }
+      }
+    }
+  ]
+}
