@@ -6,7 +6,6 @@ import br.com.unicos.ms_empresa.dto.EnderecoEmpresaRequest;
 import br.com.unicos.ms_empresa.dto.FilialRequest;
 import br.com.unicos.ms_empresa.service.EmpresaService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,54 +14,67 @@ import java.util.List;
 
 /**
  * Controller responsável pelo gerenciamento de empresas.
- *
- * Fornece endpoints REST para criação, atualização, listagem, busca e exclusão de empresas.
+ * <p>
+ * Fornece endpoints REST para criação, atualização, listagem, busca e exclusão.
  */
 @RestController
 @RequestMapping("/v1/empresas")
-@RequiredArgsConstructor
 public class EmpresaController {
 
     private final EmpresaService empresaService;
 
+    public EmpresaController(EmpresaService empresaService) {
+        this.empresaService = empresaService;
+    }
+
     /**
-     * Cria uma nova empresa juntamente com seu endereço e filial matriz.
+     * Cria uma nova empresa com sua filial matriz e endereço principal.
      *
-     * @param request          dados da empresa
-     * @param enderecoRequest  dados do endereço da empresa
-     * @param filialRequest    dados da filial matriz
+     * @param empresaRequest  dados da empresa
+     * @param enderecoRequest dados do endereço principal
+     * @param filialRequest   dados da filial matriz
      * @return empresa criada
+     * @status 201 Created
      */
     @PostMapping
-    public ResponseEntity<EmpresaResponse> criar(
-            @Valid @RequestBody EmpresaRequest request,
-            @Valid @RequestParam EnderecoEmpresaRequest enderecoRequest,
-            @Valid @RequestParam FilialRequest filialRequest) {
-
-        EmpresaResponse response = empresaService.salvar(request, enderecoRequest, filialRequest);
+    public ResponseEntity<EmpresaResponse> criar(@Valid @RequestBody EmpresaRequest empresaRequest,
+                                                 @Valid @RequestBody EnderecoEmpresaRequest enderecoRequest,
+                                                 @Valid @RequestBody FilialRequest filialRequest) {
+        EmpresaResponse response = empresaService.salvar(empresaRequest, enderecoRequest, filialRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
-     * Atualiza os dados de uma empresa existente.
+     * Atualiza dados de uma empresa existente.
      *
-     * @param id identificador da empresa
-     * @param request novos dados da empresa
+     * @param id      id da empresa
+     * @param request novos dados
      * @return empresa atualizada
+     * @status 200 OK / 404 Not Found
      */
     @PutMapping("/{id}")
-    public ResponseEntity<EmpresaResponse> atualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody EmpresaRequest request) {
-        EmpresaResponse response = empresaService.atualizar(id, request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<EmpresaResponse> atualizar(@PathVariable Long id,
+                                                     @Valid @RequestBody EmpresaRequest request) {
+        return ResponseEntity.ok(empresaService.atualizar(id, request));
     }
 
     /**
-     * Busca uma empresa pelo seu ID.
+     * Lista todas as empresas.
      *
-     * @param id identificador da empresa
-     * @return empresa encontrada, se existir
+     * @return lista de empresas
+     * @status 200 OK
+     */
+    @GetMapping
+    public ResponseEntity<List<EmpresaResponse>> listar() {
+        return ResponseEntity.ok(empresaService.listarTodas());
+    }
+
+    /**
+     * Busca empresa por ID.
+     *
+     * @param id id da empresa
+     * @return empresa encontrada (ou 404)
+     * @status 200 OK / 404 Not Found
      */
     @GetMapping("/{id}")
     public ResponseEntity<EmpresaResponse> buscarPorId(@PathVariable Long id) {
@@ -72,67 +84,25 @@ public class EmpresaController {
     }
 
     /**
-     * Busca uma empresa pelo CNPJ.
+     * Busca empresa por CNPJ.
      *
-     * @param cnpj número do CNPJ
-     * @return empresa encontrada, se existir
+     * @param cnpj CNPJ
+     * @return empresa encontrada (ou 404)
+     * @status 200 OK / 404 Not Found
      */
-    @GetMapping("/buscar/cnpj")
-    public ResponseEntity<EmpresaResponse> buscarPorCnpj(@RequestParam String cnpj) {
+    @GetMapping("/cnpj/{cnpj}")
+    public ResponseEntity<EmpresaResponse> buscarPorCnpj(@PathVariable String cnpj) {
         return empresaService.buscarPorCnpj(cnpj)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     /**
-     * Lista todas as empresas cadastradas.
+     * Remove uma empresa pelo ID.
      *
-     * @return lista de empresas
-     */
-    @GetMapping
-    public ResponseEntity<List<EmpresaResponse>> listarTodas() {
-        List<EmpresaResponse> empresas = empresaService.listarTodas();
-        if (empresas.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(empresas);
-    }
-
-    /**
-     * Busca empresas pela razão social (contém).
-     *
-     * @param razaoSocial termo de busca
-     * @return lista de empresas correspondentes
-     */
-    @GetMapping("/buscar/razao-social")
-    public ResponseEntity<List<EmpresaResponse>> buscarPorRazaoSocial(@RequestParam String razaoSocial) {
-        List<EmpresaResponse> empresas = empresaService.buscarPorRazaoSocial(razaoSocial);
-        if (empresas.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(empresas);
-    }
-
-    /**
-     * Busca empresas pelo nome fantasia (contém).
-     *
-     * @param nomeFantasia termo de busca
-     * @return lista de empresas correspondentes
-     */
-    @GetMapping("/buscar/nome-fantasia")
-    public ResponseEntity<List<EmpresaResponse>> buscarPorNomeFantasia(@RequestParam String nomeFantasia) {
-        List<EmpresaResponse> empresas = empresaService.buscarPorNomeFantasia(nomeFantasia);
-        if (empresas.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(empresas);
-    }
-
-    /**
-     * Exclui uma empresa pelo seu ID.
-     *
-     * @param id identificador da empresa
-     * @return resposta sem conteúdo (204)
+     * @param id id da empresa
+     * @return 204 sem conteúdo
+     * @status 204 No Content / 404 Not Found
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {

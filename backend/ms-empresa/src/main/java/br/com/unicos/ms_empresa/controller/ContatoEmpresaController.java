@@ -4,7 +4,6 @@ import br.com.unicos.ms_empresa.dto.ContatoEmpresaRequest;
 import br.com.unicos.ms_empresa.dto.ContatoEmpresaResponse;
 import br.com.unicos.ms_empresa.service.ContatoEmpresaService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,49 +11,61 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Controller responsável pelo gerenciamento dos contatos corporativos das empresas.
- *
- * Fornece endpoints REST para criação, atualização, listagem, busca e exclusão de contatos.
+ * Controller responsável pelo gerenciamento de contatos corporativos.
  */
 @RestController
-@RequestMapping("/v1/contatos-empresa")
-@RequiredArgsConstructor
+@RequestMapping("/v1/contatos")
 public class ContatoEmpresaController {
 
     private final ContatoEmpresaService contatoEmpresaService;
 
+    public ContatoEmpresaController(ContatoEmpresaService contatoEmpresaService) {
+        this.contatoEmpresaService = contatoEmpresaService;
+    }
+
     /**
-     * Cria um novo contato empresarial.
+     * Cria um contato corporativo.
      *
-     * @param request dados do contato a ser criado
+     * @param request dados do contato
      * @return contato criado
+     * @status 201 Created
      */
     @PostMapping
     public ResponseEntity<ContatoEmpresaResponse> criar(@Valid @RequestBody ContatoEmpresaRequest request) {
-        ContatoEmpresaResponse response = contatoEmpresaService.salvar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(contatoEmpresaService.salvar(request));
     }
 
     /**
-     * Atualiza os dados de um contato existente.
+     * Atualiza um contato corporativo.
      *
-     * @param id identificador do contato
-     * @param request novos dados do contato
+     * @param id      id do contato
+     * @param request novos dados
      * @return contato atualizado
+     * @status 200 OK / 404 Not Found
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ContatoEmpresaResponse> atualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody ContatoEmpresaRequest request) {
-        ContatoEmpresaResponse response = contatoEmpresaService.atualizar(id, request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<ContatoEmpresaResponse> atualizar(@PathVariable Long id,
+                                                            @Valid @RequestBody ContatoEmpresaRequest request) {
+        return ResponseEntity.ok(contatoEmpresaService.atualizar(id, request));
     }
 
     /**
-     * Busca um contato pelo seu ID.
+     * Lista todos os contatos.
      *
-     * @param id identificador do contato
-     * @return contato encontrado, se existir
+     * @return lista de contatos
+     * @status 200 OK
+     */
+    @GetMapping
+    public ResponseEntity<List<ContatoEmpresaResponse>> listar() {
+        return ResponseEntity.ok(contatoEmpresaService.listarTodos());
+    }
+
+    /**
+     * Busca contato por ID.
+     *
+     * @param id id do contato
+     * @return contato encontrado (ou 404)
+     * @status 200 OK / 404 Not Found
      */
     @GetMapping("/{id}")
     public ResponseEntity<ContatoEmpresaResponse> buscarPorId(@PathVariable Long id) {
@@ -64,67 +75,11 @@ public class ContatoEmpresaController {
     }
 
     /**
-     * Lista todos os contatos cadastrados.
+     * Remove um contato.
      *
-     * @return lista de contatos
-     */
-    @GetMapping
-    public ResponseEntity<List<ContatoEmpresaResponse>> listarTodos() {
-        List<ContatoEmpresaResponse> contatos = contatoEmpresaService.listarTodos();
-        if (contatos.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(contatos);
-    }
-
-    /**
-     * Lista todos os contatos vinculados a uma empresa específica.
-     *
-     * @param empresaId identificador da empresa
-     * @return lista de contatos da empresa
-     */
-    @GetMapping("/empresa/{empresaId}")
-    public ResponseEntity<List<ContatoEmpresaResponse>> listarPorEmpresa(@PathVariable Long empresaId) {
-        List<ContatoEmpresaResponse> contatos = contatoEmpresaService.listarPorEmpresa(empresaId);
-        if (contatos.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(contatos);
-    }
-
-    /**
-     * Busca contatos cujo nome contenha determinado termo.
-     *
-     * @param nome termo de busca
-     * @return lista de contatos correspondentes
-     */
-    @GetMapping("/buscar/nome")
-    public ResponseEntity<List<ContatoEmpresaResponse>> buscarPorNome(@RequestParam String nome) {
-        List<ContatoEmpresaResponse> contatos = contatoEmpresaService.buscarPorNome(nome);
-        if (contatos.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(contatos);
-    }
-
-    /**
-     * Busca um contato pelo e-mail informado.
-     *
-     * @param email e-mail do contato
-     * @return contato encontrado, se existir
-     */
-    @GetMapping("/buscar/email")
-    public ResponseEntity<ContatoEmpresaResponse> buscarPorEmail(@RequestParam String email) {
-        return contatoEmpresaService.buscarPorEmail(email)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    /**
-     * Exclui um contato pelo seu ID.
-     *
-     * @param id identificador do contato
-     * @return resposta sem conteúdo (204)
+     * @param id id do contato
+     * @return 204 sem conteúdo
+     * @status 204 No Content / 404 Not Found
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {

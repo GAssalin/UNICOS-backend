@@ -1,10 +1,9 @@
 package br.com.unicos.ms_empresa.controller;
 
-import br.com.unicos.ms_empresa.dto.ConfiguracaoEmpresaRequest;
-import br.com.unicos.ms_empresa.dto.ConfiguracaoEmpresaResponse;
+import br.com.unicos.ms_empresa.dto.ConfiguracaoFiscalRequest;
+import br.com.unicos.ms_empresa.dto.ConfiguracaoFiscalResponse;
 import br.com.unicos.ms_empresa.service.ConfiguracaoFiscalService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,66 +12,58 @@ import java.util.List;
 
 /**
  * Controller responsável pelo gerenciamento das configurações fiscais das empresas.
- *
- * Fornece endpoints REST para criação, atualização, listagem, busca e exclusão de configurações fiscais.
+ * <p>
+ * Fornece endpoints REST para criação, atualização, listagem, busca e exclusão
+ * de configurações fiscais.
  */
 @RestController
 @RequestMapping("/v1/configuracoes-fiscais")
-@RequiredArgsConstructor
 public class ConfiguracaoFiscalController {
 
     private final ConfiguracaoFiscalService configuracaoFiscalService;
 
+    public ConfiguracaoFiscalController(ConfiguracaoFiscalService configuracaoFiscalService) {
+        this.configuracaoFiscalService = configuracaoFiscalService;
+    }
+
     /**
-     * Cria uma nova configuração fiscal para uma empresa.
+     * Cria uma nova configuração fiscal para a empresa.
      *
-     * @param request dados da configuração fiscal
-     * @return configuração criada
+     * @param request Dados da configuração fiscal.
+     * @return Configuração fiscal criada.
+     * @status 201 Created
      */
     @PostMapping
-    public ResponseEntity<ConfiguracaoEmpresaResponse> criar(@Valid @RequestBody ConfiguracaoEmpresaRequest request) {
-        ConfiguracaoEmpresaResponse response = configuracaoFiscalService.salvar(request);
+    public ResponseEntity<ConfiguracaoFiscalResponse> criar(@Valid @RequestBody ConfiguracaoFiscalRequest request) {
+        ConfiguracaoFiscalResponse response = configuracaoFiscalService.salvar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
      * Atualiza uma configuração fiscal existente.
      *
-     * @param id identificador da configuração fiscal
-     * @param request dados atualizados da configuração fiscal
-     * @return configuração atualizada
+     * @param id      ID da configuração fiscal a ser atualizada.
+     * @param request Novos dados da configuração.
+     * @return Configuração fiscal atualizada.
+     * @status 200 OK / 404 Not Found
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ConfiguracaoEmpresaResponse> atualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody ConfiguracaoEmpresaRequest request) {
-
-        ConfiguracaoEmpresaResponse response = configuracaoFiscalService.atualizar(id, request);
+    public ResponseEntity<ConfiguracaoFiscalResponse> atualizar(@PathVariable Long id,
+                                                                @Valid @RequestBody ConfiguracaoFiscalRequest request) {
+        ConfiguracaoFiscalResponse response = configuracaoFiscalService.atualizar(id, request);
         return ResponseEntity.ok(response);
     }
 
     /**
-     * Busca uma configuração fiscal pelo seu ID.
+     * Busca uma configuração fiscal pelo ID.
      *
-     * @param id identificador da configuração fiscal
-     * @return configuração encontrada, se existir
+     * @param id ID da configuração fiscal.
+     * @return Configuração encontrada, se existir.
+     * @status 200 OK / 404 Not Found
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ConfiguracaoEmpresaResponse> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<ConfiguracaoFiscalResponse> buscarPorId(@PathVariable Long id) {
         return configuracaoFiscalService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    /**
-     * Busca uma configuração fiscal vinculada a uma empresa específica.
-     *
-     * @param empresaId identificador da empresa
-     * @return configuração fiscal da empresa, se existir
-     */
-    @GetMapping("/empresa/{empresaId}")
-    public ResponseEntity<ConfiguracaoEmpresaResponse> buscarPorEmpresa(@PathVariable Long empresaId) {
-        return configuracaoFiscalService.buscarPorEmpresa(empresaId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -80,22 +71,59 @@ public class ConfiguracaoFiscalController {
     /**
      * Lista todas as configurações fiscais cadastradas.
      *
-     * @return lista de configurações fiscais
+     * @return Lista de configurações fiscais.
+     * @status 200 OK
      */
     @GetMapping
-    public ResponseEntity<List<ConfiguracaoEmpresaResponse>> listarTodas() {
-        List<ConfiguracaoEmpresaResponse> configuracoes = configuracaoFiscalService.listarTodas();
-        if (configuracoes.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(configuracoes);
+    public ResponseEntity<List<ConfiguracaoFiscalResponse>> listarTodas() {
+        List<ConfiguracaoFiscalResponse> lista = configuracaoFiscalService.listarTodas();
+        return ResponseEntity.ok(lista);
     }
 
     /**
-     * Exclui uma configuração fiscal pelo ID informado.
+     * Lista todas as configurações fiscais ativas.
      *
-     * @param id identificador da configuração fiscal
-     * @return resposta sem conteúdo (204)
+     * @return Lista de configurações fiscais ativas.
+     * @status 200 OK
+     */
+    @GetMapping("/ativas")
+    public ResponseEntity<List<ConfiguracaoFiscalResponse>> listarAtivas() {
+        List<ConfiguracaoFiscalResponse> lista = configuracaoFiscalService.listarAtivas();
+        return ResponseEntity.ok(lista);
+    }
+
+    /**
+     * Lista todas as configurações fiscais inativas.
+     *
+     * @return Lista de configurações fiscais inativas.
+     * @status 200 OK
+     */
+    @GetMapping("/inativas")
+    public ResponseEntity<List<ConfiguracaoFiscalResponse>> listarInativas() {
+        List<ConfiguracaoFiscalResponse> lista = configuracaoFiscalService.listarInativas();
+        return ResponseEntity.ok(lista);
+    }
+
+    /**
+     * Busca a configuração fiscal vinculada a uma empresa específica.
+     *
+     * @param empresaId ID da empresa.
+     * @return Configuração fiscal associada à empresa, se existir.
+     * @status 200 OK / 404 Not Found
+     */
+    @GetMapping("/empresa/{empresaId}")
+    public ResponseEntity<ConfiguracaoFiscalResponse> buscarPorEmpresa(@PathVariable Long empresaId) {
+        return configuracaoFiscalService.buscarPorEmpresa(empresaId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Remove uma configuração fiscal do sistema.
+     *
+     * @param id ID da configuração fiscal.
+     * @return 204 sem conteúdo.
+     * @status 204 No Content / 404 Not Found
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
