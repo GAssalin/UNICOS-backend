@@ -1,0 +1,124 @@
+{
+    "info": {
+        "name": "ms_ativos_depreciacoes_ativos",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Listar todas as depreciações",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/depreciacoes"
+            }
+        },
+        {
+            "name": "Buscar depreciação por ID",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/depreciacoes/1"
+            }
+        },
+        {
+            "name": "Criar nova depreciação",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"ativoId\": 1,\n    \"tipo\": \"LINEAR\",\n    \"dataCompetencia\": \"2025-10-01\",\n    \"valorDepreciado\": 250.75,\n    \"saldoContabil\": 3250.25\n}"
+                },
+                "url": "{{baseUrl}}/v1/depreciacoes"
+            }
+        },
+        {
+            "name": "Atualizar depreciação",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"tipo\": \"ACELERADA\",\n    \"dataCompetencia\": \"2025-10-01\",\n    \"valorDepreciado\": 310.40,\n    \"saldoContabil\": 2940.00\n}"
+                },
+                "url": "{{baseUrl}}/v1/depreciacoes/1"
+            }
+        },
+        {
+            "name": "Excluir depreciação",
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": "{{baseUrl}}/v1/depreciacoes/1"
+            }
+        },
+        {
+            "name": "Buscar por ativo",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/depreciacoes/ativo/1"
+            }
+        },
+        {
+            "name": "Buscar por tipo",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/depreciacoes/tipo/LINEAR"
+            }
+        },
+        {
+            "name": "Buscar por período",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/depreciacoes/periodo?inicio=2025-01-01&fim=2025-12-31"
+            }
+        },
+        {
+            "name": "Buscar por competência",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/depreciacoes/competencia?ativoId=1&dataCompetencia=2025-10-01"
+            }
+        },
+        {
+            "name": "Calcular valor total depreciado por ativo",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/depreciacoes/ativo/1/total"
+            }
+        },
+        {
+            "name": "Buscar saldo contábil atual",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/depreciacoes/ativo/1/saldo"
+            }
+        },
+        {
+            "name": "Calcular média de depreciação mensal",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/depreciacoes/ativo/1/media"
+            }
+        },
+        {
+            "name": "Buscar depreciações do mês atual",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/depreciacoes/mes-atual"
+            }
+        }
+    ]
+}

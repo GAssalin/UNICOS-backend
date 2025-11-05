@@ -1,0 +1,120 @@
+{
+    "info": {
+        "name": "ms_ativos_localizacoes",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Listar todas as localizações",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/localizacoes"
+            }
+        },
+        {
+            "name": "Buscar localização por ID",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/localizacoes/1"
+            }
+        },
+        {
+            "name": "Criar nova localização",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"descricao\": \"Depósito Central\",\n    \"andar\": \"Térreo\",\n    \"bloco\": \"A\",\n    \"filialId\": 1\n}"
+                },
+                "url": "{{baseUrl}}/v1/localizacoes"
+            }
+        },
+        {
+            "name": "Atualizar localização existente",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"descricao\": \"Depósito de Materiais\",\n    \"andar\": \"1º Andar\",\n    \"bloco\": \"B\",\n    \"filialId\": 1\n}"
+                },
+                "url": "{{baseUrl}}/v1/localizacoes/1"
+            }
+        },
+        {
+            "name": "Excluir localização por ID",
+            "request": {
+                "method": "DELETE",
+                "url": "{{baseUrl}}/v1/localizacoes/1"
+            }
+        },
+        {
+            "name": "Buscar localizações por filial",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/localizacoes/filial/1"
+            }
+        },
+        {
+            "name": "Buscar localizações por descrição (contém termo)",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/localizacoes/descricao?descricao=Depósito"
+            }
+        },
+        {
+            "name": "Verificar existência por descrição e filial",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/localizacoes/existe?descricao=Depósito&filialId=1"
+            }
+        },
+        {
+            "name": "Buscar localizações com mais de um ativo",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/localizacoes/com-mais-de-um-ativo"
+            }
+        },
+        {
+            "name": "Buscar localizações com ativos vinculados",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/localizacoes/com-ativos"
+            }
+        },
+        {
+            "name": "Buscar localizações sem ativos vinculados",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/localizacoes/sem-ativos"
+            }
+        },
+        {
+            "name": "Contar total de localizações",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/localizacoes/total"
+            }
+        },
+        {
+            "name": "Contar localizações por filial",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/localizacoes/filial/1/total"
+            }
+        },
+        {
+            "name": "Buscar eventos recentes de localizações",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/localizacoes/eventos-recentes"
+            }
+        }
+    ]
+}

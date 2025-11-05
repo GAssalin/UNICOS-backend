@@ -1,0 +1,155 @@
+{
+    "info": {
+        "name": "ms_ativos_manutencoes_ativos",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Listar todas as manutenções",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos"
+            }
+        },
+        {
+            "name": "Buscar manutenção por ID",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/1"
+            }
+        },
+        {
+            "name": "Criar nova manutenção de ativo",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"ativoId\": 1,\n    \"fornecedorId\": 2,\n    \"tipo\": \"PREVENTIVA\",\n    \"descricaoServico\": \"Troca de filtros e limpeza geral\",\n    \"dataManutencao\": \"2025-11-10\",\n    \"custo\": 350.00,\n    \"status\": \"ABERTA\"\n}"
+                },
+                "url": "{{baseUrl}}/v1/manutencoes-ativos"
+            }
+        },
+        {
+            "name": "Atualizar manutenção existente",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"ativoId\": 1,\n    \"fornecedorId\": 2,\n    \"tipo\": \"CORRETIVA\",\n    \"descricaoServico\": \"Substituição de peça danificada\",\n    \"dataManutencao\": \"2025-11-12\",\n    \"custo\": 480.00,\n    \"status\": \"CONCLUIDA\"\n}"
+                },
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/1"
+            }
+        },
+        {
+            "name": "Excluir manutenção por ID",
+            "request": {
+                "method": "DELETE",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/1"
+            }
+        },
+        {
+            "name": "Buscar manutenções por ativo",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/ativo/1"
+            }
+        },
+        {
+            "name": "Buscar manutenções por fornecedor",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/fornecedor/2"
+            }
+        },
+        {
+            "name": "Buscar manutenções por tipo",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/tipo/PREVENTIVA"
+            }
+        },
+        {
+            "name": "Buscar manutenções por status",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/status/CONCLUIDA"
+            }
+        },
+        {
+            "name": "Buscar manutenções por período",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/periodo?inicio=2025-11-01&fim=2025-11-30"
+            }
+        },
+        {
+            "name": "Buscar manutenções agendadas para data específica",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/agendadas?data=2025-11-10"
+            }
+        },
+        {
+            "name": "Calcular custo total por ativo",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/ativo/1/custo-total"
+            }
+        },
+        {
+            "name": "Calcular custo total por período",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/custo-periodo?inicio=2025-11-01&fim=2025-11-30"
+            }
+        },
+        {
+            "name": "Contar total de manutenções",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/total"
+            }
+        },
+        {
+            "name": "Contar manutenções por tipo",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/por-tipo"
+            }
+        },
+        {
+            "name": "Contar manutenções por status",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/por-status"
+            }
+        },
+        {
+            "name": "Buscar ativos com manutenções frequentes",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/ativos-frequentes"
+            }
+        },
+        {
+            "name": "Buscar manutenções recentes (padrão 10)",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/recentes"
+            }
+        },
+        {
+            "name": "Buscar manutenções recentes (limite definido)",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/manutencoes-ativos/recentes?limite=5"
+            }
+        }
+    ]
+}

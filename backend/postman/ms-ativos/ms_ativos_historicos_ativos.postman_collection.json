@@ -1,0 +1,123 @@
+{
+    "info": {
+        "name": "ms_ativos_historicos_ativos",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Listar todos os históricos de ativos",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/historicos-ativos"
+            }
+        },
+        {
+            "name": "Buscar histórico por ID",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/historicos-ativos/1"
+            }
+        },
+        {
+            "name": "Criar novo evento de histórico",
+            "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"ativoId\": 1,\n    \"usuarioResponsavelId\": 5,\n    \"descricaoEvento\": \"Transferência de ativo para nova filial.\",\n    \"tipoEvento\": \"TRANSFERENCIA\",\n    \"dataEvento\": \"2025-11-05T10:00:00\"\n}"
+                },
+                "url": "{{baseUrl}}/v1/historicos-ativos"
+            }
+        },
+        {
+            "name": "Atualizar evento de histórico",
+            "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"descricaoEvento\": \"Alteração de status para 'Em manutenção'.\",\n    \"tipoEvento\": \"STATUS\",\n    \"dataEvento\": \"2025-11-06T09:30:00\",\n    \"usuarioResponsavelId\": 5,\n    \"ativoId\": 1\n}"
+                },
+                "url": "{{baseUrl}}/v1/historicos-ativos/1"
+            }
+        },
+        {
+            "name": "Excluir evento de histórico",
+            "request": {
+                "method": "DELETE",
+                "url": "{{baseUrl}}/v1/historicos-ativos/1"
+            }
+        },
+        {
+            "name": "Buscar eventos por ativo",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/historicos-ativos/ativo/1"
+            }
+        },
+        {
+            "name": "Buscar eventos por usuário responsável",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/historicos-ativos/usuario/5"
+            }
+        },
+        {
+            "name": "Buscar eventos por período",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/historicos-ativos/periodo?inicio=2025-11-01T00:00:00&fim=2025-11-30T23:59:59"
+            }
+        },
+        {
+            "name": "Buscar último evento de um ativo",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/historicos-ativos/ativo/1/ultimo"
+            }
+        },
+        {
+            "name": "Buscar eventos de alteração de status de um ativo",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/historicos-ativos/ativo/1/eventos-status"
+            }
+        },
+        {
+            "name": "Contar total de eventos registrados",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/historicos-ativos/total"
+            }
+        },
+        {
+            "name": "Contar eventos por ativo",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/historicos-ativos/ativo/1/total"
+            }
+        },
+        {
+            "name": "Contar eventos por usuário responsável",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/historicos-ativos/por-usuario"
+            }
+        },
+        {
+            "name": "Buscar eventos recentes (limite padrão 10)",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/historicos-ativos/recentes"
+            }
+        },
+        {
+            "name": "Buscar eventos recentes (definindo limite)",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/historicos-ativos/recentes?limite=5"
+            }
+        }
+    ]
+}

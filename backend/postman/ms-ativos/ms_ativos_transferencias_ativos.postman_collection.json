@@ -1,0 +1,148 @@
+{
+    "info": {
+        "name": "ms_ativos_transferencias_ativos",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Listar todas as transferências",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/transferencias-ativos"
+            }
+        },
+        {
+            "name": "Buscar transferência por ID",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/transferencias-ativos/1"
+            }
+        },
+        {
+            "name": "Criar nova transferência de ativo",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"ativoId\": 1,\n    \"origemId\": 101,\n    \"destinoId\": 202,\n    \"tipo\": \"ENTRE_FILIAIS\",\n    \"dataTransferencia\": \"2025-11-10\",\n    \"responsavelId\": 5,\n    \"motivo\": \"Realocação de equipamento para nova unidade\"\n}"
+                },
+                "url": "{{baseUrl}}/v1/transferencias-ativos"
+            }
+        },
+        {
+            "name": "Atualizar transferência existente",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"ativoId\": 1,\n    \"origemId\": 101,\n    \"destinoId\": 203,\n    \"tipo\": \"INTERNA\",\n    \"dataTransferencia\": \"2025-11-12\",\n    \"responsavelId\": 6,\n    \"motivo\": \"Reorganização de setor interno\"\n}"
+                },
+                "url": "{{baseUrl}}/v1/transferencias-ativos/1"
+            }
+        },
+        {
+            "name": "Excluir transferência por ID",
+            "request": {
+                "method": "DELETE",
+                "url": "{{baseUrl}}/v1/transferencias-ativos/1"
+            }
+        },
+        {
+            "name": "Buscar transferências por ativo",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/transferencias-ativos/ativo/1"
+            }
+        },
+        {
+            "name": "Buscar transferências por origem",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/transferencias-ativos/origem/101"
+            }
+        },
+        {
+            "name": "Buscar transferências por destino",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/transferencias-ativos/destino/202"
+            }
+        },
+        {
+            "name": "Buscar transferências por período",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/transferencias-ativos/periodo?inicio=2025-11-01&fim=2025-11-30"
+            }
+        },
+        {
+            "name": "Buscar transferências por responsável",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/transferencias-ativos/responsavel/5"
+            }
+        },
+        {
+            "name": "Buscar transferências por tipo",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/transferencias-ativos/tipo/ENTRE_FILIAIS"
+            }
+        },
+        {
+            "name": "Buscar histórico de movimentações de ativo",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/transferencias-ativos/ativo/1/historico"
+            }
+        },
+        {
+            "name": "Contar total de transferências",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/transferencias-ativos/total"
+            }
+        },
+        {
+            "name": "Contar transferências por tipo",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/transferencias-ativos/por-tipo"
+            }
+        },
+        {
+            "name": "Contar transferências por origem",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/transferencias-ativos/por-origem"
+            }
+        },
+        {
+            "name": "Contar transferências por destino",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/transferencias-ativos/por-destino"
+            }
+        },
+        {
+            "name": "Buscar transferências recentes (padrão 10)",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/transferencias-ativos/recentes"
+            }
+        },
+        {
+            "name": "Buscar transferências recentes (limite definido)",
+            "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/v1/transferencias-ativos/recentes?limite=5"
+            }
+        }
+    ]
+}

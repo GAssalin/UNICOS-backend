@@ -1,0 +1,116 @@
+{
+    "info": {
+        "name": "ms_ativos_documentos_ativos",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Listar todos os documentos",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/documentos-ativos"
+            }
+        },
+        {
+            "name": "Buscar documento por ID",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/documentos-ativos/1"
+            }
+        },
+        {
+            "name": "Criar novo documento de ativo",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"ativoId\": 1,\n    \"tipo\": \"NOTA_FISCAL\",\n    \"numero\": \"NF-000123\",\n    \"dataEmissao\": \"2025-11-01\",\n    \"arquivoUrl\": \"https://meu-servidor/nota123.pdf\",\n    \"status\": \"VALIDO\",\n    \"observacao\": \"Documento fiscal do ativo adquirido.\"\n}"
+                },
+                "url": "{{baseUrl}}/v1/documentos-ativos"
+            }
+        },
+        {
+            "name": "Atualizar documento de ativo",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"tipo\": \"GARANTIA\",\n    \"numero\": \"GAR-2025-01\",\n    \"dataEmissao\": \"2025-11-05\",\n    \"arquivoUrl\": \"https://meu-servidor/garantia_2025.pdf\",\n    \"status\": \"VALIDO\",\n    \"observacao\": \"Garantia estendida de 12 meses.\"\n}"
+                },
+                "url": "{{baseUrl}}/v1/documentos-ativos/1"
+            }
+        },
+        {
+            "name": "Excluir documento de ativo",
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": "{{baseUrl}}/v1/documentos-ativos/1"
+            }
+        },
+        {
+            "name": "Buscar documentos por ativo",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/documentos-ativos/ativo/1"
+            }
+        },
+        {
+            "name": "Buscar documentos por tipo",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/documentos-ativos/tipo/NOTA_FISCAL"
+            }
+        },
+        {
+            "name": "Buscar documentos por status",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/documentos-ativos/status/VALIDO"
+            }
+        },
+        {
+            "name": "Buscar documentos por período de emissão",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/documentos-ativos/periodo-emissao?inicio=2025-01-01&fim=2025-12-31"
+            }
+        },
+        {
+            "name": "Buscar última nota fiscal de um ativo",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/documentos-ativos/ativo/1/ultima-nota-fiscal"
+            }
+        },
+        {
+            "name": "Buscar garantias válidas",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/documentos-ativos/garantias-validas"
+            }
+        },
+        {
+            "name": "Buscar documentos vencidos ou expirados",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/v1/documentos-ativos/vencidos"
+            }
+        }
+    ]
+}
