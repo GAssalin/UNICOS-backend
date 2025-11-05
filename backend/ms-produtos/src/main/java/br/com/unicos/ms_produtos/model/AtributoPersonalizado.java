@@ -2,11 +2,14 @@ package br.com.unicos.ms_produtos.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.List;
+
+/**
+ * Entidade que representa um atributo configurável de produto,
+ * normalmente associado a uma categoria (ex: "Cor", "Tamanho").
+ */
 @Entity
 @Table(name = "atributo_personalizado")
 @Data
@@ -19,16 +22,25 @@ public class AtributoPersonalizado {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "produto_id", nullable = false)
-    private Produto produto;
-
+    /**
+     * Nome do atributo (ex: Cor, Tamanho)
+     */
     @NotBlank(message = "O nome do atributo é obrigatório.")
     @Column(nullable = false, length = 100)
     private String nome;
 
-    @NotBlank(message = "O valor do atributo é obrigatório.")
-    @Column(nullable = false, length = 100)
-    private String valor;
+    /**
+     * Categoria à qual o atributo pertence
+     */
+    @ManyToOne
+    @JoinColumn(name = "categoria_id", nullable = false)
+    private Categoria categoria;
 
+    /**
+     * Lista de valores de atributo aplicados a produtos
+     */
+    @OneToMany(mappedBy = "atributoPersonalizado", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<ProdutoAtributoValor> valores;
 }
