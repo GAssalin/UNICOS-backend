@@ -12,10 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Controlador REST responsável pelo gerenciamento dos atributos personalizados de produtos.
+ * Controlador REST responsável pelo gerenciamento dos atributos personalizados
+ * vinculados às categorias de produtos.
  *
- * Permite a criação, atualização, listagem, exclusão e busca de atributos
- * vinculados aos produtos cadastrados no sistema.
+ * <p>
+ * Permite a criação, atualização, listagem, exclusão e consulta
+ * de atributos configuráveis de categorias (ex: "Cor", "Tamanho").
+ * </p>
  */
 @RestController
 @RequestMapping("/v1/atributos-personalizados")
@@ -32,10 +35,10 @@ public class AtributoPersonalizadoController {
     // ==================================
 
     /**
-     * Cria um novo atributo personalizado para um produto.
+     * Cria um novo atributo personalizado para uma categoria.
      *
      * @param request Dados do atributo personalizado.
-     * @return AtributoPersonalizadoResponse criado.
+     * @return {@link AtributoPersonalizadoResponse} criado.
      */
     @PostMapping
     public ResponseEntity<AtributoPersonalizadoResponse> criar(
@@ -49,7 +52,7 @@ public class AtributoPersonalizadoController {
      *
      * @param id      Identificador do atributo.
      * @param request Dados atualizados do atributo.
-     * @return AtributoPersonalizadoResponse atualizado.
+     * @return {@link AtributoPersonalizadoResponse} atualizado.
      */
     @PutMapping("/{id}")
     public ResponseEntity<AtributoPersonalizadoResponse> atualizar(
@@ -60,10 +63,10 @@ public class AtributoPersonalizadoController {
     }
 
     /**
-     * Busca um atributo personalizado pelo ID.
+     * Busca um atributo personalizado pelo seu ID.
      *
      * @param id Identificador do atributo.
-     * @return AtributoPersonalizadoResponse, se encontrado.
+     * @return {@link AtributoPersonalizadoResponse}, se encontrado.
      */
     @GetMapping("/{id}")
     public ResponseEntity<AtributoPersonalizadoResponse> buscarPorId(@PathVariable Long id) {
@@ -73,9 +76,9 @@ public class AtributoPersonalizadoController {
     }
 
     /**
-     * Lista todos os atributos personalizados cadastrados.
+     * Lista todos os atributos personalizados cadastrados no sistema.
      *
-     * @return Lista de AtributoPersonalizadoResponse.
+     * @return Lista de {@link AtributoPersonalizadoResponse}.
      */
     @GetMapping
     public ResponseEntity<List<AtributoPersonalizadoResponse>> listarTodos() {
@@ -100,40 +103,26 @@ public class AtributoPersonalizadoController {
     // ==================================
 
     /**
-     * Lista todos os atributos personalizados de um produto.
+     * Lista todos os atributos personalizados de uma categoria.
      *
-     * @param produtoId ID do produto.
-     * @return Lista de AtributoPersonalizadoResponse.
+     * @param categoriaId ID da categoria.
+     * @return Lista de {@link AtributoPersonalizadoResponse}.
      */
-    @GetMapping("/produto/{produtoId}")
-    public ResponseEntity<List<AtributoPersonalizadoResponse>> listarPorProduto(@PathVariable Long produtoId) {
-        List<AtributoPersonalizadoResponse> lista = atributoPersonalizadoService.listarPorProduto(produtoId);
+    @GetMapping("/categoria/{categoriaId}")
+    public ResponseEntity<List<AtributoPersonalizadoResponse>> listarPorCategoria(@PathVariable Long categoriaId) {
+        List<AtributoPersonalizadoResponse> lista = atributoPersonalizadoService.listarPorCategoria(categoriaId);
         return ResponseEntity.ok(lista);
     }
 
     /**
-     * Busca todos os atributos cujo nome contenha o termo informado.
+     * Busca atributos personalizados cujo nome contenha o termo informado.
      *
      * @param nome Termo parcial de busca.
-     * @return Lista de AtributoPersonalizadoListDTO.
+     * @return Lista de {@link AtributoPersonalizadoListDTO}.
      */
     @GetMapping("/buscar")
     public ResponseEntity<List<AtributoPersonalizadoListDTO>> buscarPorNomeContendo(@RequestParam String nome) {
         List<AtributoPersonalizadoListDTO> lista = atributoPersonalizadoService.buscarPorNomeContendo(nome);
         return ResponseEntity.ok(lista);
-    }
-
-    /**
-     * Verifica se já existe um atributo com o mesmo nome para o produto informado.
-     *
-     * @param produtoId ID do produto.
-     * @param nome      Nome do atributo.
-     * @return true se já existir, false caso contrário.
-     */
-    @GetMapping("/verificar")
-    public ResponseEntity<Boolean> verificarDuplicidade(@RequestParam Long produtoId,
-                                                        @RequestParam String nome) {
-        boolean duplicado = atributoPersonalizadoService.verificarDuplicidade(produtoId, nome);
-        return ResponseEntity.ok(duplicado);
     }
 }

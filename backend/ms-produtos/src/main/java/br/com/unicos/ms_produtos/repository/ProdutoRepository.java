@@ -33,6 +33,13 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     List<Produto> findByAtivoTrue();
 
     /**
+     * Retorna todos os produtos inativos.
+     *
+     * @return Lista de produtos inativos.
+     */
+    List<Produto> findByAtivoFalse();
+
+    /**
      * Busca produtos pertencentes a uma categoria específica.
      *
      * @param categoriaId ID da categoria.

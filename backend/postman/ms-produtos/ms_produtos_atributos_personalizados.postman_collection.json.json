@@ -1,8 +1,8 @@
 {
   "info": {
-    "name": "ERP - ms_produtos (AtributoPersonalizado)",
-    "_postman_id": "c0a8012a-4567-89ab-cdef-0123456789ab",
-    "description": "Coleção de endpoints do microserviço ms_produtos para gerenciamento dos atributos personalizados de produtos.",
+    "name": "ms_produtos_atributos_personalizados",
+    "_postman_id": "bb62e9b3-fb81-49c5-bc9d-7f50a9b912c1",
+    "description": "Collection de requisições para o gerenciamento de Atributos Personalizados vinculados às Categorias de Produtos no microserviço ms-produtos.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -11,11 +11,14 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"produtoId\": 1,\n  \"nome\": \"Cor\",\n  \"valor\": \"Vermelho\"\n}"
+          "raw": "{\n  \"categoriaId\": 1,\n  \"nome\": \"Cor\"\n}"
         },
         "url": {
           "raw": "http://localhost:8080/v1/atributos-personalizados",
@@ -24,18 +27,22 @@
           "port": "8080",
           "path": ["v1", "atributos-personalizados"]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "Atualizar Atributo Personalizado",
       "request": {
         "method": "PUT",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"produtoId\": 1,\n  \"nome\": \"Cor\",\n  \"valor\": \"Azul\"\n}"
+          "raw": "{\n  \"categoriaId\": 1,\n  \"nome\": \"Tamanho\"\n}"
         },
         "url": {
           "raw": "http://localhost:8080/v1/atributos-personalizados/1",
@@ -44,7 +51,8 @@
           "port": "8080",
           "path": ["v1", "atributos-personalizados", "1"]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "Buscar Atributo por ID",
@@ -57,10 +65,11 @@
           "port": "8080",
           "path": ["v1", "atributos-personalizados", "1"]
         }
-      }
+      },
+      "response": []
     },
     {
-      "name": "Listar Todos os Atributos Personalizados",
+      "name": "Listar Todos os Atributos",
       "request": {
         "method": "GET",
         "url": {
@@ -70,36 +79,25 @@
           "port": "8080",
           "path": ["v1", "atributos-personalizados"]
         }
-      }
+      },
+      "response": []
     },
     {
-      "name": "Deletar Atributo Personalizado",
-      "request": {
-        "method": "DELETE",
-        "url": {
-          "raw": "http://localhost:8080/v1/atributos-personalizados/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "atributos-personalizados", "1"]
-        }
-      }
-    },
-    {
-      "name": "Listar Atributos por Produto",
+      "name": "Listar Atributos por Categoria",
       "request": {
         "method": "GET",
         "url": {
-          "raw": "http://localhost:8080/v1/atributos-personalizados/produto/1",
+          "raw": "http://localhost:8080/v1/atributos-personalizados/categoria/1",
           "protocol": "http",
           "host": ["localhost"],
           "port": "8080",
-          "path": ["v1", "atributos-personalizados", "produto", "1"]
+          "path": ["v1", "atributos-personalizados", "categoria", "1"]
         }
-      }
+      },
+      "response": []
     },
     {
-      "name": "Buscar Atributos Contendo Nome",
+      "name": "Buscar Atributos por Nome Contendo",
       "request": {
         "method": "GET",
         "url": {
@@ -112,24 +110,22 @@
             { "key": "nome", "value": "cor" }
           ]
         }
-      }
+      },
+      "response": []
     },
     {
-      "name": "Verificar Duplicidade de Nome",
+      "name": "Deletar Atributo Personalizado",
       "request": {
-        "method": "GET",
+        "method": "DELETE",
         "url": {
-          "raw": "http://localhost:8080/v1/atributos-personalizados/verificar?produtoId=1&nome=Cor",
+          "raw": "http://localhost:8080/v1/atributos-personalizados/1",
           "protocol": "http",
           "host": ["localhost"],
           "port": "8080",
-          "path": ["v1", "atributos-personalizados", "verificar"],
-          "query": [
-            { "key": "produtoId", "value": "1" },
-            { "key": "nome", "value": "Cor" }
-          ]
+          "path": ["v1", "atributos-personalizados", "1"]
         }
-      }
+      },
+      "response": []
     }
   ]
 }

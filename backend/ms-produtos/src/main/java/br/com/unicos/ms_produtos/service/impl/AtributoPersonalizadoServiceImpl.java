@@ -4,9 +4,9 @@ import br.com.unicos.ms_produtos.dto.AtributoPersonalizadoListDTO;
 import br.com.unicos.ms_produtos.dto.AtributoPersonalizadoRequest;
 import br.com.unicos.ms_produtos.dto.AtributoPersonalizadoResponse;
 import br.com.unicos.ms_produtos.model.AtributoPersonalizado;
-import br.com.unicos.ms_produtos.model.Produto;
+import br.com.unicos.ms_produtos.model.Categoria;
 import br.com.unicos.ms_produtos.repository.AtributoPersonalizadoRepository;
-import br.com.unicos.ms_produtos.repository.ProdutoRepository;
+import br.com.unicos.ms_produtos.repository.CategoriaRepository;
 import br.com.unicos.ms_produtos.service.AtributoPersonalizadoService;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
@@ -16,22 +16,24 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementação da interface AtributoPersonalizadoService.
- * Responsável pela lógica de negócio e persistência dos atributos personalizados dos produtos.
+ * Implementação da interface {@link AtributoPersonalizadoService}.
+ * <p>
+ * Responsável pela lógica de negócio e persistência dos atributos
+ * configuráveis de categorias de produtos (ex: "Cor", "Tamanho").
  */
 @Service
 @Transactional
 public class AtributoPersonalizadoServiceImpl implements AtributoPersonalizadoService {
 
     private final AtributoPersonalizadoRepository repository;
-    private final ProdutoRepository produtoRepository;
+    private final CategoriaRepository categoriaRepository;
     private final ModelMapper mapper;
 
     public AtributoPersonalizadoServiceImpl(AtributoPersonalizadoRepository repository,
-                                            ProdutoRepository produtoRepository,
+                                            CategoriaRepository categoriaRepository,
                                             ModelMapper mapper) {
         this.repository = repository;
-        this.produtoRepository = produtoRepository;
+        this.categoriaRepository = categoriaRepository;
         this.mapper = mapper;
     }
 
@@ -41,15 +43,19 @@ public class AtributoPersonalizadoServiceImpl implements AtributoPersonalizadoSe
 
     @Override
     public AtributoPersonalizadoResponse salvar(AtributoPersonalizadoRequest request) {
-        Produto produto = produtoRepository.findById(request.produtoId())
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + request.produtoId()));
+        Categoria categoria = categoriaRepository.findById(request.categoriaId())
+                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada com ID: " + request.categoriaId()));
 
-        if (repository.existsByProdutoIdAndNomeIgnoreCase(produto.getId(), request.nome())) {
-            throw new IllegalArgumentException("Já existe um atributo com este nome para o produto informado.");
+        boolean existeDuplicado = repository.findByCategoriaId(categoria.getId())
+                .stream()
+                .anyMatch(attr -> attr.getNome().equalsIgnoreCase(request.nome()));
+
+        if (existeDuplicado) {
+            throw new IllegalArgumentException("Já existe um atributo com este nome para a categoria informada.");
         }
 
         AtributoPersonalizado entity = mapper.map(request, AtributoPersonalizado.class);
-        entity.setProduto(produto);
+        entity.setCategoria(categoria);
 
         AtributoPersonalizado salvo = repository.save(entity);
         return toResponse(salvo);
@@ -60,14 +66,16 @@ public class AtributoPersonalizadoServiceImpl implements AtributoPersonalizadoSe
         AtributoPersonalizado existente = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Atributo personalizado não encontrado com ID: " + id));
 
-        if (!existente.getNome().equalsIgnoreCase(request.nome()) &&
-                repository.existsByProdutoIdAndNomeIgnoreCase(existente.getProduto().getId(), request.nome())) {
-            throw new IllegalArgumentException("Já existe outro atributo com este nome para o mesmo produto.");
+        boolean nomeDuplicado = repository.findByCategoriaId(existente.getCategoria().getId())
+                .stream()
+                .anyMatch(attr -> !attr.getId().equals(id) &&
+                        attr.getNome().equalsIgnoreCase(request.nome()));
+
+        if (nomeDuplicado) {
+            throw new IllegalArgumentException("Já existe outro atributo com este nome para a mesma categoria.");
         }
 
         existente.setNome(request.nome());
-        existente.setValor(request.valor());
-
         AtributoPersonalizado atualizado = repository.save(existente);
         return toResponse(atualizado);
     }
@@ -98,8 +106,8 @@ public class AtributoPersonalizadoServiceImpl implements AtributoPersonalizadoSe
     // ==================================
 
     @Override
-    public List<AtributoPersonalizadoResponse> listarPorProduto(Long produtoId) {
-        return repository.findByProdutoId(produtoId)
+    public List<AtributoPersonalizadoResponse> listarPorCategoria(Long categoriaId) {
+        return repository.findByCategoriaId(categoriaId)
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -112,28 +120,21 @@ public class AtributoPersonalizadoServiceImpl implements AtributoPersonalizadoSe
                 .map(entity -> new AtributoPersonalizadoListDTO(
                         entity.getId(),
                         entity.getNome(),
-                        entity.getValor(),
-                        entity.getProduto() != null ? entity.getProduto().getNome() : null
+                        entity.getCategoria() != null ? entity.getCategoria().getNome() : null
                 ))
                 .toList();
     }
 
-    @Override
-    public boolean verificarDuplicidade(Long produtoId, String nome) {
-        return repository.existsByProdutoIdAndNomeIgnoreCase(produtoId, nome);
-    }
-
     // ==================================
-    // 🧭 MÉTODO AUXILIAR
+    // MÉTODO AUXILIAR
     // ==================================
 
     private AtributoPersonalizadoResponse toResponse(AtributoPersonalizado entity) {
         return new AtributoPersonalizadoResponse(
                 entity.getId(),
-                entity.getProduto() != null ? entity.getProduto().getId() : null,
-                entity.getProduto() != null ? entity.getProduto().getNome() : null,
-                entity.getNome(),
-                entity.getValor()
+                entity.getCategoria() != null ? entity.getCategoria().getId() : null,
+                entity.getCategoria() != null ? entity.getCategoria().getNome() : null,
+                entity.getNome()
         );
     }
 }

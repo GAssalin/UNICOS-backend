@@ -67,6 +67,7 @@ public class FornecedorProduto {
      * Data de criação e atualização (auditoria)
      */
     @Column(name = "data_criacao", updatable = false)
+    @Builder.Default
     private LocalDateTime dataCriacao = LocalDateTime.now();
 
     @Column(name = "data_atualizacao")

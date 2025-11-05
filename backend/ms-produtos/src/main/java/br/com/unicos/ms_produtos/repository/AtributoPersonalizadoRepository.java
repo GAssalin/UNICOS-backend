@@ -8,46 +8,82 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Repositório responsável pelo acesso aos dados da entidade AtributoPersonalizado.
+ * Repositório responsável pelas operações de persistência
+ * da entidade {@link AtributoPersonalizado}.
+ *
  * <p>
- * Fornece métodos específicos de consulta para atributos vinculados a produtos,
- * além das operações CRUD padrão do JpaRepository.
+ * Fornece métodos específicos de consulta e verificação
+ * para atributos personalizados associados a categorias de produtos.
+ * </p>
  */
 @Repository
 public interface AtributoPersonalizadoRepository extends JpaRepository<AtributoPersonalizado, Long> {
 
-    /**
-     * Lista todos os atributos personalizados associados a um produto específico.
-     *
-     * @param produtoId ID do produto.
-     * @return Lista de atributos personalizados vinculados ao produto informado.
-     */
-    List<AtributoPersonalizado> findByProdutoId(Long produtoId);
+    // ======================================================
+    // 🔹 CONSULTAS POR CATEGORIA
+    // ======================================================
 
     /**
-     * Busca um atributo personalizado pelo nome e ID do produto.
-     * Útil para verificar duplicidade de nomes dentro do mesmo produto.
+     * Retorna todos os atributos personalizados associados a uma categoria.
      *
-     * @param produtoId ID do produto.
-     * @param nome      Nome do atributo.
+     * @param categoriaId ID da categoria.
+     * @return Lista de atributos personalizados vinculados à categoria.
+     */
+    List<AtributoPersonalizado> findByCategoriaId(Long categoriaId);
+
+    /**
+     * Busca um atributo personalizado pelo nome e categoria.
+     * Útil para verificar duplicidade de nomes dentro da mesma categoria.
+     *
+     * @param categoriaId ID da categoria.
+     * @param nome        Nome do atributo.
      * @return Optional contendo o atributo, se encontrado.
      */
-    Optional<AtributoPersonalizado> findByProdutoIdAndNomeIgnoreCase(Long produtoId, String nome);
+    Optional<AtributoPersonalizado> findByCategoriaIdAndNomeIgnoreCase(Long categoriaId, String nome);
 
     /**
-     * Busca todos os atributos cujo nome contenha o termo informado.
+     * Verifica se já existe um atributo com o mesmo nome dentro de uma categoria.
+     *
+     * @param categoriaId ID da categoria.
+     * @param nome        Nome do atributo.
+     * @return {@code true} se já existir, {@code false} caso contrário.
+     */
+    boolean existsByCategoriaIdAndNomeIgnoreCase(Long categoriaId, String nome);
+
+    // ======================================================
+    // 🔹 CONSULTAS GERAIS
+    // ======================================================
+
+    /**
+     * Busca todos os atributos cujo nome contenha o termo informado (case insensitive).
      *
      * @param nome Parte do nome do atributo.
-     * @return Lista de atributos que correspondem à busca.
+     * @return Lista de atributos correspondentes à busca.
      */
     List<AtributoPersonalizado> findByNomeContainingIgnoreCase(String nome);
 
     /**
-     * Verifica se já existe um atributo com o mesmo nome dentro de um produto.
+     * Retorna todos os atributos ordenados alfabeticamente por nome.
      *
-     * @param produtoId ID do produto.
-     * @param nome      Nome do atributo.
-     * @return true se já existir, false caso contrário.
+     * @return Lista ordenada de atributos personalizados.
      */
-    boolean existsByProdutoIdAndNomeIgnoreCase(Long produtoId, String nome);
+    List<AtributoPersonalizado> findAllByOrderByNomeAsc();
+
+    /**
+     * Busca atributos personalizados filtrando por uma lista de categorias.
+     *
+     * @param categoriaIds Lista de IDs de categorias.
+     * @return Lista de atributos pertencentes às categorias informadas.
+     */
+    List<AtributoPersonalizado> findByCategoriaIdIn(List<Long> categoriaIds);
+
+    /**
+     * Busca todos os atributos de uma categoria cujo nome contenha o termo informado.
+     * Útil para filtros contextuais por categoria.
+     *
+     * @param categoriaId ID da categoria.
+     * @param nome        Parte do nome do atributo.
+     * @return Lista de atributos da categoria correspondente ao filtro.
+     */
+    List<AtributoPersonalizado> findByCategoriaIdAndNomeContainingIgnoreCase(Long categoriaId, String nome);
 }
