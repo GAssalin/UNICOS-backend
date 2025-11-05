@@ -1,90 +1,167 @@
 package br.com.unicos.ms_ativos.service;
 
+import br.com.unicos.ms_ativos.dto.TransferenciaAtivoListDTO;
 import br.com.unicos.ms_ativos.dto.TransferenciaAtivoRequest;
 import br.com.unicos.ms_ativos.dto.TransferenciaAtivoResponse;
+import br.com.unicos.ms_ativos.enums.TipoTransferencia;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Interface de serviço responsável pelas regras de negócio
- * relacionadas à entidade TransferenciaAtivo.
- *
- * Define os métodos de criação, atualização, listagem e exclusão
- * das transferências de ativos cadastradas no sistema.
+ * Interface responsável pelas regras de negócio da entidade {@code TransferenciaAtivo}.
+ * <p>
+ * Define os métodos para registro, consulta e análise das transferências
+ * de ativos entre unidades, setores e filiais.
  */
 public interface TransferenciaAtivoService {
 
+    // ===========================================================
+    // 🔹 CRUD BÁSICO
+    // ===========================================================
+
     /**
-     * Salva uma nova transferência de ativo.
+     * Registra uma nova transferência de ativo.
      *
      * @param request DTO contendo os dados da transferência.
-     * @return DTO representando a transferência salva.
+     * @return DTO representando a transferência criada.
      */
+    @Transactional
     TransferenciaAtivoResponse salvar(TransferenciaAtivoRequest request);
 
     /**
-     * Atualiza os dados de uma transferência existente.
+     * Atualiza as informações de uma transferência existente.
      *
-     * @param id ID da transferência a ser atualizada.
-     * @param request DTO contendo os novos dados da transferência.
-     * @return DTO representando a transferência atualizada.
+     * @param id      identificador da transferência.
+     * @param request DTO com os novos dados.
+     * @return DTO atualizado da transferência.
      */
+    @Transactional
     TransferenciaAtivoResponse atualizar(Long id, TransferenciaAtivoRequest request);
 
     /**
-     * Busca uma transferência pelo ID.
+     * Exclui uma transferência com base no seu ID.
      *
-     * @param id ID da transferência.
-     * @return Optional contendo o DTO da transferência, se encontrada.
+     * @param id identificador da transferência.
+     */
+    @Transactional
+    void excluir(Long id);
+
+    /**
+     * Busca uma transferência específica pelo seu ID.
+     *
+     * @param id identificador da transferência.
+     * @return DTO detalhado, se encontrado.
      */
     Optional<TransferenciaAtivoResponse> buscarPorId(Long id);
 
     /**
-     * Lista todas as transferências cadastradas.
+     * Retorna todas as transferências registradas no sistema.
      *
-     * @return Lista de transferências.
+     * @return lista resumida de transferências.
      */
-    List<TransferenciaAtivoResponse> listarTodas();
+    List<TransferenciaAtivoListDTO> listarTodos();
+
+    // ===========================================================
+    // 🔍 CONSULTAS ESPECÍFICAS
+    // ===========================================================
 
     /**
-     * Lista todas as transferências de um ativo específico.
+     * Retorna todas as transferências realizadas para um ativo específico.
      *
-     * @param ativoId ID do ativo transferido.
-     * @return Lista de transferências associadas ao ativo.
+     * @param ativoId identificador do ativo.
+     * @return lista de transferências do ativo.
      */
-    List<TransferenciaAtivoResponse> buscarPorAtivo(Long ativoId);
+    List<TransferenciaAtivoListDTO> buscarPorAtivo(Long ativoId);
 
     /**
-     * Lista as transferências realizadas a partir de uma filial específica.
+     * Retorna as transferências originadas de uma determinada filial/unidade.
      *
-     * @param origemId ID da filial de origem.
-     * @return Lista de transferências originadas da filial.
+     * @param origemId identificador da unidade de origem.
+     * @return lista de transferências originadas na unidade.
      */
-    List<TransferenciaAtivoResponse> buscarPorOrigem(Long origemId);
+    List<TransferenciaAtivoListDTO> buscarPorOrigem(Long origemId);
 
     /**
-     * Lista as transferências destinadas a uma filial específica.
+     * Retorna as transferências destinadas a uma determinada filial/unidade.
      *
-     * @param destinoId ID da filial de destino.
-     * @return Lista de transferências destinadas à filial.
+     * @param destinoId identificador da unidade de destino.
+     * @return lista de transferências destinadas à unidade.
      */
-    List<TransferenciaAtivoResponse> buscarPorDestino(Long destinoId);
+    List<TransferenciaAtivoListDTO> buscarPorDestino(Long destinoId);
 
     /**
-     * Lista todas as transferências realizadas dentro de um intervalo de datas.
+     * Retorna as transferências realizadas dentro de um período específico.
      *
-     * @param inicio Data inicial.
-     * @param fim Data final.
-     * @return Lista de transferências realizadas no período informado.
+     * @param inicio data inicial do intervalo.
+     * @param fim    data final do intervalo.
+     * @return lista de transferências no período informado.
      */
-    List<TransferenciaAtivoResponse> buscarPorPeriodo(LocalDate inicio, LocalDate fim);
+    List<TransferenciaAtivoListDTO> buscarPorPeriodo(LocalDate inicio, LocalDate fim);
 
     /**
-     * Remove uma transferência do sistema.
+     * Retorna as transferências realizadas por um usuário específico.
      *
-     * @param id ID da transferência a ser removida.
+     * @param responsavelId identificador do usuário responsável.
+     * @return lista de transferências realizadas pelo usuário.
      */
-    void deletar(Long id);
+    List<TransferenciaAtivoListDTO> buscarPorResponsavel(Long responsavelId);
+
+    /**
+     * Retorna as transferências de um determinado tipo (INTERNA, ENTRE_FILIAIS, BAIXA, OUTROS).
+     *
+     * @param tipo tipo de transferência.
+     * @return lista de transferências do tipo informado.
+     */
+    List<TransferenciaAtivoListDTO> buscarPorTipo(TipoTransferencia tipo);
+
+    // ===========================================================
+    // 📊 RELATÓRIOS E RASTREABILIDADE
+    // ===========================================================
+
+    /**
+     * Retorna o histórico completo de movimentações de um ativo.
+     *
+     * @param ativoId identificador do ativo.
+     * @return lista cronológica de transferências do ativo.
+     */
+    List<TransferenciaAtivoListDTO> buscarHistoricoDeMovimentacoes(Long ativoId);
+
+    /**
+     * Retorna o número total de transferências registradas.
+     *
+     * @return quantidade total de registros de transferência.
+     */
+    Long contarTotal();
+
+    /**
+     * Retorna o número de transferências realizadas por tipo.
+     *
+     * @return lista de contagens agrupadas por tipo de transferência.
+     */
+    List<Object[]> contarPorTipo();
+
+    /**
+     * Retorna o número de transferências realizadas por unidade de origem.
+     *
+     * @return lista de contagens agrupadas por unidade de origem.
+     */
+    List<Object[]> contarPorOrigem();
+
+    /**
+     * Retorna o número de transferências realizadas por unidade de destino.
+     *
+     * @return lista de contagens agrupadas por unidade de destino.
+     */
+    List<Object[]> contarPorDestino();
+
+    /**
+     * Retorna as transferências mais recentes registradas no sistema.
+     *
+     * @param limite quantidade máxima de registros.
+     * @return lista das transferências mais recentes.
+     */
+    List<TransferenciaAtivoListDTO> buscarRecentes(int limite);
 }

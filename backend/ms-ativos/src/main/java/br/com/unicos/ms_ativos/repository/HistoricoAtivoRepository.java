@@ -3,6 +3,7 @@ package br.com.unicos.ms_ativos.repository;
 import br.com.unicos.ms_ativos.model.HistoricoAtivo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -17,10 +18,6 @@ import java.util.Optional;
  */
 @Repository
 public interface HistoricoAtivoRepository extends JpaRepository<HistoricoAtivo, Long> {
-
-    // ===========================================================
-    // 🔍 CONSULTAS BÁSICAS
-    // ===========================================================
 
     /**
      * Retorna todos os registros de histórico vinculados a um ativo.
@@ -54,10 +51,6 @@ public interface HistoricoAtivoRepository extends JpaRepository<HistoricoAtivo, 
      */
     List<HistoricoAtivo> findByUsuarioResponsavelId(Long usuarioResponsavelId);
 
-    // ===========================================================
-    // 📅 CONSULTAS POR PERÍODO
-    // ===========================================================
-
     /**
      * Retorna os eventos registrados dentro de um intervalo de tempo.
      *
@@ -76,10 +69,6 @@ public interface HistoricoAtivoRepository extends JpaRepository<HistoricoAtivo, 
      */
     @Query("SELECT h FROM HistoricoAtivo h WHERE h.dataEvento BETWEEN :dataInicio AND :dataFim")
     List<HistoricoAtivo> buscarEventosDoDia(LocalDateTime dataInicio, LocalDateTime dataFim);
-
-    // ===========================================================
-    // 🧠 CONSULTAS CUSTOMIZADAS (JPQL)
-    // ===========================================================
 
     /**
      * Consulta personalizada: busca eventos que contenham um determinado texto na descrição.
@@ -113,10 +102,6 @@ public interface HistoricoAtivoRepository extends JpaRepository<HistoricoAtivo, 
      */
     @Query("SELECT h FROM HistoricoAtivo h WHERE LOWER(h.descricaoEvento) LIKE '%status%'")
     List<HistoricoAtivo> buscarEventosDeAlteracaoDeStatus();
-
-    // ===========================================================
-    // 📊 RELATÓRIOS E INDICADORES
-    // ===========================================================
 
     /**
      * Retorna a contagem de eventos registrados por ativo.
@@ -158,4 +143,81 @@ public interface HistoricoAtivoRepository extends JpaRepository<HistoricoAtivo, 
      */
     @Query("SELECT h FROM HistoricoAtivo h WHERE h.dataEvento >= CURRENT_TIMESTAMP - 7 ORDER BY h.dataEvento DESC")
     List<HistoricoAtivo> buscarEventosRecentes();
+
+    /**
+     * Retorna eventos ocorridos dentro de um intervalo de tempo.
+     *
+     * @param inicio data e hora inicial.
+     * @param fim data e hora final.
+     * @return lista de eventos no período informado.
+     */
+    @Query("""
+        SELECT h 
+        FROM HistoricoAtivo h 
+        WHERE h.dataEvento BETWEEN :inicio AND :fim 
+        ORDER BY h.dataEvento DESC
+    """)
+    List<HistoricoAtivo> findByDataEventoBetweenOrderByDataEventoDesc(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fim") LocalDateTime fim
+    );
+
+    /**
+     * Retorna eventos ocorridos após uma data específica, em ordem decrescente.
+     *
+     * @param dataMinima data limite inferior.
+     * @return lista de eventos recentes.
+     */
+    @Query("""
+        SELECT h 
+        FROM HistoricoAtivo h 
+        WHERE h.dataEvento > :dataMinima 
+        ORDER BY h.dataEvento DESC
+    """)
+    List<HistoricoAtivo> findByDataEventoAfterOrderByDataEventoDesc(@Param("dataMinima") LocalDateTime dataMinima);
+
+    /**
+     * Verifica se existe um evento com a mesma descrição registrado para um ativo
+     * em um intervalo de segundos (usado para evitar duplicidade).
+     *
+     * @param ativoId id do ativo.
+     * @param descricaoEvento descrição do evento.
+     * @param inicio limite inferior de data/hora.
+     * @param fim limite superior de data/hora.
+     * @return true se já existir evento semelhante no período.
+     */
+    @Query("""
+        SELECT CASE WHEN COUNT(h) > 0 THEN TRUE ELSE FALSE END
+        FROM HistoricoAtivo h
+        WHERE h.ativo.id = :ativoId
+          AND LOWER(h.descricaoEvento) = LOWER(:descricaoEvento)
+          AND h.dataEvento BETWEEN :inicio AND :fim
+    """)
+    boolean existsByAtivoIdAndDescricaoEventoAndDataEventoBetween(
+            @Param("ativoId") Long ativoId,
+            @Param("descricaoEvento") String descricaoEvento,
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fim") LocalDateTime fim
+    );
+
+    /**
+     * Retorna os últimos N eventos de um ativo, ordenados pela data decrescente.
+     * <p>
+     * Como o Spring Data JPA não suporta diretamente "LIMIT :n" com JPQL,
+     * utiliza uma subquery com filtro de posição.
+     *
+     * @param ativoId id do ativo.
+     * @param limite quantidade máxima de registros.
+     * @return lista dos últimos eventos registrados.
+     */
+    @Query(value = """
+        SELECT * FROM historico_ativo
+        WHERE ativo_id = :ativoId
+        ORDER BY data_evento DESC
+        LIMIT :limite
+    """, nativeQuery = true)
+    List<HistoricoAtivo> findTopNByAtivoIdOrderByDataEventoDesc(
+            @Param("ativoId") Long ativoId,
+            @Param("limite") int limite
+    );
 }

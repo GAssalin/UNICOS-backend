@@ -167,4 +167,39 @@ public interface DocumentoAtivoRepository extends JpaRepository<DocumentoAtivo, 
      */
     @Query("SELECT DISTINCT d.ativo.id FROM DocumentoAtivo d WHERE d.status IN ('VENCIDO', 'EXPIRADO')")
     List<Long> buscarAtivosComDocumentosVencidos();
+
+    /**
+     * Verifica se já existe um documento com o mesmo número vinculado a um ativo.
+     *
+     * @param numero número do documento.
+     * @param ativoId identificador do ativo.
+     * @return true se existir, false caso contrário.
+     */
+    boolean existsByNumeroAndAtivoId(String numero, Long ativoId);
+
+    /**
+     * Retorna o documento mais recente de um tipo específico vinculado a um ativo.
+     *
+     * @param ativoId identificador do ativo.
+     * @param tipo tipo de documento.
+     * @return documento mais recente, se encontrado.
+     */
+    Optional<DocumentoAtivo> findFirstByAtivoIdAndTipoOrderByDataEmissaoDesc(Long ativoId, TipoDocumentoAtivo tipo);
+
+    /**
+     * Retorna todos os documentos de um determinado tipo e status.
+     *
+     * @param tipo tipo do documento.
+     * @param status status atual do documento.
+     * @return lista de documentos filtrados.
+     */
+    List<DocumentoAtivo> findByTipoAndStatus(TipoDocumentoAtivo tipo, StatusDocumento status);
+
+    /**
+     * Retorna documentos cujo status está contido em uma lista de valores (ex: vencidos e expirados).
+     *
+     * @param status lista de status desejados.
+     * @return lista de documentos com qualquer dos status informados.
+     */
+    List<DocumentoAtivo> findByStatusIn(List<StatusDocumento> status);
 }

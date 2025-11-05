@@ -168,4 +168,12 @@ public interface AtivoRepository extends JpaRepository<Ativo, Long> {
      */
     @Query("SELECT a.status, COUNT(a) FROM Ativo a GROUP BY a.status")
     List<Object[]> contarAtivosPorStatus();
+
+    /**
+     * Busca ativos vinculados a um colaborador responsável.
+     *
+     * @param responsavelId identificador do responsável.
+     * @return lista de ativos sob responsabilidade do colaborador.
+     */
+    List<Ativo> findByResponsavelId(Long responsavelId);
 }

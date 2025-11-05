@@ -166,4 +166,49 @@ public interface DepreciacaoAtivoRepository extends JpaRepository<DepreciacaoAti
      */
     @Query("SELECT d.ativo.id, SUM(d.valorDepreciado) FROM DepreciacaoAtivo d GROUP BY d.ativo.id")
     List<Object[]> somarDepreciacaoPorAtivo();
+
+    /**
+     * Verifica se já existe uma depreciação registrada para o ativo e competência informados.
+     *
+     * @param ativoId identificador do ativo.
+     * @param dataCompetencia data da competência contábil.
+     * @return true se já existir, false caso contrário.
+     */
+    boolean existsByAtivoIdAndDataCompetencia(Long ativoId, LocalDate dataCompetencia);
+
+    /**
+     * Busca depreciações filtradas por tipo (LINEAR, ACELERADA, REAVALIAÇÃO etc.).
+     *
+     * @param tipo tipo de depreciação.
+     * @return lista de registros encontrados.
+     */
+    List<DepreciacaoAtivo> findByTipo(TipoDepreciacao tipo);
+
+    /**
+     * Busca a depreciação mais recente (última competência) de um ativo.
+     *
+     * @param ativoId identificador do ativo.
+     * @return depreciação mais recente, se encontrada.
+     */
+    Optional<DepreciacaoAtivo> findTopByAtivoIdOrderByDataCompetenciaDesc(Long ativoId);
+
+    /**
+     * Soma o valor total depreciado de um ativo.
+     *
+     * @param ativoId identificador do ativo.
+     * @return soma total dos valores depreciados.
+     */
+    @Query("SELECT SUM(d.valorDepreciado) FROM DepreciacaoAtivo d WHERE d.ativo.id = :ativoId")
+    Optional<BigDecimal> sumValorDepreciadoByAtivoId(Long ativoId);
+
+    /**
+     * Retorna os valores individuais de depreciação de um ativo.
+     * <p>
+     * Usado para cálculo de médias.
+     *
+     * @param ativoId identificador do ativo.
+     * @return lista de valores de depreciação.
+     */
+    @Query("SELECT d.valorDepreciado FROM DepreciacaoAtivo d WHERE d.ativo.id = :ativoId")
+    List<BigDecimal> findValoresDepreciadosByAtivoId(Long ativoId);
 }

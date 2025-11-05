@@ -1,92 +1,178 @@
 package br.com.unicos.ms_ativos.service;
 
+import br.com.unicos.ms_ativos.dto.ManutencaoAtivoListDTO;
 import br.com.unicos.ms_ativos.dto.ManutencaoAtivoRequest;
 import br.com.unicos.ms_ativos.dto.ManutencaoAtivoResponse;
 import br.com.unicos.ms_ativos.enums.StatusManutencao;
 import br.com.unicos.ms_ativos.enums.TipoManutencao;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Interface de serviço responsável pelas regras de negócio
- * relacionadas à entidade ManutencaoAtivo.
+ * Interface responsável pelas regras de negócio da entidade {@code ManutencaoAtivo}.
  * <p>
- * Define os métodos de criação, atualização, listagem e exclusão
- * das manutenções de ativos cadastradas no sistema.
+ * Define os métodos de controle, agendamento e análise de manutenções preventivas
+ * e corretivas realizadas nos ativos patrimoniais.
  */
 public interface ManutencaoAtivoService {
 
+    // ===========================================================
+    // 🔹 CRUD BÁSICO
+    // ===========================================================
+
     /**
-     * Salva uma nova manutenção de ativo.
+     * Registra uma nova manutenção no sistema.
      *
      * @param request DTO contendo os dados da manutenção.
-     * @return DTO representando a manutenção salva.
+     * @return DTO representando a manutenção criada.
      */
+    @Transactional
     ManutencaoAtivoResponse salvar(ManutencaoAtivoRequest request);
 
     /**
-     * Atualiza os dados de uma manutenção existente.
+     * Atualiza as informações de uma manutenção existente.
      *
-     * @param id      ID da manutenção a ser atualizada.
-     * @param request DTO contendo os novos dados da manutenção.
-     * @return DTO representando a manutenção atualizada.
+     * @param id      identificador da manutenção.
+     * @param request DTO com os novos dados.
+     * @return DTO atualizado com as informações persistidas.
      */
+    @Transactional
     ManutencaoAtivoResponse atualizar(Long id, ManutencaoAtivoRequest request);
 
     /**
-     * Busca uma manutenção pelo ID.
+     * Exclui uma manutenção com base no seu ID.
      *
-     * @param id ID da manutenção.
-     * @return Optional contendo o DTO da manutenção, se encontrada.
+     * @param id identificador da manutenção.
+     */
+    @Transactional
+    void excluir(Long id);
+
+    /**
+     * Busca uma manutenção específica pelo seu ID.
+     *
+     * @param id identificador da manutenção.
+     * @return DTO detalhado, se encontrado.
      */
     Optional<ManutencaoAtivoResponse> buscarPorId(Long id);
 
     /**
      * Lista todas as manutenções cadastradas.
      *
-     * @return Lista de manutenções.
+     * @return lista resumida de manutenções.
      */
-    List<ManutencaoAtivoResponse> listarTodas();
+    List<ManutencaoAtivoListDTO> listarTodos();
+
+    // ===========================================================
+    // 🔍 CONSULTAS ESPECÍFICAS
+    // ===========================================================
 
     /**
-     * Lista todas as manutenções de um ativo específico.
+     * Retorna todas as manutenções vinculadas a um ativo específico.
      *
-     * @param ativoId ID do ativo.
-     * @return Lista de manutenções associadas ao ativo.
+     * @param ativoId identificador do ativo.
+     * @return lista de manutenções do ativo.
      */
-    List<ManutencaoAtivoResponse> buscarPorAtivo(Long ativoId);
+    List<ManutencaoAtivoListDTO> buscarPorAtivo(Long ativoId);
 
     /**
-     * Lista todas as manutenções de um tipo específico.
+     * Retorna manutenções realizadas por um fornecedor específico.
      *
-     * @param tipo Tipo de manutenção (PREVENTIVA, CORRETIVA).
-     * @return Lista de manutenções do tipo informado.
+     * @param fornecedorId identificador do fornecedor.
+     * @return lista de manutenções associadas ao fornecedor.
      */
-    List<ManutencaoAtivoResponse> buscarPorTipo(TipoManutencao tipo);
+    List<ManutencaoAtivoListDTO> buscarPorFornecedor(Long fornecedorId);
 
     /**
-     * Lista todas as manutenções com um determinado status.
+     * Retorna manutenções filtradas por tipo (PREVENTIVA ou CORRETIVA).
      *
-     * @param status Status atual da manutenção.
-     * @return Lista de manutenções com o status informado.
+     * @param tipo tipo da manutenção.
+     * @return lista de manutenções do tipo informado.
      */
-    List<ManutencaoAtivoResponse> buscarPorStatus(StatusManutencao status);
+    List<ManutencaoAtivoListDTO> buscarPorTipo(TipoManutencao tipo);
 
     /**
-     * Lista todas as manutenções realizadas dentro de um intervalo de datas.
+     * Retorna manutenções filtradas por status (ABERTA, EM_EXECUCAO, CONCLUIDA etc.).
      *
-     * @param inicio Data inicial.
-     * @param fim    Data final.
-     * @return Lista de manutenções realizadas no período informado.
+     * @param status status atual da manutenção.
+     * @return lista de manutenções com o status informado.
      */
-    List<ManutencaoAtivoResponse> buscarPorPeriodo(LocalDate inicio, LocalDate fim);
+    List<ManutencaoAtivoListDTO> buscarPorStatus(StatusManutencao status);
 
     /**
-     * Remove uma manutenção do sistema.
+     * Retorna as manutenções realizadas dentro de um período específico.
      *
-     * @param id ID da manutenção a ser removida.
+     * @param inicio data inicial do intervalo.
+     * @param fim    data final do intervalo.
+     * @return lista de manutenções no período informado.
      */
-    void deletar(Long id);
+    List<ManutencaoAtivoListDTO> buscarPorPeriodo(LocalDate inicio, LocalDate fim);
+
+    /**
+     * Retorna manutenções agendadas para uma data específica.
+     *
+     * @param data data de referência.
+     * @return lista de manutenções agendadas.
+     */
+    List<ManutencaoAtivoListDTO> buscarAgendadasPara(LocalDate data);
+
+    // ===========================================================
+    // 💰 RELATÓRIOS E ANÁLISES
+    // ===========================================================
+
+    /**
+     * Calcula o custo total de manutenções de um ativo.
+     *
+     * @param ativoId identificador do ativo.
+     * @return valor total gasto em manutenções.
+     */
+    BigDecimal calcularCustoTotalPorAtivo(Long ativoId);
+
+    /**
+     * Calcula o custo total de manutenções realizadas em um período.
+     *
+     * @param inicio data inicial.
+     * @param fim    data final.
+     * @return valor total gasto no período.
+     */
+    BigDecimal calcularCustoTotalPorPeriodo(LocalDate inicio, LocalDate fim);
+
+    /**
+     * Retorna o número total de manutenções registradas.
+     *
+     * @return quantidade total de manutenções.
+     */
+    Long contarTotal();
+
+    /**
+     * Retorna a quantidade de manutenções por tipo (PREVENTIVA, CORRETIVA etc.).
+     *
+     * @return lista de contagens agrupadas por tipo.
+     */
+    List<Object[]> contarPorTipo();
+
+    /**
+     * Retorna a quantidade de manutenções por status (ABERTA, CONCLUÍDA etc.).
+     *
+     * @return lista de contagens agrupadas por status.
+     */
+    List<Object[]> contarPorStatus();
+
+    /**
+     * Retorna os ativos que possuem mais de uma manutenção registrada.
+     *
+     * @return lista de ativos com alto índice de manutenção.
+     */
+    List<Object[]> buscarAtivosComManutencoesFrequentes();
+
+    /**
+     * Retorna as manutenções mais recentes registradas no sistema.
+     *
+     * @param limite quantidade máxima de registros a retornar.
+     * @return lista das manutenções mais recentes.
+     */
+    List<ManutencaoAtivoListDTO> buscarRecentes(int limite);
 }

@@ -1,98 +1,110 @@
 package br.com.unicos.ms_ativos.service;
 
+import br.com.unicos.ms_ativos.dto.AtivoListDTO;
 import br.com.unicos.ms_ativos.dto.AtivoRequest;
 import br.com.unicos.ms_ativos.dto.AtivoResponse;
 import br.com.unicos.ms_ativos.enums.StatusAtivo;
 import br.com.unicos.ms_ativos.enums.TipoAtivo;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Interface de serviço responsável pelas regras de negócio
- * relacionadas à entidade Ativo.
+ * Interface responsável pelas regras de negócio da entidade {@code Ativo}.
  * <p>
- * Define os métodos de criação, atualização, listagem e exclusão
- * dos ativos cadastrados no sistema.
+ * Define os métodos principais de CRUD e consultas específicas relacionadas
+ * à gestão de bens patrimoniais do sistema.
  */
 public interface AtivoService {
 
+    // ===========================================================
+    // 🔹 CRUD BÁSICO
+    // ===========================================================
+
     /**
-     * Salva um novo ativo.
+     * Cria e salva um novo ativo no sistema.
      *
-     * @param request DTO contendo os dados do ativo.
-     * @return DTO representando o ativo salvo.
+     * @param request DTO contendo os dados para criação do ativo.
+     * @return DTO com os dados do ativo criado.
      */
+    @Transactional
     AtivoResponse salvar(AtivoRequest request);
 
     /**
-     * Atualiza os dados de um ativo existente.
+     * Atualiza as informações de um ativo existente.
      *
-     * @param id      ID do ativo a ser atualizado.
-     * @param request DTO contendo os novos dados do ativo.
-     * @return DTO representando o ativo atualizado.
+     * @param id      identificador do ativo a ser atualizado.
+     * @param request DTO contendo os novos dados.
+     * @return DTO com os dados atualizados do ativo.
      */
+    @Transactional
     AtivoResponse atualizar(Long id, AtivoRequest request);
 
     /**
-     * Busca um ativo pelo ID.
+     * Remove um ativo com base no ID informado.
      *
-     * @param id ID do ativo.
-     * @return Optional contendo o DTO do ativo, se encontrado.
+     * @param id identificador do ativo.
+     */
+    @Transactional
+    void excluir(Long id);
+
+    /**
+     * Busca um ativo específico pelo seu ID.
+     *
+     * @param id identificador do ativo.
+     * @return DTO com os dados detalhados do ativo.
      */
     Optional<AtivoResponse> buscarPorId(Long id);
 
     /**
-     * Busca um ativo pelo código patrimonial.
+     * Lista todos os ativos cadastrados no sistema.
      *
-     * @param codigoPatrimonial Código patrimonial único.
-     * @return Optional contendo o DTO do ativo, se encontrado.
+     * @return lista de ativos em formato resumido.
      */
-    Optional<AtivoResponse> buscarPorCodigoPatrimonial(String codigoPatrimonial);
+    List<AtivoListDTO> listarTodos();
+
+    // ===========================================================
+    // 🔍 CONSULTAS ESPECÍFICAS
+    // ===========================================================
 
     /**
-     * Lista todos os ativos cadastrados.
+     * Busca ativos filtrando por tipo (MÓVEL, IMÓVEL, VEÍCULO, etc.).
      *
-     * @return Lista de ativos.
+     * @param tipo tipo de ativo.
+     * @return lista de ativos do tipo informado.
      */
-    List<AtivoResponse> listarTodos();
+    List<AtivoListDTO> buscarPorTipo(TipoAtivo tipo);
 
     /**
-     * Lista todos os ativos de uma empresa específica.
+     * Busca ativos filtrando por status (ATIVO, INATIVO, EM_MANUTENCAO, etc.).
      *
-     * @param empresaId ID da empresa.
-     * @return Lista de ativos vinculados à empresa.
+     * @param status status atual do ativo.
+     * @return lista de ativos com o status informado.
      */
-    List<AtivoResponse> buscarPorEmpresa(Long empresaId);
+    List<AtivoListDTO> buscarPorStatus(StatusAtivo status);
 
     /**
-     * Lista todos os ativos de uma filial específica.
+     * Busca todos os ativos pertencentes a uma empresa específica.
      *
-     * @param filialId ID da filial.
-     * @return Lista de ativos vinculados à filial.
+     * @param empresaId identificador da empresa.
+     * @return lista de ativos da empresa.
      */
-    List<AtivoResponse> buscarPorFilial(Long filialId);
+    List<AtivoListDTO> buscarPorEmpresa(Long empresaId);
 
     /**
-     * Lista os ativos de um tipo específico.
+     * Busca todos os ativos pertencentes a uma filial específica.
      *
-     * @param tipo Tipo de ativo (EQUIPAMENTO, VEICULO, etc.).
-     * @return Lista de ativos do tipo informado.
+     * @param filialId identificador da filial.
+     * @return lista de ativos da filial.
      */
-    List<AtivoResponse> buscarPorTipo(TipoAtivo tipo);
+    List<AtivoListDTO> buscarPorFilial(Long filialId);
 
     /**
-     * Lista os ativos com um determinado status.
+     * Busca ativos sob responsabilidade de um colaborador específico.
      *
-     * @param status Status atual do ativo.
-     * @return Lista de ativos com o status informado.
+     * @param responsavelId identificador do colaborador responsável.
+     * @return lista de ativos associados ao responsável.
      */
-    List<AtivoResponse> buscarPorStatus(StatusAtivo status);
-
-    /**
-     * Remove um ativo do sistema.
-     *
-     * @param id ID do ativo a ser removido.
-     */
-    void deletar(Long id);
+    List<AtivoListDTO> buscarPorResponsavel(Long responsavelId);
 }

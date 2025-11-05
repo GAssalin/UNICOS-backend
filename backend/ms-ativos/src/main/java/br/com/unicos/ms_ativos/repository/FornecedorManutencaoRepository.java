@@ -142,4 +142,73 @@ public interface FornecedorManutencaoRepository extends JpaRepository<Fornecedor
     @Query("SELECT DISTINCT f FROM FornecedorManutencao f JOIN f.manutencoes m " +
             "WHERE m.dataManutencao >= CURRENT_DATE - 90 ORDER BY f.nome ASC")
     List<FornecedorManutencao> buscarFornecedoresRecentes();
+
+    /**
+     * Busca fornecedores cujo e-mail contenha o valor informado (case-insensitive).
+     *
+     * @param email parte do e-mail ou domínio.
+     * @return lista de fornecedores encontrados.
+     */
+    List<FornecedorManutencao> findByEmailContainingIgnoreCase(String email);
+
+    /**
+     * Busca fornecedores cujo telefone contenha o valor informado.
+     *
+     * @param telefone parte do número de telefone.
+     * @return lista de fornecedores encontrados.
+     */
+    List<FornecedorManutencao> findByTelefoneContainingIgnoreCase(String telefone);
+
+    // ===========================================================
+    // 📊 CONSULTAS PERSONALIZADAS (via JPQL)
+    // ===========================================================
+
+    /**
+     * Retorna fornecedores que possuem ao menos uma manutenção associada.
+     *
+     * @return lista de fornecedores com manutenções.
+     */
+    @Query("SELECT f FROM FornecedorManutencao f WHERE SIZE(f.manutencoes) > 0")
+    List<FornecedorManutencao> findComManutencoes();
+
+    /**
+     * Retorna fornecedores que ainda não possuem manutenções associadas.
+     *
+     * @return lista de fornecedores sem manutenções.
+     */
+    @Query("SELECT f FROM FornecedorManutencao f WHERE SIZE(f.manutencoes) = 0")
+    List<FornecedorManutencao> findSemManutencoes();
+
+    /**
+     * Retorna os fornecedores mais ativos, ordenados pela quantidade de manutenções.
+     *
+     * @return lista de fornecedores mais ativos.
+     */
+    @Query("SELECT f FROM FornecedorManutencao f ORDER BY SIZE(f.manutencoes) DESC")
+    List<FornecedorManutencao> findMaisAtivos();
+
+    /**
+     * Retorna fornecedores que realizaram mais de uma quantidade mínima de manutenções.
+     *
+     * @param quantidade número mínimo de manutenções.
+     * @return lista de fornecedores filtrados.
+     */
+    @Query("SELECT f FROM FornecedorManutencao f WHERE SIZE(f.manutencoes) > :quantidade")
+    List<FornecedorManutencao> findComMaisDe(int quantidade);
+
+    /**
+     * Retorna fornecedores cujo e-mail é nulo, vazio ou possui formato inválido.
+     *
+     * @return lista de fornecedores com e-mails inválidos.
+     */
+    @Query("SELECT f FROM FornecedorManutencao f WHERE f.email IS NULL OR f.email = '' OR f.email NOT LIKE '%@%'")
+    List<FornecedorManutencao> findComEmailInvalido();
+
+    /**
+     * Retorna fornecedores que não possuem telefone cadastrado.
+     *
+     * @return lista de fornecedores sem telefone.
+     */
+    @Query("SELECT f FROM FornecedorManutencao f WHERE f.telefone IS NULL OR f.telefone = ''")
+    List<FornecedorManutencao> findSemTelefone();
 }

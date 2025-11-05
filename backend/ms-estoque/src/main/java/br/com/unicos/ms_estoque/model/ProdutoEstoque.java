@@ -34,8 +34,10 @@ public class ProdutoEstoque {
     private Double quantidade;
 
     @Column(nullable = false)
+    @Builder.Default
     private Double quantidadeMinima = 0.0;
 
     @Column(nullable = false)
+    @Builder.Default
     private Double quantidadeMaxima = 0.0;
 }
