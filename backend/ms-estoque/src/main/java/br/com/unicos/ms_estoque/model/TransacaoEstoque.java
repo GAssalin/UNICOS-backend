@@ -1,5 +1,6 @@
 package br.com.unicos.ms_estoque.model;
 
+import br.com.unicos.ms_estoque.enums.TipoAjusteEstoque;
 import br.com.unicos.ms_estoque.enums.TipoTransacao;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -26,17 +27,37 @@ public class TransacaoEstoque {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Tipo principal da transação de estoque.
+     */
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(length = 30, nullable = false)
-    private TipoTransacao tipo; // ENTRADA, SAIDA, TRANSFERENCIA, AJUSTE
+    private TipoTransacao tipo;
 
+    /**
+     * Tipo de ajuste aplicado (quando a transação for do tipo AJUSTE).
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_ajuste", length = 30)
+    private TipoAjusteEstoque tipoAjuste;
+
+    /**
+     * Observações gerais sobre a transação.
+     */
     @Column(length = 255)
     private String observacao;
 
+    /**
+     * Data e hora de execução da transação.
+     */
     @Column(nullable = false)
+    @Builder.Default
     private LocalDateTime data = LocalDateTime.now();
 
-    @Column(name = "usuario_responsavel")
+    /**
+     * Usuário responsável pela movimentação.
+     */
+    @Column(name = "usuario_responsavel", length = 100)
     private String usuarioResponsavel;
 }
