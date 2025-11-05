@@ -1,0 +1,85 @@
+{
+  "info": {
+    "name": "ms_estoque_movimentacoes_lotes",
+    "_postman_id": "ms_estoque_movimentacoes_lotes",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Listar por movimenta\u00e7\u00e3o",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/v1/movimentacoes-lotes/movimentacao/1",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "movimentacoes-lotes",
+            "movimentacao",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Criar v\u00ednculo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/v1/movimentacoes-lotes",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "movimentacoes-lotes"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"movimentacaoId\": 1,\n  \"loteId\": 1,\n  \"quantidade\": 50\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Excluir v\u00ednculo",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/v1/movimentacoes-lotes/1",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "movimentacoes-lotes",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

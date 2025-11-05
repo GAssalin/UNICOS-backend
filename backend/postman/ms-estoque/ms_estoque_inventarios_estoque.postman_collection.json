@@ -1,0 +1,135 @@
+{
+  "info": {
+    "name": "ms_estoque_inventarios_estoque",
+    "_postman_id": "ms_estoque_inventarios_estoque",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Listar todos",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/v1/inventarios-estoque",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "inventarios-estoque"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar por ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/v1/inventarios-estoque/1",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "inventarios-estoque",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Criar invent\u00e1rio",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/v1/inventarios-estoque",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "inventarios-estoque"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"estoqueLocalId\": 1,\n  \"dataInicio\": \"2025-11-01T08:00:00\",\n  \"status\": \"ABERTO\"\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Atualizar invent\u00e1rio",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/v1/inventarios-estoque/1",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "inventarios-estoque",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"estoqueLocalId\": 1,\n  \"dataInicio\": \"2025-11-01T08:00:00\",\n  \"status\": \"ABERTO\"\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Excluir invent\u00e1rio",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/v1/inventarios-estoque/1",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "inventarios-estoque",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

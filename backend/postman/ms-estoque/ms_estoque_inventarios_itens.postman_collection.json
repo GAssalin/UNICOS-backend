@@ -1,0 +1,113 @@
+{
+  "info": {
+    "name": "ms_estoque_inventarios_itens",
+    "_postman_id": "ms_estoque_inventarios_itens",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Listar por invent\u00e1rio",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/v1/inventarios-itens/inventario/1",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "inventarios-itens",
+            "inventario",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Criar item",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/v1/inventarios-itens",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "inventarios-itens"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"inventarioId\": 1,\n  \"produtoEstoqueId\": 10,\n  \"quantidadeContada\": 100,\n  \"quantidadeRegistrada\": 95,\n  \"observacao\": \"Diferen\\u00e7a pequena\"\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Atualizar item",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/v1/inventarios-itens/1",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "inventarios-itens",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"inventarioId\": 1,\n  \"produtoEstoqueId\": 10,\n  \"quantidadeContada\": 100,\n  \"quantidadeRegistrada\": 95,\n  \"observacao\": \"Diferen\\u00e7a pequena\"\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Excluir item",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/v1/inventarios-itens/1",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "inventarios-itens",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
