@@ -9,7 +9,7 @@ import java.util.Optional;
 
 /**
  * Repositório responsável pelo acesso aos dados da entidade UnidadeMedida.
- *
+ * <p>
  * Fornece métodos personalizados para consultas específicas,
  * além das operações CRUD padrão fornecidas pelo JpaRepository.
  */

@@ -9,7 +9,7 @@ import java.util.Optional;
 
 /**
  * Repositório responsável pelo acesso aos dados da entidade AtributoPersonalizado.
- *
+ * <p>
  * Fornece métodos específicos de consulta para atributos vinculados a produtos,
  * além das operações CRUD padrão do JpaRepository.
  */

@@ -9,7 +9,7 @@ import java.util.Optional;
 
 /**
  * Repositório responsável pelo acesso aos dados da entidade ProdutoUnidade.
- *
+ * <p>
  * Permite gerenciar as relações entre produtos e suas unidades de medida,
  * além de fornecer métodos de consulta específicos para operações de negócio.
  */
@@ -35,8 +35,8 @@ public interface ProdutoUnidadeRepository extends JpaRepository<ProdutoUnidade, 
     /**
      * Verifica se já existe um vínculo entre um produto e uma unidade de medida específicos.
      *
-     * @param produtoId        ID do produto.
-     * @param unidadeMedidaId  ID da unidade de medida.
+     * @param produtoId       ID do produto.
+     * @param unidadeMedidaId ID da unidade de medida.
      * @return Optional contendo o vínculo, se encontrado.
      */
     Optional<ProdutoUnidade> findByProdutoIdAndUnidadeMedidaId(Long produtoId, Long unidadeMedidaId);

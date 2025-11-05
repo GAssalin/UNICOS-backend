@@ -33,7 +33,7 @@ public interface FornecedorProdutoRepository extends JpaRepository<FornecedorPro
      * Busca um vínculo específico entre fornecedor e produto.
      *
      * @param fornecedorId ID do fornecedor.
-     * @param produtoId ID do produto.
+     * @param produtoId    ID do produto.
      * @return Registro, se existir.
      */
     Optional<FornecedorProduto> findByFornecedorIdAndProdutoId(Long fornecedorId, Long produtoId);
@@ -42,7 +42,7 @@ public interface FornecedorProdutoRepository extends JpaRepository<FornecedorPro
      * Verifica se já existe um vínculo entre fornecedor e produto.
      *
      * @param fornecedorId ID do fornecedor.
-     * @param produtoId ID do produto.
+     * @param produtoId    ID do produto.
      * @return true se já existir, false caso contrário.
      */
     boolean existsByFornecedorIdAndProdutoId(Long fornecedorId, Long produtoId);
