@@ -1,27 +1,42 @@
 package br.com.unicos.ms_ativos.dto;
 
+import br.com.unicos.ms_ativos.enums.TipoTransferencia;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
 /**
- * DTO usado para criação e atualização de transferências de ativo.
+ * DTO utilizado para criação ou atualização de registros de transferência de ativos.
+ * <p>
+ * Representa o movimento de um ativo entre unidades, setores ou filiais.
  */
 public record TransferenciaAtivoRequest(
-        @NotNull
+
+        /** Identificador do ativo que está sendo transferido. */
+        @NotNull(message = "O ID do ativo é obrigatório.")
         Long ativoId,
 
-        @NotNull
+        /** Identificador da filial/unidade de origem. */
+        @NotNull(message = "O ID da origem é obrigatório.")
         Long origemId,
 
-        @NotNull
+        /** Identificador da filial/unidade de destino. */
+        @NotNull(message = "O ID do destino é obrigatório.")
         Long destinoId,
 
-        @NotNull @PastOrPresent
+        /** Tipo da transferência (INTERNA, ENTRE_FILIAIS, BAIXA, OUTROS). */
+        @NotNull(message = "O tipo de transferência é obrigatório.")
+        TipoTransferencia tipo,
+
+        /** Data em que a transferência foi realizada ou registrada. */
+        @NotNull(message = "A data da transferência é obrigatória.")
+        @PastOrPresent(message = "A data da transferência não pode estar no futuro.")
         LocalDate dataTransferencia,
 
-        @Size(max = 255)
+        /** Usuário responsável pela transferência (referência ao ms-pessoas). */
+        Long responsavelId,
+
+        /** Motivo ou observação da transferência. */
         String motivo
-) {}
+) { }

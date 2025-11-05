@@ -2,21 +2,24 @@ package br.com.unicos.ms_ativos.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 /**
- * DTO usado para criação e atualização de localizações.
+ * DTO utilizado para criação ou atualização de localizações físicas
+ * dentro de uma unidade (filial).
  */
 public record LocalizacaoRequest(
-        @NotBlank @Size(max = 100)
+
+        /** Descrição da localização (ex: "Sala de Servidores", "Depósito Central"). */
+        @NotBlank(message = "A descrição da localização é obrigatória.")
         String descricao,
 
-        @Size(max = 10)
+        /** Identificação do andar (ex: "Térreo", "1º", "2º"). */
         String andar,
 
-        @Size(max = 20)
+        /** Identificação do bloco ou prédio (ex: "A", "B", "Administrativo"). */
         String bloco,
 
-        @NotNull
+        /** Identificador da filial onde a localização pertence (referência ao ms-empresa). */
+        @NotNull(message = "O ID da filial é obrigatório.")
         Long filialId
-) {}
+) { }
