@@ -3,37 +3,35 @@ package br.com.unicos.ms_ativos.enums;
 import lombok.Getter;
 
 /**
- * Enum que representa o status atual de um ativo dentro da empresa.
- * <p>
- * Indica a condição operacional ou patrimonial do bem.
+ * Enum que representa o status atual de um ativo no sistema patrimonial.
  */
 @Getter
 public enum StatusAtivo {
 
     /**
-     * Ativo em uso normal nas operações da empresa.
+     * Ativo em uso e operacional.
      */
-    ATIVO("Ativo"),
+    ATIVO("Ativo em uso e operacional"),
 
     /**
-     * Ativo temporariamente indisponível devido à manutenção.
+     * Ativo temporariamente indisponível por manutenção.
      */
-    EM_MANUTENCAO("Em manutenção"),
+    EM_MANUTENCAO("Ativo em manutenção ou inspeção"),
 
     /**
-     * Ativo baixado do patrimônio, sem utilização futura prevista.
+     * Ativo aguardando baixa, substituição ou descarte.
      */
-    BAIXADO("Baixado"),
+    INATIVO("Ativo inativo, aguardando baixa ou substituição"),
 
     /**
-     * Ativo transferido para outra unidade, filial ou empresa.
+     * Ativo já baixado ou descartado.
      */
-    TRANSFERIDO("Transferido"),
+    BAIXADO("Ativo baixado do patrimônio"),
 
     /**
-     * Ativo vendido e removido do patrimônio.
+     * Ativo emprestado ou deslocado temporariamente.
      */
-    VENDIDO("Vendido");
+    EMPRESTADO("Ativo emprestado ou deslocado temporariamente");
 
     private final String descricao;
 

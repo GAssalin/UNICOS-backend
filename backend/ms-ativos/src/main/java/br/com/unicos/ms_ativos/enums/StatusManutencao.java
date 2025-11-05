@@ -3,27 +3,35 @@ package br.com.unicos.ms_ativos.enums;
 import lombok.Getter;
 
 /**
- * Enum que representa os possíveis status de uma manutenção de ativo.
- * <p>
- * Define o estágio atual do processo de manutenção.
+ * Enum que representa o status atual de uma manutenção de ativo.
  */
 @Getter
 public enum StatusManutencao {
 
     /**
-     * Manutenção programada e aguardando execução.
+     * Manutenção registrada, aguardando execução.
      */
-    AGENDADA("Agendada"),
+    ABERTA("Manutenção registrada e aguardando execução"),
+
+    /**
+     * Manutenção em execução.
+     */
+    EM_EXECUCAO("Manutenção em andamento"),
 
     /**
      * Manutenção concluída com sucesso.
      */
-    CONCLUIDA("Concluída"),
+    CONCLUIDA("Manutenção finalizada com sucesso"),
 
     /**
-     * Manutenção cancelada antes ou durante sua execução.
+     * Manutenção cancelada antes da execução.
      */
-    CANCELADA("Cancelada");
+    CANCELADA("Manutenção cancelada pelo responsável"),
+
+    /**
+     * Manutenção adiada para data posterior.
+     */
+    ADIADA("Manutenção reagendada para nova data");
 
     private final String descricao;
 

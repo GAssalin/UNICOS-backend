@@ -3,25 +3,35 @@ package br.com.unicos.ms_ativos.enums;
 import lombok.Getter;
 
 /**
- * Enum que representa os tipos de manutenção que podem ser realizadas em um ativo.
- * <p>
- * Cada tipo define uma finalidade distinta na gestão de ativos, seja para
- * prevenir falhas ou corrigir problemas existentes.
+ * Enum que define o tipo de manutenção aplicada a um ativo.
  */
 @Getter
 public enum TipoManutencao {
 
     /**
-     * Manutenção realizada de forma preventiva, com o objetivo de evitar falhas
-     * e garantir o bom funcionamento do ativo.
+     * Manutenção preventiva, realizada periodicamente para evitar falhas.
      */
-    PREVENTIVA("Preventiva"),
+    PREVENTIVA("Manutenção preventiva para evitar falhas"),
 
     /**
-     * Manutenção corretiva, realizada após a ocorrência de falhas ou defeitos
-     * no ativo.
+     * Manutenção corretiva, realizada após a ocorrência de falhas.
      */
-    CORRETIVA("Corretiva");
+    CORRETIVA("Manutenção corretiva após falha detectada"),
+
+    /**
+     * Manutenção preditiva, baseada em monitoramento de desempenho.
+     */
+    PREDITIVA("Manutenção preditiva com base em medições e dados"),
+
+    /**
+     * Calibração ou ajuste técnico do ativo.
+     */
+    CALIBRACAO("Calibração técnica do ativo"),
+
+    /**
+     * Outro tipo de manutenção não especificada.
+     */
+    OUTRO("Outro tipo de manutenção aplicada ao ativo");
 
     private final String descricao;
 

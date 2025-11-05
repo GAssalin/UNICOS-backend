@@ -3,27 +3,20 @@ package br.com.unicos.ms_ativos.enums;
 import lombok.Getter;
 
 /**
- * Enum que representa as categorias de ativos que podem ser cadastradas no sistema.
- * <p>
- * Cada tipo indica a natureza e finalidade do ativo dentro da organização.
+ * Enum que define as categorias gerais de ativos.
  */
 @Getter
 public enum TipoAtivo {
 
     /**
-     * Equipamentos utilizados nas operações da empresa.
+     * Equipamentos eletrônicos e tecnológicos.
      */
-    EQUIPAMENTO("Equipamento"),
+    EQUIPAMENTO("Equipamento eletrônico ou tecnológico"),
 
     /**
-     * Veículos pertencentes ao patrimônio da empresa.
+     * Veículos automotores.
      */
-    VEICULO("Veículo"),
-
-    /**
-     * Mobiliários e itens de escritório.
-     */
-    MOBILIARIO("Mobiliário"),
+    VEICULO("Veículo automotor"),
 
     /**
      * Softwares licenciados ou desenvolvidos internamente.
@@ -31,14 +24,24 @@ public enum TipoAtivo {
     SOFTWARE("Software"),
 
     /**
-     * Imóveis próprios ou alugados utilizados pela empresa.
+     * Imóveis (prédios, terrenos, salas, etc.).
      */
-    IMOVEL("Imóvel"),
+    IMOVEL("Bem imóvel"),
 
     /**
-     * Categoria genérica para ativos não enquadrados nas demais opções.
+     * Móveis e utensílios de escritório.
      */
-    OUTROS("Outros");
+    MOVEL("Móvel ou utensílio de escritório"),
+
+    /**
+     * Ferramentas e instrumentos de trabalho.
+     */
+    FERRAMENTA("Ferramenta ou instrumento de trabalho"),
+
+    /**
+     * Outro tipo de ativo não classificado.
+     */
+    OUTRO("Outro tipo de ativo");
 
     private final String descricao;
 
