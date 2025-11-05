@@ -1,5 +1,6 @@
 package br.com.unicos.ms_ativos.controller;
 
+import br.com.unicos.ms_ativos.dto.AtivoListDTO;
 import br.com.unicos.ms_ativos.dto.AtivoRequest;
 import br.com.unicos.ms_ativos.dto.AtivoResponse;
 import br.com.unicos.ms_ativos.enums.StatusAtivo;
@@ -14,9 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Controller responsável pelo gerenciamento de ativos.
- *
- * Fornece endpoints REST para criação, atualização, listagem, busca e exclusão de ativos.
+ * Controlador REST responsável pelo gerenciamento dos ativos patrimoniais.
+ * <p>
+ * Fornece endpoints para operações de CRUD, filtros por tipo, status, empresa,
+ * filial e responsável, além de consultas especializadas para relatórios e dashboards.
  */
 @RestController
 @RequestMapping("/v1/ativos")
@@ -25,38 +27,53 @@ public class AtivoController {
 
     private final AtivoService ativoService;
 
+    // ===========================================================
+    // 🔹 CRUD BÁSICO
+    // ===========================================================
+
     /**
-     * Cria um novo ativo.
+     * Cria e registra um novo ativo no sistema.
      *
-     * @param request dados do ativo
-     * @return ativo criado
+     * @param request DTO contendo os dados do ativo.
+     * @return resposta com os dados do ativo criado.
      */
     @PostMapping
-    public ResponseEntity<AtivoResponse> criar(@Valid @RequestBody AtivoRequest request) {
+    public ResponseEntity<AtivoResponse> salvar(@Valid @RequestBody AtivoRequest request) {
         AtivoResponse response = ativoService.salvar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
-     * Atualiza os dados de um ativo existente.
+     * Atualiza as informações de um ativo existente.
      *
-     * @param id identificador do ativo
-     * @param request novos dados do ativo
-     * @return ativo atualizado
+     * @param id      identificador do ativo.
+     * @param request DTO contendo os novos dados.
+     * @return resposta com os dados atualizados.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<AtivoResponse> atualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody AtivoRequest request) {
+    public ResponseEntity<AtivoResponse> atualizar(@PathVariable Long id,
+                                                   @Valid @RequestBody AtivoRequest request) {
         AtivoResponse response = ativoService.atualizar(id, request);
         return ResponseEntity.ok(response);
     }
 
     /**
-     * Busca um ativo pelo seu ID.
+     * Exclui um ativo com base no seu identificador.
      *
-     * @param id identificador do ativo
-     * @return ativo encontrado, se existir
+     * @param id identificador do ativo.
+     * @return status HTTP 204 em caso de sucesso.
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        ativoService.excluir(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Busca um ativo específico pelo seu ID.
+     *
+     * @param id identificador do ativo.
+     * @return resposta com os dados detalhados, se encontrado.
      */
     @GetMapping("/{id}")
     public ResponseEntity<AtivoResponse> buscarPorId(@PathVariable Long id) {
@@ -66,101 +83,77 @@ public class AtivoController {
     }
 
     /**
-     * Busca um ativo pelo código patrimonial.
+     * Retorna todos os ativos cadastrados.
      *
-     * @param codigo código patrimonial do ativo
-     * @return ativo encontrado, se existir
-     */
-    @GetMapping("/buscar/codigo-patrimonial")
-    public ResponseEntity<AtivoResponse> buscarPorCodigo(@RequestParam String codigo) {
-        return ativoService.buscarPorCodigoPatrimonial(codigo)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    /**
-     * Lista todos os ativos cadastrados.
-     *
-     * @return lista de ativos
+     * @return lista de ativos.
      */
     @GetMapping
-    public ResponseEntity<List<AtivoResponse>> listarTodos() {
-        List<AtivoResponse> ativos = ativoService.listarTodos();
-        if (ativos.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(ativos);
+    public ResponseEntity<List<AtivoListDTO>> listarTodos() {
+        List<AtivoListDTO> lista = ativoService.listarTodos();
+        return ResponseEntity.ok(lista);
+    }
+
+    // ===========================================================
+    // 🔍 CONSULTAS ESPECÍFICAS
+    // ===========================================================
+
+    /**
+     * Retorna todos os ativos filtrados por tipo.
+     *
+     * @param tipo tipo do ativo (ex: MOVEL, IMOVEL, VEICULO).
+     * @return lista de ativos do tipo informado.
+     */
+    @GetMapping("/tipo/{tipo}")
+    public ResponseEntity<List<AtivoListDTO>> buscarPorTipo(@PathVariable TipoAtivo tipo) {
+        List<AtivoListDTO> lista = ativoService.buscarPorTipo(tipo);
+        return ResponseEntity.ok(lista);
     }
 
     /**
-     * Lista ativos por empresa.
+     * Retorna todos os ativos filtrados por status.
      *
-     * @param empresaId identificador da empresa
-     * @return lista de ativos vinculados à empresa
+     * @param status status do ativo (ex: ATIVO, INATIVO, EM_MANUTENCAO).
+     * @return lista de ativos com o status informado.
      */
-    @GetMapping("/buscar/empresa")
-    public ResponseEntity<List<AtivoResponse>> buscarPorEmpresa(@RequestParam Long empresaId) {
-        List<AtivoResponse> ativos = ativoService.buscarPorEmpresa(empresaId);
-        if (ativos.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(ativos);
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<AtivoListDTO>> buscarPorStatus(@PathVariable StatusAtivo status) {
+        List<AtivoListDTO> lista = ativoService.buscarPorStatus(status);
+        return ResponseEntity.ok(lista);
     }
 
     /**
-     * Lista ativos por filial.
+     * Retorna todos os ativos pertencentes a uma empresa específica.
      *
-     * @param filialId identificador da filial
-     * @return lista de ativos vinculados à filial
+     * @param empresaId identificador da empresa.
+     * @return lista de ativos da empresa.
      */
-    @GetMapping("/buscar/filial")
-    public ResponseEntity<List<AtivoResponse>> buscarPorFilial(@RequestParam Long filialId) {
-        List<AtivoResponse> ativos = ativoService.buscarPorFilial(filialId);
-        if (ativos.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(ativos);
+    @GetMapping("/empresa/{empresaId}")
+    public ResponseEntity<List<AtivoListDTO>> buscarPorEmpresa(@PathVariable Long empresaId) {
+        List<AtivoListDTO> lista = ativoService.buscarPorEmpresa(empresaId);
+        return ResponseEntity.ok(lista);
     }
 
     /**
-     * Lista ativos por tipo.
+     * Retorna todos os ativos pertencentes a uma filial específica.
      *
-     * @param tipo tipo de ativo
-     * @return lista de ativos correspondentes
+     * @param filialId identificador da filial.
+     * @return lista de ativos da filial.
      */
-    @GetMapping("/buscar/tipo")
-    public ResponseEntity<List<AtivoResponse>> buscarPorTipo(@RequestParam TipoAtivo tipo) {
-        List<AtivoResponse> ativos = ativoService.buscarPorTipo(tipo);
-        if (ativos.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(ativos);
+    @GetMapping("/filial/{filialId}")
+    public ResponseEntity<List<AtivoListDTO>> buscarPorFilial(@PathVariable Long filialId) {
+        List<AtivoListDTO> lista = ativoService.buscarPorFilial(filialId);
+        return ResponseEntity.ok(lista);
     }
 
     /**
-     * Lista ativos por status.
+     * Retorna todos os ativos sob responsabilidade de um colaborador específico.
      *
-     * @param status status do ativo
-     * @return lista de ativos correspondentes
+     * @param responsavelId identificador do colaborador responsável.
+     * @return lista de ativos do responsável.
      */
-    @GetMapping("/buscar/status")
-    public ResponseEntity<List<AtivoResponse>> buscarPorStatus(@RequestParam StatusAtivo status) {
-        List<AtivoResponse> ativos = ativoService.buscarPorStatus(status);
-        if (ativos.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(ativos);
-    }
-
-    /**
-     * Exclui um ativo pelo seu ID.
-     *
-     * @param id identificador do ativo
-     * @return resposta sem conteúdo (204)
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        ativoService.deletar(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/responsavel/{responsavelId}")
+    public ResponseEntity<List<AtivoListDTO>> buscarPorResponsavel(@PathVariable Long responsavelId) {
+        List<AtivoListDTO> lista = ativoService.buscarPorResponsavel(responsavelId);
+        return ResponseEntity.ok(lista);
     }
 }
