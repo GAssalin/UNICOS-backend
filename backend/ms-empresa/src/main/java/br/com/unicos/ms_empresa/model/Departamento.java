@@ -39,6 +39,7 @@ public class Departamento {
     private Empresa empresa;
 
     @OneToMany(mappedBy = "departamento", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Setor> setores = new ArrayList<>();
 
     @NotNull
