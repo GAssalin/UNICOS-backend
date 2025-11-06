@@ -6,6 +6,7 @@ import br.com.unicos.core.pedido.enums.TipoPedido;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
@@ -36,6 +37,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "pedido")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder

@@ -2,8 +2,10 @@ package br.com.unicos.core.base.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +20,7 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @Data
 @NoArgsConstructor
+@SuperBuilder
 public abstract class EntidadeAuditavel {
 
     /**
@@ -30,6 +33,7 @@ public abstract class EntidadeAuditavel {
      * Data e hora de criação do registro.
      */
     @Column(name = "criado_em", nullable = false, updatable = false)
+    @Builder.Default
     private LocalDateTime criadoEm = LocalDateTime.now();
 
     /**
@@ -48,5 +52,6 @@ public abstract class EntidadeAuditavel {
      * Indica se o registro foi removido logicamente do sistema.
      */
     @Column(name = "ativo", nullable = false)
+    @Builder.Default
     private Boolean ativo = true;
 }
