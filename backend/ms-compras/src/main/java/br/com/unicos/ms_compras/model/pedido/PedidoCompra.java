@@ -1,10 +1,12 @@
 package br.com.unicos.ms_compras.model.pedido;
 
 import br.com.unicos.core.pedido.model.Pedido;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.*;
+import br.com.unicos.ms_compras.enums.StatusPedidoCompra;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -29,6 +31,13 @@ public class PedidoCompra extends Pedido {
      */
     @Column(name = "fornecedor_id", nullable = false)
     private Long fornecedorId;
+
+    /**
+     * Status atual do pedido de compra.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private StatusPedidoCompra status;
 
     /**
      * Observações específicas da compra.

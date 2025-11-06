@@ -1,6 +1,7 @@
 package br.com.unicos.ms_compras.model.cotacao;
 
 import br.com.unicos.core.base.model.EntidadeAuditavel;
+import br.com.unicos.ms_compras.enums.StatusFornecedorCotacao;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -44,10 +45,11 @@ public class CotacaoFornecedor extends EntidadeAuditavel {
     private Integer prazoEntrega;
 
     /**
-     * Status da proposta (ex.: aguardando, aceita, recusada).
+     * Status atual da proposta do fornecedor.
      */
-    @Column(length = 30)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private StatusFornecedorCotacao status;
 
     /**
      * Observações específicas desta proposta.

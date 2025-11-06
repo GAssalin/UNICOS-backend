@@ -1,6 +1,8 @@
 package br.com.unicos.ms_compras.model.cotacao;
 
 import br.com.unicos.core.base.model.EntidadeAuditavel;
+import br.com.unicos.ms_compras.enums.StatusCotacao;
+import br.com.unicos.ms_compras.enums.TipoCotacao;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,7 +17,7 @@ import java.util.List;
 /**
  * Entidade que representa a cotação de compra, vinculada a uma requisição ou pedido.
  *
- * <p>Contém informações gerais da cotação, como data de criação, prazo de validade
+ * <p>Contém informações gerais da cotação, como data de criação, tipo, prazo de validade
  * e os fornecedores participantes.</p>
  */
 @Entity
@@ -32,6 +34,20 @@ public class CotacaoCompra extends EntidadeAuditavel {
      */
     @Column(nullable = false, length = 50, unique = true)
     private String codigo;
+
+    /**
+     * Tipo da cotação (manual, automática, emergencial).
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private TipoCotacao tipoCotacao;
+
+    /**
+     * Status atual da cotação.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private StatusCotacao status;
 
     /**
      * Data de abertura da cotação.
