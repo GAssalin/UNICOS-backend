@@ -8,8 +8,9 @@
         <outputRelativeToContentRoot value="true" />
         <module name="gateway" />
         <module name="service-registry" />
+        <module name="pedido-core" />
       </profile>
-      <profile name="Annotation profile for ms-notificacao" enabled="true">
+      <profile name="Annotation profile for ms-vendas" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -20,16 +21,18 @@
         <module name="ms-pessoas" />
         <module name="ms-estoque" />
         <module name="ms-compras" />
-        <module name="ms-pedido" />
         <module name="ms-auth" />
         <module name="ms-ativos" />
         <module name="ms-financeiro" />
         <module name="ms-notificacao" />
         <module name="ms-pagamento" />
-        <module name="ms-empresa" />
         <module name="ms-vendas" />
+        <module name="ms-empresa" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ms-pedido" target="21" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
