@@ -1,13 +1,13 @@
 package br.com.unicos.core.pedido.model;
 
-import br.com.unicos.core.pedido.base.EntidadeAuditavel;
+import br.com.unicos.core.base.model.EntidadeAuditavel;
 import br.com.unicos.core.pedido.enums.StatusPedido;
 import br.com.unicos.core.pedido.enums.TipoPedido;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -38,7 +38,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class Pedido extends EntidadeAuditavel {
 
     /**

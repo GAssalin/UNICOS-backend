@@ -1,4 +1,4 @@
-package br.com.unicos.core.pedido.base;
+package br.com.unicos.core.base.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;

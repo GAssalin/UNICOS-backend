@@ -15,8 +15,8 @@
     <description>Módulos de domínio compartilhado do UniCoS</description>
 
     <modules>
+        <module>base-core</module>
         <module>pedido-core</module>
-        <!-- Futuramente: produto-core, pessoa-core, financeiro-core, etc. -->
     </modules>
 
     <properties>

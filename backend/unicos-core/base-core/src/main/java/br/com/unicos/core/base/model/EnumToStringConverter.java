@@ -1,4 +1,4 @@
-package br.com.unicos.core.pedido.base;
+package br.com.unicos.core.base.model;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

@@ -1,40 +1,35 @@
 package br.com.unicos.ms_compras.model.pedido;
 
 import br.com.unicos.core.pedido.model.Pedido;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * Entidade que representa o pedido de compra dentro do módulo de Compras.
+ *
+ * <p>
+ * Estende {@link Pedido} do módulo core, herdando os atributos e comportamentos
+ * compartilhados (status, tipo, valores, datas, etc.).
+ * </p>
+ */
 @Entity
 @Table(name = "pedido_compra")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @EqualsAndHashCode(callSuper = true)
+@SuperBuilder
 public class PedidoCompra extends Pedido {
 
-    private LocalDate dataPrevistaEntrega;
-
-    @NotNull
-    @Column(nullable = false)
-    private Long filialId;
-
-    @NotNull
-    @Column(nullable = false)
+    /**
+     * Identificador do fornecedor responsável por este pedido.
+     */
     private Long fornecedorId;
 
-    @Column(nullable = false)
-    private Long compradorId;
-
-    @Column
-    private Long cotacaoId;
-
-    @OneToMany(mappedBy = "pedidoCompra", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<PedidoItem> itens = new ArrayList<>();
+    /**
+     * Observações específicas da compra.
+     */
+    private String observacao;
 }
