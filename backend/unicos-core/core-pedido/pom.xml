@@ -13,10 +13,10 @@
         <version>1.0.0</version>
     </parent>
 
-	<artifactId>base-core</artifactId>
-	<name>UNICOS :: base-core</name>
+    <artifactId>core-pedido</artifactId>
+    <name>UNICOS :: Core Pedido</name>
     <packaging>jar</packaging>
-	<description>Módulo de base.</description>
+    <description>Módulo de entidades e enums compartilhados do domínio de pedidos.</description>
 
     <dependencies>
         <!-- Lombok (para @Data, @Builder, etc.) -->
@@ -56,6 +56,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>br.com.unicos</groupId>
+            <artifactId>core-base</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 

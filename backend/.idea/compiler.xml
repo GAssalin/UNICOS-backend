@@ -6,10 +6,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="base-core" />
+        <module name="core-pedido" />
         <module name="gateway" />
         <module name="service-registry" />
-        <module name="pedido-core" />
+        <module name="core-base" />
       </profile>
       <profile name="Annotation profile for ms-vendas" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -32,7 +32,9 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="base-core" target="21" />
       <module name="ms-pedido" target="21" />
+      <module name="pedido-core" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
