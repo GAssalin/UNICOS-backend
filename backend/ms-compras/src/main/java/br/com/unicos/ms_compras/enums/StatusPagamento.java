@@ -1,4 +1,4 @@
-package br.com.unicos.ms_pedido.enums;
+package br.com.unicos.ms_compras.enums;
 
 import lombok.Getter;
 
@@ -14,6 +14,11 @@ public enum StatusPagamento {
      * Pagamento ainda não realizado ou aguardando confirmação.
      */
     PENDENTE("Pendente"),
+
+    /**
+     * Pagamento comum em pagamentos de fornecedores (adiantamentos, parcelas, etc).
+     */
+    PARCIAL("Parcial"),
 
     /**
      * Pagamento concluído com sucesso.
