@@ -1,4 +1,4 @@
-package br.com.unicos.ms_pedido.model;
+package br.com.unicos.ms_compras.model.pedido;
 
 import br.com.unicos.ms_pedido.enums.StatusEntrega;
 import jakarta.persistence.*;

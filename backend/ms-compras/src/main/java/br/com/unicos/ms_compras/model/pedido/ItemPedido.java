@@ -1,4 +1,4 @@
-package br.com.unicos.ms_pedido.model;
+package br.com.unicos.ms_compras.model.pedido;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
