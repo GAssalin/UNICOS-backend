@@ -1,6 +1,7 @@
 package br.com.unicos.ms_compras.model.pedido;
 
 import br.com.unicos.core.pedido.model.Pedido;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
@@ -26,10 +27,12 @@ public class PedidoCompra extends Pedido {
     /**
      * Identificador do fornecedor responsável por este pedido.
      */
+    @Column(name = "fornecedor_id", nullable = false)
     private Long fornecedorId;
 
     /**
      * Observações específicas da compra.
      */
+    @Column(length = 500)
     private String observacao;
 }
