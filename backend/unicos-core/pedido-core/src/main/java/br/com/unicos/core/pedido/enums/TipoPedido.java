@@ -1,4 +1,4 @@
-package br.com.unicos.ms_compras.enums;
+package br.com.unicos.core.pedido.enums;
 
 import lombok.Getter;
 
