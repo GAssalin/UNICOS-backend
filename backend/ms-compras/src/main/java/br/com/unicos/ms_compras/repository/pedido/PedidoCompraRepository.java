@@ -9,12 +9,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Repository responsável pelo gerenciamento de {@link PedidoCompra}.
+ * Repositório responsável pelo gerenciamento de {@link PedidoCompra}.
+ *
+ * <p>
+ * Fornece consultas específicas relacionadas ao ciclo de vida dos pedidos de compra,
+ * permitindo filtros por fornecedor, status, período e texto livre.
+ * </p>
  */
 @Repository
 public interface PedidoCompraRepository extends JpaRepository<PedidoCompra, Long> {
@@ -24,13 +29,13 @@ public interface PedidoCompraRepository extends JpaRepository<PedidoCompra, Long
     // -----------------------------------------------------------------------
 
     /**
-     * Busca um pedido de compra pelo identificador do fornecedor e código interno.
+     * Busca um pedido de compra pelo identificador do fornecedor e ID do pedido.
      *
      * @param fornecedorId ID do fornecedor
-     * @param codigo       código único do pedido
+     * @param id           identificador único do pedido
      * @return pedido encontrado, se existir
      */
-    Optional<PedidoCompra> findByFornecedorIdAndCodigo(Long fornecedorId, String codigo);
+    Optional<PedidoCompra> findByFornecedorIdAndId(Long fornecedorId, Long id);
 
     /**
      * Lista todos os pedidos de compra de um fornecedor específico.
@@ -47,7 +52,7 @@ public interface PedidoCompraRepository extends JpaRepository<PedidoCompra, Long
      * @param fim    data/hora final
      * @return lista de pedidos dentro do intervalo informado
      */
-    List<PedidoCompra> findByDataCriacaoBetween(LocalDate inicio, LocalDate fim);
+    List<PedidoCompra> findByDataCriacaoBetween(LocalDateTime inicio, LocalDateTime fim);
 
     // -----------------------------------------------------------------------
     // Filtros de domínio
@@ -77,8 +82,8 @@ public interface PedidoCompraRepository extends JpaRepository<PedidoCompra, Long
     /**
      * Retorna todos os pedidos criados dentro de um intervalo de datas.
      *
-     * @param inicio data inicial (inclusive)
-     * @param fim    data final (inclusive)
+     * @param inicio data/hora inicial (inclusive)
+     * @param fim    data/hora final (inclusive)
      * @return lista de pedidos do período
      */
     @Query("""
@@ -86,10 +91,10 @@ public interface PedidoCompraRepository extends JpaRepository<PedidoCompra, Long
               FROM PedidoCompra p
              WHERE p.dataCriacao BETWEEN :inicio AND :fim
             """)
-    List<PedidoCompra> findByPeriodo(LocalDate inicio, LocalDate fim);
+    List<PedidoCompra> findByPeriodo(LocalDateTime inicio, LocalDateTime fim);
 
     /**
-     * Busca paginada de pedidos com filtro por termo textual (ex.: observação ou código).
+     * Busca paginada de pedidos com filtro por termo textual (ex.: observação).
      *
      * @param termo    termo de busca
      * @param pageable parâmetros de paginação
@@ -99,7 +104,6 @@ public interface PedidoCompraRepository extends JpaRepository<PedidoCompra, Long
             SELECT p
               FROM PedidoCompra p
              WHERE LOWER(p.observacao) LIKE LOWER(CONCAT('%', :termo, '%'))
-                OR LOWER(p.codigo) LIKE LOWER(CONCAT('%', :termo, '%'))
             """)
     Page<PedidoCompra> search(String termo, Pageable pageable);
 
@@ -111,8 +115,8 @@ public interface PedidoCompraRepository extends JpaRepository<PedidoCompra, Long
      * Obtém o valor total dos pedidos de um fornecedor dentro de um período.
      *
      * @param fornecedorId ID do fornecedor
-     * @param inicio       data inicial
-     * @param fim          data final
+     * @param inicio       data/hora inicial
+     * @param fim          data/hora final
      * @return soma dos valores totais
      */
     @Query("""
@@ -121,7 +125,7 @@ public interface PedidoCompraRepository extends JpaRepository<PedidoCompra, Long
              WHERE p.fornecedorId = :fornecedorId
                AND p.dataCriacao BETWEEN :inicio AND :fim
             """)
-    BigDecimal sumValorTotalByFornecedorAndPeriodo(Long fornecedorId, LocalDate inicio, LocalDate fim);
+    BigDecimal sumValorTotalByFornecedorAndPeriodo(Long fornecedorId, LocalDateTime inicio, LocalDateTime fim);
 
     /**
      * Conta quantos pedidos estão em um determinado status.
