@@ -14,14 +14,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
  * Controlador REST responsável pelo gerenciamento dos pedidos de compra.
  *
- * <p>Permite criar, atualizar, buscar, listar e excluir pedidos,
- * além de filtrar por fornecedor, período e atualizar o status.</p>
+ * <p>
+ * Permite criar, atualizar, buscar, listar e excluir pedidos,
+ * além de filtrar por fornecedor, período e atualizar o status.
+ * </p>
  */
 @RestController
 @RequestMapping("/v1/pedidos-compras")
@@ -41,9 +43,9 @@ public class PedidoCompraController {
      * @return O pedido criado.
      */
     @PostMapping
-    public ResponseEntity<PedidoCompraResponse> criar(@Valid @RequestBody PedidoCompraRequest request) {
-        PedidoCompraResponse response = pedidoCompraService.criar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    @ResponseStatus(HttpStatus.CREATED)
+    public PedidoCompraResponse criar(@Valid @RequestBody PedidoCompraRequest request) {
+        return pedidoCompraService.criar(request);
     }
 
     /**
@@ -92,7 +94,7 @@ public class PedidoCompraController {
      * @param fornecedorId ID do fornecedor.
      * @return Lista de pedidos do fornecedor.
      */
-    @GetMapping("/fornecedor/{fornecedorId}")
+    @GetMapping("/fornecedores/{fornecedorId}")
     public ResponseEntity<List<PedidoCompraListDTO>> listarPorFornecedor(@PathVariable Long fornecedorId) {
         List<PedidoCompraListDTO> lista = pedidoCompraService.listarPorFornecedor(fornecedorId);
         return ResponseEntity.ok(lista);
@@ -101,17 +103,21 @@ public class PedidoCompraController {
     /**
      * Lista pedidos de compra realizados dentro de um período.
      *
-     * @param inicio Data inicial (formato ISO: yyyy-MM-dd).
-     * @param fim    Data final (formato ISO: yyyy-MM-dd).
+     * @param inicio Data/hora inicial (formato ISO).
+     * @param fim    Data/hora final (formato ISO).
      * @return Lista de pedidos dentro do período especificado.
      */
     @GetMapping("/periodo")
     public ResponseEntity<List<PedidoCompraListDTO>> listarPorPeriodo(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim) {
         List<PedidoCompraListDTO> lista = pedidoCompraService.listarPorPeriodo(inicio, fim);
         return ResponseEntity.ok(lista);
     }
+
+    // ==========================================================
+    // 🔹 AÇÕES DE DOMÍNIO
+    // ==========================================================
 
     /**
      * Atualiza o status de um pedido de compra.
@@ -121,11 +127,25 @@ public class PedidoCompraController {
      * @return Resposta sem conteúdo.
      */
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Void> atualizarStatus(
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void atualizarStatus(
             @PathVariable Long id,
             @RequestParam StatusPedidoCompra status) {
         pedidoCompraService.atualizarStatus(id, status);
-        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Recalcula o valor total de um pedido de compra.
+     *
+     * <p>Utilizado quando há inclusão, exclusão ou modificação de itens.</p>
+     *
+     * @param id ID do pedido.
+     * @return Resposta sem conteúdo.
+     */
+    @PatchMapping("/{id}/recalcular-total")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void recalcularValorTotal(@PathVariable Long id) {
+        pedidoCompraService.recalcularValorTotal(id);
     }
 
     /**
@@ -135,8 +155,8 @@ public class PedidoCompraController {
      * @return Resposta sem conteúdo.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletar(@PathVariable Long id) {
         pedidoCompraService.deletar(id);
-        return ResponseEntity.noContent().build();
     }
 }
