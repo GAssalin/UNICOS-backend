@@ -3,7 +3,7 @@ package br.com.unicos.ms_compras.dto.pedido;
 import br.com.unicos.ms_compras.enums.StatusPedidoCompra;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * DTO utilizado para listagem de pedidos de compra.
@@ -13,9 +13,8 @@ import java.time.LocalDate;
 public record PedidoCompraListDTO(
 
         Long id,
-        String codigo,
         Long fornecedorId,
         StatusPedidoCompra status,
-        LocalDate dataCriacao,
+        LocalDateTime dataCriacao,
         BigDecimal valorTotal
-) {}
+) { }

@@ -4,6 +4,8 @@ import br.com.unicos.ms_compras.enums.StatusPedidoCompra;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
 /**
  * DTO utilizado para criação ou atualização de um pedido de compra.
  *
@@ -28,5 +30,10 @@ public record PedidoCompraRequest(
          * Observações específicas da compra.
          */
         @Size(max = 500, message = "A observação deve conter no máximo 500 caracteres.")
-        String observacao
-) {}
+        String observacao,
+
+        /**
+         * Lista de itens do pedido.
+         */
+        List<PedidoItemCompraRequest> itens
+) { }
