@@ -75,6 +75,14 @@ public interface CotacaoItemRepository extends JpaRepository<CotacaoItem, Long> 
             """)
     Optional<CotacaoItem> findByFornecedorIdAndProdutoId(Long fornecedorId, Long produtoId);
 
+    /**
+     * Retorna todos os itens associados a uma proposta de fornecedor específica.
+     *
+     * @param cotacaoFornecedorId identificador da proposta de fornecedor
+     * @return lista de itens pertencentes à proposta informada
+     */
+    List<CotacaoItem> findByCotacaoFornecedorId(Long cotacaoFornecedorId);
+
     // -----------------------------------------------------------------------
     // Métricas e análises de valores
     // -----------------------------------------------------------------------

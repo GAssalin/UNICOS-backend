@@ -40,6 +40,15 @@ public interface PedidoCompraRepository extends JpaRepository<PedidoCompra, Long
      */
     List<PedidoCompra> findByFornecedorId(Long fornecedorId);
 
+    /**
+     * Retorna todos os pedidos de compra criados dentro de um intervalo de datas.
+     *
+     * @param inicio data/hora inicial
+     * @param fim    data/hora final
+     * @return lista de pedidos dentro do intervalo informado
+     */
+    List<PedidoCompra> findByDataCriacaoBetween(LocalDate inicio, LocalDate fim);
+
     // -----------------------------------------------------------------------
     // Filtros de domínio
     // -----------------------------------------------------------------------

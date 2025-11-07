@@ -77,6 +77,16 @@ public interface NotaFiscalCompraRepository extends JpaRepository<NotaFiscalComp
      */
     List<NotaFiscalCompra> findByDataEmissaoBetween(LocalDate inicio, LocalDate fim);
 
+    /**
+     * Retorna as notas fiscais de um tipo específico dentro de um intervalo de datas.
+     *
+     * @param tipo tipo da nota fiscal (entrada, devolução, etc.)
+     * @param inicio data inicial do intervalo
+     * @param fim data final do intervalo
+     * @return lista de notas fiscais do tipo informado emitidas no período
+     */
+    List<NotaFiscalCompra> findByTipoNotaFiscalAndDataEmissaoBetween(TipoNotaFiscal tipo, LocalDate inicio, LocalDate fim);
+
     // -----------------------------------------------------------------------
     // Consultas paginadas e textuais
     // -----------------------------------------------------------------------
