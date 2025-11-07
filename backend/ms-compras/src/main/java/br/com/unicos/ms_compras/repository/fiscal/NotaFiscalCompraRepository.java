@@ -1,4 +1,4 @@
-package br.com.unicos.ms_compras.repository;
+package br.com.unicos.ms_compras.repository.fiscal;
 
 import br.com.unicos.ms_compras.enums.StatusNotaFiscalCompra;
 import br.com.unicos.ms_compras.enums.TipoNotaFiscal;

@@ -1,4 +1,4 @@
-package br.com.unicos.ms_compras.repository;
+package br.com.unicos.ms_compras.repository.recebimento;
 
 import br.com.unicos.ms_compras.enums.StatusRecebimentoCompra;
 import br.com.unicos.ms_compras.enums.TipoRecebimento;

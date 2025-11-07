@@ -1,4 +1,4 @@
-package br.com.unicos.ms_compras.repository;
+package br.com.unicos.ms_compras.repository.fiscal;
 
 import br.com.unicos.ms_compras.model.fiscal.NotaFiscalItem;
 import org.springframework.data.jpa.repository.JpaRepository;

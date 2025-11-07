@@ -1,4 +1,4 @@
-package br.com.unicos.ms_compras.repository;
+package br.com.unicos.ms_compras.repository.requisicao;
 
 import br.com.unicos.ms_compras.model.requisicao.RequisicaoItem;
 import org.springframework.data.jpa.repository.JpaRepository;

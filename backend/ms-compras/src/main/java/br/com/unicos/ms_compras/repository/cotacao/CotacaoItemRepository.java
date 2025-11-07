@@ -1,4 +1,4 @@
-package br.com.unicos.ms_compras.repository;
+package br.com.unicos.ms_compras.repository.cotacao;
 
 import br.com.unicos.ms_compras.model.cotacao.CotacaoItem;
 import org.springframework.data.jpa.repository.JpaRepository;
