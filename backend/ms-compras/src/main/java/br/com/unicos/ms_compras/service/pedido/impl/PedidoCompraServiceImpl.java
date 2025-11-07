@@ -5,6 +5,7 @@ import br.com.unicos.ms_compras.dto.pedido.PedidoCompraRequest;
 import br.com.unicos.ms_compras.dto.pedido.PedidoCompraResponse;
 import br.com.unicos.ms_compras.enums.StatusPedidoCompra;
 import br.com.unicos.ms_compras.model.pedido.PedidoCompra;
+import br.com.unicos.ms_compras.model.pedido.PedidoItemCompra;
 import br.com.unicos.ms_compras.repository.pedido.PedidoCompraRepository;
 import br.com.unicos.ms_compras.service.pedido.PedidoCompraService;
 import jakarta.persistence.EntityNotFoundException;
@@ -15,7 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,7 +45,15 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
     @Transactional
     public PedidoCompraResponse criar(PedidoCompraRequest request) {
         PedidoCompra pedido = modelMapper.map(request, PedidoCompra.class);
-        pedido.setStatus(StatusPedidoCompra.PENDENTE_APROVACAO);
+
+        // Define status inicial, se não informado
+        if (pedido.getStatus() == null) {
+            pedido.setStatus(StatusPedidoCompra.PENDENTE_APROVACAO);
+        }
+
+        // Data de criação conforme modelo base
+        pedido.setDataCriacao(LocalDateTime.now());
+
         PedidoCompra salvo = pedidoCompraRepository.save(pedido);
         return modelMapper.map(salvo, PedidoCompraResponse.class);
     }
@@ -54,7 +64,12 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         PedidoCompra existente = pedidoCompraRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pedido de compra não encontrado para o ID: " + id));
 
-        modelMapper.map(request, existente);
+        // Atualiza apenas campos editáveis
+        existente.setFornecedorId(request.fornecedorId());
+        existente.setStatus(request.status());
+        existente.setObservacao(request.observacao());
+        existente.setDataAtualizacao(LocalDateTime.now());
+
         PedidoCompra atualizado = pedidoCompraRepository.save(existente);
         return modelMapper.map(atualizado, PedidoCompraResponse.class);
     }
@@ -83,11 +98,15 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PedidoCompraListDTO> listarPorPeriodo(LocalDate inicio, LocalDate fim) {
+    public List<PedidoCompraListDTO> listarPorPeriodo(LocalDateTime inicio, LocalDateTime fim) {
         return pedidoCompraRepository.findByDataCriacaoBetween(inicio, fim).stream()
                 .map(p -> modelMapper.map(p, PedidoCompraListDTO.class))
                 .collect(Collectors.toList());
     }
+
+    // ==========================================================
+    // 🔹 REGRAS DE DOMÍNIO
+    // ==========================================================
 
     @Override
     @Transactional
@@ -96,6 +115,7 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
                 .orElseThrow(() -> new EntityNotFoundException("Pedido de compra não encontrado para o ID: " + id));
 
         pedido.setStatus(status);
+        pedido.setDataAtualizacao(LocalDateTime.now());
         pedidoCompraRepository.save(pedido);
     }
 
@@ -106,5 +126,36 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
             throw new EntityNotFoundException("Pedido de compra não encontrado para exclusão. ID: " + id);
         }
         pedidoCompraRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void recalcularValorTotal(Long id) {
+        PedidoCompra pedido = pedidoCompraRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Pedido de compra não encontrado para recalcular valor. ID: " + id));
+
+        BigDecimal total = pedido.getItens().stream()
+                .map(this::calcularValorItem)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        pedido.setValorTotal(total);
+        pedido.setDataAtualizacao(LocalDateTime.now());
+        pedidoCompraRepository.save(pedido);
+    }
+
+    // ==========================================================
+    // 🔹 Métodos auxiliares
+    // ==========================================================
+
+    /**
+     * Calcula o valor total de um item (quantidade × preço - desconto).
+     *
+     * @param item item de compra
+     * @return valor total calculado
+     */
+    private BigDecimal calcularValorItem(PedidoItemCompra item) {
+        BigDecimal subtotal = item.getPrecoUnitario().multiply(item.getQuantidade());
+        BigDecimal desconto = item.getDesconto() != null ? item.getDesconto() : BigDecimal.ZERO;
+        return subtotal.subtract(desconto);
     }
 }
