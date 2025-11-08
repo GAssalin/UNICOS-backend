@@ -16,7 +16,7 @@
         <module name="service-registry" />
         <module name="core-base" />
       </profile>
-      <profile name="Annotation profile for ms-pagamento" enabled="true">
+      <profile name="Annotation profile for ms-ativos" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />

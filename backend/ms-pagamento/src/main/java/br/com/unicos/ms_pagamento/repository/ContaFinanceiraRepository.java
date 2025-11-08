@@ -1,6 +1,7 @@
 package br.com.unicos.ms_pagamento.repository;
 
-import br.com.unicos.ms_pagamento.enums.TipoConta;
+import br.com.unicos.core.financeiro.enums.TipoContaFinanceira;
+import br.com.unicos.core.financeiro.model.ContaFinanceira;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -9,10 +10,13 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Repositório responsável pelo acesso aos dados da entidade ContaFinanceira.
+ * Repositório de leitura responsável por acessar informações de {@link ContaFinanceira}
+ * provenientes do módulo core-financeiro.
  *
- * Fornece métodos personalizados para consultas específicas relacionadas a contas bancárias e caixas,
- * além dos métodos CRUD padrão fornecidos pelo JpaRepository.
+ * <p>
+ * Esse repositório deve ser utilizado apenas para consultas de referência
+ * dentro do contexto de pagamento, evitando operações de escrita direta
+ * em entidades do core-financeiro.
  */
 @Repository
 public interface ContaFinanceiraRepository extends JpaRepository<ContaFinanceira, Long> {
@@ -20,10 +24,10 @@ public interface ContaFinanceiraRepository extends JpaRepository<ContaFinanceira
     /**
      * Lista todas as contas financeiras de um tipo específico.
      *
-     * @param tipoConta Tipo da conta (CONTA_CORRENTE, CONTA_POUPANCA, CAIXA).
+     * @param tipoConta Tipo da conta (CONTA_CORRENTE, CONTA_POUPANCA, CAIXA, etc).
      * @return Lista de contas financeiras do tipo informado.
      */
-    List<ContaFinanceira> findByTipoConta(TipoConta tipoConta);
+    List<ContaFinanceira> findByTipoConta(TipoContaFinanceira tipoConta);
 
     /**
      * Busca contas cuja descrição contenha o termo informado,
@@ -36,6 +40,8 @@ public interface ContaFinanceiraRepository extends JpaRepository<ContaFinanceira
 
     /**
      * Calcula o saldo total de todas as contas financeiras cadastradas.
+     * <p>
+     * Este método deve ser usado apenas para leitura e exibição.
      *
      * @return Soma de todos os saldos registrados nas contas.
      */

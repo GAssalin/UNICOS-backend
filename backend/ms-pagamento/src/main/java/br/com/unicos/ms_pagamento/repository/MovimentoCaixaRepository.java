@@ -1,7 +1,7 @@
 package br.com.unicos.ms_pagamento.repository;
 
-import br.com.unicos.ms_pagamento.model.caixa.MovimentoCaixa;
 import br.com.unicos.ms_pagamento.enums.TipoMovimentoCaixa;
+import br.com.unicos.ms_pagamento.model.caixa.MovimentoCaixa;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -11,59 +11,42 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Repositório responsável pelo acesso aos dados da entidade MovimentoCaixa.
- *
- * Fornece métodos personalizados para consultas específicas de movimentações financeiras,
- * além dos métodos CRUD padrão fornecidos pelo JpaRepository.
+ * Repositório responsável pelo acesso aos dados da entidade {@link MovimentoCaixa}.
+ * <p>
+ * Permite consultas de lançamentos financeiros e cálculo de saldos no caixa.
  */
 @Repository
 public interface MovimentoCaixaRepository extends JpaRepository<MovimentoCaixa, Long> {
 
     /**
-     * Lista todos os movimentos de um determinado tipo.
+     * Busca movimentos de caixa de um tipo específico (ENTRADA, SAÍDA, etc.).
      *
-     * @param tipoMovimento Tipo do movimento (ENTRADA ou SAIDA).
-     * @return Lista de movimentos correspondentes ao tipo informado.
+     * @param tipo Tipo de movimento.
+     * @return Lista de movimentos do tipo informado.
      */
-    List<MovimentoCaixa> findByTipoMovimento(TipoMovimentoCaixa tipoMovimento);
+    List<MovimentoCaixa> findByTipoMovimento(TipoMovimentoCaixa tipo);
 
     /**
-     * Lista todos os movimentos realizados em uma data específica.
+     * Retorna todos os movimentos dentro de um intervalo de datas.
      *
-     * @param dataMovimento Data do movimento.
-     * @return Lista de movimentos realizados na data informada.
+     * @param inicio Data inicial.
+     * @param fim    Data final.
+     * @return Lista de movimentos no período informado.
      */
-    List<MovimentoCaixa> findByDataMovimento(LocalDate dataMovimento);
+    List<MovimentoCaixa> findByDataMovimentoBetween(LocalDate inicio, LocalDate fim);
 
     /**
-     * Calcula o valor total de todas as entradas registradas.
+     * Calcula o saldo total do caixa (entradas - saídas).
      *
-     * @return Soma de todos os movimentos do tipo ENTRADA.
+     * @return Valor total do saldo atual do caixa.
      */
-    @Query("SELECT SUM(m.valor) FROM MovimentoCaixa m WHERE m.tipoMovimento = 'ENTRADA'")
-    BigDecimal calcularTotalEntradas();
-
-    /**
-     * Calcula o valor total de todas as saídas registradas.
-     *
-     * @return Soma de todos os movimentos do tipo SAIDA.
-     */
-    @Query("SELECT SUM(m.valor) FROM MovimentoCaixa m WHERE m.tipoMovimento = 'SAIDA'")
-    BigDecimal calcularTotalSaidas();
-
-    /**
-     * Calcula o total de entradas realizadas no dia atual.
-     *
-     * @return Soma dos valores de entrada registrados na data atual.
-     */
-    @Query("SELECT SUM(m.valor) FROM MovimentoCaixa m WHERE m.dataMovimento = CURRENT_DATE AND m.tipoMovimento = 'ENTRADA'")
-    BigDecimal totalEntradasHoje();
-
-    /**
-     * Calcula o total de saídas realizadas no dia atual.
-     *
-     * @return Soma dos valores de saída registrados na data atual.
-     */
-    @Query("SELECT SUM(m.valor) FROM MovimentoCaixa m WHERE m.dataMovimento = CURRENT_DATE AND m.tipoMovimento = 'SAIDA'")
-    BigDecimal totalSaidasHoje();
+    @Query("""
+            SELECT COALESCE(SUM(
+                CASE WHEN m.tipoMovimento = 'ENTRADA' THEN m.valor 
+                     WHEN m.tipoMovimento = 'SAIDA' THEN -m.valor 
+                     ELSE 0 END
+            ), 0)
+            FROM MovimentoCaixa m
+            """)
+    BigDecimal calcularSaldoAtual();
 }
