@@ -1,6 +1,6 @@
 package br.com.unicos.ms_pagamento.repository;
 
-import br.com.unicos.ms_pagamento.model.ParcelaPagamento;
+import br.com.unicos.ms_pagamento.model.core.ParcelaPagamento;
 import br.com.unicos.ms_pagamento.enums.StatusParcela;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

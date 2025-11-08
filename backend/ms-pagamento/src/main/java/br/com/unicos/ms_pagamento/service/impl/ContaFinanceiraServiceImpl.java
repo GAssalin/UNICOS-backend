@@ -3,7 +3,6 @@ package br.com.unicos.ms_pagamento.service.impl;
 import br.com.unicos.ms_pagamento.dto.ContaFinanceiraRequest;
 import br.com.unicos.ms_pagamento.dto.ContaFinanceiraResponse;
 import br.com.unicos.ms_pagamento.enums.TipoConta;
-import br.com.unicos.ms_pagamento.model.ContaFinanceira;
 import br.com.unicos.ms_pagamento.repository.ContaFinanceiraRepository;
 import br.com.unicos.ms_pagamento.service.ContaFinanceiraService;
 import jakarta.transaction.Transactional;

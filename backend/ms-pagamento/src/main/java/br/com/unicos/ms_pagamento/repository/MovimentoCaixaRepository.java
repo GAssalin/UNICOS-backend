@@ -1,6 +1,6 @@
 package br.com.unicos.ms_pagamento.repository;
 
-import br.com.unicos.ms_pagamento.model.MovimentoCaixa;
+import br.com.unicos.ms_pagamento.model.caixa.MovimentoCaixa;
 import br.com.unicos.ms_pagamento.enums.TipoMovimentoCaixa;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

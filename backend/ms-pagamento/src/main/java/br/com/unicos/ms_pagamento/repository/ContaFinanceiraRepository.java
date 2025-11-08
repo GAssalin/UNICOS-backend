@@ -1,6 +1,5 @@
 package br.com.unicos.ms_pagamento.repository;
 
-import br.com.unicos.ms_pagamento.model.ContaFinanceira;
 import br.com.unicos.ms_pagamento.enums.TipoConta;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

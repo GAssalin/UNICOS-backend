@@ -4,8 +4,8 @@ import br.com.unicos.ms_pagamento.dto.TransacaoFinanceiraRequest;
 import br.com.unicos.ms_pagamento.dto.TransacaoFinanceiraResponse;
 import br.com.unicos.ms_pagamento.enums.StatusTransacao;
 import br.com.unicos.ms_pagamento.enums.TipoFormaPagamento;
-import br.com.unicos.ms_pagamento.model.Pagamento;
-import br.com.unicos.ms_pagamento.model.TransacaoFinanceira;
+import br.com.unicos.ms_pagamento.model.core.Pagamento;
+import br.com.unicos.ms_pagamento.model.gateway.TransacaoPagamento;
 import br.com.unicos.ms_pagamento.repository.PagamentoRepository;
 import br.com.unicos.ms_pagamento.repository.TransacaoFinanceiraRepository;
 import br.com.unicos.ms_pagamento.service.TransacaoFinanceiraService;
@@ -47,16 +47,16 @@ public class TransacaoFinanceiraServiceImpl implements TransacaoFinanceiraServic
         Pagamento pagamento = pagamentoRepository.findById(request.pagamentoId())
                 .orElseThrow(() -> new IllegalArgumentException("Pagamento não encontrado."));
 
-        TransacaoFinanceira transacao = mapper.map(request, TransacaoFinanceira.class);
+        TransacaoPagamento transacao = mapper.map(request, TransacaoPagamento.class);
         transacao.setPagamento(pagamento);
 
-        TransacaoFinanceira salva = transacaoFinanceiraRepository.save(transacao);
+        TransacaoPagamento salva = transacaoFinanceiraRepository.save(transacao);
         return toResponse(salva);
     }
 
     @Override
     public TransacaoFinanceiraResponse atualizar(Long id, TransacaoFinanceiraRequest request) {
-        TransacaoFinanceira existente = transacaoFinanceiraRepository.findById(id)
+        TransacaoPagamento existente = transacaoFinanceiraRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Transação não encontrada com ID: " + id));
 
         Pagamento pagamento = pagamentoRepository.findById(request.pagamentoId())
@@ -69,7 +69,7 @@ public class TransacaoFinanceiraServiceImpl implements TransacaoFinanceiraServic
         existente.setTipo(request.tipo());
         existente.setPagamento(pagamento);
 
-        TransacaoFinanceira atualizada = transacaoFinanceiraRepository.save(existente);
+        TransacaoPagamento atualizada = transacaoFinanceiraRepository.save(existente);
         return toResponse(atualizada);
     }
 
@@ -131,7 +131,7 @@ public class TransacaoFinanceiraServiceImpl implements TransacaoFinanceiraServic
 
     @Override
     public TransacaoFinanceiraResponse atualizarStatus(Long id, StatusTransacao status) {
-        TransacaoFinanceira transacao = transacaoFinanceiraRepository.findById(id)
+        TransacaoPagamento transacao = transacaoFinanceiraRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Transação não encontrada."));
 
         transacao.setStatus(status);
@@ -147,7 +147,7 @@ public class TransacaoFinanceiraServiceImpl implements TransacaoFinanceiraServic
     // 🧭 MAPEAMENTO AUXILIAR
     // ==================================
 
-    private TransacaoFinanceiraResponse toResponse(TransacaoFinanceira transacao) {
+    private TransacaoFinanceiraResponse toResponse(TransacaoPagamento transacao) {
         return mapper.map(transacao, TransacaoFinanceiraResponse.class);
     }
 }

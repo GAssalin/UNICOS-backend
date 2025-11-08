@@ -3,7 +3,6 @@ package br.com.unicos.ms_pagamento.service.impl;
 import br.com.unicos.ms_pagamento.dto.FormaPagamentoRequest;
 import br.com.unicos.ms_pagamento.dto.FormaPagamentoResponse;
 import br.com.unicos.ms_pagamento.enums.TipoFormaPagamento;
-import br.com.unicos.ms_pagamento.model.FormaPagamento;
 import br.com.unicos.ms_pagamento.repository.FormaPagamentoRepository;
 import br.com.unicos.ms_pagamento.service.FormaPagamentoService;
 import jakarta.transaction.Transactional;

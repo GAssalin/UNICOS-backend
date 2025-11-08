@@ -1,6 +1,6 @@
 package br.com.unicos.ms_pagamento.repository;
 
-import br.com.unicos.ms_pagamento.model.TransacaoFinanceira;
+import br.com.unicos.ms_pagamento.model.gateway.TransacaoPagamento;
 import br.com.unicos.ms_pagamento.enums.StatusTransacao;
 import br.com.unicos.ms_pagamento.enums.TipoFormaPagamento;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,7 +18,7 @@ import java.util.Optional;
  * além dos métodos CRUD padrão fornecidos pelo JpaRepository.
  */
 @Repository
-public interface TransacaoFinanceiraRepository extends JpaRepository<TransacaoFinanceira, Long> {
+public interface TransacaoFinanceiraRepository extends JpaRepository<TransacaoPagamento, Long> {
 
     /**
      * Busca uma transação financeira pelo código único atribuído a ela.
@@ -26,7 +26,7 @@ public interface TransacaoFinanceiraRepository extends JpaRepository<TransacaoFi
      * @param codigoTransacao Código identificador da transação (ex: hash ou ID de gateway).
      * @return Optional contendo a transação, se encontrada.
      */
-    Optional<TransacaoFinanceira> findByCodigoTransacao(String codigoTransacao);
+    Optional<TransacaoPagamento> findByCodigoTransacao(String codigoTransacao);
 
     /**
      * Lista todas as transações com um determinado status.
@@ -34,7 +34,7 @@ public interface TransacaoFinanceiraRepository extends JpaRepository<TransacaoFi
      * @param status Status da transação (PROCESSANDO, CONFIRMADA, FALHA).
      * @return Lista de transações com o status informado.
      */
-    List<TransacaoFinanceira> findByStatus(StatusTransacao status);
+    List<TransacaoPagamento> findByStatus(StatusTransacao status);
 
     /**
      * Lista todas as transações de um tipo específico de pagamento.
@@ -42,7 +42,7 @@ public interface TransacaoFinanceiraRepository extends JpaRepository<TransacaoFi
      * @param tipo Tipo de pagamento (PIX, CARTÃO, BOLETO, etc).
      * @return Lista de transações com o tipo informado.
      */
-    List<TransacaoFinanceira> findByTipo(TipoFormaPagamento tipo);
+    List<TransacaoPagamento> findByTipo(TipoFormaPagamento tipo);
 
     /**
      * Lista todas as transações realizadas dentro de um intervalo de datas.
@@ -51,7 +51,7 @@ public interface TransacaoFinanceiraRepository extends JpaRepository<TransacaoFi
      * @param fim    Data e hora final.
      * @return Lista de transações dentro do intervalo informado.
      */
-    List<TransacaoFinanceira> findByDataTransacaoBetween(LocalDateTime inicio, LocalDateTime fim);
+    List<TransacaoPagamento> findByDataTransacaoBetween(LocalDateTime inicio, LocalDateTime fim);
 
     /**
      * Conta quantas transações apresentaram falha.

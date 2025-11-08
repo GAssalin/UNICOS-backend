@@ -1,6 +1,5 @@
 package br.com.unicos.ms_pagamento.repository;
 
-import br.com.unicos.ms_pagamento.model.FormaPagamento;
 import br.com.unicos.ms_pagamento.enums.TipoFormaPagamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
