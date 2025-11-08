@@ -1,30 +1,36 @@
 package br.com.unicos.core.tesouraria.model;
 
+import br.com.unicos.core.tesouraria.enums.MeioPagamento;
 import br.com.unicos.core.tesouraria.enums.TipoTransferencia;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Entidade que representa uma transferência de valores entre contas financeiras.
+ * Entidade que representa uma transferência financeira entre contas.
+ *
  * <p>
- * Utilizada para registrar movimentações internas ou ajustes contábeis
- * entre contas da empresa.
+ * Utilizada para registrar movimentações internas ou externas
+ * entre contas bancárias, caixas e aplicações, assegurando
+ * a rastreabilidade e controle do fluxo de valores.
+ * </p>
  */
 @Entity
 @Table(name = "transferencia_financeira")
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class TransferenciaFinanceira {
 
     /**
-     * Identificador único da transferência financeira.
+     * Identificador único da transferência.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,12 +51,20 @@ public class TransferenciaFinanceira {
     private ContaFinanceira contaDestino;
 
     /**
-     * Tipo da transferência (interna, externa ou ajuste).
+     * Tipo da transferência (ex: Interna, Externa, PIX, TED, DOC).
      */
-    @NotNull
     @Enumerated(EnumType.STRING)
+    @NotNull
     @Column(nullable = false, length = 30)
-    private TipoTransferencia tipo;
+    private TipoTransferencia tipoTransferencia;
+
+    /**
+     * Meio de pagamento utilizado para realizar a transferência.
+     */
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    @Column(nullable = false, length = 30)
+    private MeioPagamento meioPagamento;
 
     /**
      * Valor transferido entre as contas.
@@ -60,15 +74,21 @@ public class TransferenciaFinanceira {
     private BigDecimal valor;
 
     /**
-     * Data em que a transferência foi realizada.
+     * Data em que a transferência foi efetivamente realizada.
      */
     @NotNull
     @Column(nullable = false)
     private LocalDate dataTransferencia;
 
     /**
-     * Observações complementares sobre a operação.
+     * Observações adicionais sobre a transferência.
      */
     @Column(length = 255)
     private String observacao;
+
+    /**
+     * Identificador do responsável pela operação (usuário interno).
+     */
+    @Column(length = 100)
+    private String usuarioResponsavel;
 }

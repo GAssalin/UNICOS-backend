@@ -1,27 +1,30 @@
 package br.com.unicos.core.tesouraria.model;
 
-import br.com.unicos.core.tesouraria.enums.MeioPagamento;
 import br.com.unicos.core.tesouraria.enums.TipoLancamentoFinanceiro;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Entidade que representa um lançamento financeiro.
+ * Entidade que representa um lançamento financeiro realizado em uma conta.
+ *
  * <p>
- * Registra movimentações diretas de entrada ou saída de valores
- * em uma conta financeira, com detalhamento do meio de pagamento.
+ * O lançamento pode ser de entrada (receita) ou saída (despesa),
+ * e é utilizado para controle do fluxo de caixa e conciliação bancária.
+ * </p>
  */
 @Entity
 @Table(name = "lancamento_financeiro")
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class LancamentoFinanceiro {
 
     /**
@@ -32,45 +35,63 @@ public class LancamentoFinanceiro {
     private Long id;
 
     /**
-     * Conta financeira associada ao lançamento.
+     * Conta financeira na qual o lançamento foi registrado.
      */
     @ManyToOne(optional = false)
     @JoinColumn(name = "conta_financeira_id", nullable = false)
-    private ContaFinanceira conta;
+    private ContaFinanceira contaFinanceira;
 
     /**
-     * Tipo do lançamento (entrada, saída ou transferência).
+     * Tipo de lançamento (ex: Receita, Despesa, Transferência, Ajuste).
      */
-    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private TipoLancamentoFinanceiro tipo;
+    @NotNull
+    @Column(nullable = false, length = 30)
+    private TipoLancamentoFinanceiro tipoLancamento;
 
     /**
-     * Meio de pagamento utilizado na movimentação.
-     */
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private MeioPagamento meioPagamento;
-
-    /**
-     * Valor da movimentação financeira.
+     * Valor total do lançamento.
      */
     @NotNull
     @Column(nullable = false, precision = 15, scale = 2)
-    private BigDecimal valor;
+    private BigDecimal valorBruto;
 
     /**
-     * Data de realização do lançamento.
+     * Valor líquido após descontos, taxas ou encargos.
      */
-    @NotNull
-    @Column(nullable = false)
-    private LocalDate data;
+    @Column(precision = 15, scale = 2)
+    private BigDecimal valorLiquido;
 
     /**
-     * Descrição ou observação adicional sobre o lançamento.
+     * Descrição ou observação do lançamento.
      */
     @Column(length = 255)
     private String descricao;
+
+    /**
+     * Data em que o lançamento foi efetuado.
+     */
+    @NotNull
+    @Column(nullable = false)
+    private LocalDate dataLancamento;
+
+    /**
+     * Data de competência contábil do lançamento.
+     * Utilizada para fechamento e conciliação.
+     */
+    @Column
+    private LocalDate dataCompetencia;
+
+    /**
+     * Identificador de origem do lançamento (ex: ID da fatura, pedido ou nota).
+     * Pode ser utilizado para rastrear o módulo de origem no sistema.
+     */
+    @Column(length = 100)
+    private String referenciaOrigem;
+
+    /**
+     * Identificador do registro de origem (ex: ms-compras, ms-vendas, ms-pagamento).
+     */
+    @Column(length = 50)
+    private String origemSistema;
 }

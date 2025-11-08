@@ -3,24 +3,29 @@ package br.com.unicos.core.tesouraria.model;
 import br.com.unicos.core.tesouraria.enums.StatusConciliacao;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Entidade que representa a conciliação bancária de uma conta.
+ * Entidade que representa a conciliação bancária de uma conta financeira.
+ *
  * <p>
- * Permite comparar o saldo interno do sistema com o saldo informado
- * pelo banco em uma determinada data.
+ * Permite confrontar os lançamentos financeiros internos com os registros do
+ * extrato bancário, identificando valores conciliados, divergências e status
+ * da conciliação.
+ * </p>
  */
 @Entity
 @Table(name = "conciliacao_bancaria")
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ConciliacaoBancaria {
 
     /**
@@ -31,40 +36,45 @@ public class ConciliacaoBancaria {
     private Long id;
 
     /**
-     * Conta financeira associada à conciliação.
+     * Conta financeira à qual a conciliação pertence.
      */
     @ManyToOne(optional = false)
     @JoinColumn(name = "conta_financeira_id", nullable = false)
-    private ContaFinanceira conta;
+    private ContaFinanceira contaFinanceira;
 
     /**
-     * Data de referência da conciliação.
+     * Lançamento financeiro associado à conciliação, quando aplicável.
+     */
+    @OneToOne
+    @JoinColumn(name = "lancamento_financeiro_id")
+    private LancamentoFinanceiro lancamentoFinanceiro;
+
+    /**
+     * Status atual da conciliação (ex: Pendente, Conciliado, Divergente).
+     */
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    @Column(nullable = false, length = 30)
+    private StatusConciliacao status;
+
+    /**
+     * Data em que a conciliação foi realizada.
      */
     @NotNull
     @Column(nullable = false)
-    private LocalDate data;
+    private LocalDate dataConciliacao;
 
     /**
-     * Saldo registrado internamente no sistema.
+     * Valor conciliado entre os registros internos e o extrato bancário.
      */
-    @NotNull
-    @Column(nullable = false, precision = 15, scale = 2)
-    private BigDecimal saldoSistema;
+    @Column(precision = 15, scale = 2)
+    private BigDecimal valorConciliado;
 
     /**
-     * Saldo informado pelo banco para a mesma data.
+     * Diferença encontrada na conciliação, quando houver.
      */
-    @NotNull
-    @Column(nullable = false, precision = 15, scale = 2)
-    private BigDecimal saldoBanco;
-
-    /**
-     * Status da conciliação (pendente, conciliado ou divergente).
-     */
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private StatusConciliacao status;
+    @Column(precision = 15, scale = 2)
+    private BigDecimal diferenca;
 
     /**
      * Observações adicionais sobre a conciliação.
