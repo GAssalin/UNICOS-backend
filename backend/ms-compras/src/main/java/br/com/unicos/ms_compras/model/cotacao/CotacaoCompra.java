@@ -4,10 +4,7 @@ import br.com.unicos.core.base.model.EntidadeAuditavel;
 import br.com.unicos.ms_compras.enums.StatusCotacao;
 import br.com.unicos.ms_compras.enums.TipoCotacao;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
@@ -70,5 +67,6 @@ public class CotacaoCompra extends EntidadeAuditavel {
      * Fornecedores participantes desta cotação.
      */
     @OneToMany(mappedBy = "cotacaoCompra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<CotacaoFornecedor> fornecedores = new ArrayList<>();
 }

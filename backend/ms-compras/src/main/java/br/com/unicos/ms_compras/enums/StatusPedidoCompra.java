@@ -1,37 +1,43 @@
 package br.com.unicos.ms_compras.enums;
 
+import br.com.unicos.core.pedido.enums.StatusPedidoBase;
 import lombok.Getter;
 
 /**
- * Enum que representa os estágios do pedido de compra.
+ * Enum que representa os status específicos do processo de compras.
+ *
+ * <p>
+ * Cada valor reflete uma etapa detalhada do ciclo de vida de um pedido de compra,
+ * complementando os status genéricos definidos em {@code StatusPedido}.
+ * </p>
  */
 @Getter
-public enum StatusPedidoCompra {
+public enum StatusPedidoCompra implements StatusPedidoBase {
 
     /**
-     * Pedido criado mas ainda não autorizado.
+     * Pedido de compra criado e aguardando cotação com fornecedores.
      */
-    PENDENTE_APROVACAO("Pedido aguardando aprovação do gestor."),
+    AGUARDANDO_COTACAO("Aguardando cotação"),
 
     /**
-     * Pedido aprovado e encaminhado ao fornecedor.
+     * Pedido em fase de aprovação interna.
      */
-    APROVADO("Pedido aprovado e enviado ao fornecedor."),
+    EM_APROVACAO("Em aprovação"),
 
     /**
-     * Pedido já entregue ou em processo de recebimento.
+     * Pedido aprovado e aguardando envio pelo fornecedor.
      */
-    EM_RECEBIMENTO("Pedido com entrega em andamento."),
+    AGUARDANDO_ENTREGA("Aguardando entrega"),
 
     /**
-     * Pedido totalmente recebido e finalizado.
+     * Pedido recebido integralmente no estoque.
      */
-    CONCLUIDO("Pedido recebido e encerrado."),
+    RECEBIDO("Recebido"),
 
     /**
-     * Pedido cancelado antes da conclusão.
+     * Pedido de compra cancelado.
      */
-    CANCELADO("Pedido de compra cancelado.");
+    CANCELADO("Cancelado");
 
     private final String descricao;
 

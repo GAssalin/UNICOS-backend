@@ -3,10 +3,7 @@ package br.com.unicos.ms_compras.model.cotacao;
 import br.com.unicos.core.base.model.EntidadeAuditavel;
 import br.com.unicos.ms_compras.enums.StatusFornecedorCotacao;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
@@ -61,6 +58,7 @@ public class CotacaoFornecedor extends EntidadeAuditavel {
      * Itens cotados por este fornecedor.
      */
     @OneToMany(mappedBy = "cotacaoFornecedor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<CotacaoItem> itens = new ArrayList<>();
 
     /**

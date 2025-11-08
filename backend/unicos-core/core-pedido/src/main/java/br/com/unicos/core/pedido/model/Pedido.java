@@ -1,7 +1,7 @@
 package br.com.unicos.core.pedido.model;
 
 import br.com.unicos.core.base.model.EntidadeAuditavel;
-import br.com.unicos.core.pedido.enums.StatusPedido;
+import br.com.unicos.core.pedido.enums.StatusPedidoBase;
 import br.com.unicos.core.pedido.enums.TipoPedido;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -61,7 +61,7 @@ public class Pedido extends EntidadeAuditavel {
      */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private StatusPedido status;
+    private StatusPedidoBase status;
 
     /**
      * Tipo de pedido.

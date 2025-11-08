@@ -48,7 +48,7 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
 
         // Define status inicial, se não informado
         if (pedido.getStatus() == null) {
-            pedido.setStatus(StatusPedidoCompra.PENDENTE_APROVACAO);
+            pedido.setStatus(StatusPedidoCompra.AGUARDANDO_COTACAO);
         }
 
         // Data de criação conforme modelo base

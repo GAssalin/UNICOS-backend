@@ -6,10 +6,7 @@ import br.com.unicos.ms_compras.enums.TipoRecebimento;
 import br.com.unicos.ms_compras.model.fiscal.NotaFiscalCompra;
 import br.com.unicos.ms_compras.model.pedido.PedidoCompra;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
@@ -86,5 +83,6 @@ public class RecebimentoCompra extends EntidadeAuditavel {
      * Itens recebidos neste processo.
      */
     @OneToMany(mappedBy = "recebimentoCompra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<RecebimentoItem> itens = new ArrayList<>();
 }

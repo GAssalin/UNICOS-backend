@@ -3,10 +3,7 @@ package br.com.unicos.ms_compras.model.requisicao;
 import br.com.unicos.core.base.model.EntidadeAuditavel;
 import br.com.unicos.ms_compras.enums.TipoRequisicaoCompra;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
@@ -66,5 +63,6 @@ public class RequisicaoCompra extends EntidadeAuditavel {
      * Itens solicitados na requisição.
      */
     @OneToMany(mappedBy = "requisicaoCompra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<RequisicaoItem> itens = new ArrayList<>();
 }

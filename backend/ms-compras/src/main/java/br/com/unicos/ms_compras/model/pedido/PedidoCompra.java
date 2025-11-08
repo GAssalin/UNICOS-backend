@@ -3,10 +3,7 @@ package br.com.unicos.ms_compras.model.pedido;
 import br.com.unicos.core.pedido.model.Pedido;
 import br.com.unicos.ms_compras.enums.StatusPedidoCompra;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
@@ -58,5 +55,6 @@ public class PedidoCompra extends Pedido {
      * Lista de itens vinculados ao pedido de compra.
      */
     @OneToMany(mappedBy = "pedidoCompra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<PedidoItemCompra> itens = new ArrayList<>();
 }

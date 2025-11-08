@@ -1,12 +1,10 @@
 package br.com.unicos.ms_vendas.model;
 
 import br.com.unicos.core.pedido.model.Pedido;
+import br.com.unicos.ms_vendas.enums.StatusPedidoVenda;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
@@ -29,7 +27,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 public class PedidoVenda extends Pedido {
 
@@ -39,6 +37,13 @@ public class PedidoVenda extends Pedido {
     @NotNull
     @Column(nullable = false)
     private Long clienteId;
+
+    /**
+     * Status detalhado do pedido de compra.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_venda", nullable = false, length = 30)
+    private StatusPedidoVenda statusVenda;
 
     /**
      * Data prevista para entrega do pedido.
@@ -60,5 +65,6 @@ public class PedidoVenda extends Pedido {
      * Itens vinculados ao pedido de venda.
      */
     @OneToMany(mappedBy = "pedidoVenda", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<PedidoItemVenda> itens = new ArrayList<>();
 }

@@ -2,43 +2,27 @@ package br.com.unicos.core.pedido.enums;
 
 import lombok.Getter;
 
-/**
- * Enum que representa o status atual de um pedido de compra.
- * <p>
- * Indica em qual etapa do fluxo de processamento o pedido se encontra.
- */
 @Getter
-public enum StatusPedido {
-
+public enum StatusPedido implements StatusPedidoBase {
     /**
-     * Pedido criado, mas ainda não aprovado.
+     * Pedido criado, aguardando processamento inicial.
      */
     ABERTO("Aberto"),
 
     /**
-     * Pedido aprovado internamente para emissão ao fornecedor.
+     * Pedido em andamento, sendo processado ou aguardando ação intermediária.
      */
-    APROVADO("Aprovado"),
+    EM_ANDAMENTO("Em andamento"),
 
     /**
-     * Pedido enviado ao fornecedor.
+     * Pedido finalizado com sucesso.
      */
-    ENVIADO_FORNECEDOR("Enviado ao fornecedor"),
+    FINALIZADO("Finalizado"),
 
     /**
-     * Pedido recebido parcial ou totalmente pela empresa.
+     * Pedido cancelado, sem continuidade no fluxo.
      */
-    RECEBIDO("Recebido"),
-
-    /**
-     * Pedido cancelado por solicitação, erro ou reprovação.
-     */
-    CANCELADO("Cancelado"),
-
-    /**
-     * Pedido pago e concluído.
-     */
-    FINALIZADO("Finalizado");
+    CANCELADO("Cancelado");
 
     private final String descricao;
 

@@ -1,6 +1,6 @@
 package br.com.unicos.core.pedido.model;
 
-import br.com.unicos.core.pedido.enums.StatusPedido;
+import br.com.unicos.core.pedido.enums.StatusPedidoBase;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,14 +43,14 @@ public class HistoricoPedido {
      */
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private StatusPedido statusAnterior;
+    private StatusPedidoBase statusAnterior;
 
     /**
      * Novo status definido para o pedido.
      */
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
-    private StatusPedido novoStatus;
+    private StatusPedidoBase novoStatus;
 
     /**
      * Data e hora da atualização.

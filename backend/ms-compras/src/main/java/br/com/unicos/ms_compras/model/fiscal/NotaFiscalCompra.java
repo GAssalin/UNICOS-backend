@@ -5,10 +5,7 @@ import br.com.unicos.ms_compras.enums.StatusNotaFiscalCompra;
 import br.com.unicos.ms_compras.enums.TipoNotaFiscal;
 import br.com.unicos.ms_compras.model.pedido.PedidoCompra;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
@@ -109,5 +106,6 @@ public class NotaFiscalCompra extends EntidadeAuditavel {
      * Itens que compõem a nota fiscal.
      */
     @OneToMany(mappedBy = "notaFiscalCompra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<NotaFiscalItem> itens = new ArrayList<>();
 }
