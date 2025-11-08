@@ -13,14 +13,15 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>core-pedido</artifactId>
-    <name>UNICOS :: Core Pedido</name>
+    <artifactId>core-tesouraria</artifactId>
+    <name>UNICOS :: Core Tesouraria</name>
     <packaging>jar</packaging>
     <description>
-        Módulo responsável pela gestão de pedidos de compra e venda do UniCoS.
+        Módulo responsável pela tesouraria do UniCoS.
 
-        Centraliza as entidades, regras de negócio e DTOs relacionados ao ciclo de pedidos,
-        incluindo integração com os módulos de estoque, financeiro e faturamento.
+        Trata das movimentações de caixa e bancos, transferências internas,
+        lançamentos financeiros e conciliações bancárias,
+        integrando-se aos módulos de contas e financeiro.
     </description>
 
     <dependencies>

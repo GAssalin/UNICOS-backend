@@ -13,14 +13,14 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>core-pedido</artifactId>
-    <name>UNICOS :: Core Pedido</name>
+    <artifactId>core-contas</artifactId>
+    <name>UNICOS :: Core Contas</name>
     <packaging>jar</packaging>
     <description>
-        Módulo responsável pela gestão de pedidos de compra e venda do UniCoS.
+        Módulo responsável pelo controle de contas a pagar e a receber do UniCoS.
 
-        Centraliza as entidades, regras de negócio e DTOs relacionados ao ciclo de pedidos,
-        incluindo integração com os módulos de estoque, financeiro e faturamento.
+        Gerencia obrigações financeiras, recebíveis, parcelas e vencimentos,
+        fornecendo integração com pedidos, tesouraria e o núcleo financeiro.
     </description>
 
     <dependencies>

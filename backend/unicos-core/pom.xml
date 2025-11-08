@@ -12,11 +12,30 @@
     <packaging>pom</packaging>
 
     <name>UNICOS :: Core Modules</name>
-    <description>Módulos de domínio compartilhado do UniCoS</description>
+    <description>
+        Módulo principal de domínios e componentes centrais do ecossistema UniCoS (Unique Control System).
+
+        O projeto unicos-core reúne os módulos de negócio fundamentais utilizados pelos microserviços do UniCoS,
+        mantendo a coesão das entidades, regras de domínio e contratos de dados entre os diferentes contextos.
+
+        Cada submódulo representa um domínio específico:
+        - core-base: componentes, utilitários e entidades compartilhadas;
+        - core-pedido: gestão de pedidos de compra e venda;
+        - core-financeiro: núcleo de operações financeiras;
+        - core-contas: controle de contas a pagar e receber;
+        - core-tesouraria: movimentações de caixa e conciliação bancária;
+        - core-categoria: classificação contábil e centros de custo.
+
+        Essa estrutura modular permite independência de evolução, reuso entre microserviços e aderência aos princípios de DDD (Domain-Driven Design).
+    </description>
 
     <modules>
         <module>core-base</module>
+        <module>core-categoria</module>
+        <module>core-contas</module>
+        <module>core-financeiro</module>
         <module>core-pedido</module>
+        <module>core-tesouraria</module>
     </modules>
 
     <properties>

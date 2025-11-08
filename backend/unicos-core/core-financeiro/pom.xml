@@ -13,14 +13,15 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>core-pedido</artifactId>
-    <name>UNICOS :: Core Pedido</name>
+    <artifactId>core-financeiro</artifactId>
+    <name>UNICOS :: Core Financeiro</name>
     <packaging>jar</packaging>
     <description>
-        Módulo responsável pela gestão de pedidos de compra e venda do UniCoS.
+        Módulo central das operações financeiras do UniCoS.
 
-        Centraliza as entidades, regras de negócio e DTOs relacionados ao ciclo de pedidos,
-        incluindo integração com os módulos de estoque, financeiro e faturamento.
+        Define as entidades e regras de domínio relacionadas ao fluxo financeiro,
+        integração com contas, tesouraria e categorias contábeis.
+        Serve como base para os microserviços financeiros do ecossistema.
     </description>
 
     <dependencies>

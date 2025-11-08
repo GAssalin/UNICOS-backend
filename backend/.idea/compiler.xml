@@ -2,11 +2,16 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="core-contas" />
+        <module name="core-tesouraria" />
+        <module name="core-financeiro" />
         <module name="core-pedido" />
+        <module name="core-categoria" />
         <module name="gateway" />
         <module name="service-registry" />
         <module name="core-base" />

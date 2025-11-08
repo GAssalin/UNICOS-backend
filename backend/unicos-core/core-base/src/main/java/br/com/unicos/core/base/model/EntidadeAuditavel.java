@@ -2,6 +2,7 @@ package br.com.unicos.core.base.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,8 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @Data
 @NoArgsConstructor
-@SuperBuilder
+@AllArgsConstructor
+@SuperBuilder(toBuilder = true)
 public abstract class EntidadeAuditavel {
 
     /**
