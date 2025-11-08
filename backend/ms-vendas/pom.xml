@@ -83,7 +83,7 @@
 
         <dependency>
             <groupId>br.com.unicos</groupId>
-            <artifactId>pedido-core</artifactId>
+            <artifactId>core-pedido</artifactId>
             <version>1.0.0</version>
         </dependency>
     </dependencies>
