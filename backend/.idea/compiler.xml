@@ -23,7 +23,6 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
         </processorPath>
-        <module name="ms-produtos" />
         <module name="ms-pessoas" />
         <module name="ms-estoque" />
         <module name="ms-compras" />
@@ -34,6 +33,16 @@
         <module name="ms-pagamento" />
         <module name="ms-vendas" />
         <module name="ms-empresa" />
+      </profile>
+      <profile name="Annotation profile for ms-produtos" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+        </processorPath>
+        <module name="ms-produtos" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
