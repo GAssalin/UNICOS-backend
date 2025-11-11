@@ -7,16 +7,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="core-contas" />
-        <module name="core-tesouraria" />
-        <module name="core-financeiro" />
-        <module name="core-pedido" />
-        <module name="core-categoria" />
         <module name="gateway" />
         <module name="service-registry" />
-        <module name="core-base" />
       </profile>
-      <profile name="Annotation profile for ms-relatorio" enabled="true">
+      <profile name="Annotation profile for ms-produtos" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -28,6 +22,12 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="base-core" target="21" />
+      <module name="core-base" target="21" />
+      <module name="core-categoria" target="21" />
+      <module name="core-contas" target="21" />
+      <module name="core-financeiro" target="21" />
+      <module name="core-pedido" target="21" />
+      <module name="core-tesouraria" target="21" />
       <module name="ms-ativos" target="21" />
       <module name="ms-auth" target="21" />
       <module name="ms-compras" target="21" />
