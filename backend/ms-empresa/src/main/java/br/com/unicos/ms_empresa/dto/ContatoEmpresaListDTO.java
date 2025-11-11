@@ -1,7 +1,0 @@
-package br.com.unicos.ms_empresa.dto;
-
-public record ContatoEmpresaListDTO(
-        Long id,
-        String telefone,
-        Boolean ativo
-) {}

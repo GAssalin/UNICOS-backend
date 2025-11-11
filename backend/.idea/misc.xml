@@ -25,7 +25,20 @@
     </option>
     <option name="ignoredFiles">
       <set>
+        <option value="$PROJECT_DIR$/gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-ativos/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-auth/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-compras/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-empresa/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-estoque/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-financeiro/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-notificacao/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-pagamento/pom.xml" />
         <option value="$PROJECT_DIR$/ms-pedido/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-pessoas/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-produtos/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-vendas/pom.xml" />
+        <option value="$PROJECT_DIR$/service-registry/pom.xml" />
       </set>
     </option>
   </component>
