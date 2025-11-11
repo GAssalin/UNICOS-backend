@@ -16,30 +16,11 @@
         <module name="service-registry" />
         <module name="core-base" />
       </profile>
-      <profile name="Annotation profile for ms-vendas" enabled="true">
+      <profile name="Annotation profile for ms-relatorio" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
-        </processorPath>
-        <module name="ms-pessoas" />
-        <module name="ms-estoque" />
-        <module name="ms-compras" />
-        <module name="ms-auth" />
-        <module name="ms-ativos" />
-        <module name="ms-financeiro" />
-        <module name="ms-notificacao" />
-        <module name="ms-pagamento" />
-        <module name="ms-vendas" />
-        <module name="ms-empresa" />
-      </profile>
-      <profile name="Annotation profile for ms-produtos" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
         </processorPath>
         <module name="ms-produtos" />
@@ -47,8 +28,20 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="base-core" target="21" />
+      <module name="ms-ativos" target="21" />
+      <module name="ms-auth" target="21" />
+      <module name="ms-compras" target="21" />
+      <module name="ms-empresa" target="21" />
+      <module name="ms-estoque" target="21" />
+      <module name="ms-financeiro" target="21" />
+      <module name="ms-notificacao" target="21" />
+      <module name="ms-pagamento" target="21" />
       <module name="ms-pedido" target="21" />
+      <module name="ms-pessoas" target="21" />
+      <module name="ms-relatorio" target="21" />
+      <module name="ms-vendas" target="21" />
       <module name="pedido-core" target="21" />
+      <module name="unicos-core" target="1.5" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
@@ -65,6 +58,7 @@
       <module name="ms-pedido" options="-parameters" />
       <module name="ms-pessoas" options="-parameters" />
       <module name="ms-produtos" options="-parameters" />
+      <module name="ms-relatorio" options="-parameters" />
       <module name="ms-vendas" options="-parameters" />
       <module name="service-registry" options="-parameters" />
     </option>
