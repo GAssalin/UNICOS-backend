@@ -25,6 +25,7 @@
         - core-contas: controle de contas a pagar e receber;
         - core-tesouraria: movimentações de caixa e conciliação bancária;
         - core-categoria: classificação contábil e centros de custo.
+        - core-produto: padronização e estruturação do domínio de produtos.
 
         Essa estrutura modular permite independência de evolução, reuso entre microserviços e aderência aos princípios de DDD (Domain-Driven Design).
     </description>
@@ -36,6 +37,7 @@
         <module>core-financeiro</module>
         <module>core-pedido</module>
         <module>core-tesouraria</module>
+        <module>core-produto</module>
     </modules>
 
     <properties>
