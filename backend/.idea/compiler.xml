@@ -7,17 +7,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="ms-produtos" />
         <module name="gateway" />
         <module name="service-registry" />
-      </profile>
-      <profile name="Annotation profile for ms-produtos" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
-        </processorPath>
-        <module name="ms-produtos" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -27,6 +19,7 @@
       <module name="core-contas" target="21" />
       <module name="core-financeiro" target="21" />
       <module name="core-pedido" target="21" />
+      <module name="core-produto" target="21" />
       <module name="core-tesouraria" target="21" />
       <module name="ms-ativos" target="21" />
       <module name="ms-auth" target="21" />
