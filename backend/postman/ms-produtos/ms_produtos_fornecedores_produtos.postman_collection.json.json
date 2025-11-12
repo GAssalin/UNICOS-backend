@@ -1,0 +1,148 @@
+{
+  "info": {
+    "name": "ERP - ms_produtos (FornecedorProduto)",
+    "_postman_id": "c0a80126-4567-89ab-cdef-0123456789ab",
+    "description": "Coleção de endpoints do microserviço ms_produtos para gerenciamento dos vínculos entre fornecedores e produtos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criar Vínculo Fornecedor-Produto",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fornecedorId\": 1,\n  \"produtoId\": 1,\n  \"precoCusto\": 49.90,\n  \"prazoEntregaDias\": 7\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/v1/fornecedores-produtos",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "fornecedores-produtos"]
+        }
+      }
+    },
+    {
+      "name": "Atualizar Vínculo Fornecedor-Produto",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fornecedorId\": 1,\n  \"produtoId\": 1,\n  \"precoCusto\": 55.00,\n  \"prazoEntregaDias\": 10\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/v1/fornecedores-produtos/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "fornecedores-produtos", "1"]
+        }
+      }
+    },
+    {
+      "name": "Buscar Vínculo por ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/fornecedores-produtos/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "fornecedores-produtos", "1"]
+        }
+      }
+    },
+    {
+      "name": "Listar Todos os Vínculos",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/fornecedores-produtos",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "fornecedores-produtos"]
+        }
+      }
+    },
+    {
+      "name": "Listar Vínculos por Produto",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/fornecedores-produtos/produto/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "fornecedores-produtos", "produto", "1"]
+        }
+      }
+    },
+    {
+      "name": "Listar Vínculos por Fornecedor",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/fornecedores-produtos/fornecedor/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "fornecedores-produtos", "fornecedor", "1"]
+        }
+      }
+    },
+    {
+      "name": "Atualizar Preço de Custo",
+      "request": {
+        "method": "PATCH",
+        "url": {
+          "raw": "http://localhost:8080/v1/fornecedores-produtos/1/preco-custo?novoPrecoCusto=59.90",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "fornecedores-produtos", "1", "preco-custo"],
+          "query": [
+            { "key": "novoPrecoCusto", "value": "59.90" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Verificar Vínculo Existente",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/v1/fornecedores-produtos/verificar?fornecedorId=1&produtoId=1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "fornecedores-produtos", "verificar"],
+          "query": [
+            { "key": "fornecedorId", "value": "1" },
+            { "key": "produtoId", "value": "1" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Deletar Vínculo",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:8080/v1/fornecedores-produtos/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["v1", "fornecedores-produtos", "1"]
+        }
+      }
+    }
+  ]
+}

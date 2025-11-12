@@ -29,14 +29,4 @@ public enum StatusPedido implements StatusPedidoBase {
     StatusPedido(String descricao) {
         this.descricao = descricao;
     }
-
-    /**
-     * Retorna a descrição legível do status do pedido.
-     *
-     * @return descrição textual do status.
-     */
-    @Override
-    public String getDescricao() {
-        return descricao;
-    }
 }
