@@ -1,87 +1,186 @@
-# ERP
+# 🧩 UniCoS — ERP Modular em Microserviços
 
-## Descrição
-🛠️[em construção]
+## 📝 Descrição  
+O **UniCoS (Unique Control System)** é um ERP moderno, modular e escalável, desenvolvido para atender empresas de pequeno e médio porte.  
+Sua arquitetura é baseada em **microserviços independentes**, que se comunicam via REST e são integrados por:
 
-## Funcionalidades Principais
-🛠️[em construção]
+- **Service Registry (Eureka)**  
+- **API Gateway (Spring Cloud Gateway)**  
+- **Módulo CORE** publicado como pacote Maven (GitHub Packages)  
 
-## Tecnologias Utilizadas
-- **Backend:** Java com Spring Boot
-- **Frontend:** *(a definir)*
-- **Banco de Dados:** MySQL
+O UniCoS oferece flexibilidade para evolução contínua de cada domínio, garantindo desacoplamento, alta disponibilidade e facilidade de manutenção.
 
-## Como Executar o Projeto
+---
 
-### Backend
+## 🧠 Arquitetura
 
-#### ✅ Rodando com Docker (Recomendado para Devs Frontend)
-⚠️ Certifique-se de ter o Docker instalado antes de rodar os comandos abaixo.
-```bash
-# Clone o repositório
-git clone https://github.com/GAssalin/ERP.git
+A estrutura geral do UniCoS segue este modelo:
 
-# Acesse a pasta do backend
-cd 🛠️[em construção]
-
-# Execute com Make (Linux/macOS/WSL)
-make up
-
-# OU execute o script shell (Linux/macOS/WSL)
-./run.sh
-s
-# OU execute o script para Windows (cmd/PowerShell)
-run.bat
 ```
-
-#### ✅ Comandos úteis adicionais:
-```bash
-make down    # Encerra os containers
-make logs    # Exibe os logs da API
+                     ┌────────────────────────┐
+                     │     Service Registry    │
+                     │        (Eureka)         │
+                     └────────────┬────────────┘
+                                  │
+                        ┌─────────┴─────────┐
+                        │   API Gateway     │
+                        │ (Spring Gateway)  │
+                        └─────────┬─────────┘
+      ┌──────────────┬────────────┼───────────────┬──────────────┐
+      │              │            │               │              │
+┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐  ┌────────────┐
+│ MS-Auth  │   │ MS-Pessoa │   │ MS-Estoque│   │ MS-Compras│  │ MS-Financeiro │
+└──────────┘   └──────────┘   └──────────┘   └──────────┘  └────────────┘
+        │              │            │               │              │
+        └──────────────┴────────────┴───────────────┴──────────────┘
+                         ┌────────────────────────┐
+                         │        CORE (DDD)      │
+                         │  Publicado no GitHub   │
+                         └────────────────────────┘
 ```
 
 ---
 
-#### ⚙️ Rodando localmente sem Docker (modo manual)
-❗ Credenciais devem ser alteradas e protegidas em ambientes reais
-```bash
-# Configure o banco MySQL localmente:
-# DB: 🛠️[em construção] | User: root | Password: root
+## 🚀 Funcionalidades Principais (MVP)
+✔️ Gestão de produtos  
+✔️ Gestão de empresas  
+✔️ Catálogo de estoque  
+✔️ Compras e fornecedores  
+✔️ Módulo financeiro básico  
+✔️ Módulo de pagamentos  
+✔️ Módulo de notificações  
+✔️ Autenticação e permissões  
+✔️ Núcleo CORE com entidades, enums e contratos reutilizáveis  
 
-# Execute o projeto com Maven
+---
+
+## 🧩 Microserviços do UniCoS
+
+| Serviço | Responsabilidade |
+|--------|------------------|
+| **service-registry** | Registro e descoberta via Eureka |
+| **gateway** | Roteamento global e autenticação |
+| **ms-auth** | Login, usuários e permissões |
+| **unicos-core** | Enums, modelos e contratos padrão |
+| **ms-produtos** | Produtos, categorias e atributos |
+| **ms-empresa** | Empresas, filiais e dados corporativos |
+| **ms-estoque** | Estoque, lotes e movimentações |
+| **ms-compras** | Pedidos de compra e fornecedores |
+| **ms-financeiro** | Movimentos, contas e lançamentos |
+| **ms-pagamento** | Processamento e integração de pagamentos |
+| **ms-notificacao** | Eventos e envio de mensagens |
+
+---
+
+## 🔧 Tecnologias Utilizadas
+- **Backend:** Java 21 + Spring Boot 3  
+- **Comunicação:** REST + Spring Cloud  
+- **Orquestração:** Eureka + Gateway  
+- **Banco de Dados:** MySQL  
+- **Build:** Maven  
+- **Deploy:** Docker / Docker Compose  
+- **Infra futura:** Kubernetes (opcional)  
+
+---
+
+## 📦 Módulo CORE no GitHub Packages
+
+O `unicos-core` é publicado como dependência Maven:
+
+```xml
+<dependency>
+    <groupId>br.com.unicos</groupId>
+    <artifactId>core-base</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+Repositório usado pelos microserviços:
+
+```xml
+<repository>
+    <id>github</id>
+    <url>https://maven.pkg.github.com/GAssalin/UNICOS</url>
+</repository>
+```
+
+---
+
+## 🏗️ Estrutura do Projeto
+
+```
+backend/
+├── service-registry/
+├── gateway/
+├── unicos-core/
+│   ├── core-base/
+│   ├── core-produto/
+│   ├── core-financeiro/
+│   └── ...
+├── ms-produtos/
+├── ms-estoque/
+├── ms-empresa/
+├── ms-compras/
+├── ms-financeiro/
+└── ms-pagamento/
+```
+
+---
+
+# ▶️ Como Executar o Projeto
+
+## Backend
+
+### ✅ Rodando com Docker
+```bash
+git clone https://github.com/GAssalin/ERP.git
+cd backend
+make up
+```
+
+Ou:
+
+```bash
+./run.sh        # Linux/macOS/WSL
+run.bat         # Windows
+```
+
+Comandos úteis:
+
+```bash
+make logs
+make down
+```
+
+---
+
+### ⚙️ Rodando localmente sem Docker
+```bash
 mvn spring-boot:run
 ```
 
-### Frontend
-> 🛠️[em construção]
+---
+
+# 📘 Swagger
+
+A documentação é gerada por cada microserviço.
 
 ---
 
-## 📘 Swagger (OpenAPI)
-Swagger é um conjunto de ferramentas baseado na OpenAPI Specification, utilizado para projetar, construir, documentar e testar APIs RESTful. Ele gera automaticamente uma interface interativa para explorar todos os endpoints da aplicação, facilitando a compreensão tanto para desenvolvedores quanto para ferramentas externas.
+# 🤝 Contribuição
 
-✅ Benefícios:
-- Geração automática da documentação da API.
-- Interface visual e interativa para testes (Swagger UI).
-- Dispensa a necessidade de acessar o código-fonte para entender os recursos disponíveis.
-- Útil para integração entre times frontend e backend.
-
-🚀 Como acessar a documentação Swagger desta aplicação?
-Com a aplicação em execução (veja seção "Como Executar o Projeto"), acesse um dos links abaixo:
-🛠️[em construção]
-
----
-
-## Contribuição
-Sinta-se à vontade para contribuir com melhorias ao projeto. Para isso:
 ```bash
-# Faça um fork do repositório
-# Crie uma branch para sua feature ou correção
-# Envie um pull request para revisão
+git checkout -b feature/nova-feature
+git push origin feature/nova-feature
 ```
 
-## Licença
-*(A definir)*
+---
 
-## Contato
-🛠️[em construção]
+# 📄 Licença  
+A definir
+
+---
+
+# 📬 Contato  
+Gustavo Soares Assalin  
+GitHub: https://github.com/GAssalin
