@@ -1,8 +1,8 @@
 package br.com.unicos.ms_produtos.service;
 
-import br.com.unicos.ms_produtos.dto.FornecedorProdutoRequest;
-import br.com.unicos.ms_produtos.dto.FornecedorProdutoResponse;
-import br.com.unicos.ms_produtos.dto.FornecedorProdutoListDTO;
+import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoRequest;
+import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoResponse;
+import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoListDTO;
 
 import java.math.BigDecimal;
 import java.util.List;

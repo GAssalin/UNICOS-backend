@@ -1,8 +1,8 @@
 package br.com.unicos.ms_produtos.controller;
 
-import br.com.unicos.ms_produtos.dto.CategoriaListDTO;
-import br.com.unicos.ms_produtos.dto.CategoriaRequest;
-import br.com.unicos.ms_produtos.dto.CategoriaResponse;
+import br.com.unicos.ms_produtos.dto.categoria.CategoriaListDTO;
+import br.com.unicos.ms_produtos.dto.categoria.CategoriaRequest;
+import br.com.unicos.ms_produtos.dto.categoria.CategoriaResponse;
 import br.com.unicos.ms_produtos.service.CategoriaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

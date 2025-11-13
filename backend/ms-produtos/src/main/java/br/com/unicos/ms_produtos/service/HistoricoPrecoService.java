@@ -1,8 +1,8 @@
 package br.com.unicos.ms_produtos.service;
 
-import br.com.unicos.ms_produtos.dto.HistoricoPrecoListDTO;
-import br.com.unicos.ms_produtos.dto.HistoricoPrecoRequest;
-import br.com.unicos.ms_produtos.dto.HistoricoPrecoResponse;
+import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoListDTO;
+import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoRequest;
+import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoResponse;
 
 import java.util.List;
 import java.util.Optional;

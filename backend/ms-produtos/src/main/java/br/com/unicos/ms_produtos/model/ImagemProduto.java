@@ -4,14 +4,24 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * Entidade que representa uma imagem associada a um produto.
- * Pode armazenar múltiplas imagens para um mesmo produto,
- * definindo qual é a principal e sua ordem de exibição.
+ *
+ * <p>
+ * Suporta múltiplas imagens por produto, permitindo definir qual é a principal,
+ * a ordem de exibição e metadados úteis como texto alternativo.
+ * </p>
  */
 @Entity
-@Table(name = "imagem_produto")
+@Table(
+        name = "imagem_produto",
+        indexes = {
+                @Index(name = "idx_imagem_produto_ordem", columnList = "produto_id, ordem_exibicao")
+        }
+)
+@EntityListeners(AuditingEntityListener.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,7 +33,7 @@ public class ImagemProduto {
     private Long id;
 
     /**
-     * Produto ao qual a imagem pertence
+     * Produto ao qual a imagem pertence.
      */
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,33 +43,33 @@ public class ImagemProduto {
     private Produto produto;
 
     /**
-     * URL ou caminho da imagem
+     * URL ou caminho da imagem armazenada (ex.: S3, CDN).
      */
     @NotBlank(message = "A URL da imagem é obrigatória.")
     @Column(nullable = false, length = 500)
     private String url;
 
     /**
-     * Texto alternativo para acessibilidade e SEO
+     * Texto alternativo para acessibilidade e SEO.
      */
     @Column(name = "descricao_alt", length = 255)
     private String descricaoAlt;
 
     /**
-     * Indica se é a imagem principal do produto
+     * Indica se esta é a imagem principal do produto.
      */
     @Column(nullable = false)
     @Builder.Default
     private Boolean principal = false;
 
     /**
-     * Define a ordem de exibição da imagem (1 = primeira, 2 = segunda, etc.)
+     * Ordem de exibição da imagem (1 = primeira, 2 = segunda...).
      */
     @Column(name = "ordem_exibicao")
     private Integer ordemExibicao;
 
     /**
-     * Status da imagem (ativa/inativa)
+     * Status da imagem (ativa ou não).
      */
     @Column(nullable = false)
     @Builder.Default

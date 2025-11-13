@@ -1,8 +1,8 @@
 package br.com.unicos.ms_produtos.controller;
 
-import br.com.unicos.ms_produtos.dto.AtributoPersonalizadoListDTO;
-import br.com.unicos.ms_produtos.dto.AtributoPersonalizadoRequest;
-import br.com.unicos.ms_produtos.dto.AtributoPersonalizadoResponse;
+import br.com.unicos.ms_produtos.dto.atributoPersonalizado.AtributoPersonalizadoListDTO;
+import br.com.unicos.ms_produtos.dto.atributoPersonalizado.AtributoPersonalizadoRequest;
+import br.com.unicos.ms_produtos.dto.atributoPersonalizado.AtributoPersonalizadoResponse;
 import br.com.unicos.ms_produtos.service.AtributoPersonalizadoService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

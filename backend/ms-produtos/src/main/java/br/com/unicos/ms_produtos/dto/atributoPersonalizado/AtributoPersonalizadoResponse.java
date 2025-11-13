@@ -1,4 +1,4 @@
-package br.com.unicos.ms_produtos.dto;
+package br.com.unicos.ms_produtos.dto.atributoPersonalizado;
 
 /**
  * DTO usado para retorno detalhado de atributos personalizados de categorias.

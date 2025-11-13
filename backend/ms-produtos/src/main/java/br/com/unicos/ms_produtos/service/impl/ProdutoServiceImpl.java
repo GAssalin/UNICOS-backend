@@ -1,7 +1,8 @@
 package br.com.unicos.ms_produtos.service.impl;
 
-import br.com.unicos.ms_produtos.dto.ProdutoRequest;
-import br.com.unicos.ms_produtos.dto.ProdutoResponse;
+import br.com.unicos.core.produto.model.ProdutoBase;
+import br.com.unicos.ms_produtos.dto.produto.ProdutoRequest;
+import br.com.unicos.ms_produtos.dto.produto.ProdutoResponse;
 import br.com.unicos.ms_produtos.model.Categoria;
 import br.com.unicos.ms_produtos.model.HistoricoPreco;
 import br.com.unicos.ms_produtos.model.Marca;
@@ -10,6 +11,7 @@ import br.com.unicos.ms_produtos.repository.CategoriaRepository;
 import br.com.unicos.ms_produtos.repository.MarcaRepository;
 import br.com.unicos.ms_produtos.repository.ProdutoRepository;
 import br.com.unicos.ms_produtos.service.ProdutoService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -67,26 +69,78 @@ public class ProdutoServiceImpl implements ProdutoService {
 
     @Override
     public ProdutoResponse atualizar(Long id, ProdutoRequest request) {
-        Produto existente = produtoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + id));
 
-        Categoria categoria = categoriaRepository.findById(request.categoriaId())
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada."));
+        // ============================================================
+        // 🔹 1. Buscar o produto existente
+        // ============================================================
+        Produto produto = produtoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Produto não encontrado com o ID: " + id
+                ));
 
-        Marca marca = request.marcaId() != null
-                ? marcaRepository.findById(request.marcaId()).orElse(null)
-                : null;
+        // ============================================================
+        // 🔹 2. Validar e carregar Categoria (se houver)
+        // ============================================================
+        if (request.categoriaId() != null) {
+            Categoria categoria = categoriaRepository.findById(request.categoriaId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Categoria não encontrada com ID: " + request.categoriaId()
+                    ));
+            produto.setCategoria(categoria);
+        }
 
-        existente.setNome(request.nome());
-        existente.setDescricao(request.descricao());
-        existente.setPreco(request.preco());
-        existente.setCategoria(categoria);
-        existente.setMarca(marca);
-        existente.setSku(request.sku());
-        existente.setAtivo(request.ativo());
+        // ============================================================
+        // 🔹 3. Validar e carregar Marca (se houver)
+        // ============================================================
+        if (request.marcaId() != null) {
+            Marca marca = marcaRepository.findById(request.marcaId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Marca não encontrada com ID: " + request.marcaId()
+                    ));
+            produto.setMarca(marca);
+        }
 
-        Produto atualizado = produtoRepository.save(existente);
-        return toResponse(atualizado);
+        // ============================================================
+        // 🔹 4. Atualizar os dados básicos (ProdutoBase é imutável!)
+        //      → precisa reconstruir o record
+        // ============================================================
+        ProdutoBase dadosAntigos = produto.getDadosBasicos();
+
+        ProdutoBase novosDados = new ProdutoBase(
+                dadosAntigos.id(), // mantém o ID interno do core
+                request.nome(),
+                request.sku(),
+                request.descricao(),
+                request.codigoBarras(),
+                request.unidadeMedida(),
+                request.tipoProduto(),
+                request.origem(),
+                request.controleEstoque(),
+                request.armazenamento(),
+                request.classificacao(),
+                request.status()
+        );
+
+        produto.setDadosBasicos(novosDados);
+
+        // ============================================================
+        // 🔹 5. Atualizar demais atributos do Produto (não-core)
+        // ============================================================
+        produto.setDescricao(request.descricao());
+        produto.setAtivo(request.ativo());
+        produto.setPreco(request.preco());
+
+        // Aqui você pode incluir mais atributos específicos do ms-produtos
+
+        // ============================================================
+        // 🔹 6. Salvar
+        // ============================================================
+        Produto atualizado = produtoRepository.save(produto);
+
+        // ============================================================
+        // 🔹 7. Retornar DTO
+        // ============================================================
+        return mapper.map(atualizado, ProdutoResponse.class);
     }
 
     @Override
@@ -190,7 +244,7 @@ public class ProdutoServiceImpl implements ProdutoService {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
 
-        BigDecimal precoAntigo = produto.getPreco();
+        BigDecimal precoAntigo = produto.getPrecoAtual().precoVenda();
         produto.setPreco(novoPreco);
 
         HistoricoPreco historico = HistoricoPreco.builder()
@@ -199,7 +253,7 @@ public class ProdutoServiceImpl implements ProdutoService {
                 .novoPreco(novoPreco)
                 .build();
 
-        produto.getHistoricosPreco().add(historico);
+        produto.getHistoricoPrecos().add(historico);
         return toResponse(produtoRepository.save(produto));
     }
 
@@ -215,13 +269,13 @@ public class ProdutoServiceImpl implements ProdutoService {
     private ProdutoResponse toResponse(Produto produto) {
         return new ProdutoResponse(
                 produto.getId(),
-                produto.getNome(),
-                produto.getDescricao(),
-                produto.getPreco(),
+                produto.getDadosBasicos().nome(),
+                produto.getDadosBasicos().descricao(),
+                produto.getPrecoAtual(),
                 produto.getSku(),
                 produto.getCategoria() != null ? produto.getCategoria().getNome() : null,
                 produto.getMarca() != null ? produto.getMarca().getNome() : null,
-                produto.getAtivo()
+                produto.isAtivo()
         );
     }
 }

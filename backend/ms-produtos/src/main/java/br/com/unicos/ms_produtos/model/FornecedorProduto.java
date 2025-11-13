@@ -5,16 +5,24 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
  * Entidade que representa o vínculo entre um fornecedor e um produto.
- * Contém o preço de custo, prazo médio de entrega e o identificador do fornecedor.
+ *
+ * <p>
+ * Armazena informações operacionais relacionadas ao preço de custo,
+ * prazos de entrega e identificação externa do fornecedor no ecossistema.
+ * </p>
  */
 @Entity
 @Table(name = "fornecedor_produto")
+@EntityListeners(AuditingEntityListener.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,55 +34,51 @@ public class FornecedorProduto {
     private Long id;
 
     /**
-     * ID do fornecedor proveniente do MS Pessoa
+     * ID do fornecedor proveniente do ms-pessoas.
      */
     @NotNull
     @Column(name = "fornecedor_id", nullable = false)
     private Long fornecedorId;
 
     /**
-     * Código interno do fornecedor (opcional)
+     * Código interno utilizado pelo fornecedor (opcional).
      */
     @Column(name = "codigo_fornecedor", length = 50)
     private String codigoFornecedor;
 
     /**
-     * Produto vinculado ao fornecedor
+     * Produto associado ao fornecedor.
      */
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "produto_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Produto produto;
 
     /**
-     * Preço de custo fornecido
+     * Preço de custo negociado com o fornecedor.
      */
     @NotNull
-    @DecimalMin(value = "0.0", inclusive = false)
+    @DecimalMin(value = "0.01", message = "O preço de custo deve ser maior que zero.")
     @Column(name = "preco_custo", nullable = false, precision = 15, scale = 2)
     private BigDecimal precoCusto;
 
     /**
-     * Prazo médio de entrega em dias
+     * Prazo médio de entrega em dias.
      */
     @PositiveOrZero
     @Column(name = "prazo_entrega_dias")
     private Integer prazoEntregaDias;
 
     /**
-     * Data de criação e atualização (auditoria)
+     * Datas de criação e atualização do vínculo.
      */
-    @Column(name = "data_criacao", updatable = false)
-    @Builder.Default
-    private LocalDateTime dataCriacao = LocalDateTime.now();
+    @CreatedDate
+    @Column(name = "data_criacao", nullable = false, updatable = false)
+    private LocalDateTime dataCriacao;
 
+    @LastModifiedDate
     @Column(name = "data_atualizacao")
     private LocalDateTime dataAtualizacao;
-
-    @PreUpdate
-    public void preUpdate() {
-        dataAtualizacao = LocalDateTime.now();
-    }
 }

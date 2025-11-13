@@ -1,4 +1,4 @@
-package br.com.unicos.ms_produtos.dto;
+package br.com.unicos.ms_produtos.dto.atributoPersonalizado;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,8 +1,8 @@
 package br.com.unicos.ms_produtos.service.impl;
 
-import br.com.unicos.ms_produtos.dto.FornecedorProdutoListDTO;
-import br.com.unicos.ms_produtos.dto.FornecedorProdutoRequest;
-import br.com.unicos.ms_produtos.dto.FornecedorProdutoResponse;
+import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoListDTO;
+import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoRequest;
+import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoResponse;
 import br.com.unicos.ms_produtos.model.FornecedorProduto;
 import br.com.unicos.ms_produtos.model.Produto;
 import br.com.unicos.ms_produtos.repository.FornecedorProdutoRepository;

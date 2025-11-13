@@ -1,74 +1,151 @@
 package br.com.unicos.ms_produtos.model;
 
+import br.com.unicos.core.produto.model.*;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Entidade que representa um produto ou serviço.
- * Contém informações principais como nome, preço, categoria e marca.
+ * Entidade que representa o produto cadastrado dentro do contexto operacional
+ * da empresa (ERP UniCoS).
+ *
+ * <p>
+ * Enquanto o módulo <b>core-produto</b> define o conceito universal e imutável
+ * do produto, o <b>ms-produtos</b> armazena os dados complementares e
+ * operacionais, como atributos personalizados, imagens, fornecedores,
+ * categorias, variações e histórico de preços.
+ * </p>
+ *
+ * <p>
+ * Esta entidade utiliza composição com modelos base do core-produto
+ * (via {@link Embedded}), garantindo padronização entre microserviços
+ * sem duplicação de lógica.
+ * </p>
  */
 @Entity
 @Table(name = "produto")
+@EntityListeners(AuditingEntityListener.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Produto {
+
+    // ============================================================
+    // 🔹 Identificador
+    // ============================================================
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "O nome do produto é obrigatório.")
-    @Column(nullable = false, length = 150)
-    private String nome;
+    // ============================================================
+    // 🔹 Dados universais (core-produto)
+    // ============================================================
 
-    @Size(max = 500)
-    private String descricao;
+    /**
+     * Dados básicos como nome, descrição, SKU global, classificação e tipos.
+     */
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "nome", column = @Column(name = "basico_nome")),
+            @AttributeOverride(name = "descricao", column = @Column(name = "basico_descricao")),
+            @AttributeOverride(name = "sku", column = @Column(name = "basico_sku", length = 50, unique = true, nullable = false)),
+            @AttributeOverride(name = "codigoBarras", column = @Column(name = "basico_codigo_barras")),
+            @AttributeOverride(name = "tipoProduto", column = @Column(name = "basico_tipo_produto")),
+            @AttributeOverride(name = "tipoVariacaoProduto", column = @Column(name = "basico_tipo_variacao")),
+            @AttributeOverride(name = "tipoOrigemProduto", column = @Column(name = "basico_tipo_origem")),
+            @AttributeOverride(name = "tipoControleEstoque", column = @Column(name = "basico_controle_estoque")),
+            @AttributeOverride(name = "tipoArmazenamentoProduto", column = @Column(name = "basico_tipo_armazenamento")),
+            @AttributeOverride(name = "tipoClassificacaoProduto", column = @Column(name = "basico_tipo_classificacao")),
+            @AttributeOverride(name = "statusProduto", column = @Column(name = "basico_status"))
+    })
+    private ProdutoBase dadosBasicos;
 
-    @Column(length = 13, unique = true)
-    private String codigoBarras;
+    /**
+     * Informações tributárias universais do produto.
+     */
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "ncm", column = @Column(name = "trib_ncm")),
+            @AttributeOverride(name = "cest", column = @Column(name = "trib_cest")),
+            @AttributeOverride(name = "situacaoTributaria", column = @Column(name = "trib_st"))
+    })
+    private ProdutoTributacaoBase tributacao;
 
-    @NotNull
-    @DecimalMin(value = "0.0", inclusive = false)
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal preco;
+    /**
+     * Configurações globais de estoque.
+     */
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "depositoId", column = @Column(name = "est_deposito_id")),
+            @AttributeOverride(name = "unidadeMedida", column = @Column(name = "est_unidade_medida")),
+            @AttributeOverride(name = "quantidadeDisponivel", column = @Column(name = "est_qtd_disponivel")),
+            @AttributeOverride(name = "quantidadeReservada", column = @Column(name = "est_qtd_reservada")),
+            @AttributeOverride(name = "quantidadeTotal", column = @Column(name = "est_qtd_total")),
+            @AttributeOverride(name = "ultimaAtualizacao", column = @Column(name = "est_ultima_atualizacao"))
+    })
+    private ProdutoEstoqueBase estoqueConfig;
 
-    @NotNull
-    @ManyToOne
-    @JoinColumn(name = "categoria_id", nullable = false)
+    /**
+     * Preço atual do produto.
+     */
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "precoCusto", column = @Column(name = "preco_custo")),
+            @AttributeOverride(name = "precoVenda", column = @Column(name = "preco_venda")),
+            @AttributeOverride(name = "precoMinimo", column = @Column(name = "preco_minimo")),
+            @AttributeOverride(name = "margemPadrao", column = @Column(name = "preco_margem_padrao"))
+    })
+    private PrecoBase precoAtual;
+
+    // ============================================================
+    // 🔹 Campos operacionais
+    // ============================================================
+
+    /**
+     * Produto ativo no ERP.
+     */
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean ativo = true;
+
+    /**
+     * Categoria organizacional da empresa.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id")
     private Categoria categoria;
 
-    @ManyToOne
+    /**
+     * Marca cadastrada no ERP.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "marca_id")
     private Marca marca;
 
-    @NotNull
-    @Column(unique = true, length = 50, nullable = false)
-    private String sku;
-
-    @NotNull
-    private Boolean ativo = true;
+    // ============================================================
+    // 🔹 Relacionamentos específicos
+    // ============================================================
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AtributoPersonalizado> atributos;
+    private List<ImagemProduto> imagens;
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private List<HistoricoPreco> historicosPreco;
+    private List<ProdutoAtributoValor> atributos;
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProdutoAtributoValor> atributosValores;
+    private List<FornecedorProduto> fornecedores;
 
-    @ManyToOne
-    @JoinColumn(name = "unidade_medida_id")
-    private UnidadeMedida unidadeMedida;
+    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProdutoVariacao> variacoes;
+
+    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HistoricoPreco> historicoPrecos;
 
 }

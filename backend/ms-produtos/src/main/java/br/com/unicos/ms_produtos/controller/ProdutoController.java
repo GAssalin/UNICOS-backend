@@ -1,7 +1,7 @@
 package br.com.unicos.ms_produtos.controller;
 
-import br.com.unicos.ms_produtos.dto.ProdutoRequest;
-import br.com.unicos.ms_produtos.dto.ProdutoResponse;
+import br.com.unicos.ms_produtos.dto.produto.ProdutoRequest;
+import br.com.unicos.ms_produtos.dto.produto.ProdutoResponse;
 import br.com.unicos.ms_produtos.service.ProdutoService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

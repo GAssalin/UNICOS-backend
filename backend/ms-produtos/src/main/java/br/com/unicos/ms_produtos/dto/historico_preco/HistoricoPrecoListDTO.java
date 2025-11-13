@@ -1,10 +1,11 @@
-package br.com.unicos.ms_produtos.dto;
+package br.com.unicos.ms_produtos.dto.historico_preco;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * DTO usado para listagem simplificada de histórico de preço.
+ * DTO utilizado em listagens de histórico de preço,
+ * trazendo apenas os dados essenciais.
  */
 public record HistoricoPrecoListDTO(
         Long id,

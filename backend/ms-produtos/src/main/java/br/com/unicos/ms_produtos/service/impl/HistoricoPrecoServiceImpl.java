@@ -1,8 +1,8 @@
 package br.com.unicos.ms_produtos.service.impl;
 
-import br.com.unicos.ms_produtos.dto.HistoricoPrecoListDTO;
-import br.com.unicos.ms_produtos.dto.HistoricoPrecoRequest;
-import br.com.unicos.ms_produtos.dto.HistoricoPrecoResponse;
+import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoListDTO;
+import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoRequest;
+import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoResponse;
 import br.com.unicos.ms_produtos.model.HistoricoPreco;
 import br.com.unicos.ms_produtos.model.Produto;
 import br.com.unicos.ms_produtos.repository.HistoricoPrecoRepository;

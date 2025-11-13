@@ -1,8 +1,8 @@
 package br.com.unicos.ms_produtos.service.impl;
 
-import br.com.unicos.ms_produtos.dto.CategoriaListDTO;
-import br.com.unicos.ms_produtos.dto.CategoriaRequest;
-import br.com.unicos.ms_produtos.dto.CategoriaResponse;
+import br.com.unicos.ms_produtos.dto.categoria.CategoriaListDTO;
+import br.com.unicos.ms_produtos.dto.categoria.CategoriaRequest;
+import br.com.unicos.ms_produtos.dto.categoria.CategoriaResponse;
 import br.com.unicos.ms_produtos.model.Categoria;
 import br.com.unicos.ms_produtos.repository.CategoriaRepository;
 import br.com.unicos.ms_produtos.service.CategoriaService;

@@ -1,8 +1,8 @@
 package br.com.unicos.ms_produtos.service;
 
-import br.com.unicos.ms_produtos.dto.MarcaListDTO;
-import br.com.unicos.ms_produtos.dto.MarcaRequest;
-import br.com.unicos.ms_produtos.dto.MarcaResponse;
+import br.com.unicos.ms_produtos.dto.marca.MarcaListDTO;
+import br.com.unicos.ms_produtos.dto.marca.MarcaRequest;
+import br.com.unicos.ms_produtos.dto.marca.MarcaResponse;
 
 import java.util.List;
 import java.util.Optional;

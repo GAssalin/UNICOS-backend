@@ -4,15 +4,28 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
  * Entidade que representa uma categoria de produtos.
- * Permite organização hierárquica e associação de múltiplos produtos.
+ * Permite organização hierárquica e agrupamento de itens no catálogo.
  */
 @Entity
-@Table(name = "categoria")
+@Table(
+        name = "categoria",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_categoria_nome_pai",
+                        columnNames = {"nome", "categoria_pai_id"}
+                )
+        }
+)
+@EntityListeners(AuditingEntityListener.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,43 +37,36 @@ public class Categoria {
     private Long id;
 
     /**
-     * Nome da categoria
+     * Nome da categoria.
      */
     @NotBlank(message = "O nome da categoria é obrigatório.")
     @Column(nullable = false, length = 100)
     private String nome;
 
     /**
-     * Descrição opcional da categoria
+     * Descrição opcional da categoria.
      */
     @Size(max = 255)
     private String descricao;
 
     /**
-     * Categoria pai (auto-relacionamento hierárquico)
+     * Categoria pai no modelo hierárquico.
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_pai_id")
+    @ToString.Exclude
     private Categoria categoriaPai;
 
     /**
-     * Subcategorias (auto-relacionamento reverso)
+     * Subcategorias vinculadas a esta categoria.
      */
-    @OneToMany(mappedBy = "categoriaPai")
+    @OneToMany(mappedBy = "categoriaPai", fetch = FetchType.LAZY)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Categoria> subcategorias;
 
     /**
-     * Lista de produtos associados à categoria
-     */
-    @OneToMany(mappedBy = "categoria")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private List<Produto> produtos;
-
-    /**
-     * Status da categoria
+     * Status de exibição/uso da categoria.
      */
     @Column(nullable = false)
     @Builder.Default

@@ -1,7 +1,7 @@
 package br.com.unicos.ms_produtos.service.impl;
 
 import br.com.unicos.ms_produtos.dto.ProdutoUnidadeRequest;
-import br.com.unicos.ms_produtos.dto.ProdutoUnidadeResponse;
+import br.com.unicos.ms_produtos.dto.produto_unidade.ProdutoUnidadeResponse;
 import br.com.unicos.ms_produtos.model.Produto;
 import br.com.unicos.ms_produtos.model.ProdutoUnidade;
 import br.com.unicos.ms_produtos.model.UnidadeMedida;
