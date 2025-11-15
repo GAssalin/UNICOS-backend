@@ -5,124 +5,131 @@ import br.com.unicos.ms_produtos.dto.atributoPersonalizado.AtributoPersonalizado
 import br.com.unicos.ms_produtos.dto.atributoPersonalizado.AtributoPersonalizadoResponse;
 import br.com.unicos.ms_produtos.service.AtributoPersonalizadoService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Controlador REST responsável pelo gerenciamento dos atributos personalizados
- * vinculados às categorias de produtos.
- *
+ * Controlador REST responsável pelo gerenciamento dos
+ * atributos personalizados associados às categorias de produtos.
  * <p>
- * Permite a criação, atualização, listagem, exclusão e consulta
- * de atributos configuráveis de categorias (ex: "Cor", "Tamanho").
- * </p>
+ * Expõe endpoints para criação, atualização, exclusão,
+ * listagem e consulta de atributos vinculados às categorias.
  */
 @RestController
 @RequestMapping("/v1/atributos-personalizados")
+@RequiredArgsConstructor
 public class AtributoPersonalizadoController {
 
     private final AtributoPersonalizadoService atributoPersonalizadoService;
 
-    public AtributoPersonalizadoController(AtributoPersonalizadoService atributoPersonalizadoService) {
-        this.atributoPersonalizadoService = atributoPersonalizadoService;
-    }
-
-    // ==================================
-    // 🔹 CRUD
-    // ==================================
+    // ============================================================
+    // 🔹 Criar
+    // ============================================================
 
     /**
-     * Cria um novo atributo personalizado para uma categoria.
+     * Cria um novo atributo personalizado vinculado a uma categoria.
      *
-     * @param request Dados do atributo personalizado.
-     * @return {@link AtributoPersonalizadoResponse} criado.
+     * @param request DTO contendo os dados do atributo.
+     * @return Atributo criado.
      */
     @PostMapping
     public ResponseEntity<AtributoPersonalizadoResponse> criar(
             @Valid @RequestBody AtributoPersonalizadoRequest request) {
-        AtributoPersonalizadoResponse response = atributoPersonalizadoService.salvar(request);
+
+        AtributoPersonalizadoResponse response = atributoPersonalizadoService.criar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    // ============================================================
+    // 🔹 Atualizar
+    // ============================================================
 
     /**
      * Atualiza um atributo personalizado existente.
      *
-     * @param id      Identificador do atributo.
-     * @param request Dados atualizados do atributo.
-     * @return {@link AtributoPersonalizadoResponse} atualizado.
+     * @param id      ID do atributo.
+     * @param request DTO contendo os novos dados.
+     * @return Atributo atualizado.
      */
     @PutMapping("/{id}")
     public ResponseEntity<AtributoPersonalizadoResponse> atualizar(
             @PathVariable Long id,
             @Valid @RequestBody AtributoPersonalizadoRequest request) {
+
         AtributoPersonalizadoResponse response = atributoPersonalizadoService.atualizar(id, request);
         return ResponseEntity.ok(response);
     }
 
+    // ============================================================
+    // 🔹 Excluir
+    // ============================================================
+
     /**
-     * Busca um atributo personalizado pelo seu ID.
+     * Remove um atributo personalizado pelo ID.
      *
-     * @param id Identificador do atributo.
-     * @return {@link AtributoPersonalizadoResponse}, se encontrado.
+     * @param id ID do atributo.
+     * @return Status 204 em caso de sucesso.
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        atributoPersonalizadoService.excluir(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ============================================================
+    // 🔹 Buscar por ID
+    // ============================================================
+
+    /**
+     * Busca um atributo personalizado pelo ID.
+     *
+     * @param id ID do atributo.
+     * @return Atributo encontrado ou 404 caso não exista.
      */
     @GetMapping("/{id}")
     public ResponseEntity<AtributoPersonalizadoResponse> buscarPorId(@PathVariable Long id) {
-        return atributoPersonalizadoService.buscarPorId(id)
+
+        Optional<AtributoPersonalizadoResponse> resultado =
+                atributoPersonalizadoService.buscarPorId(id);
+
+        return resultado
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // ============================================================
+    // 🔹 Listar todos
+    // ============================================================
+
     /**
-     * Lista todos os atributos personalizados cadastrados no sistema.
+     * Lista todos os atributos personalizados existentes.
      *
-     * @return Lista de {@link AtributoPersonalizadoResponse}.
+     * @return Lista de atributos.
      */
     @GetMapping
-    public ResponseEntity<List<AtributoPersonalizadoResponse>> listarTodos() {
-        List<AtributoPersonalizadoResponse> lista = atributoPersonalizadoService.listarTodos();
-        return ResponseEntity.ok(lista);
+    public ResponseEntity<List<AtributoPersonalizadoListDTO>> listarTodos() {
+        return ResponseEntity.ok(atributoPersonalizadoService.listarTodos());
     }
 
-    /**
-     * Exclui um atributo personalizado pelo ID.
-     *
-     * @param id Identificador do atributo.
-     * @return Resposta 204 (sem conteúdo) em caso de sucesso.
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        atributoPersonalizadoService.deletar(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ==================================
-    // 🔹 CONSULTAS ESPECÍFICAS
-    // ==================================
+    // ============================================================
+    // 🔹 Listar por categoria
+    // ============================================================
 
     /**
-     * Lista todos os atributos personalizados de uma categoria.
+     * Lista os atributos personalizados pertencentes a uma categoria específica.
      *
      * @param categoriaId ID da categoria.
-     * @return Lista de {@link AtributoPersonalizadoResponse}.
+     * @return Lista de atributos vinculados à categoria.
      */
     @GetMapping("/categoria/{categoriaId}")
-    public ResponseEntity<List<AtributoPersonalizadoResponse>> listarPorCategoria(@PathVariable Long categoriaId) {
-        List<AtributoPersonalizadoResponse> lista = atributoPersonalizadoService.listarPorCategoria(categoriaId);
-        return ResponseEntity.ok(lista);
-    }
+    public ResponseEntity<List<AtributoPersonalizadoListDTO>> listarPorCategoria(
+            @PathVariable Long categoriaId) {
 
-    /**
-     * Busca atributos personalizados cujo nome contenha o termo informado.
-     *
-     * @param nome Termo parcial de busca.
-     * @return Lista de {@link AtributoPersonalizadoListDTO}.
-     */
-    @GetMapping("/buscar")
-    public ResponseEntity<List<AtributoPersonalizadoListDTO>> buscarPorNomeContendo(@RequestParam String nome) {
-        List<AtributoPersonalizadoListDTO> lista = atributoPersonalizadoService.buscarPorNomeContendo(nome);
-        return ResponseEntity.ok(lista);
+        return ResponseEntity.ok(atributoPersonalizadoService.listarPorCategoria(categoriaId));
     }
 }

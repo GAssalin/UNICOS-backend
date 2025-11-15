@@ -5,87 +5,74 @@ import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaRequest;
 import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaResponse;
 import br.com.unicos.ms_produtos.service.UnidadeMedidaService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Controlador REST responsável pelo gerenciamento das unidades de medida.
+ * Controlador REST responsável pelo gerenciamento de unidades de medida.
  * <p>
- * Fornece endpoints para criação, atualização, listagem, exclusão
- * e consultas específicas por nome ou sigla.
+ * Permite cadastrar, atualizar, remover, consultar e realizar buscas
+ * por nome, sigla e listagens simples/detalhadas.
  */
 @RestController
 @RequestMapping("/v1/unidades-medida")
+@RequiredArgsConstructor
 public class UnidadeMedidaController {
 
     private final UnidadeMedidaService unidadeMedidaService;
 
-    public UnidadeMedidaController(UnidadeMedidaService unidadeMedidaService) {
-        this.unidadeMedidaService = unidadeMedidaService;
-    }
-
-    // ==================================
-    // 🔹 CRUD
-    // ==================================
+    // ============================================================
+    // 🔹 Criar
+    // ============================================================
 
     /**
-     * Cria uma nova unidade de medida.
+     * Cadastra uma nova unidade de medida.
      *
-     * @param request Dados da unidade de medida.
-     * @return UnidadeMedidaResponse criada.
+     * @param request dados da unidade.
+     * @return unidade criada.
      */
     @PostMapping
-    public ResponseEntity<UnidadeMedidaResponse> criar(@Valid @RequestBody UnidadeMedidaRequest request) {
+    public ResponseEntity<UnidadeMedidaResponse> salvar(
+            @Valid @RequestBody UnidadeMedidaRequest request) {
+
         UnidadeMedidaResponse response = unidadeMedidaService.salvar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // ============================================================
+    // 🔹 Atualizar
+    // ============================================================
+
     /**
      * Atualiza uma unidade de medida existente.
      *
-     * @param id      Identificador da unidade.
-     * @param request Dados atualizados.
-     * @return UnidadeMedidaResponse atualizada.
+     * @param id      ID da unidade.
+     * @param request dados atualizados.
+     * @return unidade atualizada.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<UnidadeMedidaResponse> atualizar(@PathVariable Long id,
-                                                           @Valid @RequestBody UnidadeMedidaRequest request) {
+    public ResponseEntity<UnidadeMedidaResponse> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody UnidadeMedidaRequest request) {
+
         UnidadeMedidaResponse response = unidadeMedidaService.atualizar(id, request);
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Busca uma unidade de medida pelo ID.
-     *
-     * @param id Identificador da unidade.
-     * @return UnidadeMedidaResponse, se encontrada.
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<UnidadeMedidaResponse> buscarPorId(@PathVariable Long id) {
-        return unidadeMedidaService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
+    // ============================================================
+    // 🔹 Deletar
+    // ============================================================
 
     /**
-     * Lista todas as unidades de medida cadastradas.
+     * Remove uma unidade de medida pelo ID.
      *
-     * @return Lista de UnidadeMedidaResponse.
-     */
-    @GetMapping
-    public ResponseEntity<List<UnidadeMedidaResponse>> listarTodas() {
-        List<UnidadeMedidaResponse> lista = unidadeMedidaService.listarTodas();
-        return ResponseEntity.ok(lista);
-    }
-
-    /**
-     * Exclui uma unidade de medida pelo ID.
-     *
-     * @param id Identificador da unidade.
-     * @return Resposta 204 (sem conteúdo) em caso de sucesso.
+     * @param id ID da unidade.
+     * @return 204 em caso de sucesso.
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
@@ -93,68 +80,134 @@ public class UnidadeMedidaController {
         return ResponseEntity.noContent().build();
     }
 
-    // ==================================
-    // 🔹 CONSULTAS ESPECÍFICAS
-    // ==================================
+    // ============================================================
+    // 🔹 Buscar por ID
+    // ============================================================
 
     /**
-     * Busca uma unidade de medida pelo nome.
+     * Busca uma unidade de medida pelo ID.
      *
-     * @param nome Nome da unidade.
-     * @return UnidadeMedidaResponse, se encontrada.
+     * @param id ID da unidade.
+     * @return unidade encontrada ou 404.
      */
-    @GetMapping("/buscar/nome")
-    public ResponseEntity<UnidadeMedidaResponse> buscarPorNome(@RequestParam String nome) {
-        return unidadeMedidaService.buscarPorNome(nome)
+    @GetMapping("/{id}")
+    public ResponseEntity<UnidadeMedidaResponse> buscarPorId(@PathVariable Long id) {
+
+        Optional<UnidadeMedidaResponse> resultado =
+                unidadeMedidaService.buscarPorId(id);
+
+        return resultado
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    // ============================================================
+    // 🔹 Listagem detalhada
+    // ============================================================
+
+    /**
+     * Lista todas as unidades de medida com informações completas.
+     *
+     * @return lista detalhada.
+     */
+    @GetMapping
+    public ResponseEntity<List<UnidadeMedidaResponse>> listarTodas() {
+        return ResponseEntity.ok(unidadeMedidaService.listarTodas());
+    }
+
+    // ============================================================
+    // 🔹 Listagem simples
+    // ============================================================
+
+    /**
+     * Lista unidades de medida em formato simplificado.
+     *
+     * @return lista simples ordenada por nome.
+     */
+    @GetMapping("/simples")
+    public ResponseEntity<List<UnidadeMedidaListDTO>> listarSimples() {
+        return ResponseEntity.ok(unidadeMedidaService.listarSimples());
+    }
+
+    // ============================================================
+    // 🔹 Buscar por nome exato
+    // ============================================================
+
+    /**
+     * Busca uma unidade de medida pelo nome exato.
+     *
+     * @param nome nome da unidade.
+     * @return unidade encontrada ou 404.
+     */
+    @GetMapping("/nome")
+    public ResponseEntity<UnidadeMedidaResponse> buscarPorNome(
+            @RequestParam String nome) {
+
+        Optional<UnidadeMedidaResponse> resultado =
+                unidadeMedidaService.buscarPorNome(nome);
+
+        return resultado
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // ============================================================
+    // 🔹 Buscar por sigla exata
+    // ============================================================
 
     /**
      * Busca uma unidade de medida pela sigla.
      *
-     * @param sigla Sigla da unidade.
-     * @return UnidadeMedidaResponse, se encontrada.
+     * @param sigla sigla da unidade (ex.: kg, un, cx).
+     * @return unidade encontrada ou 404.
      */
-    @GetMapping("/buscar/sigla")
-    public ResponseEntity<UnidadeMedidaResponse> buscarPorSigla(@RequestParam String sigla) {
-        return unidadeMedidaService.buscarPorSigla(sigla)
+    @GetMapping("/sigla")
+    public ResponseEntity<UnidadeMedidaResponse> buscarPorSigla(
+            @RequestParam String sigla) {
+
+        Optional<UnidadeMedidaResponse> resultado =
+                unidadeMedidaService.buscarPorSigla(sigla);
+
+        return resultado
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Busca unidades cujo nome contenha o termo informado.
-     *
-     * @param nome Termo de busca.
-     * @return Lista de UnidadeMedidaListDTO.
-     */
-    @GetMapping("/buscar/contem")
-    public ResponseEntity<List<UnidadeMedidaListDTO>> buscarPorNomeContendo(@RequestParam String nome) {
-        List<UnidadeMedidaListDTO> lista = unidadeMedidaService.buscarPorNomeContendo(nome);
-        return ResponseEntity.ok(lista);
-    }
+    // ============================================================
+    // 🔹 Buscar por nome contendo
+    // ============================================================
 
     /**
-     * Lista todas as unidades de medida (modo simplificado).
+     * Busca unidades cujo nome contenha o texto informado.
      *
-     * @return Lista de UnidadeMedidaListDTO.
+     * @param nome texto parcial do nome.
+     * @return lista de unidades encontradas.
      */
-    @GetMapping("/simples")
-    public ResponseEntity<List<UnidadeMedidaListDTO>> listarSimples() {
-        List<UnidadeMedidaListDTO> lista = unidadeMedidaService.listarSimples();
-        return ResponseEntity.ok(lista);
+    @GetMapping("/buscar")
+    public ResponseEntity<List<UnidadeMedidaListDTO>> buscarPorNomeContendo(
+            @RequestParam String nome) {
+
+        return ResponseEntity.ok(
+                unidadeMedidaService.buscarPorNomeContendo(nome)
+        );
     }
 
+    // ============================================================
+    // 🔹 Verificar sigla existente
+    // ============================================================
+
     /**
-     * Verifica se uma sigla já está cadastrada.
+     * Verifica se já existe uma unidade cadastrada com a sigla informada.
      *
-     * @param sigla Sigla a ser verificada.
-     * @return true se já existir, false caso contrário.
+     * @param sigla sigla a verificar.
+     * @return true se existir, false caso contrário.
      */
-    @GetMapping("/verificar-sigla")
-    public ResponseEntity<Boolean> verificarSigla(@RequestParam String sigla) {
-        boolean existe = unidadeMedidaService.verificarSiglaExistente(sigla);
-        return ResponseEntity.ok(existe);
+    @GetMapping("/sigla/existe")
+    public ResponseEntity<Boolean> verificarSiglaExistente(
+            @RequestParam String sigla) {
+
+        return ResponseEntity.ok(
+                unidadeMedidaService.verificarSiglaExistente(sigla)
+        );
     }
 }

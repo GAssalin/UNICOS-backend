@@ -5,99 +5,130 @@ import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoRequest;
 import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoResponse;
 import br.com.unicos.ms_produtos.service.HistoricoPrecoService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Controlador REST responsável pelo gerenciamento dos históricos de preço dos produtos.
- *
- * Fornece endpoints para criação, listagem e consulta dos registros de alterações de preço.
+ * Controlador REST responsável pelo gerenciamento
+ * do histórico de alterações de preços dos produtos.
+ * <p>
+ * Permite registrar mudanças, consultar histórico completo,
+ * consultar por produto e remover registros específicos.
  */
 @RestController
-@RequestMapping("/v1/historicos-preco")
+@RequestMapping("/v1/historico-precos")
+@RequiredArgsConstructor
 public class HistoricoPrecoController {
 
     private final HistoricoPrecoService historicoPrecoService;
 
-    public HistoricoPrecoController(HistoricoPrecoService historicoPrecoService) {
-        this.historicoPrecoService = historicoPrecoService;
-    }
-
-    // ==================================
-    // 🔹 CRUD
-    // ==================================
+    // ============================================================
+    // 🔹 Criar registro de histórico de preço
+    // ============================================================
 
     /**
      * Registra uma nova alteração de preço para um produto.
      *
-     * @param request Dados do histórico de preço.
-     * @return HistoricoPrecoResponse criado.
+     * @param produtoId ID do produto.
+     * @param request   dados da alteração.
+     * @return registro criado.
      */
-    @PostMapping
-    public ResponseEntity<HistoricoPrecoResponse> criarHistorico(@Valid @RequestBody HistoricoPrecoRequest request) {
-        HistoricoPrecoResponse response = historicoPrecoService.salvar(request);
+    @PostMapping("/produto/{produtoId}")
+    public ResponseEntity<HistoricoPrecoResponse> salvar(
+            @PathVariable Long produtoId,
+            @Valid @RequestBody HistoricoPrecoRequest request) {
+
+        HistoricoPrecoResponse response = historicoPrecoService.salvar(produtoId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // ============================================================
+    // 🔹 Buscar por ID do histórico
+    // ============================================================
+
     /**
-     * Busca um histórico de preço pelo ID.
+     * Busca um registro específico de histórico pelo ID.
      *
-     * @param id Identificador do histórico.
-     * @return HistoricoPrecoResponse, se encontrado.
+     * @param id ID do histórico.
+     * @return registro encontrado ou 404.
      */
     @GetMapping("/{id}")
     public ResponseEntity<HistoricoPrecoResponse> buscarPorId(@PathVariable Long id) {
-        return historicoPrecoService.buscarPorId(id)
+
+        Optional<HistoricoPrecoResponse> resultado =
+                historicoPrecoService.buscarPorId(id);
+
+        return resultado
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // ============================================================
+    // 🔹 Listar todos os registros (ordenados por data desc)
+    // ============================================================
+
     /**
-     * Lista todos os registros de histórico de preço.
+     * Lista todos os registros de histórico de preço existentes.
      *
-     * @return Lista completa de históricos.
+     * @return lista completa.
      */
     @GetMapping
     public ResponseEntity<List<HistoricoPrecoResponse>> listarTodos() {
-        List<HistoricoPrecoResponse> historicos = historicoPrecoService.listarTodos();
-        return ResponseEntity.ok(historicos);
+        return ResponseEntity.ok(historicoPrecoService.listarTodos());
     }
 
+    // ============================================================
+    // 🔹 Listar registros por produto
+    // ============================================================
+
     /**
-     * Lista todos os históricos de preço de um produto específico.
+     * Lista todo o histórico de preço de um produto.
      *
      * @param produtoId ID do produto.
-     * @return Lista de históricos desse produto.
+     * @return lista de alterações.
      */
     @GetMapping("/produto/{produtoId}")
-    public ResponseEntity<List<HistoricoPrecoResponse>> listarPorProduto(@PathVariable Long produtoId) {
-        List<HistoricoPrecoResponse> historicos = historicoPrecoService.listarPorProduto(produtoId);
-        return ResponseEntity.ok(historicos);
+    public ResponseEntity<List<HistoricoPrecoResponse>> listarPorProduto(
+            @PathVariable Long produtoId) {
+
+        return ResponseEntity.ok(historicoPrecoService.listarPorProduto(produtoId));
     }
 
+    // ============================================================
+    // 🔹 Listar os 10 últimos registros por produto (resumido)
+    // ============================================================
+
     /**
-     * Lista os 10 registros mais recentes de alteração de preço de um produto.
+     * Lista os últimos 10 registros de histórico de preço de um produto.
+     * (DTO simplificado)
      *
      * @param produtoId ID do produto.
-     * @return Lista resumida com os últimos registros.
+     * @return lista reduzida (10 itens).
      */
     @GetMapping("/produto/{produtoId}/ultimos")
-    public ResponseEntity<List<HistoricoPrecoListDTO>> listarUltimosPorProduto(@PathVariable Long produtoId) {
-        List<HistoricoPrecoListDTO> ultimos = historicoPrecoService.listarUltimosPorProduto(produtoId);
-        return ResponseEntity.ok(ultimos);
+    public ResponseEntity<List<HistoricoPrecoListDTO>> listarUltimosPorProduto(
+            @PathVariable Long produtoId) {
+
+        return ResponseEntity.ok(historicoPrecoService.listarUltimosPorProduto(produtoId));
     }
 
+    // ============================================================
+    // 🔹 Deletar registro de histórico
+    // ============================================================
+
     /**
-     * Exclui um histórico de preço pelo ID.
+     * Remove um registro de histórico de preço.
      *
-     * @param id Identificador do histórico.
-     * @return Resposta 204 (sem conteúdo) em caso de sucesso.
+     * @param id ID do registro.
+     * @return 204 se removido.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarHistorico(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
         historicoPrecoService.deletar(id);
         return ResponseEntity.noContent().build();
     }

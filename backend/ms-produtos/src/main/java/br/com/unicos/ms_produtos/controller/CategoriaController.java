@@ -5,125 +5,159 @@ import br.com.unicos.ms_produtos.dto.categoria.CategoriaRequest;
 import br.com.unicos.ms_produtos.dto.categoria.CategoriaResponse;
 import br.com.unicos.ms_produtos.service.CategoriaService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Controlador REST responsável pelo gerenciamento das categorias.
- *
- * Fornece endpoints para operações de CRUD e consultas específicas.
+ * Controlador REST responsável pelo gerenciamento das categorias de produtos,
+ * incluindo criação, atualização, remoção, busca e listagens
+ * tanto detalhadas quanto simplificadas.
+ * <p>
+ * Suporta hierarquia entre categorias (categoria pai e filhos).
  */
 @RestController
 @RequestMapping("/v1/categorias")
+@RequiredArgsConstructor
 public class CategoriaController {
 
     private final CategoriaService categoriaService;
 
-    public CategoriaController(CategoriaService categoriaService) {
-        this.categoriaService = categoriaService;
-    }
-
-    // ==================================
-    // 🔹 CRUD
-    // ==================================
+    // ============================================================
+    // 🔹 Criar categoria
+    // ============================================================
 
     /**
-     * Cria uma nova categoria.
+     * Cria uma nova categoria, com suporte opcional a categoria pai.
      *
-     * @param request Dados da categoria a ser criada.
-     * @return CategoriaResponseDTO representando a categoria criada.
+     * @param request DTO contendo nome, descrição e categoriaPaiId.
+     * @return Categoria criada.
      */
     @PostMapping
-    public ResponseEntity<CategoriaResponse> criarCategoria(@Valid @RequestBody CategoriaRequest request) {
+    public ResponseEntity<CategoriaResponse> salvar(
+            @Valid @RequestBody CategoriaRequest request) {
+
         CategoriaResponse response = categoriaService.salvar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // ============================================================
+    // 🔹 Atualizar categoria
+    // ============================================================
+
     /**
      * Atualiza uma categoria existente.
      *
-     * @param id      Identificador da categoria.
-     * @param request Dados atualizados da categoria.
-     * @return CategoriaResponseDTO atualizada.
+     * @param id      ID da categoria a ser atualizada.
+     * @param request Dados atualizados.
+     * @return Categoria atualizada.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<CategoriaResponse> atualizarCategoria(@PathVariable Long id,
-                                                                @Valid @RequestBody CategoriaRequest request) {
+    public ResponseEntity<CategoriaResponse> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody CategoriaRequest request) {
+
         CategoriaResponse response = categoriaService.atualizar(id, request);
         return ResponseEntity.ok(response);
     }
 
+    // ============================================================
+    // 🔹 Buscar por ID
+    // ============================================================
+
     /**
      * Busca uma categoria pelo ID.
      *
-     * @param id Identificador da categoria.
-     * @return CategoriaResponseDTO encontrada, se existir.
+     * @param id ID da categoria.
+     * @return Categoria encontrada ou 404 caso não exista.
      */
     @GetMapping("/{id}")
     public ResponseEntity<CategoriaResponse> buscarPorId(@PathVariable Long id) {
-        return categoriaService.buscarPorId(id)
+
+        Optional<CategoriaResponse> categoria = categoriaService.buscarPorId(id);
+
+        return categoria
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // ============================================================
+    // 🔹 Listagem detalhada
+    // ============================================================
+
     /**
-     * Lista todas as categorias.
+     * Lista todas as categorias com informações completas.
      *
-     * @return Lista completa de categorias.
+     * @return Lista detalhada.
      */
     @GetMapping
     public ResponseEntity<List<CategoriaResponse>> listarTodas() {
-        List<CategoriaResponse> categorias = categoriaService.listarTodas();
-        return ResponseEntity.ok(categorias);
+        return ResponseEntity.ok(categoriaService.listarTodas());
     }
 
+    // ============================================================
+    // 🔹 Listagem simplificada
+    // ============================================================
+
     /**
-     * Lista categorias simplificadas (id + nome), ideal para combos e seletores.
+     * Lista categorias em formato simples (id, nome e informações resumidas).
      *
-     * @return Lista simples de categorias.
+     * @return Lista simplificada.
      */
     @GetMapping("/simples")
     public ResponseEntity<List<CategoriaListDTO>> listarSimples() {
-        List<CategoriaListDTO> categorias = categoriaService.listarSimples();
-        return ResponseEntity.ok(categorias);
+        return ResponseEntity.ok(categoriaService.listarSimples());
     }
 
+    // ============================================================
+    // 🔹 Buscar por nome (contém)
+    // ============================================================
+
     /**
-     * Busca categorias pelo nome (parcial ou completo).
+     * Busca categorias pelo nome (ignora maiúsculas/minúsculas).
      *
-     * @param nome Nome ou parte do nome da categoria.
-     * @return Lista de categorias que correspondem ao termo.
+     * @param nome Nome ou parte do nome.
+     * @return Lista de categorias encontradas.
      */
     @GetMapping("/buscar")
-    public ResponseEntity<List<CategoriaResponse>> buscarPorNome(@RequestParam String nome) {
-        List<CategoriaResponse> categorias = categoriaService.buscarPorNome(nome);
-        return ResponseEntity.ok(categorias);
+    public ResponseEntity<List<CategoriaResponse>> buscarPorNome(
+            @RequestParam String nome) {
+
+        return ResponseEntity.ok(categoriaService.buscarPorNome(nome));
     }
 
+    // ============================================================
+    // 🔹 Deletar categoria
+    // ============================================================
+
     /**
-     * Exclui uma categoria pelo ID.
+     * Remove uma categoria pelo ID.
      *
-     * @param id Identificador da categoria.
-     * @return Resposta 204 (sem conteúdo) se a exclusão for bem-sucedida.
+     * @param id ID da categoria.
+     * @return Status 204 em caso de sucesso.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarCategoria(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
         categoriaService.deletar(id);
         return ResponseEntity.noContent().build();
     }
 
+    // ============================================================
+    // 🔹 Verificar existência por nome
+    // ============================================================
+
     /**
-     * Verifica se já existe uma categoria com o nome informado.
+     * Verifica se existe uma categoria com o nome informado.
      *
-     * @param nome Nome da categoria.
-     * @return true se o nome já estiver cadastrado, false caso contrário.
+     * @param nome Nome a ser verificado.
+     * @return true ou false.
      */
-    @GetMapping("/verificar-nome")
-    public ResponseEntity<Boolean> verificarNome(@RequestParam String nome) {
-        boolean existe = categoriaService.existePorNome(nome);
-        return ResponseEntity.ok(existe);
+    @GetMapping("/existe")
+    public ResponseEntity<Boolean> existePorNome(@RequestParam String nome) {
+        return ResponseEntity.ok(categoriaService.existePorNome(nome));
     }
 }

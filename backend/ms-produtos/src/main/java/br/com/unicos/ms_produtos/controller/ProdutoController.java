@@ -4,151 +4,146 @@ import br.com.unicos.ms_produtos.dto.produto.ProdutoRequest;
 import br.com.unicos.ms_produtos.dto.produto.ProdutoResponse;
 import br.com.unicos.ms_produtos.service.ProdutoService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Controlador REST responsável pelo gerenciamento dos produtos.
- *
- * Fornece endpoints para operações de CRUD e consultas específicas.
+ * Controlador REST responsável pelo gerenciamento de produtos.
+ * <p>
+ * Possui endpoints para criar, atualizar, consultar, ativar, inativar,
+ * atualizar preço e filtrar produtos por diversos critérios.
  */
 @RestController
 @RequestMapping("/v1/produtos")
+@RequiredArgsConstructor
 public class ProdutoController {
 
     private final ProdutoService produtoService;
 
-    public ProdutoController(ProdutoService produtoService) {
-        this.produtoService = produtoService;
-    }
-
-    // ==================================
-    // 🔹 CRUD
-    // ==================================
+    // ============================================================
+    // 🔹 CRUD PRINCIPAL
+    // ============================================================
 
     /**
      * Cadastra um novo produto.
      *
-     * @param request Dados do produto a ser criado.
-     * @return ProdutoResponse com os dados do produto criado.
+     * @param request dados do produto.
+     * @return produto criado.
      */
     @PostMapping
-    public ResponseEntity<ProdutoResponse> criarProduto(@Valid @RequestBody ProdutoRequest request) {
+    public ResponseEntity<ProdutoResponse> salvar(
+            @Valid @RequestBody ProdutoRequest request) {
+
         ProdutoResponse response = produtoService.salvar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
-     * Atualiza os dados de um produto existente.
+     * Atualiza completamente os dados de um produto.
      *
-     * @param id      Identificador do produto.
-     * @param request Dados atualizados do produto.
-     * @return ProdutoResponse atualizado.
+     * @param id      ID do produto.
+     * @param request dados atualizados.
+     * @return produto atualizado.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ProdutoResponse> atualizarProduto(@PathVariable Long id,
-                                                            @Valid @RequestBody ProdutoRequest request) {
+    public ResponseEntity<ProdutoResponse> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ProdutoRequest request) {
+
         ProdutoResponse response = produtoService.atualizar(id, request);
         return ResponseEntity.ok(response);
     }
 
     /**
-     * Busca um produto pelo seu ID.
+     * Remove um produto pelo ID.
      *
-     * @param id Identificador do produto.
-     * @return ProdutoResponse encontrado.
+     * @param id ID do produto.
+     * @return 204 em caso de sucesso.
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        produtoService.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ============================================================
+    // 🔹 CONSULTAS GERAIS
+    // ============================================================
+
+    /**
+     * Busca um produto pelo ID.
      */
     @GetMapping("/{id}")
     public ResponseEntity<ProdutoResponse> buscarPorId(@PathVariable Long id) {
-        return produtoService.buscarPorId(id)
+
+        Optional<ProdutoResponse> resultado = produtoService.buscarPorId(id);
+
+        return resultado
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     /**
      * Lista todos os produtos.
-     *
-     * @return Lista de ProdutoResponse.
      */
     @GetMapping
     public ResponseEntity<List<ProdutoResponse>> listarTodos() {
-        List<ProdutoResponse> produtos = produtoService.listarTodos();
-        return ResponseEntity.ok(produtos);
+        return ResponseEntity.ok(produtoService.listarTodos());
     }
 
     /**
-     * Remove um produto pelo seu ID.
-     *
-     * @param id Identificador do produto.
-     * @return Resposta 204 (sem conteúdo).
+     * Busca produtos pelo nome (contém, ignore case).
      */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarProduto(@PathVariable Long id) {
-        produtoService.deletar(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/buscar")
+    public ResponseEntity<List<ProdutoResponse>> buscarPorNome(@RequestParam String nome) {
+        return ResponseEntity.ok(produtoService.buscarPorNome(nome));
     }
-
-    // ==================================
-    // 🔹 CONSULTAS ESPECÍFICAS
-    // ==================================
 
     /**
      * Busca produto pelo SKU.
-     *
-     * @param sku Código SKU.
-     * @return ProdutoResponse correspondente.
      */
     @GetMapping("/sku/{sku}")
     public ResponseEntity<ProdutoResponse> buscarPorSku(@PathVariable String sku) {
-        return produtoService.buscarPorSku(sku)
+
+        Optional<ProdutoResponse> resultado = produtoService.buscarPorSku(sku);
+
+        return resultado
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Busca produtos por nome (parcial ou completo).
-     *
-     * @param nome Nome do produto.
-     * @return Lista de produtos que correspondem ao nome.
-     */
-    @GetMapping("/buscar")
-    public ResponseEntity<List<ProdutoResponse>> buscarPorNome(@RequestParam String nome) {
-        List<ProdutoResponse> produtos = produtoService.buscarPorNome(nome);
-        return ResponseEntity.ok(produtos);
-    }
+    // ============================================================
+    // 🔹 CONSULTAS POR FILTROS
+    // ============================================================
 
     /**
-     * Lista produtos de uma determinada categoria.
-     *
-     * @param categoriaId ID da categoria.
-     * @return Lista de produtos dessa categoria.
+     * Lista produtos de uma categoria específica.
      */
     @GetMapping("/categoria/{categoriaId}")
-    public ResponseEntity<List<ProdutoResponse>> listarPorCategoria(@PathVariable Long categoriaId) {
-        List<ProdutoResponse> produtos = produtoService.listarPorCategoria(categoriaId);
-        return ResponseEntity.ok(produtos);
+    public ResponseEntity<List<ProdutoResponse>> listarPorCategoria(
+            @PathVariable Long categoriaId) {
+
+        return ResponseEntity.ok(produtoService.listarPorCategoria(categoriaId));
     }
 
     /**
-     * Lista produtos de uma determinada marca.
-     *
-     * @param marcaId ID da marca.
-     * @return Lista de produtos dessa marca.
+     * Lista produtos de uma marca específica.
      */
     @GetMapping("/marca/{marcaId}")
-    public ResponseEntity<List<ProdutoResponse>> listarPorMarca(@PathVariable Long marcaId) {
-        List<ProdutoResponse> produtos = produtoService.listarPorMarca(marcaId);
-        return ResponseEntity.ok(produtos);
+    public ResponseEntity<List<ProdutoResponse>> listarPorMarca(
+            @PathVariable Long marcaId) {
+
+        return ResponseEntity.ok(produtoService.listarPorMarca(marcaId));
     }
 
     /**
-     * Lista apenas os produtos ativos.
-     *
-     * @return Lista de produtos ativos.
+     * Lista produtos ativos.
      */
     @GetMapping("/ativos")
     public ResponseEntity<List<ProdutoResponse>> listarAtivos() {
@@ -156,9 +151,7 @@ public class ProdutoController {
     }
 
     /**
-     * Lista apenas os produtos inativos.
-     *
-     * @return Lista de produtos inativos.
+     * Lista produtos inativos.
      */
     @GetMapping("/inativos")
     public ResponseEntity<List<ProdutoResponse>> listarInativos() {
@@ -167,26 +160,21 @@ public class ProdutoController {
 
     /**
      * Lista produtos dentro de uma faixa de preço.
-     *
-     * @param precoMin Preço mínimo.
-     * @param precoMax Preço máximo.
-     * @return Lista de produtos dentro do intervalo.
      */
-    @GetMapping("/faixa-preco")
-    public ResponseEntity<List<ProdutoResponse>> listarPorFaixaDePreco(@RequestParam BigDecimal precoMin,
-                                                                       @RequestParam BigDecimal precoMax) {
-        return ResponseEntity.ok(produtoService.listarPorFaixaDePreco(precoMin, precoMax));
+    @GetMapping("/preco")
+    public ResponseEntity<List<ProdutoResponse>> listarPorFaixaPreco(
+            @RequestParam BigDecimal minimo,
+            @RequestParam BigDecimal maximo) {
+
+        return ResponseEntity.ok(produtoService.listarPorFaixaDePreco(minimo, maximo));
     }
 
-    // ==================================
-    // 💼 OPERAÇÕES DE NEGÓCIO
-    // ==================================
+    // ============================================================
+    // 🔹 ALTERAÇÃO DE ESTADO (ATIVAR / INATIVAR)
+    // ============================================================
 
     /**
      * Ativa um produto.
-     *
-     * @param id ID do produto.
-     * @return ProdutoResponse com o status atualizado.
      */
     @PatchMapping("/{id}/ativar")
     public ResponseEntity<ProdutoResponse> ativarProduto(@PathVariable Long id) {
@@ -195,36 +183,45 @@ public class ProdutoController {
 
     /**
      * Inativa um produto.
-     *
-     * @param id ID do produto.
-     * @return ProdutoResponse com o status atualizado.
      */
     @PatchMapping("/{id}/inativar")
     public ResponseEntity<ProdutoResponse> inativarProduto(@PathVariable Long id) {
         return ResponseEntity.ok(produtoService.inativarProduto(id));
     }
 
-    /**
-     * Atualiza o preço de um produto.
-     *
-     * @param id        ID do produto.
-     * @param novoPreco Novo preço.
-     * @return ProdutoResponse com o novo valor.
-     */
-    @PatchMapping("/{id}/preco")
-    public ResponseEntity<ProdutoResponse> atualizarPreco(@PathVariable Long id,
-                                                          @RequestParam BigDecimal novoPreco) {
-        return ResponseEntity.ok(produtoService.atualizarPreco(id, novoPreco));
-    }
+    // ============================================================
+    // 🔹 PREÇO
+    // ============================================================
 
     /**
-     * Verifica se um SKU está disponível (não cadastrado ainda).
+     * Atualiza apenas o preço de venda do produto.
      *
-     * @param sku Código SKU.
-     * @return true se disponível, false se já em uso.
+     * @param id        ID do produto.
+     * @param novoPreco novo valor para o preço de venda.
      */
-    @GetMapping("/verificar-sku/{sku}")
+    @PatchMapping("/{id}/preco")
+    public ResponseEntity<ProdutoResponse> atualizarPreco(
+            @PathVariable Long id,
+            @RequestParam BigDecimal novoPreco) {
+
+        ProdutoResponse response = produtoService.atualizarPreco(id, novoPreco);
+        return ResponseEntity.ok(response);
+    }
+
+    // ============================================================
+    // 🔹 SKU — Validação
+    // ============================================================
+
+    /**
+     * Verifica se um SKU está disponível.
+     *
+     * @param sku código SKU.
+     * @return true se disponível, false se já usado.
+     */
+    @GetMapping("/sku/{sku}/disponivel")
     public ResponseEntity<Boolean> verificarDisponibilidadeSku(@PathVariable String sku) {
-        return ResponseEntity.ok(produtoService.verificarDisponibilidadeSku(sku));
+
+        Boolean disponivel = produtoService.verificarDisponibilidadeSku(sku);
+        return ResponseEntity.ok(disponivel);
     }
 }

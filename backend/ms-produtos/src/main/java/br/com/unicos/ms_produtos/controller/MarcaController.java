@@ -5,125 +5,156 @@ import br.com.unicos.ms_produtos.dto.marca.MarcaRequest;
 import br.com.unicos.ms_produtos.dto.marca.MarcaResponse;
 import br.com.unicos.ms_produtos.service.MarcaService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Controlador REST responsável pelo gerenciamento das marcas.
- *
- * Fornece endpoints para operações de CRUD e consultas específicas.
+ * Controlador REST responsável pelo gerenciamento de marcas de produtos.
+ * <p>
+ * Permite cadastrar, editar, remover, listar e buscar marcas
+ * com endpoints organizados e padronizados.
  */
 @RestController
 @RequestMapping("/v1/marcas")
+@RequiredArgsConstructor
 public class MarcaController {
 
     private final MarcaService marcaService;
 
-    public MarcaController(MarcaService marcaService) {
-        this.marcaService = marcaService;
-    }
-
-    // ==================================
-    // 🔹 CRUD
-    // ==================================
+    // ============================================================
+    // 🔹 Criar marca
+    // ============================================================
 
     /**
      * Cria uma nova marca.
      *
-     * @param request Dados da marca a ser criada.
-     * @return MarcaResponse representando a marca criada.
+     * @param request dados da marca.
+     * @return marca criada.
      */
     @PostMapping
-    public ResponseEntity<MarcaResponse> criarMarca(@Valid @RequestBody MarcaRequest request) {
+    public ResponseEntity<MarcaResponse> salvar(
+            @Valid @RequestBody MarcaRequest request) {
+
         MarcaResponse response = marcaService.salvar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // ============================================================
+    // 🔹 Atualizar marca
+    // ============================================================
+
     /**
-     * Atualiza os dados de uma marca existente.
+     * Atualiza uma marca existente.
      *
-     * @param id      Identificador da marca.
-     * @param request Dados atualizados.
-     * @return MarcaResponse atualizada.
+     * @param id      ID da marca.
+     * @param request dados atualizados.
+     * @return marca atualizada.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<MarcaResponse> atualizarMarca(@PathVariable Long id,
-                                                        @Valid @RequestBody MarcaRequest request) {
+    public ResponseEntity<MarcaResponse> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody MarcaRequest request) {
+
         MarcaResponse response = marcaService.atualizar(id, request);
         return ResponseEntity.ok(response);
     }
 
+    // ============================================================
+    // 🔹 Buscar por ID
+    // ============================================================
+
     /**
      * Busca uma marca pelo ID.
      *
-     * @param id Identificador da marca.
-     * @return MarcaResponse encontrada, se existir.
+     * @param id ID da marca.
+     * @return marca encontrada ou 404 se não existir.
      */
     @GetMapping("/{id}")
     public ResponseEntity<MarcaResponse> buscarPorId(@PathVariable Long id) {
-        return marcaService.buscarPorId(id)
+
+        Optional<MarcaResponse> resultado = marcaService.buscarPorId(id);
+
+        return resultado
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // ============================================================
+    // 🔹 Listar todas as marcas (detalhado)
+    // ============================================================
+
     /**
      * Lista todas as marcas cadastradas.
      *
-     * @return Lista completa de MarcaResponse.
+     * @return lista completa de marcas.
      */
     @GetMapping
     public ResponseEntity<List<MarcaResponse>> listarTodas() {
-        List<MarcaResponse> marcas = marcaService.listarTodas();
-        return ResponseEntity.ok(marcas);
+        return ResponseEntity.ok(marcaService.listarTodas());
     }
 
+    // ============================================================
+    // 🔹 Listagem simplificada
+    // ============================================================
+
     /**
-     * Lista as marcas em formato simplificado (id + nome).
+     * Lista marcas em formato simplificado.
      *
-     * @return Lista simplificada de MarcaListDTO.
+     * @return lista simples de marcas.
      */
     @GetMapping("/simples")
     public ResponseEntity<List<MarcaListDTO>> listarSimples() {
-        List<MarcaListDTO> marcas = marcaService.listarSimples();
-        return ResponseEntity.ok(marcas);
+        return ResponseEntity.ok(marcaService.listarSimples());
     }
 
+    // ============================================================
+    // 🔹 Buscar marcas por nome (contém)
+    // ============================================================
+
     /**
-     * Busca marcas pelo nome (parcial ou completo).
+     * Busca marcas pelo nome (contém, ignore case).
      *
-     * @param nome Termo de busca.
-     * @return Lista de MarcaResponse correspondentes.
+     * @param nome nome ou parte do nome.
+     * @return lista de marcas encontradas.
      */
     @GetMapping("/buscar")
     public ResponseEntity<List<MarcaResponse>> buscarPorNome(@RequestParam String nome) {
-        List<MarcaResponse> marcas = marcaService.buscarPorNome(nome);
-        return ResponseEntity.ok(marcas);
+        return ResponseEntity.ok(marcaService.buscarPorNome(nome));
     }
 
+    // ============================================================
+    // 🔹 Deletar marca
+    // ============================================================
+
     /**
-     * Exclui uma marca pelo ID.
+     * Remove uma marca pelo ID.
      *
-     * @param id Identificador da marca.
-     * @return Resposta 204 (sem conteúdo) se a exclusão for bem-sucedida.
+     * @param id ID da marca.
+     * @return 204 se removida.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarMarca(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
         marcaService.deletar(id);
         return ResponseEntity.noContent().build();
     }
 
+    // ============================================================
+    // 🔹 Verificar se existe marca por nome
+    // ============================================================
+
     /**
-     * Verifica se já existe uma marca com o nome informado.
+     * Verifica se existe uma marca com o nome informado.
      *
-     * @param nome Nome da marca.
-     * @return true se já existir, false caso contrário.
+     * @param nome nome da marca.
+     * @return true ou false.
      */
-    @GetMapping("/verificar-nome")
-    public ResponseEntity<Boolean> verificarNome(@RequestParam String nome) {
-        boolean existe = marcaService.existePorNome(nome);
-        return ResponseEntity.ok(existe);
+    @GetMapping("/existe")
+    public ResponseEntity<Boolean> existePorNome(@RequestParam String nome) {
+        return ResponseEntity.ok(marcaService.existePorNome(nome));
     }
 }
