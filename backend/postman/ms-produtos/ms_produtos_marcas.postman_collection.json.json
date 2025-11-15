@@ -1,134 +1,28 @@
 {
   "info": {
-    "name": "ERP - ms_produtos (Marcas)",
-    "_postman_id": "c0a80125-4567-89ab-cdef-0123456789ab",
-    "description": "Coleção de endpoints do microserviço ms_produtos para gerenciamento de Marcas.",
+    "name": "ms-produtos - Marca",
+    "_postman_id": "marca-005-msprodutos",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Criar Marca",
+      "name": "Criar",
       "request": {
         "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
+        "url": "{{baseUrl}}/v1/marcas",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"nome\": \"Nike\"\n}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/v1/marcas",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "marcas"]
+          "raw": "{\n  \"nome\": \"Samsung\",\n  \"descricao\": \"Marca coreana\",\n  \"paisOrigem\": \"Coreia do Sul\"\n}"
         }
       }
     },
-    {
-      "name": "Listar Todas as Marcas",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/marcas",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "marcas"]
-        }
-      }
-    },
-    {
-      "name": "Listar Marcas Simples (id + nome)",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/marcas/simples",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "marcas", "simples"]
-        }
-      }
-    },
-    {
-      "name": "Buscar Marca por ID",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/marcas/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "marcas", "1"]
-        }
-      }
-    },
-    {
-      "name": "Buscar Marcas por Nome",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/marcas/buscar?nome=Nike",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "marcas", "buscar"],
-          "query": [
-            { "key": "nome", "value": "Nike" }
-          ]
-        }
-      }
-    },
-    {
-      "name": "Atualizar Marca",
-      "request": {
-        "method": "PUT",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"nome\": \"Nike Sportswear\"\n}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/v1/marcas/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "marcas", "1"]
-        }
-      }
-    },
-    {
-      "name": "Deletar Marca",
-      "request": {
-        "method": "DELETE",
-        "url": {
-          "raw": "http://localhost:8080/v1/marcas/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "marcas", "1"]
-        }
-      }
-    },
-    {
-      "name": "Verificar se Nome já Existe",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/marcas/verificar-nome?nome=Nike",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "marcas", "verificar-nome"],
-          "query": [
-            { "key": "nome", "value": "Nike" }
-          ]
-        }
-      }
-    }
+    { "name": "Atualizar", "request": { "method": "PUT", "url": "{{baseUrl}}/v1/marcas/1" } },
+    { "name": "Buscar Por ID", "request": { "method": "GET", "url": "{{baseUrl}}/v1/marcas/1" } },
+    { "name": "Listar Todas", "request": { "method": "GET", "url": "{{baseUrl}}/v1/marcas" } },
+    { "name": "Listar Simples", "request": { "method": "GET", "url": "{{baseUrl}}/v1/marcas/simples" } },
+    { "name": "Buscar Por Nome", "request": { "method": "GET", "url": "{{baseUrl}}/v1/marcas/buscar?nome=Sam" } },
+    { "name": "Excluir", "request": { "method": "DELETE", "url": "{{baseUrl}}/v1/marcas/1" } },
+    { "name": "Existe por Nome", "request": { "method": "GET", "url": "{{baseUrl}}/v1/marcas/existe?nome=Samsung" } }
   ]
 }

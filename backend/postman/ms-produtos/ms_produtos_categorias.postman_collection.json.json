@@ -1,8 +1,7 @@
 {
   "info": {
-    "name": "ERP - ms_produtos (Categorias)",
-    "_postman_id": "c0a80124-4567-89ab-cdef-0123456789ab",
-    "description": "Coleção de endpoints do microserviço ms_produtos para gerenciamento de Categorias.",
+    "name": "ms-produtos - Categoria",
+    "_postman_id": "c1e1-categoria-001",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -10,74 +9,11 @@
       "name": "Criar Categoria",
       "request": {
         "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/v1/categorias",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"nome\": \"Roupas\",\n  \"descricao\": \"Vestuário em geral\"\n}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/v1/categorias",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "categorias"]
-        }
-      }
-    },
-    {
-      "name": "Listar Todas as Categorias",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/categorias",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "categorias"]
-        }
-      }
-    },
-    {
-      "name": "Listar Categorias Simples (id + nome)",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/categorias/simples",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "categorias", "simples"]
-        }
-      }
-    },
-    {
-      "name": "Buscar Categoria por ID",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/categorias/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "categorias", "1"]
-        }
-      }
-    },
-    {
-      "name": "Buscar Categorias por Nome",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/categorias/buscar?nome=Roupa",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "categorias", "buscar"],
-          "query": [
-            { "key": "nome", "value": "Roupa" }
-          ]
+          "raw": "{\n  \"nome\": \"Eletrônicos\",\n  \"descricao\": \"Itens eletrônicos\",\n  \"categoriaPaiId\": null\n}"
         }
       }
     },
@@ -85,50 +21,37 @@
       "name": "Atualizar Categoria",
       "request": {
         "method": "PUT",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
+        "url": "{{baseUrl}}/v1/categorias/1",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"nome\": \"Roupas Masculinas\",\n  \"descricao\": \"Vestuário para o público masculino\"\n}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/v1/categorias/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "categorias", "1"]
+          "raw": "{\n  \"nome\": \"Informática\",\n  \"descricao\": \"Produtos de TI\",\n  \"categoriaPaiId\": null\n}"
         }
       }
     },
     {
-      "name": "Deletar Categoria",
-      "request": {
-        "method": "DELETE",
-        "url": {
-          "raw": "http://localhost:8080/v1/categorias/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "categorias", "1"]
-        }
-      }
+      "name": "Buscar Por ID",
+      "request": { "method": "GET", "url": "{{baseUrl}}/v1/categorias/1" }
     },
     {
-      "name": "Verificar se Nome já Existe",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/categorias/verificar-nome?nome=Roupas",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "categorias", "verificar-nome"],
-          "query": [
-            { "key": "nome", "value": "Roupas" }
-          ]
-        }
-      }
+      "name": "Listar Todas",
+      "request": { "method": "GET", "url": "{{baseUrl}}/v1/categorias" }
+    },
+    {
+      "name": "Listar Simples",
+      "request": { "method": "GET", "url": "{{baseUrl}}/v1/categorias/simples" }
+    },
+    {
+      "name": "Buscar Por Nome",
+      "request": { "method": "GET", "url": "{{baseUrl}}/v1/categorias/buscar?nome=ele" }
+    },
+    {
+      "name": "Excluir Categoria",
+      "request": { "method": "DELETE", "url": "{{baseUrl}}/v1/categorias/1" }
+    },
+    {
+      "name": "Existe Por Nome",
+      "request": { "method": "GET", "url": "{{baseUrl}}/v1/categorias/existe?nome=Eletrônicos" }
     }
   ]
 }

@@ -1,131 +1,37 @@
 {
   "info": {
-    "name": "ms_produtos_atributos_personalizados",
-    "_postman_id": "bb62e9b3-fb81-49c5-bc9d-7f50a9b912c1",
-    "description": "Collection de requisições para o gerenciamento de Atributos Personalizados vinculados às Categorias de Produtos no microserviço ms-produtos.",
+    "name": "ms-produtos - Atributo Personalizado",
+    "_postman_id": "c1e1-atributos-002",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Criar Atributo Personalizado",
+      "name": "Criar",
       "request": {
         "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
+        "url": "{{baseUrl}}/v1/atributos-personalizados",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"categoriaId\": 1,\n  \"nome\": \"Cor\"\n}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/v1/atributos-personalizados",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "atributos-personalizados"]
+          "raw": "{\n  \"nome\": \"Cor\",\n  \"categoriaId\": 1\n}"
         }
-      },
-      "response": []
+      }
     },
     {
-      "name": "Atualizar Atributo Personalizado",
+      "name": "Atualizar",
       "request": {
         "method": "PUT",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
+        "url": "{{baseUrl}}/v1/atributos-personalizados/1",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"categoriaId\": 1,\n  \"nome\": \"Tamanho\"\n}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/v1/atributos-personalizados/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "atributos-personalizados", "1"]
+          "raw": "{\n  \"nome\": \"Tamanho\",\n  \"categoriaId\": 1\n}"
         }
-      },
-      "response": []
+      }
     },
-    {
-      "name": "Buscar Atributo por ID",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/atributos-personalizados/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "atributos-personalizados", "1"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Listar Todos os Atributos",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/atributos-personalizados",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "atributos-personalizados"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Listar Atributos por Categoria",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/atributos-personalizados/categoria/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "atributos-personalizados", "categoria", "1"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Buscar Atributos por Nome Contendo",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/atributos-personalizados/buscar?nome=cor",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "atributos-personalizados", "buscar"],
-          "query": [
-            { "key": "nome", "value": "cor" }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Deletar Atributo Personalizado",
-      "request": {
-        "method": "DELETE",
-        "url": {
-          "raw": "http://localhost:8080/v1/atributos-personalizados/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "atributos-personalizados", "1"]
-        }
-      },
-      "response": []
-    }
+    { "name": "Buscar Por ID", "request": { "method": "GET", "url": "{{baseUrl}}/v1/atributos-personalizados/1" } },
+    { "name": "Listar Todos", "request": { "method": "GET", "url": "{{baseUrl}}/v1/atributos-personalizados" } },
+    { "name": "Listar Por Categoria", "request": { "method": "GET", "url": "{{baseUrl}}/v1/atributos-personalizados/categoria/1" } },
+    { "name": "Excluir", "request": { "method": "DELETE", "url": "{{baseUrl}}/v1/atributos-personalizados/1" } }
   ]
 }

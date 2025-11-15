@@ -1,8 +1,7 @@
 {
   "info": {
-    "name": "ERP - ms_produtos (UnidadeMedida)",
-    "_postman_id": "c0a80129-4567-89ab-cdef-0123456789ab",
-    "description": "Coleção de endpoints do microserviço ms_produtos para gerenciamento das unidades de medida.",
+    "name": "ms-produtos - Unidade de Medida",
+    "_postman_id": "ms-produtos-unidade-medida-007",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -10,19 +9,13 @@
       "name": "Criar Unidade de Medida",
       "request": {
         "method": "POST",
+        "url": "{{baseUrl}}/v1/unidades-medida",
         "header": [
           { "key": "Content-Type", "value": "application/json" }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"nome\": \"Litro\",\n  \"sigla\": \"L\"\n}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/v1/unidades-medida",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "unidades-medida"]
+          "raw": "{\n  \"nome\": \"Quilograma\",\n  \"sigla\": \"kg\",\n  \"descricao\": \"Unidade de massa\"\n}"
         }
       }
     },
@@ -30,136 +23,58 @@
       "name": "Atualizar Unidade de Medida",
       "request": {
         "method": "PUT",
+        "url": "{{baseUrl}}/v1/unidades-medida/1",
         "header": [
           { "key": "Content-Type", "value": "application/json" }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"nome\": \"Mililitro\",\n  \"sigla\": \"ML\"\n}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/v1/unidades-medida/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "unidades-medida", "1"]
-        }
-      }
-    },
-    {
-      "name": "Buscar Unidade por ID",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/unidades-medida/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "unidades-medida", "1"]
-        }
-      }
-    },
-    {
-      "name": "Listar Todas as Unidades de Medida",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/unidades-medida",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "unidades-medida"]
+          "raw": "{\n  \"nome\": \"Litro\",\n  \"sigla\": \"L\",\n  \"descricao\": \"Unidade de volume\"\n}"
         }
       }
     },
     {
       "name": "Deletar Unidade de Medida",
-      "request": {
-        "method": "DELETE",
-        "url": {
-          "raw": "http://localhost:8080/v1/unidades-medida/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "unidades-medida", "1"]
-        }
-      }
+      "request": { "method": "DELETE", "url": "{{baseUrl}}/v1/unidades-medida/1" }
     },
     {
-      "name": "Buscar por Nome (Exato)",
+      "name": "Buscar por ID",
+      "request": { "method": "GET", "url": "{{baseUrl}}/v1/unidades-medida/1" }
+    },
+    {
+      "name": "Listar Todas",
+      "request": { "method": "GET", "url": "{{baseUrl}}/v1/unidades-medida" }
+    },
+    {
+      "name": "Listar Simples",
+      "request": { "method": "GET", "url": "{{baseUrl}}/v1/unidades-medida/simples" }
+    },
+    {
+      "name": "Buscar por Nome",
       "request": {
         "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/unidades-medida/buscar/nome?nome=Litro",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "unidades-medida", "buscar", "nome"],
-          "query": [
-            { "key": "nome", "value": "Litro" }
-          ]
-        }
+        "url": "{{baseUrl}}/v1/unidades-medida/nome?nome=Litro"
       }
     },
     {
       "name": "Buscar por Sigla",
       "request": {
         "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/unidades-medida/buscar/sigla?sigla=L",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "unidades-medida", "buscar", "sigla"],
-          "query": [
-            { "key": "sigla", "value": "L" }
-          ]
-        }
+        "url": "{{baseUrl}}/v1/unidades-medida/sigla?sigla=kg"
       }
     },
     {
-      "name": "Buscar Nome Contendo",
+      "name": "Buscar por nome contendo",
       "request": {
         "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/unidades-medida/buscar/contem?nome=li",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "unidades-medida", "buscar", "contem"],
-          "query": [
-            { "key": "nome", "value": "li" }
-          ]
-        }
-      }
-    },
-    {
-      "name": "Listar Unidades (Simples)",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/unidades-medida/simples",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "unidades-medida", "simples"]
-        }
+        "url": "{{baseUrl}}/v1/unidades-medida/buscar?nome=li"
       }
     },
     {
       "name": "Verificar Sigla Existente",
       "request": {
         "method": "GET",
-        "url": {
-          "raw": "http://localhost:8080/v1/unidades-medida/verificar-sigla?sigla=KG",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["v1", "unidades-medida", "verificar-sigla"],
-          "query": [
-            { "key": "sigla", "value": "KG" }
-          ]
-        }
+        "url": "{{baseUrl}}/v1/unidades-medida/sigla/existe?sigla=kg"
       }
     }
   ]
