@@ -12,6 +12,7 @@ import java.math.BigDecimal;
  * </p>
  */
 public record FornecedorProdutoRequest(
+        Long produtoId,
         Long fornecedorId,
         String codigoFornecedor,
         BigDecimal precoCusto,

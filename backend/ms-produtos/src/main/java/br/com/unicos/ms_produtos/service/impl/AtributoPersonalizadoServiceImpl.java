@@ -3,138 +3,121 @@ package br.com.unicos.ms_produtos.service.impl;
 import br.com.unicos.ms_produtos.dto.atributoPersonalizado.AtributoPersonalizadoListDTO;
 import br.com.unicos.ms_produtos.dto.atributoPersonalizado.AtributoPersonalizadoRequest;
 import br.com.unicos.ms_produtos.dto.atributoPersonalizado.AtributoPersonalizadoResponse;
+import br.com.unicos.ms_produtos.mapper.AtributoPersonalizadoMapper;
 import br.com.unicos.ms_produtos.model.AtributoPersonalizado;
 import br.com.unicos.ms_produtos.model.Categoria;
 import br.com.unicos.ms_produtos.repository.AtributoPersonalizadoRepository;
 import br.com.unicos.ms_produtos.repository.CategoriaRepository;
 import br.com.unicos.ms_produtos.service.AtributoPersonalizadoService;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementação da interface {@link AtributoPersonalizadoService}.
- * <p>
- * Responsável pela lógica de negócio e persistência dos atributos
- * configuráveis de categorias de produtos (ex: "Cor", "Tamanho").
+ * Serviço responsável pelo gerenciamento de atributos personalizados
+ * associados às categorias de produtos.
  */
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class AtributoPersonalizadoServiceImpl implements AtributoPersonalizadoService {
 
     private final AtributoPersonalizadoRepository repository;
     private final CategoriaRepository categoriaRepository;
-    private final ModelMapper mapper;
+    private final AtributoPersonalizadoMapper mapper;
+    private final ModelMapper modelMapper;
 
-    public AtributoPersonalizadoServiceImpl(AtributoPersonalizadoRepository repository,
-                                            CategoriaRepository categoriaRepository,
-                                            ModelMapper mapper) {
-        this.repository = repository;
-        this.categoriaRepository = categoriaRepository;
-        this.mapper = mapper;
-    }
-
-    // ==================================
-    // 🔹 CRUD
-    // ==================================
+    // ============================================================
+    // Criar
+    // ============================================================
 
     @Override
-    public AtributoPersonalizadoResponse salvar(AtributoPersonalizadoRequest request) {
+    public AtributoPersonalizadoResponse criar(AtributoPersonalizadoRequest request) {
+
         Categoria categoria = categoriaRepository.findById(request.categoriaId())
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada com ID: " + request.categoriaId()));
+                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
 
-        boolean existeDuplicado = repository.findByCategoriaId(categoria.getId())
-                .stream()
-                .anyMatch(attr -> attr.getNome().equalsIgnoreCase(request.nome()));
+        AtributoPersonalizado atributo = new AtributoPersonalizado();
+        atributo.setNome(request.nome());
+        atributo.setCategoria(categoria);
 
-        if (existeDuplicado) {
-            throw new IllegalArgumentException("Já existe um atributo com este nome para a categoria informada.");
-        }
+        repository.save(atributo);
 
-        AtributoPersonalizado entity = mapper.map(request, AtributoPersonalizado.class);
-        entity.setCategoria(categoria);
-
-        AtributoPersonalizado salvo = repository.save(entity);
-        return toResponse(salvo);
+        return mapper.toResponse(atributo);
     }
+
+    // ============================================================
+    // Atualizar
+    // ============================================================
 
     @Override
     public AtributoPersonalizadoResponse atualizar(Long id, AtributoPersonalizadoRequest request) {
-        AtributoPersonalizado existente = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Atributo personalizado não encontrado com ID: " + id));
 
-        boolean nomeDuplicado = repository.findByCategoriaId(existente.getCategoria().getId())
-                .stream()
-                .anyMatch(attr -> !attr.getId().equals(id) &&
-                        attr.getNome().equalsIgnoreCase(request.nome()));
+        AtributoPersonalizado atributo = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Atributo não encontrado"));
 
-        if (nomeDuplicado) {
-            throw new IllegalArgumentException("Já existe outro atributo com este nome para a mesma categoria.");
-        }
+        Categoria categoria = categoriaRepository.findById(request.categoriaId())
+                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
 
-        existente.setNome(request.nome());
-        AtributoPersonalizado atualizado = repository.save(existente);
-        return toResponse(atualizado);
+        modelMapper.map(request, atributo); // atualiza campos simples
+        atributo.setCategoria(categoria);   // mapeamento manual necessário
+
+        repository.save(atributo);
+
+        return mapper.toResponse(atributo);
     }
 
-    @Override
-    public Optional<AtributoPersonalizadoResponse> buscarPorId(Long id) {
-        return repository.findById(id).map(this::toResponse);
-    }
+    // ============================================================
+    // Excluir
+    // ============================================================
 
     @Override
-    public List<AtributoPersonalizadoResponse> listarTodos() {
-        return repository.findAll()
-                .stream()
-                .map(this::toResponse)
-                .toList();
-    }
-
-    @Override
-    public void deletar(Long id) {
+    public void excluir(Long id) {
         if (!repository.existsById(id)) {
-            throw new IllegalArgumentException("Atributo personalizado não encontrado com ID: " + id);
+            throw new EntityNotFoundException("Atributo não encontrado");
         }
         repository.deleteById(id);
     }
 
-    // ==================================
-    // 🔹 MÉTODOS ESPECÍFICOS
-    // ==================================
+    // ============================================================
+    // Buscar por ID
+    // ============================================================
 
     @Override
-    public List<AtributoPersonalizadoResponse> listarPorCategoria(Long categoriaId) {
+    @Transactional(readOnly = true)
+    public Optional<AtributoPersonalizadoResponse> buscarPorId(Long id) {
+        return repository.findById(id)
+                .map(mapper::toResponse);
+    }
+
+    // ============================================================
+    // Listar Todos
+    // ============================================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AtributoPersonalizadoListDTO> listarTodos() {
+        return repository.findAll()
+                .stream()
+                .map(mapper::toListDTO)
+                .toList();
+    }
+
+    // ============================================================
+    // Listar Por Categoria
+    // ============================================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AtributoPersonalizadoListDTO> listarPorCategoria(Long categoriaId) {
         return repository.findByCategoriaId(categoriaId)
                 .stream()
-                .map(this::toResponse)
+                .map(mapper::toListDTO)
                 .toList();
-    }
-
-    @Override
-    public List<AtributoPersonalizadoListDTO> buscarPorNomeContendo(String nome) {
-        return repository.findByNomeContainingIgnoreCase(nome)
-                .stream()
-                .map(entity -> new AtributoPersonalizadoListDTO(
-                        entity.getId(),
-                        entity.getNome(),
-                        entity.getCategoria() != null ? entity.getCategoria().getNome() : null
-                ))
-                .toList();
-    }
-
-    // ==================================
-    // MÉTODO AUXILIAR
-    // ==================================
-
-    private AtributoPersonalizadoResponse toResponse(AtributoPersonalizado entity) {
-        return new AtributoPersonalizadoResponse(
-                entity.getId(),
-                entity.getCategoria() != null ? entity.getCategoria().getId() : null,
-                entity.getCategoria() != null ? entity.getCategoria().getNome() : null,
-                entity.getNome()
-        );
     }
 }

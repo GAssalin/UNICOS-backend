@@ -3,13 +3,14 @@ package br.com.unicos.ms_produtos.service.impl;
 import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoListDTO;
 import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoRequest;
 import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoResponse;
+import br.com.unicos.ms_produtos.mapper.FornecedorProdutoMapper;
 import br.com.unicos.ms_produtos.model.FornecedorProduto;
 import br.com.unicos.ms_produtos.model.Produto;
 import br.com.unicos.ms_produtos.repository.FornecedorProdutoRepository;
 import br.com.unicos.ms_produtos.repository.ProdutoRepository;
 import br.com.unicos.ms_produtos.service.FornecedorProdutoService;
 import jakarta.transaction.Transactional;
-import org.modelmapper.ModelMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,52 +18,49 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementação da interface FornecedorProdutoService.
- * Responsável pela lógica de negócio e manipulação dos vínculos
- * entre fornecedores e produtos.
+ * Serviço responsável pelos vínculos entre fornecedores e produtos.
  */
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
 
     private final FornecedorProdutoRepository repository;
     private final ProdutoRepository produtoRepository;
-    private final ModelMapper mapper;
+    private final FornecedorProdutoMapper mapper;
 
-    public FornecedorProdutoServiceImpl(FornecedorProdutoRepository repository,
-                                        ProdutoRepository produtoRepository,
-                                        ModelMapper mapper) {
-        this.repository = repository;
-        this.produtoRepository = produtoRepository;
-        this.mapper = mapper;
-    }
-
-    // ==================================
-    // 🔹 CRUD
-    // ==================================
+    // ============================================================
+    // CRIAR
+    // ============================================================
 
     @Override
     public FornecedorProdutoResponse salvar(FornecedorProdutoRequest request) {
+
         if (repository.existsByFornecedorIdAndProdutoId(request.fornecedorId(), request.produtoId())) {
-            throw new IllegalArgumentException("Já existe um vínculo entre esse fornecedor e produto.");
+            throw new IllegalArgumentException("Já existe um vínculo entre este fornecedor e produto.");
         }
 
         Produto produto = produtoRepository.findById(request.produtoId())
                 .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
 
-        FornecedorProduto entidade = FornecedorProduto.builder()
+        FornecedorProduto novo = FornecedorProduto.builder()
                 .fornecedorId(request.fornecedorId())
+                .codigoFornecedor(request.codigoFornecedor())
                 .produto(produto)
                 .precoCusto(request.precoCusto())
                 .prazoEntregaDias(request.prazoEntregaDias())
                 .build();
 
-        FornecedorProduto salvo = repository.save(entidade);
-        return toResponse(salvo);
+        return mapper.toResponse(repository.save(novo));
     }
+
+    // ============================================================
+    // ATUALIZAR
+    // ============================================================
 
     @Override
     public FornecedorProdutoResponse atualizar(Long id, FornecedorProdutoRequest request) {
+
         FornecedorProduto existente = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Vínculo não encontrado com ID: " + id));
 
@@ -70,62 +68,17 @@ public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
                 .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
 
         existente.setFornecedorId(request.fornecedorId());
+        existente.setCodigoFornecedor(request.codigoFornecedor());
         existente.setProduto(produto);
         existente.setPrecoCusto(request.precoCusto());
         existente.setPrazoEntregaDias(request.prazoEntregaDias());
 
-        FornecedorProduto atualizado = repository.save(existente);
-        return toResponse(atualizado);
+        return mapper.toResponse(repository.save(existente));
     }
 
-    @Override
-    public Optional<FornecedorProdutoResponse> buscarPorId(Long id) {
-        return repository.findById(id).map(this::toResponse);
-    }
-
-    @Override
-    public List<FornecedorProdutoResponse> listarTodos() {
-        return repository.findAll()
-                .stream()
-                .map(this::toResponse)
-                .toList();
-    }
-
-    @Override
-    public List<FornecedorProdutoListDTO> listarPorProduto(Long produtoId) {
-        return repository.findByProdutoId(produtoId)
-                .stream()
-                .map(fp -> new FornecedorProdutoListDTO(
-                        fp.getId(),
-                        fp.getFornecedorId(),
-                        fp.getProduto().getNome(),
-                        fp.getPrecoCusto()
-                ))
-                .toList();
-    }
-
-    @Override
-    public List<FornecedorProdutoListDTO> listarPorFornecedor(Long fornecedorId) {
-        return repository.findByFornecedorId(fornecedorId)
-                .stream()
-                .map(fp -> new FornecedorProdutoListDTO(
-                        fp.getId(),
-                        fp.getFornecedorId(),
-                        fp.getProduto().getNome(),
-                        fp.getPrecoCusto()
-                ))
-                .toList();
-    }
-
-    @Override
-    public FornecedorProdutoResponse atualizarPrecoCusto(Long id, BigDecimal novoPrecoCusto) {
-        FornecedorProduto existente = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vínculo não encontrado com ID: " + id));
-
-        existente.setPrecoCusto(novoPrecoCusto);
-        FornecedorProduto atualizado = repository.save(existente);
-        return toResponse(atualizado);
-    }
+    // ============================================================
+    // DELETAR
+    // ============================================================
 
     @Override
     public void deletar(Long id) {
@@ -135,23 +88,61 @@ public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
         repository.deleteById(id);
     }
 
+    // ============================================================
+    // CONSULTAS
+    // ============================================================
+
+    @Override
+    public Optional<FornecedorProdutoResponse> buscarPorId(Long id) {
+        return repository.findById(id)
+                .map(mapper::toResponse);
+    }
+
+    @Override
+    public List<FornecedorProdutoResponse> listarTodos() {
+        return repository.findAll()
+                .stream()
+                .map(mapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<FornecedorProdutoListDTO> listarPorProduto(Long produtoId) {
+        return repository.findByProdutoId(produtoId)
+                .stream()
+                .map(mapper::toListDTO)
+                .toList();
+    }
+
+    @Override
+    public List<FornecedorProdutoListDTO> listarPorFornecedor(Long fornecedorId) {
+        return repository.findByFornecedorId(fornecedorId)
+                .stream()
+                .map(mapper::toListDTO)
+                .toList();
+    }
+
+    // ============================================================
+    // OPERAÇÃO ESPECÍFICA
+    // ============================================================
+
+    @Override
+    public FornecedorProdutoResponse atualizarPrecoCusto(Long id, BigDecimal novoPrecoCusto) {
+
+        FornecedorProduto existente = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Vínculo não encontrado com ID: " + id));
+
+        existente.setPrecoCusto(novoPrecoCusto);
+
+        return mapper.toResponse(repository.save(existente));
+    }
+
+    // ============================================================
+    // VALIDAÇÃO
+    // ============================================================
+
     @Override
     public boolean existeVinculo(Long fornecedorId, Long produtoId) {
         return repository.existsByFornecedorIdAndProdutoId(fornecedorId, produtoId);
-    }
-
-    // ==================================
-    // 🧭 MÉTODOS AUXILIARES
-    // ==================================
-
-    private FornecedorProdutoResponse toResponse(FornecedorProduto entity) {
-        return new FornecedorProdutoResponse(
-                entity.getId(),
-                entity.getFornecedorId(),
-                entity.getProduto().getId(),
-                entity.getProduto().getNome(),
-                entity.getPrecoCusto(),
-                entity.getPrazoEntregaDias()
-        );
     }
 }

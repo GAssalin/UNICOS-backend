@@ -1,6 +1,6 @@
 package br.com.unicos.ms_produtos.service.impl;
 
-import br.com.unicos.ms_produtos.dto.ProdutoUnidadeRequest;
+import br.com.unicos.ms_produtos.dto.produto_unidade.ProdutoUnidadeRequest;
 import br.com.unicos.ms_produtos.dto.produto_unidade.ProdutoUnidadeResponse;
 import br.com.unicos.ms_produtos.model.Produto;
 import br.com.unicos.ms_produtos.model.ProdutoUnidade;
@@ -9,132 +9,161 @@ import br.com.unicos.ms_produtos.repository.ProdutoRepository;
 import br.com.unicos.ms_produtos.repository.ProdutoUnidadeRepository;
 import br.com.unicos.ms_produtos.repository.UnidadeMedidaRepository;
 import br.com.unicos.ms_produtos.service.ProdutoUnidadeService;
-import jakarta.transaction.Transactional;
-import org.modelmapper.ModelMapper;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementação da interface ProdutoUnidadeService.
- * Responsável pela lógica de negócio relacionada à criação,
- * atualização e consulta de vínculos entre produtos e unidades de medida.
+ * Implementação da interface {@link ProdutoUnidadeService}.
+ * <p>
+ * Responsável por aplicar as regras de negócio relacionadas
+ * ao vínculo entre produtos e unidades de medida.
  */
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class ProdutoUnidadeServiceImpl implements ProdutoUnidadeService {
 
-    private final ProdutoUnidadeRepository repository;
+    private final ProdutoUnidadeRepository produtoUnidadeRepository;
     private final ProdutoRepository produtoRepository;
     private final UnidadeMedidaRepository unidadeMedidaRepository;
-    private final ModelMapper mapper;
 
-    public ProdutoUnidadeServiceImpl(ProdutoUnidadeRepository repository,
-                                     ProdutoRepository produtoRepository,
-                                     UnidadeMedidaRepository unidadeMedidaRepository,
-                                     ModelMapper mapper) {
-        this.repository = repository;
-        this.produtoRepository = produtoRepository;
-        this.unidadeMedidaRepository = unidadeMedidaRepository;
-        this.mapper = mapper;
-    }
-
-    // ==================================
-    // 🔹 CRUD
-    // ==================================
+    // ============================================================
+    // Criar
+    // ============================================================
 
     @Override
+    @Transactional
     public ProdutoUnidadeResponse salvar(ProdutoUnidadeRequest request) {
-        Produto produto = produtoRepository.findById(request.produtoId())
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + request.produtoId()));
 
-        UnidadeMedida unidade = unidadeMedidaRepository.findById(request.unidadeMedidaId())
-                .orElseThrow(() -> new IllegalArgumentException("Unidade de medida não encontrada com ID: " + request.unidadeMedidaId()));
+        Produto produto = produtoRepository.findById(request.unidadeMedidaId())
+                .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado."));
 
-        // Evita vínculos duplicados
-        repository.findByProdutoIdAndUnidadeMedidaId(produto.getId(), unidade.getId())
-                .ifPresent(pu -> { throw new IllegalArgumentException("Já existe vínculo entre este produto e unidade de medida."); });
+        ProdutoUnidade novo = new ProdutoUnidade();
+        novo.setProduto(produto);
 
-        ProdutoUnidade entity = ProdutoUnidade.builder()
-                .produto(produto)
-                .unidadeMedida(unidade)
-                .quantidadePadrao(request.quantidadePadrao())
-                .build();
+        UnidadeMedida unidadeMedida = unidadeMedidaRepository.findById(request.unidadeMedidaId())
+                .orElseThrow(() -> new EntityNotFoundException("Unidade Medida não encontrada."));
+        novo.setUnidadeMedida(unidadeMedida);
 
-        ProdutoUnidade salvo = repository.save(entity);
+        novo.setQuantidadePadrao(request.quantidadePadrao());
+        novo.setFatorConversao(request.fatorConversao());
+
+        ProdutoUnidade salvo = produtoUnidadeRepository.save(novo);
+
         return toResponse(salvo);
     }
 
+    // ============================================================
+    // Atualizar
+    // ============================================================
+
     @Override
+    @Transactional
     public ProdutoUnidadeResponse atualizar(Long id, ProdutoUnidadeRequest request) {
-        ProdutoUnidade existente = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vínculo não encontrado com ID: " + id));
 
-        UnidadeMedida unidade = unidadeMedidaRepository.findById(request.unidadeMedidaId())
-                .orElseThrow(() -> new IllegalArgumentException("Unidade de medida não encontrada com ID: " + request.unidadeMedidaId()));
+        ProdutoUnidade entidade = produtoUnidadeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Vínculo produto–unidade não encontrado."));
 
-        existente.setUnidadeMedida(unidade);
-        existente.setQuantidadePadrao(request.quantidadePadrao());
+        entidade.getUnidadeMedida().setId(request.unidadeMedidaId());
+        entidade.setQuantidadePadrao(request.quantidadePadrao());
+        entidade.setFatorConversao(request.fatorConversao());
 
-        ProdutoUnidade atualizado = repository.save(existente);
+        ProdutoUnidade atualizado = produtoUnidadeRepository.save(entidade);
+
         return toResponse(atualizado);
     }
 
+    // ============================================================
+    // Buscar por ID
+    // ============================================================
+
     @Override
+    @Transactional(readOnly = true)
     public Optional<ProdutoUnidadeResponse> buscarPorId(Long id) {
-        return repository.findById(id).map(this::toResponse);
+        return produtoUnidadeRepository.findById(id)
+                .map(this::toResponse);
     }
 
+    // ============================================================
+    // Listar todos
+    // ============================================================
+
     @Override
+    @Transactional(readOnly = true)
     public List<ProdutoUnidadeResponse> listarTodos() {
-        return repository.findAll()
+        return produtoUnidadeRepository.findAll()
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
 
+    // ============================================================
+    // Listar por produto
+    // ============================================================
+
     @Override
+    @Transactional(readOnly = true)
     public List<ProdutoUnidadeResponse> listarPorProduto(Long produtoId) {
-        return repository.findByProdutoId(produtoId)
+        return produtoUnidadeRepository.findByProdutoId(produtoId)
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
 
+    // ============================================================
+    // Listar por unidade de medida
+    // ============================================================
+
     @Override
+    @Transactional(readOnly = true)
     public List<ProdutoUnidadeResponse> listarPorUnidadeMedida(Long unidadeMedidaId) {
-        return repository.findByUnidadeMedidaId(unidadeMedidaId)
+        return produtoUnidadeRepository.findByUnidadeMedidaId(unidadeMedidaId)
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
 
+    // ============================================================
+    // Verificar vínculo
+    // ============================================================
+
     @Override
+    @Transactional(readOnly = true)
     public boolean verificarVinculo(Long produtoId, Long unidadeMedidaId) {
-        return repository.findByProdutoIdAndUnidadeMedidaId(produtoId, unidadeMedidaId).isPresent();
+        return produtoUnidadeRepository
+                .findByProdutoIdAndUnidadeMedidaId(produtoId, unidadeMedidaId)
+                .isPresent();
     }
+
+    // ============================================================
+    // Deletar
+    // ============================================================
 
     @Override
+    @Transactional
     public void deletar(Long id) {
-        if (!repository.existsById(id)) {
-            throw new IllegalArgumentException("Vínculo não encontrado com ID: " + id);
+        if (!produtoUnidadeRepository.existsById(id)) {
+            throw new EntityNotFoundException("Vínculo produto–unidade não encontrado para exclusão.");
         }
-        repository.deleteById(id);
+        produtoUnidadeRepository.deleteById(id);
     }
 
-    // ==================================
-    // 🧭 MÉTODO AUXILIAR
-    // ==================================
+    // ============================================================
+    // Conversão para DTO
+    // ============================================================
 
-    private ProdutoUnidadeResponse toResponse(ProdutoUnidade entity) {
+    private ProdutoUnidadeResponse toResponse(ProdutoUnidade entidade) {
         return new ProdutoUnidadeResponse(
-                entity.getId(),
-                entity.getProduto().getId(),
-                entity.getProduto().getNome(),
-                entity.getUnidadeMedida().getId(),
-                entity.getUnidadeMedida().getNome(),
-                entity.getQuantidadePadrao()
+                entidade.getId(),
+                entidade.getProduto().getId(),
+                entidade.getProduto().getDadosBasicos().getNome(),
+                entidade.getUnidadeMedida().getId(),
+                null, // unidadeMedidaNome → vem do ms-empresa, via integração
+                entidade.getQuantidadePadrao()
         );
     }
 }

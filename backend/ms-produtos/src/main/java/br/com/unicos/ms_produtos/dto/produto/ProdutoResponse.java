@@ -16,7 +16,6 @@ import java.util.List;
  * Inclui dados universais e dados operacionais.
  */
 public record ProdutoResponse(
-
         Long id,
         boolean ativo,
 
@@ -31,9 +30,5 @@ public record ProdutoResponse(
         List<ImagemProdutoResponse> imagens,
         List<ProdutoAtributoValorResponse> atributos,
         List<FornecedorProdutoResponse> fornecedores,
-        List<ProdutoVariacaoResponse> variacoes,
-
-        LocalDateTime criadoEm,
-        LocalDateTime atualizadoEm
-
+        List<ProdutoVariacaoResponse> variacoes
 ) {}

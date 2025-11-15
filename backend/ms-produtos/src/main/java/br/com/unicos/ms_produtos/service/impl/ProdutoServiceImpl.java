@@ -1,19 +1,22 @@
 package br.com.unicos.ms_produtos.service.impl;
 
+import br.com.unicos.core.produto.model.PrecoBase;
 import br.com.unicos.core.produto.model.ProdutoBase;
+import br.com.unicos.core.produto.model.ProdutoEstoqueBase;
+import br.com.unicos.core.produto.model.ProdutoTributacaoBase;
+import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoRequest;
 import br.com.unicos.ms_produtos.dto.produto.ProdutoRequest;
 import br.com.unicos.ms_produtos.dto.produto.ProdutoResponse;
+import br.com.unicos.ms_produtos.mapper.*;
 import br.com.unicos.ms_produtos.model.Categoria;
-import br.com.unicos.ms_produtos.model.HistoricoPreco;
 import br.com.unicos.ms_produtos.model.Marca;
 import br.com.unicos.ms_produtos.model.Produto;
 import br.com.unicos.ms_produtos.repository.CategoriaRepository;
 import br.com.unicos.ms_produtos.repository.MarcaRepository;
 import br.com.unicos.ms_produtos.repository.ProdutoRepository;
+import br.com.unicos.ms_produtos.service.HistoricoPrecoService;
 import br.com.unicos.ms_produtos.service.ProdutoService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,8 +25,11 @@ import java.util.Optional;
 
 /**
  * Implementação da interface ProdutoService.
- * Responsável pela lógica de negócio e orquestração das operações
- * de criação, atualização, exclusão e consulta de produtos.
+ *
+ * <p>
+ * Responsável pela orquestração das regras de negócio relacionadas
+ * ao cadastro, atualização, consulta e manipulação do estado dos produtos.
+ * </p>
  */
 @Service
 @Transactional
@@ -32,121 +38,130 @@ public class ProdutoServiceImpl implements ProdutoService {
     private final ProdutoRepository produtoRepository;
     private final CategoriaRepository categoriaRepository;
     private final MarcaRepository marcaRepository;
-    private final ModelMapper mapper;
+    private final HistoricoPrecoService historicoPrecoService;
 
-    public ProdutoServiceImpl(ProdutoRepository produtoRepository,
-                              CategoriaRepository categoriaRepository,
-                              MarcaRepository marcaRepository,
-                              ModelMapper mapper) {
+    // 🔹 Mappers
+    private final ProdutoVariacaoMapper produtoVariacaoMapper;
+    private final ProdutoAtributoValorMapper produtoAtributoValorMapper;
+    private final ImagemProdutoMapper imagemProdutoMapper;
+    private final FornecedorProdutoMapper fornecedorProdutoMapper;
+    private final CategoriaMapper categoriaMapper;
+    private final MarcaMapper marcaMapper;
+
+    public ProdutoServiceImpl(
+            ProdutoRepository produtoRepository,
+            CategoriaRepository categoriaRepository,
+            MarcaRepository marcaRepository,
+            HistoricoPrecoService historicoPrecoService,
+            ProdutoVariacaoMapper produtoVariacaoMapper,
+            ProdutoAtributoValorMapper produtoAtributoValorMapper,
+            ProdutoUnidadeMapper produtoUnidadeMapper,
+            ImagemProdutoMapper imagemProdutoMapper,
+            FornecedorProdutoMapper fornecedorProdutoMapper,
+            CategoriaMapper categoriaMapper,
+            MarcaMapper marcaMapper
+    ) {
         this.produtoRepository = produtoRepository;
         this.categoriaRepository = categoriaRepository;
         this.marcaRepository = marcaRepository;
-        this.mapper = mapper;
+        this.historicoPrecoService = historicoPrecoService;
+
+        this.produtoVariacaoMapper = produtoVariacaoMapper;
+        this.produtoAtributoValorMapper = produtoAtributoValorMapper;
+        this.imagemProdutoMapper = imagemProdutoMapper;
+        this.fornecedorProdutoMapper = fornecedorProdutoMapper;
+        this.categoriaMapper = categoriaMapper;
+        this.marcaMapper = marcaMapper;
     }
 
-    // ==================================
-    // 🔹 CRUD
-    // ==================================
+    // ============================================================
+    // 🔹 CRUD PRINCIPAL
+    // ============================================================
 
     @Override
     public ProdutoResponse salvar(ProdutoRequest request) {
-        Categoria categoria = categoriaRepository.findById(request.categoriaId())
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada."));
 
-        Marca marca = null;
-        if (request.marcaId() != null) {
-            marca = marcaRepository.findById(request.marcaId())
-                    .orElseThrow(() -> new IllegalArgumentException("Marca não encontrada."));
+        // Validar SKU
+        if (request.dadosBasicos() != null && request.dadosBasicos().getSku() != null) {
+            if (!verificarDisponibilidadeSku(request.dadosBasicos().getSku())) {
+                throw new IllegalArgumentException("SKU já cadastrado.");
+            }
         }
 
-        Produto produto = mapper.map(request, Produto.class);
-        produto.setCategoria(categoria);
-        produto.setMarca(marca);
+        Produto produto = Produto.builder()
+                .dadosBasicos(cloneProdutoBase(request.dadosBasicos()))
+                .tributacao(cloneProdutoTributacao(request.tributacao()))
+                .estoqueConfig(cloneProdutoEstoque(request.estoqueConfig()))
+                .precoAtual(clonePrecoBase(request.precoAtual()))
+                .ativo(true)
+                .categoria(buscarCategoriaOuNull(request.categoriaId()))
+                .marca(buscarMarcaOuNull(request.marcaId()))
+                .build();
 
         Produto salvo = produtoRepository.save(produto);
+
         return toResponse(salvo);
     }
 
     @Override
     public ProdutoResponse atualizar(Long id, ProdutoRequest request) {
 
-        // ============================================================
-        // 🔹 1. Buscar o produto existente
-        // ============================================================
-        Produto produto = produtoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Produto não encontrado com o ID: " + id
-                ));
+        Produto existente = produtoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
 
-        // ============================================================
-        // 🔹 2. Validar e carregar Categoria (se houver)
-        // ============================================================
-        if (request.categoriaId() != null) {
-            Categoria categoria = categoriaRepository.findById(request.categoriaId())
-                    .orElseThrow(() -> new EntityNotFoundException(
-                            "Categoria não encontrada com ID: " + request.categoriaId()
-                    ));
-            produto.setCategoria(categoria);
+        // SKU alterado?
+        if (request.dadosBasicos() != null) {
+            String novoSku = request.dadosBasicos().getSku();
+            if (novoSku != null && !novoSku.equals(existente.getDadosBasicos().getSku())) {
+                produtoRepository.findByDadosBasicosSku(novoSku).ifPresent(p -> {
+                    if (!p.getId().equals(id)) {
+                        throw new IllegalArgumentException("SKU já está sendo usado por outro produto.");
+                    }
+                });
+            }
         }
 
-        // ============================================================
-        // 🔹 3. Validar e carregar Marca (se houver)
-        // ============================================================
-        if (request.marcaId() != null) {
-            Marca marca = marcaRepository.findById(request.marcaId())
-                    .orElseThrow(() -> new EntityNotFoundException(
-                            "Marca não encontrada com ID: " + request.marcaId()
-                    ));
-            produto.setMarca(marca);
+        BigDecimal precoAnterior = existente.getPrecoAtual().getPrecoVenda();
+
+        // Atualizar dados universais
+        if (request.dadosBasicos() != null) {
+            existente.setDadosBasicos(cloneProdutoBase(request.dadosBasicos()));
+        }
+        if (request.tributacao() != null) {
+            existente.setTributacao(cloneProdutoTributacao(request.tributacao()));
+        }
+        if (request.estoqueConfig() != null) {
+            existente.setEstoqueConfig(cloneProdutoEstoque(request.estoqueConfig()));
+        }
+        if (request.precoAtual() != null) {
+            existente.setPrecoAtual(clonePrecoBase(request.precoAtual()));
         }
 
-        // ============================================================
-        // 🔹 4. Atualizar os dados básicos (ProdutoBase é imutável!)
-        //      → precisa reconstruir o record
-        // ============================================================
-        ProdutoBase dadosAntigos = produto.getDadosBasicos();
+        existente.setCategoria(buscarCategoriaOuNull(request.categoriaId()));
+        existente.setMarca(buscarMarcaOuNull(request.marcaId()));
 
-        ProdutoBase novosDados = new ProdutoBase(
-                dadosAntigos.id(), // mantém o ID interno do core
-                request.nome(),
-                request.sku(),
-                request.descricao(),
-                request.codigoBarras(),
-                request.unidadeMedida(),
-                request.tipoProduto(),
-                request.origem(),
-                request.controleEstoque(),
-                request.armazenamento(),
-                request.classificacao(),
-                request.status()
-        );
+        Produto atualizado = produtoRepository.save(existente);
 
-        produto.setDadosBasicos(novosDados);
+        BigDecimal novoPreco = atualizado.getPrecoAtual().getPrecoVenda();
 
-        // ============================================================
-        // 🔹 5. Atualizar demais atributos do Produto (não-core)
-        // ============================================================
-        produto.setDescricao(request.descricao());
-        produto.setAtivo(request.ativo());
-        produto.setPreco(request.preco());
+        if (precoAnterior != null && novoPreco != null && precoAnterior.compareTo(novoPreco) != 0) {
+            historicoPrecoService.salvar(
+                    atualizado.getId(),
+                    new HistoricoPrecoRequest(precoAnterior, novoPreco, "Atualização de produto")
+            );
+        }
 
-        // Aqui você pode incluir mais atributos específicos do ms-produtos
-
-        // ============================================================
-        // 🔹 6. Salvar
-        // ============================================================
-        Produto atualizado = produtoRepository.save(produto);
-
-        // ============================================================
-        // 🔹 7. Retornar DTO
-        // ============================================================
-        return mapper.map(atualizado, ProdutoResponse.class);
+        return toResponse(atualizado);
     }
 
     @Override
     public Optional<ProdutoResponse> buscarPorId(Long id) {
         return produtoRepository.findById(id).map(this::toResponse);
     }
+
+    // ============================================================
+    // 🔹 LISTAGENS E CONSULTAS
+    // ============================================================
 
     @Override
     public List<ProdutoResponse> listarTodos() {
@@ -158,22 +173,21 @@ public class ProdutoServiceImpl implements ProdutoService {
 
     @Override
     public void deletar(Long id) {
+        if (!produtoRepository.existsById(id)) {
+            throw new IllegalArgumentException("Produto não encontrado com ID: " + id);
+        }
         produtoRepository.deleteById(id);
     }
 
-    // ==================================
-    // 🔹 BUSCAS
-    // ==================================
-
     @Override
     public Optional<ProdutoResponse> buscarPorSku(String sku) {
-        return produtoRepository.findBySku(sku)
+        return produtoRepository.findByDadosBasicosSku(sku)
                 .map(this::toResponse);
     }
 
     @Override
     public List<ProdutoResponse> buscarPorNome(String nome) {
-        return produtoRepository.findByNomeContainingIgnoreCase(nome)
+        return produtoRepository.findByDadosBasicosNomeContainingIgnoreCase(nome)
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -213,20 +227,22 @@ public class ProdutoServiceImpl implements ProdutoService {
 
     @Override
     public List<ProdutoResponse> listarPorFaixaDePreco(BigDecimal precoMin, BigDecimal precoMax) {
-        return produtoRepository.findByPrecoBetween(precoMin, precoMax)
+        return produtoRepository.findByPrecoAtualPrecoVendaBetween(precoMin, precoMax)
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    // ==================================
-    // 💼 NEGÓCIO
-    // ==================================
+
+    // ============================================================
+    // 🔹 ALTERAÇÃO DE ESTADO
+    // ============================================================
 
     @Override
     public ProdutoResponse ativarProduto(Long id) {
         Produto produto = produtoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + id));
+
         produto.setAtivo(true);
         return toResponse(produtoRepository.save(produto));
     }
@@ -234,48 +250,190 @@ public class ProdutoServiceImpl implements ProdutoService {
     @Override
     public ProdutoResponse inativarProduto(Long id) {
         Produto produto = produtoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + id));
+
         produto.setAtivo(false);
         return toResponse(produtoRepository.save(produto));
     }
 
+
+    // ============================================================
+    // 🔹 PREÇO
+    // ============================================================
+
     @Override
     public ProdutoResponse atualizarPreco(Long id, BigDecimal novoPreco) {
         Produto produto = produtoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + id));
 
-        BigDecimal precoAntigo = produto.getPrecoAtual().precoVenda();
-        produto.setPreco(novoPreco);
+        BigDecimal precoAnterior = produto.getPrecoAtual() != null
+                ? produto.getPrecoAtual().getPrecoVenda()
+                : null;
 
-        HistoricoPreco historico = HistoricoPreco.builder()
-                .produto(produto)
-                .precoAnterior(precoAntigo)
-                .novoPreco(novoPreco)
-                .build();
+        if (produto.getPrecoAtual() == null) {
+            produto.setPrecoAtual(new PrecoBase(
+                    null,
+                    novoPreco,
+                    null,
+                    null
+            ));
+        } else {
+            produto.getPrecoAtual().setPrecoVenda(novoPreco);
+        }
 
-        produto.getHistoricoPrecos().add(historico);
-        return toResponse(produtoRepository.save(produto));
+        Produto atualizado = produtoRepository.save(produto);
+
+        if (precoAnterior != null && precoAnterior.compareTo(novoPreco) != 0) {
+            historicoPrecoService.salvar(
+                    atualizado.getId(),
+                    new HistoricoPrecoRequest(precoAnterior, novoPreco, "Atualização de preço")
+            );
+        }
+
+        return toResponse(atualizado);
     }
+
+    // ============================================================
+    // 🔹 VALIDAÇÃO DE SKU
+    // ============================================================
 
     @Override
     public boolean verificarDisponibilidadeSku(String sku) {
-        return produtoRepository.findBySku(sku).isEmpty();
+        return produtoRepository.findByDadosBasicosSku(sku).isEmpty();
     }
 
-    // ==================================
-    // 🧭 MAPEAMENTO AUXILIAR
-    // ==================================
+    // ============================================================
+    // 🔹 RESPONSE USANDO OS MAPPERS
+    // ============================================================
 
     private ProdutoResponse toResponse(Produto produto) {
+
         return new ProdutoResponse(
                 produto.getId(),
-                produto.getDadosBasicos().nome(),
-                produto.getDadosBasicos().descricao(),
+                produto.isAtivo(),
+                produto.getDadosBasicos(),
+                produto.getTributacao(),
+                produto.getEstoqueConfig(),
                 produto.getPrecoAtual(),
-                produto.getSku(),
-                produto.getCategoria() != null ? produto.getCategoria().getNome() : null,
-                produto.getMarca() != null ? produto.getMarca().getNome() : null,
-                produto.isAtivo()
+
+                // Categoria via mapper
+                produto.getCategoria() != null
+                        ? categoriaMapper.toResponse(produto.getCategoria())
+                        : null,
+
+                // Marca via mapper
+                produto.getMarca() != null
+                        ? marcaMapper.toResponse(produto.getMarca())
+                        : null,
+
+                // Imagens via mapper
+                produto.getImagens() == null
+                        ? List.of()
+                        : produto.getImagens().stream()
+                        .map(imagemProdutoMapper::toResponse)
+                        .toList(),
+
+                // Atributos via mapper
+                produto.getAtributos() == null
+                        ? List.of()
+                        : produto.getAtributos().stream()
+                        .map(a -> produtoAtributoValorMapper.toResponse(a, produto.getId()))
+                        .toList(),
+
+                // Fornecedores via mapper
+                produto.getFornecedores() == null
+                        ? List.of()
+                        : produto.getFornecedores().stream()
+                        .map(fornecedorProdutoMapper::toResponse)
+                        .toList(),
+
+                // Variações via mapper
+                produto.getVariacoes() == null
+                        ? List.of()
+                        : produto.getVariacoes().stream()
+                        .map(produtoVariacaoMapper::toResponse)
+                        .toList()
         );
     }
+
+    // ============================================================
+    // 🧭 MÉTODOS AUXILIARES
+    // ============================================================
+
+    private ProdutoBase cloneProdutoBase(ProdutoBase base) {
+        if (base == null) {
+            return null;
+        }
+
+        return new ProdutoBase(
+                base.getNome(),
+                base.getDescricao(),
+                base.getSku(),
+                base.getCodigoBarras(),
+                base.getTipoProduto(),
+                base.getTipoVariacaoProduto(),
+                base.getTipoOrigemProduto(),
+                base.getTipoControleEstoque(),
+                base.getTipoArmazenamentoProduto(),
+                base.getTipoClassificacaoProduto(),
+                base.getStatusProduto()
+        );
+    }
+
+    private ProdutoTributacaoBase cloneProdutoTributacao(ProdutoTributacaoBase trib) {
+        if (trib == null) {
+            return null;
+        }
+
+        return new ProdutoTributacaoBase(
+                trib.getNcm(),
+                trib.getCest(),
+                trib.getSituacaoTributaria()
+        );
+    }
+
+    private ProdutoEstoqueBase cloneProdutoEstoque(ProdutoEstoqueBase est) {
+        if (est == null) {
+            return null;
+        }
+
+        return new ProdutoEstoqueBase(
+                est.getDepositoId(),
+                est.getUnidadeMedida(),
+                est.getQuantidadeDisponivel(),
+                est.getQuantidadeReservada(),
+                est.getQuantidadeTotal(),
+                est.getUltimaAtualizacao()
+        );
+    }
+
+    private PrecoBase clonePrecoBase(PrecoBase preco) {
+        if (preco == null) {
+            return null;
+        }
+
+        return new PrecoBase(
+                preco.getPrecoCusto(),
+                preco.getPrecoVenda(),
+                preco.getPrecoMinimo(),
+                preco.getMargemPadrao()
+        );
+    }
+
+    private Categoria buscarCategoriaOuNull(Long categoriaId) {
+        if (categoriaId == null) {
+            return null;
+        }
+        return categoriaRepository.findById(categoriaId)
+                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada com ID: " + categoriaId));
+    }
+
+    private Marca buscarMarcaOuNull(Long marcaId) {
+        if (marcaId == null) {
+            return null;
+        }
+        return marcaRepository.findById(marcaId)
+                .orElseThrow(() -> new IllegalArgumentException("Marca não encontrada com ID: " + marcaId));
+    }
+
 }

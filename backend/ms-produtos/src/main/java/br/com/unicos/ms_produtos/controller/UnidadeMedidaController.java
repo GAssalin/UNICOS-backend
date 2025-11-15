@@ -1,7 +1,7 @@
 package br.com.unicos.ms_produtos.controller;
 
 import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaListDTO;
-import br.com.unicos.ms_produtos.dto.UnidadeMedidaRequest;
+import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaRequest;
 import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaResponse;
 import br.com.unicos.ms_produtos.service.UnidadeMedidaService;
 import jakarta.validation.Valid;
@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Controlador REST responsável pelo gerenciamento das unidades de medida.
- *
+ * <p>
  * Fornece endpoints para criação, atualização, listagem, exclusão
  * e consultas específicas por nome ou sigla.
  */

@@ -3,81 +3,95 @@ package br.com.unicos.ms_produtos.service.impl;
 import br.com.unicos.ms_produtos.dto.marca.MarcaListDTO;
 import br.com.unicos.ms_produtos.dto.marca.MarcaRequest;
 import br.com.unicos.ms_produtos.dto.marca.MarcaResponse;
+import br.com.unicos.ms_produtos.mapper.MarcaMapper;
 import br.com.unicos.ms_produtos.model.Marca;
 import br.com.unicos.ms_produtos.repository.MarcaRepository;
 import br.com.unicos.ms_produtos.service.MarcaService;
 import jakarta.transaction.Transactional;
-import org.modelmapper.ModelMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementação da interface MarcaService.
- * Responsável pela lógica de negócio e orquestração das operações
- * de criação, atualização, exclusão e consulta de marcas.
+ * Serviço responsável pelo gerenciamento de marcas.
  */
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class MarcaServiceImpl implements MarcaService {
 
     private final MarcaRepository repository;
-    private final ModelMapper mapper;
+    private final MarcaMapper mapper;
 
-    public MarcaServiceImpl(MarcaRepository repository, ModelMapper mapper) {
-        this.repository = repository;
-        this.mapper = mapper;
-    }
-
-    // ==================================
-    // 🔹 CRUD
-    // ==================================
+    // ============================================================
+    // SALVAR
+    // ============================================================
 
     @Override
     public MarcaResponse salvar(MarcaRequest request) {
+
         if (repository.existsByNomeIgnoreCase(request.nome())) {
-            throw new IllegalArgumentException("Já existe uma marca com o nome informado.");
+            throw new IllegalArgumentException("Já existe uma marca cadastrada com este nome.");
         }
 
-        Marca marca = mapper.map(request, Marca.class);
-        Marca salva = repository.save(marca);
-        return toResponse(salva);
+        Marca marca = Marca.builder()
+                .nome(request.nome())
+                .descricao(request.descricao())
+                .paisOrigem(request.paisOrigem())
+                .build();
+
+        return mapper.toResponse(repository.save(marca));
     }
+
+    // ============================================================
+    // ATUALIZAR
+    // ============================================================
 
     @Override
     public MarcaResponse atualizar(Long id, MarcaRequest request) {
+
         Marca existente = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Marca não encontrada com ID: " + id));
 
-        Optional<Marca> duplicada = repository.findByNomeIgnoreCase(request.nome());
-        if (duplicada.isPresent() && !duplicada.get().getId().equals(id)) {
-            throw new IllegalArgumentException("Já existe uma marca com esse nome.");
+        Optional<Marca> outraMarcaMesmoNome =
+                repository.findByNomeIgnoreCase(request.nome());
+
+        if (outraMarcaMesmoNome.isPresent() && !outraMarcaMesmoNome.get().getId().equals(id)) {
+            throw new IllegalArgumentException("Já existe outra marca cadastrada com este nome.");
         }
 
         existente.setNome(request.nome());
-        Marca atualizada = repository.save(existente);
-        return toResponse(atualizada);
+        existente.setDescricao(request.descricao());
+        existente.setPaisOrigem(request.paisOrigem());
+
+        return mapper.toResponse(repository.save(existente));
     }
+
+    // ============================================================
+    // CONSULTAS
+    // ============================================================
 
     @Override
     public Optional<MarcaResponse> buscarPorId(Long id) {
-        return repository.findById(id).map(this::toResponse);
+        return repository.findById(id)
+                .map(mapper::toResponse);
     }
 
     @Override
     public List<MarcaResponse> listarTodas() {
-        return repository.findAllByOrderByNomeAsc()
+        return repository.findAll()
                 .stream()
-                .map(this::toResponse)
+                .map(mapper::toResponse)
                 .toList();
     }
 
     @Override
     public List<MarcaListDTO> listarSimples() {
-        return repository.findAllByOrderByNomeAsc()
+        return repository.findAll()
                 .stream()
-                .map(m -> new MarcaListDTO(m.getId(), m.getNome()))
+                .map(mapper::toListDTO)
                 .toList();
     }
 
@@ -85,36 +99,24 @@ public class MarcaServiceImpl implements MarcaService {
     public List<MarcaResponse> buscarPorNome(String nome) {
         return repository.findByNomeContainingIgnoreCase(nome)
                 .stream()
-                .map(this::toResponse)
+                .map(mapper::toResponse)
                 .toList();
     }
 
+    // ============================================================
+    // DELETE E VALIDAÇÃO
+    // ============================================================
+
     @Override
     public void deletar(Long id) {
-        Marca marca = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Marca não encontrada com ID: " + id));
-
-        if (marca.getProdutos() != null && !marca.getProdutos().isEmpty()) {
-            throw new IllegalStateException("Não é possível excluir uma marca com produtos associados.");
+        if (!repository.existsById(id)) {
+            throw new IllegalArgumentException("Marca não encontrada com ID: " + id);
         }
-
         repository.deleteById(id);
     }
 
     @Override
     public boolean existePorNome(String nome) {
         return repository.existsByNomeIgnoreCase(nome);
-    }
-
-    // ==================================
-    // 🧭 MÉTODOS AUXILIARES
-    // ==================================
-
-    private MarcaResponse toResponse(Marca marca) {
-        return new MarcaResponse(
-                marca.getId(),
-                marca.getNome(),
-                (marca.getProdutos() != null) ? marca.getProdutos().size() : 0
-        );
     }
 }

@@ -9,81 +9,103 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Interface de serviço responsável pelas operações de negócio
- * relacionadas à entidade FornecedorProduto.
+ * Serviço responsável pelas regras de negócio relacionadas ao vínculo
+ * entre fornecedores e produtos.
+ *
+ * <p>
+ * Um fornecedor pode fornecer múltiplos produtos e um produto pode possuir
+ * diversos fornecedores, cada um com preços, códigos internos e prazos
+ * específicos.
+ * </p>
  */
 public interface FornecedorProdutoService {
+
+    // ============================================================
+    // 🔹 CRUD padrão
+    // ============================================================
 
     /**
      * Cria um novo vínculo entre fornecedor e produto.
      *
-     * @param request Dados para criação do vínculo.
-     * @return FornecedorProdutoResponse criado.
+     * @param request DTO contendo os dados para criação.
+     * @return DTO da entidade criada.
      */
     FornecedorProdutoResponse salvar(FornecedorProdutoRequest request);
 
     /**
-     * Atualiza um vínculo existente entre fornecedor e produto.
+     * Atualiza os dados de um vínculo existente.
      *
      * @param id ID do vínculo.
-     * @param request Dados atualizados.
-     * @return FornecedorProdutoResponse atualizado.
+     * @param request DTO contendo os dados atualizados.
+     * @return DTO da entidade atualizada.
      */
     FornecedorProdutoResponse atualizar(Long id, FornecedorProdutoRequest request);
 
     /**
-     * Busca um vínculo específico por ID.
+     * Remove um vínculo entre fornecedor e produto.
+     *
+     * @param id Identificador do vínculo.
+     */
+    void deletar(Long id);
+
+    // ============================================================
+    // 🔹 Consultas
+    // ============================================================
+
+    /**
+     * Busca um vínculo específico pelo seu identificador.
      *
      * @param id ID do vínculo.
-     * @return FornecedorProdutoResponse correspondente.
+     * @return FornecedorProdutoResponse, se encontrado.
      */
     Optional<FornecedorProdutoResponse> buscarPorId(Long id);
 
     /**
-     * Lista todos os vínculos registrados.
+     * Lista todos os vínculos cadastrados no sistema.
      *
      * @return Lista de FornecedorProdutoResponse.
      */
     List<FornecedorProdutoResponse> listarTodos();
 
     /**
-     * Lista vínculos de um determinado produto.
+     * Lista todos os fornecedores associados a um determinado produto.
      *
      * @param produtoId ID do produto.
-     * @return Lista de FornecedorProdutoListDTO.
+     * @return Lista simplificada de vínculos.
      */
     List<FornecedorProdutoListDTO> listarPorProduto(Long produtoId);
 
     /**
-     * Lista vínculos de um determinado fornecedor.
+     * Lista todos os produtos associados a um determinado fornecedor.
      *
      * @param fornecedorId ID do fornecedor.
-     * @return Lista de FornecedorProdutoListDTO.
+     * @return Lista simplificada de vínculos.
      */
     List<FornecedorProdutoListDTO> listarPorFornecedor(Long fornecedorId);
 
+    // ============================================================
+    // 🔹 Operações específicas
+    // ============================================================
+
     /**
-     * Atualiza apenas o preço de custo de um vínculo existente.
+     * Atualiza apenas o preço de custo do vínculo.
      *
      * @param id ID do vínculo.
-     * @param novoPrecoCusto Novo valor.
-     * @return FornecedorProdutoResponse atualizado.
+     * @param novoPrecoCusto Novo preço de custo.
+     * @return DTO atualizado.
      */
     FornecedorProdutoResponse atualizarPrecoCusto(Long id, BigDecimal novoPrecoCusto);
 
-    /**
-     * Remove um vínculo entre fornecedor e produto.
-     *
-     * @param id ID do vínculo.
-     */
-    void deletar(Long id);
+    // ============================================================
+    // 🔹 Validações
+    // ============================================================
 
     /**
-     * Verifica se já existe um vínculo entre o fornecedor e o produto.
+     * Verifica se já existe um vínculo entre um fornecedor e um produto.
      *
      * @param fornecedorId ID do fornecedor.
      * @param produtoId ID do produto.
-     * @return true se já existir, false caso contrário.
+     * @return true se já houver vínculo, false caso contrário.
      */
     boolean existeVinculo(Long fornecedorId, Long produtoId);
 }

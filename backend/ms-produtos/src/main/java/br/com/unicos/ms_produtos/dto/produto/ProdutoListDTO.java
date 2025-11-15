@@ -7,11 +7,9 @@ import br.com.unicos.core.produto.model.ProdutoBase;
  * Ideal para consultas rápidas e catálogos.
  */
 public record ProdutoListDTO(
-
         Long id,
         ProdutoBase dadosBasicos,
         boolean ativo,
         Long categoriaId,
         Long marcaId
-
 ) {}

@@ -9,51 +9,54 @@ import java.util.Optional;
 
 /**
  * Interface de serviço responsável pelas operações de negócio
- * relacionadas à entidade HistoricoPreco.
+ * relacionadas aos registros de histórico de preço dos produtos.
  */
 public interface HistoricoPrecoService {
 
     /**
-     * Registra um novo histórico de preço.
+     * Registra um novo histórico de preço para um produto.
      *
-     * @param request Dados do histórico.
-     * @return HistoricoPrecoResponse criado.
+     * @param produtoId ID do produto ao qual o histórico pertence.
+     * @param request   Dados do histórico a ser registrado.
+     * @return HistoricoPrecoResponse com os dados do registro criado.
      */
-    HistoricoPrecoResponse salvar(HistoricoPrecoRequest request);
+    HistoricoPrecoResponse salvar(Long produtoId, HistoricoPrecoRequest request);
 
     /**
-     * Busca um histórico de preço pelo ID.
+     * Busca um registro de histórico de preço pelo ID.
      *
      * @param id Identificador do histórico.
-     * @return HistoricoPrecoResponse, se encontrado.
+     * @return HistoricoPrecoResponse encapsulado em Optional.
      */
     Optional<HistoricoPrecoResponse> buscarPorId(Long id);
 
     /**
-     * Lista todos os históricos de preço cadastrados, ordenados por data de alteração (decrescente).
+     * Lista todos os históricos de preço cadastrados,
+     * ordenados pela data de alteração (mais recentes primeiro).
      *
-     * @return Lista de HistoricoPrecoResponse.
+     * @return Lista de registros completos.
      */
     List<HistoricoPrecoResponse> listarTodos();
 
     /**
-     * Lista os históricos de preço de um produto específico.
+     * Lista todos os históricos de preço vinculados a um produto,
+     * ordenados pela data de alteração (mais recentes primeiro).
      *
      * @param produtoId ID do produto.
-     * @return Lista de HistoricoPrecoResponse ordenada por data (decrescente).
+     * @return Lista de registros completos.
      */
     List<HistoricoPrecoResponse> listarPorProduto(Long produtoId);
 
     /**
-     * Lista os últimos 10 registros de alteração de preço de um produto.
+     * Lista os últimos 10 registros de histórico de preço de um produto.
      *
      * @param produtoId ID do produto.
-     * @return Lista de HistoricoPrecoListDTO.
+     * @return Lista resumida dos últimos registros.
      */
     List<HistoricoPrecoListDTO> listarUltimosPorProduto(Long produtoId);
 
     /**
-     * Exclui um histórico de preço pelo ID.
+     * Exclui um registro de histórico de preço.
      *
      * @param id Identificador do histórico.
      */

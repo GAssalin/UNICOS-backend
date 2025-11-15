@@ -1,6 +1,6 @@
 package br.com.unicos.ms_produtos.service;
 
-import br.com.unicos.ms_produtos.dto.ProdutoUnidadeRequest;
+import br.com.unicos.ms_produtos.dto.produto_unidade.ProdutoUnidadeRequest;
 import br.com.unicos.ms_produtos.dto.produto_unidade.ProdutoUnidadeResponse;
 
 import java.util.List;

@@ -14,18 +14,16 @@ import java.util.List;
  * pertencentes ao ms-produtos.
  */
 public record ProdutoRequest(
-
+        Long id,
         ProdutoBase dadosBasicos,
         ProdutoTributacaoBase tributacao,
         ProdutoEstoqueBase estoqueConfig,
         PrecoBase precoAtual,
-
+        boolean ativo,
         Long categoriaId,
         Long marcaId,
-
         List<ImagemProdutoRequest> imagens,
         List<ProdutoAtributoValorRequest> atributos,
         List<Long> fornecedoresIds,
         List<ProdutoVariacaoRequest> variacoes
-
 ) {}
