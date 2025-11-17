@@ -1,13 +1,16 @@
 package br.com.unicos.ms_produtos.model;
 
-import br.com.unicos.core.produto.model.*;
+import br.com.unicos.core.produto.model.PrecoBase;
+import br.com.unicos.core.produto.model.ProdutoBase;
+import br.com.unicos.core.produto.model.ProdutoEstoqueBase;
+import br.com.unicos.core.produto.model.ProdutoTributacaoBase;
 import jakarta.persistence.*;
-import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -52,56 +55,24 @@ public class Produto {
      * Dados básicos como nome, descrição, SKU global, classificação e tipos.
      */
     @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "nome", column = @Column(name = "basico_nome")),
-            @AttributeOverride(name = "descricao", column = @Column(name = "basico_descricao")),
-            @AttributeOverride(name = "sku", column = @Column(name = "basico_sku", length = 50, unique = true, nullable = false)),
-            @AttributeOverride(name = "codigoBarras", column = @Column(name = "basico_codigo_barras")),
-            @AttributeOverride(name = "tipoProduto", column = @Column(name = "basico_tipo_produto")),
-            @AttributeOverride(name = "tipoVariacaoProduto", column = @Column(name = "basico_tipo_variacao")),
-            @AttributeOverride(name = "tipoOrigemProduto", column = @Column(name = "basico_tipo_origem")),
-            @AttributeOverride(name = "tipoControleEstoque", column = @Column(name = "basico_controle_estoque")),
-            @AttributeOverride(name = "tipoArmazenamentoProduto", column = @Column(name = "basico_tipo_armazenamento")),
-            @AttributeOverride(name = "tipoClassificacaoProduto", column = @Column(name = "basico_tipo_classificacao")),
-            @AttributeOverride(name = "statusProduto", column = @Column(name = "basico_status"))
-    })
     private ProdutoBase dadosBasicos;
 
     /**
      * Informações tributárias universais do produto.
      */
     @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "ncm", column = @Column(name = "trib_ncm")),
-            @AttributeOverride(name = "cest", column = @Column(name = "trib_cest")),
-            @AttributeOverride(name = "situacaoTributaria", column = @Column(name = "trib_st"))
-    })
     private ProdutoTributacaoBase tributacao;
 
     /**
      * Configurações globais de estoque.
      */
     @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "depositoId", column = @Column(name = "est_deposito_id")),
-            @AttributeOverride(name = "unidadeMedida", column = @Column(name = "est_unidade_medida")),
-            @AttributeOverride(name = "quantidadeDisponivel", column = @Column(name = "est_qtd_disponivel")),
-            @AttributeOverride(name = "quantidadeReservada", column = @Column(name = "est_qtd_reservada")),
-            @AttributeOverride(name = "quantidadeTotal", column = @Column(name = "est_qtd_total")),
-            @AttributeOverride(name = "ultimaAtualizacao", column = @Column(name = "est_ultima_atualizacao"))
-    })
     private ProdutoEstoqueBase estoqueConfig;
 
     /**
      * Preço atual do produto.
      */
     @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "precoCusto", column = @Column(name = "preco_custo")),
-            @AttributeOverride(name = "precoVenda", column = @Column(name = "preco_venda")),
-            @AttributeOverride(name = "precoMinimo", column = @Column(name = "preco_minimo")),
-            @AttributeOverride(name = "margemPadrao", column = @Column(name = "preco_margem_padrao"))
-    })
     private PrecoBase precoAtual;
 
     // ============================================================

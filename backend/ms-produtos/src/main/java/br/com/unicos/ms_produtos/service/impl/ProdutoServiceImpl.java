@@ -1,9 +1,6 @@
 package br.com.unicos.ms_produtos.service.impl;
 
 import br.com.unicos.core.produto.model.PrecoBase;
-import br.com.unicos.core.produto.model.ProdutoBase;
-import br.com.unicos.core.produto.model.ProdutoEstoqueBase;
-import br.com.unicos.core.produto.model.ProdutoTributacaoBase;
 import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoRequest;
 import br.com.unicos.ms_produtos.dto.produto.ProdutoRequest;
 import br.com.unicos.ms_produtos.dto.produto.ProdutoResponse;
@@ -89,10 +86,10 @@ public class ProdutoServiceImpl implements ProdutoService {
         }
 
         Produto produto = Produto.builder()
-                .dadosBasicos(cloneProdutoBase(request.dadosBasicos()))
-                .tributacao(cloneProdutoTributacao(request.tributacao()))
-                .estoqueConfig(cloneProdutoEstoque(request.estoqueConfig()))
-                .precoAtual(clonePrecoBase(request.precoAtual()))
+                .dadosBasicos(request.dadosBasicos())
+                .tributacao(request.tributacao())
+                .estoqueConfig(request.estoqueConfig())
+                .precoAtual(request.precoAtual())
                 .ativo(true)
                 .categoria(buscarCategoriaOuNull(request.categoriaId()))
                 .marca(buscarMarcaOuNull(request.marcaId()))
@@ -125,16 +122,16 @@ public class ProdutoServiceImpl implements ProdutoService {
 
         // Atualizar dados universais
         if (request.dadosBasicos() != null) {
-            existente.setDadosBasicos(cloneProdutoBase(request.dadosBasicos()));
+            existente.setDadosBasicos(request.dadosBasicos());
         }
         if (request.tributacao() != null) {
-            existente.setTributacao(cloneProdutoTributacao(request.tributacao()));
+            existente.setTributacao(request.tributacao());
         }
         if (request.estoqueConfig() != null) {
-            existente.setEstoqueConfig(cloneProdutoEstoque(request.estoqueConfig()));
+            existente.setEstoqueConfig(request.estoqueConfig());
         }
         if (request.precoAtual() != null) {
-            existente.setPrecoAtual(clonePrecoBase(request.precoAtual()));
+            existente.setPrecoAtual(request.precoAtual());
         }
 
         existente.setCategoria(buscarCategoriaOuNull(request.categoriaId()));
@@ -359,66 +356,6 @@ public class ProdutoServiceImpl implements ProdutoService {
     // ============================================================
     // 🧭 MÉTODOS AUXILIARES
     // ============================================================
-
-    private ProdutoBase cloneProdutoBase(ProdutoBase base) {
-        if (base == null) {
-            return null;
-        }
-
-        return new ProdutoBase(
-                base.getNome(),
-                base.getDescricao(),
-                base.getSku(),
-                base.getCodigoBarras(),
-                base.getTipoProduto(),
-                base.getTipoVariacaoProduto(),
-                base.getTipoOrigemProduto(),
-                base.getTipoControleEstoque(),
-                base.getTipoArmazenamentoProduto(),
-                base.getTipoClassificacaoProduto(),
-                base.getStatusProduto()
-        );
-    }
-
-    private ProdutoTributacaoBase cloneProdutoTributacao(ProdutoTributacaoBase trib) {
-        if (trib == null) {
-            return null;
-        }
-
-        return new ProdutoTributacaoBase(
-                trib.getNcm(),
-                trib.getCest(),
-                trib.getSituacaoTributaria()
-        );
-    }
-
-    private ProdutoEstoqueBase cloneProdutoEstoque(ProdutoEstoqueBase est) {
-        if (est == null) {
-            return null;
-        }
-
-        return new ProdutoEstoqueBase(
-                est.getDepositoId(),
-                est.getUnidadeMedida(),
-                est.getQuantidadeDisponivel(),
-                est.getQuantidadeReservada(),
-                est.getQuantidadeTotal(),
-                est.getUltimaAtualizacao()
-        );
-    }
-
-    private PrecoBase clonePrecoBase(PrecoBase preco) {
-        if (preco == null) {
-            return null;
-        }
-
-        return new PrecoBase(
-                preco.getPrecoCusto(),
-                preco.getPrecoVenda(),
-                preco.getPrecoMinimo(),
-                preco.getMargemPadrao()
-        );
-    }
 
     private Categoria buscarCategoriaOuNull(Long categoriaId) {
         if (categoriaId == null) {
