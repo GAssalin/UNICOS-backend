@@ -1,8 +1,0 @@
-package br.com.unicos.ms_empresa.dto;
-
-public record FilialRequest(
-        String nome,
-        String cnpj,
-        Long empresaId,
-        Boolean ativo
-) {}
