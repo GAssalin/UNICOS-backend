@@ -9,6 +9,9 @@ import br.com.unicos.ms_auth.repository.UsuarioRepository;
 import br.com.unicos.ms_auth.service.UsuarioService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +24,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class UsuarioServiceImpl implements UsuarioService {
+public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
     private final RoleRepository roleRepository;
@@ -204,5 +207,11 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .map(id -> roleRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Role não encontrada: " + id)))
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return usuarioRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("O usuário não foi encontrado!"));
     }
 }
