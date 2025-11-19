@@ -7,14 +7,8 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="core-contas" />
-        <module name="core-tesouraria" />
-        <module name="core-financeiro" />
-        <module name="core-categoria" />
-        <module name="core-pedido" />
         <module name="gateway" />
         <module name="service-registry" />
-        <module name="core-base" />
       </profile>
       <profile name="Annotation profile for ms-produtos" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -26,12 +20,12 @@
         </processorPath>
         <module name="ms-produtos" />
       </profile>
-      <profile name="Annotation profile for ms-auth" enabled="true">
+      <profile name="Annotation profile for UNICOS :: MS-Auth" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
         </processorPath>
         <module name="ms-pessoas" />
         <module name="ms-estoque" />
@@ -46,9 +40,16 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="base-core" target="21" />
+      <module name="core-base" target="21" />
+      <module name="core-categoria" target="21" />
+      <module name="core-contas" target="21" />
+      <module name="core-financeiro" target="21" />
+      <module name="core-pedido" target="21" />
+      <module name="core-tesouraria" target="21" />
       <module name="ms-pedido" target="21" />
       <module name="ms-vendas" target="21" />
       <module name="pedido-core" target="21" />
+      <module name="unicos-core" target="1.5" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

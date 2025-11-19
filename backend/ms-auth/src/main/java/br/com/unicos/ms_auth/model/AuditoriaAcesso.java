@@ -1,5 +1,6 @@
 package br.com.unicos.ms_auth.model;
 
+import br.com.unicos.ms_auth.enums.TipoAcaoAcesso;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,11 +24,12 @@ public class AuditoriaAcesso {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String username;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private String acao; // ex: LOGIN_SUCESSO, LOGIN_FALHA, LOGOUT
+    private TipoAcaoAcesso acao;
 
     @Column(length = 255)
     private String detalhes;
@@ -38,4 +40,9 @@ public class AuditoriaAcesso {
 
     @Column(length = 50)
     private String ip;
+
+    @PrePersist
+    public void prePersist() {
+        this.dataEvento = LocalDateTime.now();
+    }
 }

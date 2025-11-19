@@ -17,12 +17,12 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     /**
-     * Busca um usuário pelo nome de usuário.
+     * Busca um usuário pelo login.
      *
-     * @param username Nome de usuário.
+     * @param login Login.
      * @return Optional contendo o usuário, se encontrado.
      */
-    Optional<Usuario> findByUsername(String username);
+    Optional<Usuario> findByLogin(String login);
 
     /**
      * Busca um usuário pelo e-mail.

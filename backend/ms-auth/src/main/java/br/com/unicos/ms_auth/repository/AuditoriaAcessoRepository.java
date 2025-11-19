@@ -1,5 +1,6 @@
 package br.com.unicos.ms_auth.repository;
 
+import br.com.unicos.ms_auth.enums.TipoAcaoAcesso;
 import br.com.unicos.ms_auth.model.AuditoriaAcesso;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -30,7 +31,7 @@ public interface AuditoriaAcessoRepository extends JpaRepository<AuditoriaAcesso
      * @param acao Tipo da ação (ex: LOGIN_SUCESSO, LOGIN_FALHA).
      * @return Lista de registros de auditoria correspondentes.
      */
-    List<AuditoriaAcesso> findByAcao(String acao);
+    List<AuditoriaAcesso> findByAcao(TipoAcaoAcesso acao);
 
     /**
      * Lista registros de auditoria ocorridos dentro de um intervalo de tempo.

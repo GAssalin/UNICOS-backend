@@ -27,7 +27,7 @@ public class Role {
 
     @NotBlank
     @Column(nullable = false, unique = true, length = 50)
-    private String nome;
+    private String codigo;
 
     @Column(length = 255)
     private String descricao;
