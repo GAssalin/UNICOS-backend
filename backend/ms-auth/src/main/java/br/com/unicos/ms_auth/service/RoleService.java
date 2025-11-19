@@ -1,13 +1,12 @@
 package br.com.unicos.ms_auth.service;
 
-import br.com.unicos.ms_auth.dto.RoleRequest;
-import br.com.unicos.ms_auth.dto.RoleResponse;
+import br.com.unicos.ms_auth.dto.role.RoleRequest;
+import br.com.unicos.ms_auth.dto.role.RoleResponse;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
- * Interface de serviço responsável pelas operações de negócio
+ * Interface de serviço responsável pelas regras de negócio
  * relacionadas à entidade Role.
  */
 public interface RoleService {
@@ -15,17 +14,17 @@ public interface RoleService {
     /**
      * Cria um novo papel (role) no sistema.
      *
-     * @param request Dados para criação do papel.
-     * @return RoleResponse criado.
+     * @param request Dados necessários para criação.
+     * @return RoleResponse representando o papel criado.
      */
     RoleResponse salvar(RoleRequest request);
 
     /**
-     * Atualiza um papel existente.
+     * Atualiza os dados de um papel existente.
      *
-     * @param id      ID do papel.
+     * @param id      ID do papel a ser atualizado.
      * @param request Dados atualizados.
-     * @return RoleResponse atualizado.
+     * @return RoleResponse representando o papel atualizado.
      */
     RoleResponse atualizar(Long id, RoleRequest request);
 
@@ -33,29 +32,30 @@ public interface RoleService {
      * Busca um papel pelo seu ID.
      *
      * @param id ID do papel.
-     * @return Optional contendo o RoleResponse, se encontrado.
+     * @return RoleResponse encontrado.
+     * @throws jakarta.persistence.EntityNotFoundException caso não exista.
      */
-    Optional<RoleResponse> buscarPorId(Long id);
+    RoleResponse buscarPorId(Long id);
 
     /**
-     * Lista todos os papéis cadastrados.
+     * Lista todos os papéis cadastrados no sistema.
      *
      * @return Lista de RoleResponse.
      */
     List<RoleResponse> listarTodos();
 
     /**
-     * Remove um papel específico.
+     * Remove um papel do sistema.
      *
-     * @param id ID do papel.
+     * @param id ID do papel a ser removido.
      */
     void deletar(Long id);
 
     /**
-     * Verifica se já existe um papel com o nome informado.
+     * Verifica se já existe um papel com o código informado.
      *
-     * @param nome Nome do papel.
+     * @param codigo Código do papel.
      * @return true se existir, false caso contrário.
      */
-    boolean existePorNome(String nome);
+    boolean existePorCodigo(String codigo);
 }

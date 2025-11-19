@@ -1,26 +1,23 @@
 package br.com.unicos.ms_auth.service.impl;
 
-import br.com.unicos.ms_auth.dto.UsuarioRequest;
-import br.com.unicos.ms_auth.dto.UsuarioResponse;
+import br.com.unicos.ms_auth.dto.usuario.UsuarioRequest;
+import br.com.unicos.ms_auth.dto.usuario.UsuarioResponse;
+import br.com.unicos.ms_auth.model.Role;
 import br.com.unicos.ms_auth.model.Usuario;
 import br.com.unicos.ms_auth.repository.RoleRepository;
 import br.com.unicos.ms_auth.repository.UsuarioRepository;
 import br.com.unicos.ms_auth.service.UsuarioService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Implementação da interface {@link UsuarioService}.
- * <p>
- * Contém as regras de negócio e interações com o repositório de Usuario.
+ * Implementação do serviço responsável pelas regras de negócio
+ * relacionadas à entidade Usuario.
  */
 @Service
 @RequiredArgsConstructor
@@ -28,96 +25,184 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final RoleRepository roleRepository;
-    private final ModelMapper modelMapper;
 
+    /**
+     * Cria um novo usuário autenticável no sistema.
+     */
     @Override
-    @Transactional
     public UsuarioResponse salvar(UsuarioRequest request) {
-        if (usuarioRepository.findByUsername(request.username()).isPresent()) {
-            throw new DataIntegrityViolationException("Já existe um usuário com este username.");
+
+        if (usuarioRepository.findByLogin(request.login()).isPresent()) {
+            throw new IllegalArgumentException("Já existe um usuário com o login informado.");
         }
 
-        Usuario usuario = modelMapper.map(request, Usuario.class);
-        if (request.rolesIds() != null && !request.rolesIds().isEmpty()) {
-            usuario.setRoles(
-                    request.rolesIds().stream()
-                            .map(id -> roleRepository.findById(id)
-                                    .orElseThrow(() -> new EntityNotFoundException("Role não encontrada: ID " + id)))
-                            .collect(Collectors.toSet())
-            );
+        if (request.email() != null &&
+                usuarioRepository.findByEmail(request.email()).isPresent()) {
+            throw new IllegalArgumentException("Já existe um usuário com o e-mail informado.");
         }
 
-        return modelMapper.map(usuarioRepository.save(usuario), UsuarioResponse.class);
+        Usuario usuario = Usuario.builder()
+                .login(request.login())
+                .password(request.password()) // futuramente criptografado
+                .email(request.email())
+                .pessoaId(request.pessoaId())
+                .ativo(request.ativo() != null ? request.ativo() : true)
+                .roles(buscarRoles(request.rolesIds()))
+                .build();
+
+        usuarioRepository.save(usuario);
+        return toResponse(usuario);
     }
 
+    /**
+     * Atualiza um usuário existente.
+     */
     @Override
-    @Transactional
     public UsuarioResponse atualizar(Long id, UsuarioRequest request) {
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado."));
 
-        usuario.setUsername(request.username());
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + id));
+
+        // Verifica se o login está sendo alterado e se é único
+        if (!usuario.getLogin().equals(request.login()) &&
+                usuarioRepository.findByLogin(request.login()).isPresent()) {
+
+            throw new IllegalArgumentException("Já existe um usuário com o login informado.");
+        }
+
+        // Verifica se o email está sendo alterado e se é único
+        if (request.email() != null &&
+                !request.email().equals(usuario.getEmail()) &&
+                usuarioRepository.findByEmail(request.email()).isPresent()) {
+
+            throw new IllegalArgumentException("Já existe um usuário com o e-mail informado.");
+        }
+
+        usuario.setLogin(request.login());
         usuario.setEmail(request.email());
+        usuario.setPessoaId(request.pessoaId());
         usuario.setAtivo(request.ativo() != null ? request.ativo() : usuario.isAtivo());
 
-        if (request.rolesIds() != null) {
-            usuario.setRoles(
-                    request.rolesIds().stream()
-                            .map(rid -> roleRepository.findById(rid)
-                                    .orElseThrow(() -> new EntityNotFoundException("Role não encontrada: ID " + rid)))
-                            .collect(Collectors.toSet())
-            );
-        }
+        // Atualiza roles
+        usuario.setRoles(buscarRoles(request.rolesIds()));
 
-        return modelMapper.map(usuarioRepository.save(usuario), UsuarioResponse.class);
+        usuarioRepository.save(usuario);
+        return toResponse(usuario);
     }
 
+    /**
+     * Busca um usuário pelo ID.
+     */
     @Override
-    @Transactional(readOnly = true)
-    public Optional<UsuarioResponse> buscarPorId(Long id) {
-        return usuarioRepository.findById(id)
-                .map(usuario -> modelMapper.map(usuario, UsuarioResponse.class));
-    }
+    public UsuarioResponse buscarPorId(Long id) {
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<UsuarioResponse> listarTodos() {
-        return usuarioRepository.findAll().stream()
-                .map(u -> modelMapper.map(u, UsuarioResponse.class))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<UsuarioResponse> listarAtivos() {
-        return usuarioRepository.findByAtivoTrue().stream()
-                .map(u -> modelMapper.map(u, UsuarioResponse.class))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<UsuarioResponse> listarInativos() {
-        return usuarioRepository.findByAtivoFalse().stream()
-                .map(u -> modelMapper.map(u, UsuarioResponse.class))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public void desativar(Long id) {
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado."));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + id));
+
+        return toResponse(usuario);
+    }
+
+    /**
+     * Busca um usuário pelo login.
+     */
+    @Override
+    public UsuarioResponse buscarPorLogin(String login) {
+
+        Usuario usuario = usuarioRepository.findByLogin(login)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + login));
+
+        return toResponse(usuario);
+    }
+
+    /**
+     * Lista todos os usuários cadastrados.
+     */
+    @Override
+    public List<UsuarioResponse> listarTodos() {
+        return usuarioRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    /**
+     * Lista todos os usuários ativos.
+     */
+    @Override
+    public List<UsuarioResponse> listarAtivos() {
+        return usuarioRepository.findByAtivoTrue()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    /**
+     * Lista todos os usuários inativos.
+     */
+    @Override
+    public List<UsuarioResponse> listarInativos() {
+        return usuarioRepository.findByAtivoFalse()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    /**
+     * Desativa um usuário.
+     */
+    @Override
+    public void desativar(Long id) {
+
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + id));
+
         usuario.setAtivo(false);
         usuarioRepository.save(usuario);
     }
 
+    /**
+     * Remove um usuário permanentemente.
+     */
     @Override
-    @Transactional
     public void deletar(Long id) {
+
         if (!usuarioRepository.existsById(id)) {
-            throw new EntityNotFoundException("Usuário não encontrado para exclusão.");
+            throw new EntityNotFoundException("Usuário não encontrado: " + id);
         }
+
         usuarioRepository.deleteById(id);
+    }
+
+    /**
+     * Converte entidade Usuario em UsuarioResponse.
+     */
+    private UsuarioResponse toResponse(Usuario entity) {
+        return new UsuarioResponse(
+                entity.getId(),
+                entity.getLogin(),
+                entity.getPessoaId(),
+                entity.getEmail(),
+                entity.isAtivo(),
+                entity.getRoles()
+                        .stream()
+                        .map(Role::getCodigo)
+                        .collect(Collectors.toSet()),
+                entity.getCriadoEm(),
+                entity.getAtualizadoEm()
+        );
+    }
+
+    /**
+     * Retorna o conjunto de roles baseado nos IDs recebidos.
+     */
+    private Set<Role> buscarRoles(Set<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Set.of();
+        }
+
+        return ids.stream()
+                .map(id -> roleRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException("Role não encontrada: " + id)))
+                .collect(Collectors.toSet());
     }
 }

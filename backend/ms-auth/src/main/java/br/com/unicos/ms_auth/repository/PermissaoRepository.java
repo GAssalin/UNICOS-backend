@@ -16,18 +16,18 @@ import java.util.Optional;
 public interface PermissaoRepository extends JpaRepository<Permissao, Long> {
 
     /**
-     * Busca uma permissão pelo nome.
+     * Busca uma permissão pelo codigo.
      *
-     * @param nome Nome da permissão.
+     * @param codigo Codigo da permissão.
      * @return Optional contendo a permissão, se encontrada.
      */
-    Optional<Permissao> findByNome(String nome);
+    Optional<Permissao> findByCodigo(String codigo);
 
     /**
-     * Verifica se já existe uma permissão com o nome informado.
+     * Verifica se já existe uma permissão com o codigo informado.
      *
-     * @param nome Nome da permissão.
+     * @param codigo Codigo da permissão.
      * @return true se existir, false caso contrário.
      */
-    boolean existsByNome(String nome);
+    boolean existsByCodigo(String codigo);
 }

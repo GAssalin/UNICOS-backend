@@ -1,26 +1,24 @@
 package br.com.unicos.ms_auth.service.impl;
 
-import br.com.unicos.ms_auth.dto.RoleRequest;
-import br.com.unicos.ms_auth.dto.RoleResponse;
+import br.com.unicos.ms_auth.dto.permissao.PermissaoResponse;
+import br.com.unicos.ms_auth.dto.role.RoleRequest;
+import br.com.unicos.ms_auth.dto.role.RoleResponse;
+import br.com.unicos.ms_auth.model.Permissao;
 import br.com.unicos.ms_auth.model.Role;
 import br.com.unicos.ms_auth.repository.PermissaoRepository;
 import br.com.unicos.ms_auth.repository.RoleRepository;
 import br.com.unicos.ms_auth.service.RoleService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Implementação da interface {@link RoleService}.
- * <p>
- * Contém as regras de negócio e interações com o repositório de Role.
+ * Implementação do serviço responsável pelas regras de negócio
+ * relacionadas à entidade Role.
  */
 @Service
 @RequiredArgsConstructor
@@ -28,76 +26,123 @@ public class RoleServiceImpl implements RoleService {
 
     private final RoleRepository roleRepository;
     private final PermissaoRepository permissaoRepository;
-    private final ModelMapper modelMapper;
 
+    /**
+     * Cria um novo papel no sistema.
+     */
     @Override
-    @Transactional
     public RoleResponse salvar(RoleRequest request) {
-        if (roleRepository.existsByNome(request.nome())) {
-            throw new DataIntegrityViolationException("Já existe um papel com este nome.");
+
+        if (roleRepository.existsByCodigo(request.codigo())) {
+            throw new IllegalArgumentException("Já existe um papel cadastrado com o código informado.");
         }
 
-        Role role = modelMapper.map(request, Role.class);
-        if (request.permissoesIds() != null && !request.permissoesIds().isEmpty()) {
-            role.setPermissoes(
-                    request.permissoesIds().stream()
-                            .map(id -> permissaoRepository.findById(id)
-                                    .orElseThrow(() -> new EntityNotFoundException("Permissão não encontrada: ID " + id)))
-                            .collect(Collectors.toSet())
-            );
-        }
+        Role role = Role.builder()
+                .codigo(request.codigo())
+                .descricao(request.descricao())
+                .permissoes(buscarPermissoes(request.permissoesIds()))
+                .build();
 
-        return modelMapper.map(roleRepository.save(role), RoleResponse.class);
+        roleRepository.save(role);
+        return toResponse(role);
     }
 
+    /**
+     * Atualiza um papel existente.
+     */
     @Override
-    @Transactional
     public RoleResponse atualizar(Long id, RoleRequest request) {
-        Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Papel não encontrado."));
 
-        role.setNome(request.nome());
-        role.setDescricao(request.descricao());
+        Role entity = roleRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Role não encontrada: " + id));
 
-        if (request.permissoesIds() != null) {
-            role.setPermissoes(
-                    request.permissoesIds().stream()
-                            .map(pid -> permissaoRepository.findById(pid)
-                                    .orElseThrow(() -> new EntityNotFoundException("Permissão não encontrada: ID " + pid)))
-                            .collect(Collectors.toSet())
-            );
+        // Verificar duplicidade caso o código seja alterado
+        if (!entity.getCodigo().equals(request.codigo()) &&
+                roleRepository.existsByCodigo(request.codigo())) {
+
+            throw new IllegalArgumentException("Já existe um papel cadastrado com o código informado.");
         }
 
-        return modelMapper.map(roleRepository.save(role), RoleResponse.class);
+        entity.setCodigo(request.codigo());
+        entity.setDescricao(request.descricao());
+        entity.setPermissoes(buscarPermissoes(request.permissoesIds()));
+
+        roleRepository.save(entity);
+        return toResponse(entity);
     }
 
+    /**
+     * Busca um papel pelo ID informado.
+     */
     @Override
-    @Transactional(readOnly = true)
-    public Optional<RoleResponse> buscarPorId(Long id) {
-        return roleRepository.findById(id)
-                .map(r -> modelMapper.map(r, RoleResponse.class));
+    public RoleResponse buscarPorId(Long id) {
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Role não encontrada: " + id));
+
+        return toResponse(role);
     }
 
+    /**
+     * Lista todos os papéis cadastrados.
+     */
     @Override
-    @Transactional(readOnly = true)
     public List<RoleResponse> listarTodos() {
-        return roleRepository.findAll().stream()
-                .map(r -> modelMapper.map(r, RoleResponse.class))
-                .collect(Collectors.toList());
+        return roleRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
+    /**
+     * Remove um papel existente.
+     */
     @Override
-    @Transactional
     public void deletar(Long id) {
         if (!roleRepository.existsById(id)) {
-            throw new EntityNotFoundException("Papel não encontrado para exclusão.");
+            throw new EntityNotFoundException("Role não encontrada: " + id);
         }
+
         roleRepository.deleteById(id);
     }
 
+    /**
+     * Verifica se existe um papel com o código informado.
+     */
     @Override
-    @Transactional(readOnly = true)
-    public boolean existePorNome(String nome) {
-        return roleRepository.existsByNome(nome);
+    public boolean existePorCodigo(String codigo) {
+        return roleRepository.existsByCodigo(codigo);
+    }
+
+    /**
+     * Converte entidade Role em RoleResponse.
+     */
+    private RoleResponse toResponse(Role entity) {
+        return new RoleResponse(
+                entity.getId(),
+                entity.getCodigo(),
+                entity.getDescricao(),
+                entity.getPermissoes()
+                        .stream()
+                        .map(perm -> new PermissaoResponse(
+                                perm.getId(),
+                                perm.getCodigo(),
+                                perm.getDescricao()
+                        ))
+                        .collect(Collectors.toSet())
+        );
+    }
+
+    /**
+     * Busca permissões pelo conjunto de IDs e retorna o Set de entidades.
+     */
+    private Set<Permissao> buscarPermissoes(Set<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Set.of();
+        }
+
+        return ids.stream()
+                .map(id -> permissaoRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException("Permissão não encontrada: " + id)))
+                .collect(Collectors.toSet());
     }
 }

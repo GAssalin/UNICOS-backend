@@ -1,13 +1,12 @@
 package br.com.unicos.ms_auth.service;
 
-import br.com.unicos.ms_auth.dto.UsuarioRequest;
-import br.com.unicos.ms_auth.dto.UsuarioResponse;
+import br.com.unicos.ms_auth.dto.usuario.UsuarioRequest;
+import br.com.unicos.ms_auth.dto.usuario.UsuarioResponse;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
- * Interface de serviço responsável pelas operações de negócio
+ * Interface de serviço responsável pelas regras de negócio
  * relacionadas à entidade Usuario.
  */
 public interface UsuarioService {
@@ -15,30 +14,40 @@ public interface UsuarioService {
     /**
      * Cria um novo usuário autenticável no sistema.
      *
-     * @param request Dados para criação do usuário.
-     * @return UsuarioResponse criado.
+     * @param request Dados necessários para criação.
+     * @return UsuarioResponse representando o usuário criado.
      */
     UsuarioResponse salvar(UsuarioRequest request);
 
     /**
-     * Atualiza um usuário existente.
+     * Atualiza os dados de um usuário existente.
      *
-     * @param id      ID do usuário.
+     * @param id      ID do usuário a ser atualizado.
      * @param request Dados atualizados.
-     * @return UsuarioResponse atualizado.
+     * @return UsuarioResponse com as alterações aplicadas.
      */
     UsuarioResponse atualizar(Long id, UsuarioRequest request);
 
     /**
-     * Busca um usuário por ID.
+     * Busca um usuário pelo ID informado.
      *
      * @param id ID do usuário.
-     * @return Optional contendo o UsuarioResponse, se encontrado.
+     * @return UsuarioResponse correspondente.
+     * @throws jakarta.persistence.EntityNotFoundException caso não exista.
      */
-    Optional<UsuarioResponse> buscarPorId(Long id);
+    UsuarioResponse buscarPorId(Long id);
 
     /**
-     * Lista todos os usuários cadastrados.
+     * Busca um usuário pelo login.
+     *
+     * @param login Login do usuário.
+     * @return UsuarioResponse correspondente.
+     * @throws jakarta.persistence.EntityNotFoundException caso não exista.
+     */
+    UsuarioResponse buscarPorLogin(String login);
+
+    /**
+     * Lista todos os usuários cadastrados no sistema.
      *
      * @return Lista de UsuarioResponse.
      */
@@ -59,7 +68,7 @@ public interface UsuarioService {
     List<UsuarioResponse> listarInativos();
 
     /**
-     * Desativa um usuário existente.
+     * Desativa um usuário do sistema.
      *
      * @param id ID do usuário.
      */

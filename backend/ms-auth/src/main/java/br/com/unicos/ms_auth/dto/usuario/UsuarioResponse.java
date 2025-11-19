@@ -1,7 +1,5 @@
 package br.com.unicos.ms_auth.dto.usuario;
 
-import br.com.unicos.ms_auth.dto.role.RoleResponse;
-
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -15,7 +13,7 @@ public record UsuarioResponse(
         Long pessoaId,
         String email,
         boolean ativo,
-        Set<RoleResponse> roles,
+        Set<String> roles,
         LocalDateTime criadoEm,
         LocalDateTime atualizadoEm
-) {}
+) { }

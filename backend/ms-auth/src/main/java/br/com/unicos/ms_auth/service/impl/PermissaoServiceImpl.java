@@ -1,83 +1,123 @@
 package br.com.unicos.ms_auth.service.impl;
 
-import br.com.unicos.ms_auth.dto.PermissaoRequest;
-import br.com.unicos.ms_auth.dto.PermissaoResponse;
+import br.com.unicos.ms_auth.dto.permissao.PermissaoRequest;
+import br.com.unicos.ms_auth.dto.permissao.PermissaoResponse;
 import br.com.unicos.ms_auth.model.Permissao;
 import br.com.unicos.ms_auth.repository.PermissaoRepository;
 import br.com.unicos.ms_auth.service.PermissaoService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
- * Implementação da interface {@link PermissaoService}.
- * <p>
- * Contém as regras de negócio e interações com o repositório de Permissao.
+ * Implementação do serviço responsável pelas regras de negócio
+ * relacionadas à entidade Permissao.
  */
 @Service
 @RequiredArgsConstructor
 public class PermissaoServiceImpl implements PermissaoService {
 
     private final PermissaoRepository permissaoRepository;
-    private final ModelMapper modelMapper;
 
+    /**
+     * Cria uma nova permissão no sistema.
+     */
     @Override
-    @Transactional
     public PermissaoResponse salvar(PermissaoRequest request) {
-        if (permissaoRepository.existsByNome(request.nome())) {
-            throw new DataIntegrityViolationException("Já existe uma permissão com este nome.");
+
+        if (permissaoRepository.existsByCodigo(request.codigo())) {
+            throw new IllegalArgumentException("Já existe uma permissão cadastrada com o código informado.");
         }
 
-        Permissao permissao = modelMapper.map(request, Permissao.class);
-        return modelMapper.map(permissaoRepository.save(permissao), PermissaoResponse.class);
+        Permissao entity = Permissao.builder()
+                .codigo(request.codigo())
+                .descricao(request.descricao())
+                .build();
+
+        permissaoRepository.save(entity);
+
+        return toResponse(entity);
     }
 
+    /**
+     * Atualiza uma permissão existente.
+     */
     @Override
-    @Transactional
     public PermissaoResponse atualizar(Long id, PermissaoRequest request) {
-        Permissao permissao = permissaoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Permissão não encontrada."));
 
-        permissao.setNome(request.nome());
-        permissao.setDescricao(request.descricao());
+        Permissao entity = permissaoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Permissão não encontrada: " + id));
 
-        return modelMapper.map(permissaoRepository.save(permissao), PermissaoResponse.class);
-    }
+        // Se o código for alterado, verificar duplicidade
+        if (!entity.getCodigo().equals(request.codigo()) &&
+                permissaoRepository.existsByCodigo(request.codigo())) {
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<PermissaoResponse> buscarPorId(Long id) {
-        return permissaoRepository.findById(id)
-                .map(p -> modelMapper.map(p, PermissaoResponse.class));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<PermissaoResponse> listarTodas() {
-        return permissaoRepository.findAll().stream()
-                .map(p -> modelMapper.map(p, PermissaoResponse.class))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public void deletar(Long id) {
-        if (!permissaoRepository.existsById(id)) {
-            throw new EntityNotFoundException("Permissão não encontrada para exclusão.");
+            throw new IllegalArgumentException("Já existe uma permissão cadastrada com o código informado.");
         }
+
+        entity.setCodigo(request.codigo());
+        entity.setDescricao(request.descricao());
+
+        permissaoRepository.save(entity);
+
+        return toResponse(entity);
+    }
+
+    /**
+     * Busca uma permissão pelo ID.
+     */
+    @Override
+    public PermissaoResponse buscarPorId(Long id) {
+
+        Permissao entity = permissaoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Permissão não encontrada: " + id));
+
+        return toResponse(entity);
+    }
+
+    /**
+     * Lista todas as permissões cadastradas.
+     */
+    @Override
+    public List<PermissaoResponse> listarTodas() {
+
+        return permissaoRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    /**
+     * Remove uma permissão do sistema.
+     */
+    @Override
+    public void deletar(Long id) {
+
+        if (!permissaoRepository.existsById(id)) {
+            throw new EntityNotFoundException("Permissão não encontrada: " + id);
+        }
+
         permissaoRepository.deleteById(id);
     }
 
+    /**
+     * Verifica se já existe uma permissão com o código informado.
+     */
     @Override
-    @Transactional(readOnly = true)
-    public boolean existePorNome(String nome) {
-        return permissaoRepository.existsByNome(nome);
+    public boolean existePorCodigo(String codigo) {
+        return permissaoRepository.existsByCodigo(codigo);
+    }
+
+    /**
+     * Converte entidade Permissao em PermissaoResponse.
+     */
+    private PermissaoResponse toResponse(Permissao entity) {
+        return new PermissaoResponse(
+                entity.getId(),
+                entity.getCodigo(),
+                entity.getDescricao()
+        );
     }
 }

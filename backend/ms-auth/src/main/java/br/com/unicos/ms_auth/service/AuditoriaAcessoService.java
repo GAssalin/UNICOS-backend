@@ -1,6 +1,7 @@
 package br.com.unicos.ms_auth.service;
 
-import br.com.unicos.ms_auth.dto.AuditoriaAcessoResponse;
+import br.com.unicos.ms_auth.dto.auditoria.AuditoriaAcessoResponse;
+import br.com.unicos.ms_auth.enums.TipoAcaoAcesso;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,37 +13,37 @@ import java.util.List;
 public interface AuditoriaAcessoService {
 
     /**
-     * Registra um novo evento de auditoria.
+     * Registra um novo evento de auditoria no sistema.
      *
-     * @param username Nome do usuário.
-     * @param acao     Tipo da ação (ex: LOGIN_SUCESSO, LOGIN_FALHA).
-     * @param detalhes Detalhes do evento.
-     * @param ip       Endereço IP do cliente.
+     * @param username Nome do usuário (ou null em caso de falha antes da autenticação).
+     * @param acao     Tipo da ação registrada.
+     * @param detalhes Detalhes adicionais do evento.
+     * @param ip       Endereço IP do cliente que gerou o evento.
      */
-    void registrarEvento(String username, String acao, String detalhes, String ip);
+    void registrarEvento(String username, TipoAcaoAcesso acao, String detalhes, String ip);
 
     /**
-     * Lista todos os registros de auditoria de um determinado usuário.
+     * Lista todos os registros de auditoria referentes a um usuário específico.
      *
      * @param username Nome do usuário.
-     * @return Lista de AuditoriaAcessoResponse.
+     * @return Lista de eventos de auditoria relacionados ao usuário.
      */
     List<AuditoriaAcessoResponse> listarPorUsuario(String username);
 
     /**
-     * Lista registros de auditoria de um tipo específico de ação.
+     * Lista todos os registros de auditoria de um determinado tipo de ação.
      *
-     * @param acao Tipo da ação.
-     * @return Lista de AuditoriaAcessoResponse.
+     * @param acao Tipo da ação (LOGIN_SUCESSO, LOGIN_FALHA, LOGOUT).
+     * @return Lista de eventos de auditoria do tipo informado.
      */
-    List<AuditoriaAcessoResponse> listarPorAcao(String acao);
+    List<AuditoriaAcessoResponse> listarPorAcao(TipoAcaoAcesso acao);
 
     /**
-     * Lista registros de auditoria dentro de um intervalo de tempo.
+     * Lista registros de auditoria que ocorreram dentro de um intervalo de datas.
      *
      * @param inicio Data/hora inicial.
      * @param fim    Data/hora final.
-     * @return Lista de AuditoriaAcessoResponse.
+     * @return Lista de eventos dentro do período informado.
      */
     List<AuditoriaAcessoResponse> listarPorPeriodo(LocalDateTime inicio, LocalDateTime fim);
 }
