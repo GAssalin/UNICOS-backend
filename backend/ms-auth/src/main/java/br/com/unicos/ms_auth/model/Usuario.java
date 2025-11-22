@@ -1,6 +1,15 @@
 package br.com.unicos.ms_auth.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -16,8 +25,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Representa cada usuário autenticável no sistema.
@@ -68,13 +77,28 @@ public class Usuario implements UserDetails {
     @UpdateTimestamp
     private LocalDateTime atualizadoEm;
 
+    private LocalDateTime expiracaoRefreshToken;
+
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+    public Collection<? extends GrantedAuthority> getAuthorities() { return roles; }
+
+    @Override
+    public String getPassword() {
+        return password;
     }
 
     @Override
     public String getUsername() {
         return "";
+    }
+
+    public boolean refreshTokenExpirado() {
+        return expiracaoRefreshToken.isBefore(LocalDateTime.now());
+    }
+
+    public String novoRefreshToken() {
+        String refreshToken = UUID.randomUUID().toString();
+        this.expiracaoRefreshToken = LocalDateTime.now().plusMinutes(120);
+        return refreshToken;
     }
 }

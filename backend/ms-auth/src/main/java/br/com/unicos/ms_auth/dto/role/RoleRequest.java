@@ -10,9 +10,9 @@ import java.util.Set;
  */
 public record RoleRequest(
 
-        @NotBlank(message = "O código do papel é obrigatório.")
-        @Size(max = 50, message = "O código deve ter no máximo 50 caracteres.")
-        String codigo,
+        @NotBlank(message = "O nome do papel é obrigatório.")
+        @Size(max = 50, message = "O nome deve ter no máximo 50 caracteres.")
+        String nome,
 
         @Size(max = 255, message = "A descrição deve ter no máximo 255 caracteres.")
         String descricao,

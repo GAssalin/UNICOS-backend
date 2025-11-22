@@ -57,5 +57,5 @@ public interface RoleService {
      * @param codigo Código do papel.
      * @return true se existir, false caso contrário.
      */
-    boolean existePorCodigo(String codigo);
+    boolean existePorNome(String codigo);
 }

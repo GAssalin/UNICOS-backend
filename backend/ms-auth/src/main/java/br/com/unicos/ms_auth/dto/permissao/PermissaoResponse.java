@@ -6,6 +6,6 @@ package br.com.unicos.ms_auth.dto.permissao;
  */
 public record PermissaoResponse(
         Long id,
-        String codigo,
+        String nome,
         String descricao
 ) {}
