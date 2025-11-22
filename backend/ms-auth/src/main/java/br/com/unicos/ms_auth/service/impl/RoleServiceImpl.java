@@ -33,12 +33,12 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public RoleResponse salvar(RoleRequest request) {
 
-        if (roleRepository.existsByCodigo(request.codigo())) {
+        if (roleRepository.existsByNome(request.nome())) {
             throw new IllegalArgumentException("Já existe um papel cadastrado com o código informado.");
         }
 
         Role role = Role.builder()
-                .codigo(request.codigo())
+                .nome(request.nome())
                 .descricao(request.descricao())
                 .permissoes(buscarPermissoes(request.permissoesIds()))
                 .build();
@@ -57,13 +57,13 @@ public class RoleServiceImpl implements RoleService {
                 .orElseThrow(() -> new EntityNotFoundException("Role não encontrada: " + id));
 
         // Verificar duplicidade caso o código seja alterado
-        if (!entity.getCodigo().equals(request.codigo()) &&
-                roleRepository.existsByCodigo(request.codigo())) {
+        if (!entity.getNome().equals(request.nome()) &&
+                roleRepository.existsByNome(request.nome())) {
 
             throw new IllegalArgumentException("Já existe um papel cadastrado com o código informado.");
         }
 
-        entity.setCodigo(request.codigo());
+        entity.setNome(request.nome());
         entity.setDescricao(request.descricao());
         entity.setPermissoes(buscarPermissoes(request.permissoesIds()));
 
@@ -106,11 +106,11 @@ public class RoleServiceImpl implements RoleService {
     }
 
     /**
-     * Verifica se existe um papel com o código informado.
+     * Verifica se existe um papel com o nome informado.
      */
     @Override
-    public boolean existePorCodigo(String codigo) {
-        return roleRepository.existsByCodigo(codigo);
+    public boolean existePorNome(String nome) {
+        return roleRepository.existsByNome(nome);
     }
 
     /**
@@ -119,13 +119,13 @@ public class RoleServiceImpl implements RoleService {
     private RoleResponse toResponse(Role entity) {
         return new RoleResponse(
                 entity.getId(),
-                entity.getCodigo(),
+                entity.getNome(),
                 entity.getDescricao(),
                 entity.getPermissoes()
                         .stream()
                         .map(perm -> new PermissaoResponse(
                                 perm.getId(),
-                                perm.getCodigo(),
+                                perm.getNome(),
                                 perm.getDescricao()
                         ))
                         .collect(Collectors.toSet())

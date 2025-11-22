@@ -10,7 +10,7 @@ import java.util.Set;
  */
 public record RoleResponse(
         Long id,
-        String codigo,
+        String nome,
         String descricao,
         Set<PermissaoResponse> permissoes
 ) {}

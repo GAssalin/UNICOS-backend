@@ -45,4 +45,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
      * @return Lista de usuários com o campo "ativo" igual a false.
      */
     List<Usuario> findByAtivoFalse();
+
+    Optional<Usuario> findByRefreshToken(String refreshToken);
 }

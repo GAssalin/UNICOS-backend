@@ -24,7 +24,7 @@ public class Permissao {
 
     @NotBlank
     @Column(nullable = false, unique = true, length = 100)
-    private String codigo;
+    private String nome;
 
     @Column(length = 255)
     private String descricao;

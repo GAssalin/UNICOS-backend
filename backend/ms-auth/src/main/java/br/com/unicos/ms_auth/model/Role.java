@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +20,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Role {
+public class Role implements GrantedAuthority {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +28,7 @@ public class Role {
 
     @NotBlank
     @Column(nullable = false, unique = true, length = 50)
-    private String codigo;
+    private String nome;
 
     @Column(length = 255)
     private String descricao;
@@ -40,4 +41,9 @@ public class Role {
     )
     @Builder.Default
     private Set<Permissao> permissoes = new HashSet<>();
+
+    @Override
+    public String getAuthority() {
+        return "ROLE_" + nome;
+    }
 }

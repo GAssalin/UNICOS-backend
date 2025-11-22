@@ -32,7 +32,7 @@ public class PermissaoServiceImpl implements PermissaoService {
         }
 
         Permissao entity = Permissao.builder()
-                .codigo(request.codigo())
+                .nome(request.codigo())
                 .descricao(request.descricao())
                 .build();
 
@@ -51,13 +51,13 @@ public class PermissaoServiceImpl implements PermissaoService {
                 .orElseThrow(() -> new EntityNotFoundException("Permissão não encontrada: " + id));
 
         // Se o código for alterado, verificar duplicidade
-        if (!entity.getCodigo().equals(request.codigo()) &&
+        if (!entity.getNome().equals(request.codigo()) &&
                 permissaoRepository.existsByCodigo(request.codigo())) {
 
             throw new IllegalArgumentException("Já existe uma permissão cadastrada com o código informado.");
         }
 
-        entity.setCodigo(request.codigo());
+        entity.setNome(request.codigo());
         entity.setDescricao(request.descricao());
 
         permissaoRepository.save(entity);
@@ -116,7 +116,7 @@ public class PermissaoServiceImpl implements PermissaoService {
     private PermissaoResponse toResponse(Permissao entity) {
         return new PermissaoResponse(
                 entity.getId(),
-                entity.getCodigo(),
+                entity.getNome(),
                 entity.getDescricao()
         );
     }

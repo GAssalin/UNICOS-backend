@@ -16,18 +16,18 @@ import java.util.Optional;
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
     /**
-     * Busca um papel pelo codigo.
+     * Busca um papel pelo nome.
      *
-     * @param codigo Codigo do papel.
+     * @param nome Nome do papel.
      * @return Optional contendo o papel, se encontrado.
      */
-    Optional<Role> findByCodigo(String codigo);
+    Optional<Role> findByNome(String nome);
 
     /**
-     * Verifica se já existe um papel com o codigo informado.
+     * Verifica se já existe um papel com o nome informado.
      *
-     * @param codigo Codigo do papel.
+     * @param nome Nome do papel.
      * @return true se existir, false caso contrário.
      */
-    boolean existsByCodigo(String codigo);
+    boolean existsByNome(String nome);
 }

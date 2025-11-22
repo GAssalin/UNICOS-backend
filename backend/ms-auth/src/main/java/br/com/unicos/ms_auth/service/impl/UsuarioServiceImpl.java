@@ -188,7 +188,7 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
                 entity.isAtivo(),
                 entity.getRoles()
                         .stream()
-                        .map(Role::getCodigo)
+                        .map(Role::getNome)
                         .collect(Collectors.toSet()),
                 entity.getCriadoEm(),
                 entity.getAtualizadoEm()
