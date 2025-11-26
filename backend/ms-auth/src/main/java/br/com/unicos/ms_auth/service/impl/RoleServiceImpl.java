@@ -7,7 +7,7 @@ import br.com.unicos.ms_auth.model.Permissao;
 import br.com.unicos.ms_auth.model.Role;
 import br.com.unicos.ms_auth.repository.PermissaoRepository;
 import br.com.unicos.ms_auth.repository.RoleRepository;
-import br.com.unicos.ms_auth.service.RoleService;
+import br.com.unicos.ms_auth.service.interfaces.RoleService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

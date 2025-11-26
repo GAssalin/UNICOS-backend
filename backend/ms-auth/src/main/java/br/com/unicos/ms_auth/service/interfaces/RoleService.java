@@ -1,4 +1,4 @@
-package br.com.unicos.ms_auth.service;
+package br.com.unicos.ms_auth.service.interfaces;
 
 import br.com.unicos.ms_auth.dto.role.RoleRequest;
 import br.com.unicos.ms_auth.dto.role.RoleResponse;

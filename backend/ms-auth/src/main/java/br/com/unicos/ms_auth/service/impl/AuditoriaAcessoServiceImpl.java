@@ -4,7 +4,7 @@ import br.com.unicos.ms_auth.dto.auditoria.AuditoriaAcessoResponse;
 import br.com.unicos.ms_auth.enums.TipoAcaoAcesso;
 import br.com.unicos.ms_auth.model.AuditoriaAcesso;
 import br.com.unicos.ms_auth.repository.AuditoriaAcessoRepository;
-import br.com.unicos.ms_auth.service.AuditoriaAcessoService;
+import br.com.unicos.ms_auth.service.interfaces.AuditoriaAcessoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

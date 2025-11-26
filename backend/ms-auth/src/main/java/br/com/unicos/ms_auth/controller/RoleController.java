@@ -2,7 +2,7 @@ package br.com.unicos.ms_auth.controller;
 
 import br.com.unicos.ms_auth.dto.role.RoleRequest;
 import br.com.unicos.ms_auth.dto.role.RoleResponse;
-import br.com.unicos.ms_auth.service.RoleService;
+import br.com.unicos.ms_auth.service.interfaces.RoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

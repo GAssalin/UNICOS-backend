@@ -4,7 +4,7 @@ import br.com.unicos.ms_auth.dto.permissao.PermissaoRequest;
 import br.com.unicos.ms_auth.dto.permissao.PermissaoResponse;
 import br.com.unicos.ms_auth.model.Permissao;
 import br.com.unicos.ms_auth.repository.PermissaoRepository;
-import br.com.unicos.ms_auth.service.PermissaoService;
+import br.com.unicos.ms_auth.service.interfaces.PermissaoService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

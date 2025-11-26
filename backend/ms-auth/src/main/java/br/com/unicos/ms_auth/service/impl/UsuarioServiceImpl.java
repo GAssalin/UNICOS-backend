@@ -6,7 +6,7 @@ import br.com.unicos.ms_auth.model.Role;
 import br.com.unicos.ms_auth.model.Usuario;
 import br.com.unicos.ms_auth.repository.RoleRepository;
 import br.com.unicos.ms_auth.repository.UsuarioRepository;
-import br.com.unicos.ms_auth.service.UsuarioService;
+import br.com.unicos.ms_auth.service.interfaces.UsuarioService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,4 +1,4 @@
-package br.com.unicos.ms_auth.service;
+package br.com.unicos.ms_auth.service.interfaces;
 
 import br.com.unicos.ms_auth.dto.auditoria.AuditoriaAcessoResponse;
 import br.com.unicos.ms_auth.enums.TipoAcaoAcesso;

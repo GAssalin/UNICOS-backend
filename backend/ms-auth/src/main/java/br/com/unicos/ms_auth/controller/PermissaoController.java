@@ -2,7 +2,7 @@ package br.com.unicos.ms_auth.controller;
 
 import br.com.unicos.ms_auth.dto.permissao.PermissaoRequest;
 import br.com.unicos.ms_auth.dto.permissao.PermissaoResponse;
-import br.com.unicos.ms_auth.service.PermissaoService;
+import br.com.unicos.ms_auth.service.interfaces.PermissaoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
