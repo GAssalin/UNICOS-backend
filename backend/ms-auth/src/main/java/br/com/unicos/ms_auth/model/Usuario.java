@@ -1,22 +1,10 @@
 package br.com.unicos.ms_auth.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
@@ -34,6 +22,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "usuario")
 @Data
+@ToString(exclude = "password")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -54,9 +43,20 @@ public class Usuario implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @NotBlank
     @Email
     @Column(length = 150)
     private String email;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean emailVerificado = false;
+
+    @Column(nullable = false)
+    private String tokenVerificacaoEmail;
+
+    @Column(nullable = false)
+    private LocalDateTime expiracaoTokenVerificacaoEmail;
 
     @Builder.Default
     @Column(nullable = false)
@@ -89,10 +89,10 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        return "";
+        return login;
     }
 
-    public boolean refreshTokenExpirado() {
+    public boolean refreshTokenLogin() {
         return expiracaoRefreshToken.isBefore(LocalDateTime.now());
     }
 
@@ -100,5 +100,11 @@ public class Usuario implements UserDetails {
         String refreshToken = UUID.randomUUID().toString();
         this.expiracaoRefreshToken = LocalDateTime.now().plusMinutes(120);
         return refreshToken;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.tokenVerificacaoEmail = UUID.randomUUID().toString();
+        this.expiracaoTokenVerificacaoEmail = LocalDateTime.now().plusMinutes(30);
     }
 }

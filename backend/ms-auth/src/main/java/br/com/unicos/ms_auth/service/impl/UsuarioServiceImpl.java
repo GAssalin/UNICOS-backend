@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * Cria um novo usuário autenticável no sistema.
@@ -46,7 +48,7 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 
         Usuario usuario = Usuario.builder()
                 .login(request.login())
-                .password(request.password()) // futuramente criptografado
+                .password(passwordEncoder.encode(request.password()))
                 .email(request.email())
                 .pessoaId(request.pessoaId())
                 .ativo(request.ativo() != null ? request.ativo() : true)
