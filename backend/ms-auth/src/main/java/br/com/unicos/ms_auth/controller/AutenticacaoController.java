@@ -56,7 +56,7 @@ public class AutenticacaoController {
         var usuario = usuarioRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new Exception("Refresh token inválido!"));
 
-        if (usuario.refreshTokenLogin())
+        if (usuario.isRefreshTokenExpirado())
             throw new Exception("Refresh token expirado!");
 
         String tokenAcesso = tokenService.gerarToken(usuario);

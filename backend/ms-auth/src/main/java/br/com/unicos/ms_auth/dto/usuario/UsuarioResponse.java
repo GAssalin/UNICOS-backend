@@ -12,8 +12,9 @@ public record UsuarioResponse(
         String login,
         Long pessoaId,
         String email,
+        boolean emailVerificado,
         boolean ativo,
         Set<String> roles,
         LocalDateTime criadoEm,
         LocalDateTime atualizadoEm
-) { }
+) {}

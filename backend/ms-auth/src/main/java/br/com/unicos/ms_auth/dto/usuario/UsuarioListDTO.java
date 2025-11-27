@@ -10,6 +10,7 @@ public record UsuarioListDTO(
         Long id,
         String login,
         String email,
+        boolean emailVerificado,
         boolean ativo,
         Set<String> roles
 ) {}

@@ -2,12 +2,16 @@ package br.com.unicos.ms_auth.service.interfaces;
 
 import br.com.unicos.ms_auth.dto.usuario.UsuarioRequest;
 import br.com.unicos.ms_auth.dto.usuario.UsuarioResponse;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 
 /**
  * Interface de serviço responsável pelas regras de negócio
  * relacionadas à entidade Usuario.
+ * <p>
+ * Esta interface trata exclusivamente da gestão de usuários.
+ * Toda lógica de verificação de e-mail é tratada em serviços específicos.
  */
 public interface UsuarioService {
 
@@ -33,7 +37,7 @@ public interface UsuarioService {
      *
      * @param id ID do usuário.
      * @return UsuarioResponse correspondente.
-     * @throws jakarta.persistence.EntityNotFoundException caso não exista.
+     * @throws EntityNotFoundException caso não exista.
      */
     UsuarioResponse buscarPorId(Long id);
 
@@ -42,7 +46,7 @@ public interface UsuarioService {
      *
      * @param login Login do usuário.
      * @return UsuarioResponse correspondente.
-     * @throws jakarta.persistence.EntityNotFoundException caso não exista.
+     * @throws EntityNotFoundException caso não exista.
      */
     UsuarioResponse buscarPorLogin(String login);
 
@@ -54,16 +58,12 @@ public interface UsuarioService {
     List<UsuarioResponse> listarTodos();
 
     /**
-     * Lista todos os usuários ativos.
-     *
-     * @return Lista de usuários ativos.
+     * Lista usuários ativos.
      */
     List<UsuarioResponse> listarAtivos();
 
     /**
-     * Lista todos os usuários inativos.
-     *
-     * @return Lista de usuários inativos.
+     * Lista usuários inativos.
      */
     List<UsuarioResponse> listarInativos();
 

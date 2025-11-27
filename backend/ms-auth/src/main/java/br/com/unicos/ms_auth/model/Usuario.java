@@ -18,6 +18,9 @@ import java.util.UUID;
 
 /**
  * Representa cada usuário autenticável no sistema.
+ * <p>
+ * Contém apenas informações essenciais para autenticação e autorização.
+ * Tokens temporários (como verificação de e-mail) são mantidos em entidades separadas.
  */
 @Entity
 @Table(name = "usuario")
@@ -34,6 +37,7 @@ public class Usuario implements UserDetails {
 
     @NotBlank
     @Size(min = 4, max = 100)
+    @Column(nullable = false, unique = true)
     private String login;
 
     @Column(name = "pessoa_id")
@@ -45,18 +49,17 @@ public class Usuario implements UserDetails {
 
     @NotBlank
     @Email
-    @Column(length = 150)
+    @Column(length = 150, nullable = false, unique = true)
     private String email;
 
     @Builder.Default
     @Column(nullable = false)
     private boolean emailVerificado = false;
 
-    @Column(nullable = false)
-    private String tokenVerificacaoEmail;
+    @Column(length = 200)
+    private String refreshToken;
 
-    @Column(nullable = false)
-    private LocalDateTime expiracaoTokenVerificacaoEmail;
+    private LocalDateTime expiracaoRefreshToken;
 
     @Builder.Default
     @Column(nullable = false)
@@ -77,14 +80,9 @@ public class Usuario implements UserDetails {
     @UpdateTimestamp
     private LocalDateTime atualizadoEm;
 
-    private LocalDateTime expiracaoRefreshToken;
-
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() { return roles; }
-
-    @Override
-    public String getPassword() {
-        return password;
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles;
     }
 
     @Override
@@ -92,19 +90,13 @@ public class Usuario implements UserDetails {
         return login;
     }
 
-    public boolean refreshTokenLogin() {
-        return expiracaoRefreshToken.isBefore(LocalDateTime.now());
+    public boolean isRefreshTokenExpirado() {
+        return expiracaoRefreshToken == null || expiracaoRefreshToken.isBefore(LocalDateTime.now());
     }
 
     public String novoRefreshToken() {
-        String refreshToken = UUID.randomUUID().toString();
-        this.expiracaoRefreshToken = LocalDateTime.now().plusMinutes(120);
-        return refreshToken;
-    }
-
-    @PrePersist
-    public void prePersist() {
-        this.tokenVerificacaoEmail = UUID.randomUUID().toString();
-        this.expiracaoTokenVerificacaoEmail = LocalDateTime.now().plusMinutes(30);
+        this.refreshToken = UUID.randomUUID().toString();
+        this.expiracaoRefreshToken = LocalDateTime.now().plusHours(2);
+        return this.refreshToken;
     }
 }

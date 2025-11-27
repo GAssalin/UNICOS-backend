@@ -9,42 +9,35 @@ import java.util.Optional;
 
 /**
  * Repositório responsável pelo acesso aos dados da entidade Usuario.
- * <p>
- * Fornece métodos personalizados para consultas específicas,
- * além dos métodos CRUD padrão fornecidos pelo JpaRepository.
+ * Mantém apenas consultas relacionadas ao próprio usuário.
  */
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     /**
      * Busca um usuário pelo login.
-     *
-     * @param login Login.
-     * @return Optional contendo o usuário, se encontrado.
+     * Apenas usuários com e-mail verificado são retornados.
      */
-    Optional<Usuario> findByLogin(String login);
+    Optional<Usuario> findByLoginAndEmailVerificadoTrue(String login);
 
     /**
      * Busca um usuário pelo e-mail.
-     *
-     * @param email E-mail do usuário.
-     * @return Optional contendo o usuário, se encontrado.
+     * Apenas usuários com e-mail verificado são retornados.
      */
-    Optional<Usuario> findByEmail(String email);
+    Optional<Usuario> findByEmailAndEmailVerificadoTrue(String email);
 
     /**
-     * Lista todos os usuários ativos.
-     *
-     * @return Lista de usuários com o campo "ativo" igual a true.
+     * Lista todos os usuários ativos que possuem e-mail verificado.
      */
-    List<Usuario> findByAtivoTrue();
+    List<Usuario> findByAtivoTrueAndEmailVerificadoTrue();
 
     /**
-     * Lista todos os usuários inativos.
-     *
-     * @return Lista de usuários com o campo "ativo" igual a false.
+     * Lista todos os usuários inativos que possuem e-mail verificado.
      */
-    List<Usuario> findByAtivoFalse();
+    List<Usuario> findByAtivoFalseAndEmailVerificadoTrue();
 
+    /**
+     * Busca um usuário associado ao refresh token informado.
+     */
     Optional<Usuario> findByRefreshToken(String refreshToken);
 }

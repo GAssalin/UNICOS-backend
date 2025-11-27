@@ -2,6 +2,7 @@ package br.com.unicos.ms_auth.controller;
 
 import br.com.unicos.ms_auth.dto.usuario.UsuarioRequest;
 import br.com.unicos.ms_auth.dto.usuario.UsuarioResponse;
+import br.com.unicos.ms_auth.service.interfaces.UsuarioEmailVerificacaoService;
 import br.com.unicos.ms_auth.service.interfaces.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,13 +24,19 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final UsuarioEmailVerificacaoService verificacaoService;
 
     // =============================================================
-    // 🔹 Criar usuário
+    // 🔹 Criar usuário + gerar token de verificação
     // =============================================================
     @PostMapping
     public ResponseEntity<UsuarioResponse> salvar(@Valid @RequestBody UsuarioRequest request) {
+
         UsuarioResponse response = usuarioService.salvar(request);
+
+        // TODO: Gera o token de verificação (e-mail service enviará o e-mail)
+        verificacaoService.gerarTokenParaUsuario(response.id());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
