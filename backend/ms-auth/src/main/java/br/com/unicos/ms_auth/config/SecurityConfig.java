@@ -32,7 +32,7 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(
                         req -> {
-                            req.requestMatchers("/login", "/atualizar-token").permitAll();
+                            req.requestMatchers("/v1/autenticacao/login", "/v1/autenticacao/atualizar-token").permitAll();
 
                             req.anyRequest().authenticated();
                         }

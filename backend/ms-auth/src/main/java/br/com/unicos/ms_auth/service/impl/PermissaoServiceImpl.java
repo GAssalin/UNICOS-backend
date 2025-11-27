@@ -27,12 +27,12 @@ public class PermissaoServiceImpl implements PermissaoService {
     @Override
     public PermissaoResponse salvar(PermissaoRequest request) {
 
-        if (permissaoRepository.existsByCodigo(request.codigo())) {
+        if (permissaoRepository.existsByNome(request.nome())) {
             throw new IllegalArgumentException("Já existe uma permissão cadastrada com o código informado.");
         }
 
         Permissao entity = Permissao.builder()
-                .nome(request.codigo())
+                .nome(request.nome())
                 .descricao(request.descricao())
                 .build();
 
@@ -51,13 +51,13 @@ public class PermissaoServiceImpl implements PermissaoService {
                 .orElseThrow(() -> new EntityNotFoundException("Permissão não encontrada: " + id));
 
         // Se o código for alterado, verificar duplicidade
-        if (!entity.getNome().equals(request.codigo()) &&
-                permissaoRepository.existsByCodigo(request.codigo())) {
+        if (!entity.getNome().equals(request.nome()) &&
+                permissaoRepository.existsByNome(request.nome())) {
 
             throw new IllegalArgumentException("Já existe uma permissão cadastrada com o código informado.");
         }
 
-        entity.setNome(request.codigo());
+        entity.setNome(request.nome());
         entity.setDescricao(request.descricao());
 
         permissaoRepository.save(entity);
@@ -107,7 +107,7 @@ public class PermissaoServiceImpl implements PermissaoService {
      */
     @Override
     public boolean existePorCodigo(String codigo) {
-        return permissaoRepository.existsByCodigo(codigo);
+        return permissaoRepository.existsByNome(codigo);
     }
 
     /**

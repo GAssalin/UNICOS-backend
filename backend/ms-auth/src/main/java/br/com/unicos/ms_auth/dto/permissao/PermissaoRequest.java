@@ -11,9 +11,9 @@ import jakarta.validation.constraints.Size;
  */
 public record PermissaoRequest(
 
-        @NotBlank(message = "O código da permissão é obrigatório.")
-        @Size(max = 100, message = "O código deve ter no máximo 100 caracteres.")
-        String codigo,
+        @NotBlank(message = "O nome da permissão é obrigatório.")
+        @Size(max = 100, message = "O nome deve ter no máximo 100 caracteres.")
+        String nome,
 
         @Size(max = 255, message = "A descrição deve ter no máximo 255 caracteres.")
         String descricao

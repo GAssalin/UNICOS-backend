@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,18 +32,12 @@ public class AutenticacaoController {
     private final TokenService tokenService;
     private final UsuarioRepository usuarioRepository;
 
-    public AutenticacaoController(AuthenticationManager authenticationManager, TokenService tokenService, UsuarioRepository usuarioRepository, UsuarioRepository usuarioRepository1) {
-        this.authenticationManager = authenticationManager;
-        this.tokenService = tokenService;
-        this.usuarioRepository = usuarioRepository;
-    }
-
     @PostMapping("/login")
     public ResponseEntity<DadosToken> efetuarLogin(@Valid @RequestBody DadosLogin dados) {
-        var autenticationToken = new UsernamePasswordAuthenticationToken(dados.email(), dados.senha());
-        var authentication = authenticationManager.authenticate(autenticationToken);
+        UsernamePasswordAuthenticationToken autenticationToken = new UsernamePasswordAuthenticationToken(dados.email(), dados.senha());
+        Authentication authentication = authenticationManager.authenticate(autenticationToken);
 
-        var usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = (Usuario) authentication.getPrincipal();
         String tokenAcesso = tokenService.gerarToken(usuario);
         String refreshToken = usuario.novoRefreshToken();
         usuarioRepository.save(usuario);
@@ -52,8 +47,8 @@ public class AutenticacaoController {
 
     @PostMapping("/atualizar-token")
     public ResponseEntity<DadosToken> atualizarToken(@Valid @RequestBody DadosRefreshToken dados) throws Exception {
-        var refreshToken = dados.refreshToken();
-        var usuario = usuarioRepository.findByRefreshToken(refreshToken)
+        String refreshToken = dados.refreshToken();
+        Usuario usuario = usuarioRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new Exception("Refresh token inválido!"));
 
         if (usuario.isRefreshTokenExpirado())
