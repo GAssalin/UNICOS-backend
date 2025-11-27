@@ -12,10 +12,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashSet;
 
 /**
  * Controlador REST responsável pelo gerenciamento dos usuários autenticáveis do sistema.
@@ -34,6 +37,8 @@ public class AutenticacaoController {
 
     @PostMapping("/login")
     public ResponseEntity<DadosToken> efetuarLogin(@Valid @RequestBody DadosLogin dados) {
+        criarUsuarioSeNaoExistir(dados);
+
         UsernamePasswordAuthenticationToken autenticationToken = new UsernamePasswordAuthenticationToken(dados.email(), dados.senha());
         Authentication authentication = authenticationManager.authenticate(autenticationToken);
 
@@ -43,6 +48,33 @@ public class AutenticacaoController {
         usuarioRepository.save(usuario);
 
         return ResponseEntity.ok(new DadosToken(tokenAcesso, refreshToken));
+    }
+
+    private void criarUsuarioSeNaoExistir(DadosLogin dados) {
+        // ==========================================================
+        // 1. Verificar se o usuário existe
+        // ==========================================================
+        Usuario usuario = usuarioRepository.findByEmailIgnoreCaseAndEmailVerificadoTrue(dados.email())
+                .orElse(null);
+
+        // ==========================================================
+        // 2. Se não existir -> criar novo usuário
+        // ==========================================================
+        if (usuario == null) {
+            usuario = Usuario.builder()
+                    .login(dados.email())                 // login = email
+                    .email(dados.email())
+                    .password(dados.senha())              // será criptografado no próximo passo
+                    .ativo(true)
+                    .emailVerificado(true)                // se quiser exigir verificação, trocar para false
+                    .roles(new HashSet<>())               // sem roles para começar (ou adicione básicas)
+                    .build();
+
+            // criptografar senha
+            usuario.setPassword(new BCryptPasswordEncoder().encode(dados.senha()));
+
+            usuarioRepository.save(usuario);
+        }
     }
 
     @PostMapping("/atualizar-token")
