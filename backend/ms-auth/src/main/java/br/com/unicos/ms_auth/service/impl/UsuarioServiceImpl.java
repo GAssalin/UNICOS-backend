@@ -39,11 +39,10 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 
     @Override
     public UsuarioResponse salvar(UsuarioRequest request) {
-
-        if (usuarioRepository.findByLoginAndEmailVerificadoTrue(request.login()).isPresent())
+        if (usuarioRepository.findByLoginIgnoreCaseAndEmailVerificadoTrue(request.login()).isPresent())
             throw new IllegalArgumentException("Já existe um usuário com o login informado.");
 
-        if (request.email() != null && usuarioRepository.findByEmailAndEmailVerificadoTrue(request.email()).isPresent())
+        if (request.email() != null && usuarioRepository.findByEmailIgnoreCaseAndEmailVerificadoTrue(request.email()).isPresent())
             throw new IllegalArgumentException("Já existe um usuário com o e-mail informado.");
 
         Usuario usuario = Usuario.builder()
@@ -61,14 +60,13 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 
     @Override
     public UsuarioResponse atualizar(Long id, UsuarioRequest request) {
-
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + id));
 
-        if (!usuario.getLogin().equals(request.login()) && usuarioRepository.findByLoginAndEmailVerificadoTrue(request.login()).isPresent())
+        if (!usuario.getLogin().equals(request.login()) && usuarioRepository.findByLoginIgnoreCaseAndEmailVerificadoTrue(request.login()).isPresent())
             throw new IllegalArgumentException("Já existe um usuário com o login informado.");
 
-        if (!usuario.getEmail().equals(request.email()) && usuarioRepository.findByEmailAndEmailVerificadoTrue(request.email()).isPresent())
+        if (!usuario.getEmail().equals(request.email()) && usuarioRepository.findByEmailIgnoreCaseAndEmailVerificadoTrue(request.email()).isPresent())
             throw new IllegalArgumentException("Já existe um usuário com o e-mail informado.");
 
         usuario.setLogin(request.login());
@@ -84,7 +82,6 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 
     @Override
     public UsuarioResponse buscarPorId(Long id) {
-
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + id));
 
@@ -93,8 +90,7 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 
     @Override
     public UsuarioResponse buscarPorLogin(String login) {
-
-        Usuario usuario = usuarioRepository.findByLoginAndEmailVerificadoTrue(login)
+        Usuario usuario = usuarioRepository.findByLoginIgnoreCaseAndEmailVerificadoTrue(login)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + login));
 
         return toResponse(usuario);
@@ -126,7 +122,6 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 
     @Override
     public void desativar(Long id) {
-
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + id));
 
@@ -172,7 +167,7 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return usuarioRepository.findByEmailAndEmailVerificadoTrue(username)
+        return usuarioRepository.findByEmailIgnoreCaseAndEmailVerificadoTrue(username)
                 .orElseThrow(() -> new UsernameNotFoundException("O usuário não foi encontrado!"));
     }
 }

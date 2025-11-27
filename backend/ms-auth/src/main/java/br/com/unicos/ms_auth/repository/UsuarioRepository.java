@@ -18,13 +18,13 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
      * Busca um usuário pelo login.
      * Apenas usuários com e-mail verificado são retornados.
      */
-    Optional<Usuario> findByLoginAndEmailVerificadoTrue(String login);
+    Optional<Usuario> findByLoginIgnoreCaseAndEmailVerificadoTrue(String login);
 
     /**
      * Busca um usuário pelo e-mail.
      * Apenas usuários com e-mail verificado são retornados.
      */
-    Optional<Usuario> findByEmailAndEmailVerificadoTrue(String email);
+    Optional<Usuario> findByEmailIgnoreCaseAndEmailVerificadoTrue(String email);
 
     /**
      * Lista todos os usuários ativos que possuem e-mail verificado.

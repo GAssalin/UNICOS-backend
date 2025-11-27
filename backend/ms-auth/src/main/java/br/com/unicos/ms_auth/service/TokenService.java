@@ -17,12 +17,13 @@ import java.time.ZoneOffset;
 public class TokenService {
     //TODO: Variável de ambiente
     String segredo = "";
+    String issuer = "";
 
     public String gerarToken(Usuario usuario) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(segredo);
             return JWT.create()
-                    .withIssuer("Forum Hub")
+                    .withIssuer(issuer)
                     .withSubject(usuario.getUsername())
                     .withExpiresAt(expiracao(30))
                     .sign(algorithm);
@@ -35,7 +36,7 @@ public class TokenService {
         try {
             Algorithm algorithm = Algorithm.HMAC256(segredo);
             return JWT.create()
-                    .withIssuer("Forum Hub")
+                    .withIssuer(issuer)
                     .withSubject(usuario.getId().toString())
                     .withExpiresAt(expiracao(120))
                     .sign(algorithm);
@@ -49,7 +50,7 @@ public class TokenService {
         try {
             Algorithm algorithm = Algorithm.HMAC256(segredo);
             JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer("Forum Hub")
+                    .withIssuer(issuer)
                     .build();
 
             decodedJWT = verifier.verify(token);
