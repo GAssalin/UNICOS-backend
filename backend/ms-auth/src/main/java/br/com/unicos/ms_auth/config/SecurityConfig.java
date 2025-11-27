@@ -17,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.List;
 
@@ -29,19 +30,29 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filtrosSeguranca(HttpSecurity http) throws Exception {
-        return http
-                .authorizeHttpRequests(
-                        req -> {
-                            req.requestMatchers("/v1/autenticacao/login", "/v1/autenticacao/atualizar-token").permitAll();
 
-                            req.anyRequest().authenticated();
-                        }
-                )
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        return http
+                .cors(cors -> cors.configurationSource(request -> {
+                    var config = new CorsConfiguration();
+                    config.setAllowedOrigins(List.of("*")); // ou defina a URL do front-end
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedHeaders(List.of("*"));
+                    config.setAllowCredentials(false);
+                    return config;
+                }))
                 .csrf(csrf -> csrf.disable())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(req -> {
+                    req.requestMatchers(
+                            "/v1/autenticacao/login",
+                            "/v1/autenticacao/atualizar-token"
+                    ).permitAll();
+                    req.anyRequest().authenticated();
+                })
                 .addFilterBefore(filtroTokenAcesso, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
 
     @Bean
     public PasswordEncoder encriptador() {
