@@ -16,7 +16,7 @@ import java.time.ZoneOffset;
 @Service
 public class TokenService {
     //TODO: Variável de ambiente
-    String segredo = "";
+    String segredo = "1234";
     String issuer = "";
 
     public String gerarToken(Usuario usuario) {
