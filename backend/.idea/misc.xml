@@ -25,7 +25,6 @@
     </option>
     <option name="ignoredFiles">
       <set>
-        <option value="$PROJECT_DIR$/gateway/pom.xml" />
         <option value="$PROJECT_DIR$/ms-pedido/pom.xml" />
         <option value="$PROJECT_DIR$/service-registry/pom.xml" />
       </set>

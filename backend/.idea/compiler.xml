@@ -13,6 +13,7 @@
         <module name="core-pedido" />
         <module name="core-categoria" />
         <module name="core-base" />
+        <module name="gateway" />
       </profile>
       <profile name="Annotation profile for ms-vendas" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -35,7 +36,6 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="base-core" target="21" />
-      <module name="gateway" target="21" />
       <module name="ms-pedido" target="21" />
       <module name="ms-produtos" target="21" />
       <module name="pedido-core" target="21" />
