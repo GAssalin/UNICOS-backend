@@ -17,7 +17,7 @@ import java.time.ZoneOffset;
 @Service
 public class TokenService {
     //TODO: Variável de ambiente
-    String segredo = "1234";
+    String segredo = "123456";
 
     @Value("${auth.jwt.issuer}")
     String issuer;
@@ -28,7 +28,7 @@ public class TokenService {
             return JWT.create()
                     .withIssuer(issuer)
                     .withSubject(usuario.getUsername())
-                    .withExpiresAt(expiracao(30))
+                    .withExpiresAt(expiracao(5))
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
             throw new JWTCreationException("Erro ao gerar token JWT de acesso!", exception);
@@ -41,7 +41,7 @@ public class TokenService {
             return JWT.create()
                     .withIssuer(issuer)
                     .withSubject(usuario.getId().toString())
-                    .withExpiresAt(expiracao(120))
+                    .withExpiresAt(expiracao(5))
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
             throw new JWTCreationException("Erro ao gerar token refresh JWT de acesso!", exception);
