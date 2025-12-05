@@ -79,16 +79,13 @@ public class ProdutoServiceImpl implements ProdutoService {
     public ProdutoResponse salvar(ProdutoRequest request) {
 
         // Validar SKU
-        if (request.dadosBasicos() != null && request.dadosBasicos().getSku() != null) {
-            if (!verificarDisponibilidadeSku(request.dadosBasicos().getSku())) {
+        if (request.dadosBasicos() != null && request.dadosBasicos().getSku() != null)
+            if (!verificarDisponibilidadeSku(request.dadosBasicos().getSku()))
                 throw new IllegalArgumentException("SKU já cadastrado.");
-            }
-        }
 
         Produto produto = Produto.builder()
                 .dadosBasicos(request.dadosBasicos())
                 .tributacao(request.tributacao())
-                .estoqueConfig(request.estoqueConfig())
                 .precoAtual(request.precoAtual())
                 .ativo(true)
                 .categoria(buscarCategoriaOuNull(request.categoriaId()))
@@ -121,18 +118,14 @@ public class ProdutoServiceImpl implements ProdutoService {
         BigDecimal precoAnterior = existente.getPrecoAtual().getPrecoVenda();
 
         // Atualizar dados universais
-        if (request.dadosBasicos() != null) {
+        if (request.dadosBasicos() != null)
             existente.setDadosBasicos(request.dadosBasicos());
-        }
-        if (request.tributacao() != null) {
+
+        if (request.tributacao() != null)
             existente.setTributacao(request.tributacao());
-        }
-        if (request.estoqueConfig() != null) {
-            existente.setEstoqueConfig(request.estoqueConfig());
-        }
-        if (request.precoAtual() != null) {
+
+        if (request.precoAtual() != null)
             existente.setPrecoAtual(request.precoAtual());
-        }
 
         existente.setCategoria(buscarCategoriaOuNull(request.categoriaId()));
         existente.setMarca(buscarMarcaOuNull(request.marcaId()));
@@ -170,9 +163,9 @@ public class ProdutoServiceImpl implements ProdutoService {
 
     @Override
     public void deletar(Long id) {
-        if (!produtoRepository.existsById(id)) {
+        if (!produtoRepository.existsById(id))
             throw new IllegalArgumentException("Produto não encontrado com ID: " + id);
-        }
+
         produtoRepository.deleteById(id);
     }
 
@@ -267,25 +260,23 @@ public class ProdutoServiceImpl implements ProdutoService {
                 ? produto.getPrecoAtual().getPrecoVenda()
                 : null;
 
-        if (produto.getPrecoAtual() == null) {
+        if (produto.getPrecoAtual() == null)
             produto.setPrecoAtual(new PrecoBase(
                     null,
                     novoPreco,
                     null,
                     null
             ));
-        } else {
+        else
             produto.getPrecoAtual().setPrecoVenda(novoPreco);
-        }
 
         Produto atualizado = produtoRepository.save(produto);
 
-        if (precoAnterior != null && precoAnterior.compareTo(novoPreco) != 0) {
+        if (precoAnterior != null && precoAnterior.compareTo(novoPreco) != 0)
             historicoPrecoService.salvar(
                     atualizado.getId(),
                     new HistoricoPrecoRequest(precoAnterior, novoPreco, "Atualização de preço")
             );
-        }
 
         return toResponse(atualizado);
     }
@@ -310,7 +301,6 @@ public class ProdutoServiceImpl implements ProdutoService {
                 produto.isAtivo(),
                 produto.getDadosBasicos(),
                 produto.getTributacao(),
-                produto.getEstoqueConfig(),
                 produto.getPrecoAtual(),
 
                 // Categoria via mapper
@@ -358,17 +348,17 @@ public class ProdutoServiceImpl implements ProdutoService {
     // ============================================================
 
     private Categoria buscarCategoriaOuNull(Long categoriaId) {
-        if (categoriaId == null) {
+        if (categoriaId == null)
             return null;
-        }
+
         return categoriaRepository.findById(categoriaId)
                 .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada com ID: " + categoriaId));
     }
 
     private Marca buscarMarcaOuNull(Long marcaId) {
-        if (marcaId == null) {
+        if (marcaId == null)
             return null;
-        }
+
         return marcaRepository.findById(marcaId)
                 .orElseThrow(() -> new IllegalArgumentException("Marca não encontrada com ID: " + marcaId));
     }

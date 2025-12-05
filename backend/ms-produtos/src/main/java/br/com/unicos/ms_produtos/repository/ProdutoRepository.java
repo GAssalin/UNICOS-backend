@@ -44,15 +44,6 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
      */
     Optional<Produto> findByDadosBasicosSku(String sku);
 
-    /**
-     * Busca produtos pelo código de barras (EAN/UPC).
-     *
-     * @param codigoBarras código de barras do produto
-     * @return lista de produtos que possuem o código informado
-     */
-    List<Produto> findByDadosBasicosCodigoBarras(String codigoBarras);
-
-
     // ============================================================
     // 🔍 Consultas por atributos operacionais
     // ============================================================

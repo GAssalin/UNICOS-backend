@@ -44,7 +44,6 @@ CREATE TABLE unidade_medida (
 
 -- ===========================================
 -- 4) TABELA: produto
---    Inclui todos os campos embutidos (ProdutoBase, TributacaoBase etc.)
 -- ===========================================
 CREATE TABLE produto (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -54,30 +53,23 @@ CREATE TABLE produto (
     dados_basicos_descricao VARCHAR(500),
     dados_basicos_sku VARCHAR(50),
     dados_basicos_tipo VARCHAR(50),
+    dados_basicos_variacao VARCHAR(50),
+    dados_basicos_origem VARCHAR(50),
+    dados_basicos_controle_estoque VARCHAR(50),
+    dados_basicos_armazenamento VARCHAR(50),
     dados_basicos_classificacao VARCHAR(50),
+    dados_basicos_status VARCHAR(50),
 
-    -- ProdutoTributacaoBase
+    -- ProdutoTributacaoBase (ATUALIZADO!)
     tributacao_ncm VARCHAR(10),
     tributacao_cest VARCHAR(20),
-    tributacao_origem VARCHAR(20),
-    tributacao_csosn VARCHAR(10),
-    tributacao_cst VARCHAR(10),
-    tributacao_cfop VARCHAR(10),
-    tributacao_aliquota_icms DECIMAL(15,2),
-    tributacao_aliquota_pis DECIMAL(15,2),
-    tributacao_aliquota_cofins DECIMAL(15,2),
-
-    -- ProdutoEstoqueBase
-    estoqueconfig_controla_estoque BOOLEAN,
-    estoqueconfig_estoque_min DECIMAL(15,3),
-    estoqueconfig_estoque_max DECIMAL(15,3),
-    estoqueconfig_estoque_atual DECIMAL(15,3),
+    tributacao_situacao VARCHAR(30),
 
     -- PrecoBase
-    precoatual_preco DECIMAL(15,2),
-    precoatual_preco_promocional DECIMAL(15,2),
-    precoatual_data_inicio_promocao TIMESTAMP,
-    precoatual_data_fim_promocao TIMESTAMP,
+    preco_custo DECIMAL(15,2),
+    preco_venda DECIMAL(15,2),
+    preco_minimo DECIMAL(15,2),
+    margem_padrao DECIMAL(15,2),
 
     -- Operacionais
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
@@ -96,7 +88,7 @@ CREATE TABLE produto (
 CREATE INDEX idx_produto_sku ON produto (dados_basicos_sku);
 
 -- ===========================================
--- 5) TABELA: atributo_personalizado
+-- 5) atributo_personalizado
 -- ===========================================
 CREATE TABLE atributo_personalizado (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -109,7 +101,7 @@ CREATE TABLE atributo_personalizado (
 );
 
 -- ===========================================
--- 6) TABELA: produto_atributo_valor
+-- 6) produto_atributo_valor
 -- ===========================================
 CREATE TABLE produto_atributo_valor (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -127,7 +119,7 @@ CREATE TABLE produto_atributo_valor (
 );
 
 -- ===========================================
--- 7) TABELA: produto_unidade
+-- 7) produto_unidade
 -- ===========================================
 CREATE TABLE produto_unidade (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -146,7 +138,7 @@ CREATE TABLE produto_unidade (
 );
 
 -- ===========================================
--- 8) TABELA: produto_variacao
+-- 8) produto_variacao
 -- ===========================================
 CREATE TABLE produto_variacao (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -165,7 +157,7 @@ CREATE TABLE produto_variacao (
 );
 
 -- ===========================================
--- 9) TABELA: fornecedor_produto
+-- 9) fornecedor_produto
 -- ===========================================
 CREATE TABLE fornecedor_produto (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -183,7 +175,7 @@ CREATE TABLE fornecedor_produto (
 );
 
 -- ===========================================
--- 10) TABELA: historico_preco
+-- 10) historico_preco
 -- ===========================================
 CREATE TABLE historico_preco (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -198,7 +190,7 @@ CREATE TABLE historico_preco (
 );
 
 -- ===========================================
--- 11) TABELA: imagem_produto
+-- 11) imagem_produto
 -- ===========================================
 CREATE TABLE imagem_produto (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -215,3 +207,4 @@ CREATE TABLE imagem_produto (
 
 CREATE INDEX idx_imagem_produto_ordem
     ON imagem_produto (produto_id, ordem_exibicao);
+
