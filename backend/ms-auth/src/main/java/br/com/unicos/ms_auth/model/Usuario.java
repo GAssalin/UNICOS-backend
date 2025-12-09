@@ -53,12 +53,13 @@ public class Usuario implements UserDetails {
     private String email;
 
     @Builder.Default
-    @Column(nullable = false)
+    @Column(name = "email_verificado", nullable = false)
     private boolean emailVerificado = false;
 
-    @Column(length = 200)
+    @Column(name = "refresh_token", length = 200)
     private String refreshToken;
 
+    @Column(name = "expiracao_refresh_token", length = 200)
     private LocalDateTime expiracaoRefreshToken;
 
     @Builder.Default
@@ -75,9 +76,11 @@ public class Usuario implements UserDetails {
     private Set<Role> roles = new HashSet<>();
 
     @CreationTimestamp
+    @Column(name = "criado_em")
     private LocalDateTime criadoEm;
 
     @UpdateTimestamp
+    @Column(name = "atualizado_em")
     private LocalDateTime atualizadoEm;
 
     @Override

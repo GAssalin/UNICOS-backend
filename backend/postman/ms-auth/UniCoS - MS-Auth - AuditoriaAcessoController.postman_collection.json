@@ -1,0 +1,89 @@
+{
+	"info": {
+		"_postman_id": "ed9e9b2d-13c7-49f9-b3ba-5543c42b06f5",
+		"name": "UniCoS - MS-Auth - AuditoriaAcessoController",
+		"description": "Collection para testes do controlador de auditoria de acessos do ms-auth.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14706560"
+	},
+	"item": [
+		{
+			"name": "Listar auditorias por usuário (GET)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-auth/v1/auditorias/usuario/jose.silva",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-auth",
+						"v1",
+						"auditorias",
+						"usuario",
+						"jose.silva"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar auditorias por ação (GET)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-auth/v1/auditorias/acao/LOGIN_SUCESSO",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-auth",
+						"v1",
+						"auditorias",
+						"acao",
+						"LOGIN_SUCESSO"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar auditorias por período (GET)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-auth/v1/auditorias/periodo?inicio=2025-01-01T00:00:00&fim=2025-12-31T23:59:59",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-auth",
+						"v1",
+						"auditorias",
+						"periodo"
+					],
+					"query": [
+						{
+							"key": "inicio",
+							"value": "2025-01-01T00:00:00"
+						},
+						{
+							"key": "fim",
+							"value": "2025-12-31T23:59:59"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

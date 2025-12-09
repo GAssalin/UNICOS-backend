@@ -1,0 +1,121 @@
+{
+	"info": {
+		"_postman_id": "e9284a50-b12c-4e0c-b167-bf8d5ffe948b",
+		"name": "UniCoS - MS-Auth - UsuarioEmailVerificacaoController",
+		"description": "Collection para testes do fluxo de verificação de e-mail do ms-auth.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14706560"
+	},
+	"item": [
+		{
+			"name": "Confirmar e-mail (POST)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"token\": \"INSIRA_AQUI_O_TOKEN_DE_VERIFICACAO\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/ms-auth/v1/auth/verificacao-email/confirmar",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-auth",
+						"v1",
+						"auth",
+						"verificacao-email",
+						"confirmar"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Reenviar token de verificação (POST)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"usuarioId\": 1\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/ms-auth/v1/auth/verificacao-email/reenviar",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-auth",
+						"v1",
+						"auth",
+						"verificacao-email",
+						"reenviar"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar tokens pendentes (GET)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-auth/v1/auth/verificacao-email/pendentes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-auth",
+						"v1",
+						"auth",
+						"verificacao-email",
+						"pendentes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar tokens expirados (GET)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-auth/v1/auth/verificacao-email/expirados",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-auth",
+						"v1",
+						"auth",
+						"verificacao-email",
+						"expirados"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

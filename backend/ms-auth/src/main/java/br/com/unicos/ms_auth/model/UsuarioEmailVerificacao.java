@@ -25,7 +25,7 @@ public class UsuarioEmailVerificacao {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    @Column(nullable = false, length = 64)
+    @Column(name = "token_hash", nullable = false, length = 64)
     private String tokenHash;
 
     @Column(nullable = false)
@@ -35,5 +35,6 @@ public class UsuarioEmailVerificacao {
     private boolean utilizado = false;
 
     @CreationTimestamp
+    @Column(name = "criado_em")
     private LocalDateTime criadoEm;
 }

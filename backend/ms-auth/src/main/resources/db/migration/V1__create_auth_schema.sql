@@ -97,7 +97,7 @@ CREATE TABLE usuario_role (
 CREATE TABLE usuario_email_verificacao (
     id BIGINT NOT NULL AUTO_INCREMENT,
     usuario_id BIGINT NOT NULL,
-    tokenHash VARCHAR(64) NOT NULL,
+    token_hash VARCHAR(64) NOT NULL,
     expiracao DATETIME NOT NULL,
     utilizado BOOLEAN NOT NULL DEFAULT FALSE,
     criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,

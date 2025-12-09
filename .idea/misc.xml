@@ -4,10 +4,7 @@
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/backend/gateway/pom.xml" />
         <option value="$PROJECT_DIR$/backend/ms-auth/pom.xml" />
-        <option value="$PROJECT_DIR$/backend/ms-produtos/pom.xml" />
-        <option value="$PROJECT_DIR$/backend/service-registry/pom.xml" />
       </list>
     </option>
   </component>
