@@ -1,6 +1,6 @@
 package br.com.unicos.gateway.config;
 
-import br.com.unicos.gateway.security.JwtAuthFilter;
+import br.com.unicos.gateway.filter.JwtAuthFilter;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +32,18 @@ public class GatewayConfig {
                                 .filter(new JwtAuthFilter()) // FILTRO JWT AQUI!
                         )
                         .uri("lb://ms-produtos")
+                )
+
+                // ===============================
+                // ROTA: MS-PESSOAS (COM JWT)
+                // ===============================
+                .route("ms-pessoas", r -> r
+                        .path("/ms-pessoas/**")
+                        .filters(f -> f
+                                .stripPrefix(1)
+                                .filter(new JwtAuthFilter()) // FILTRO JWT AQUI!
+                        )
+                        .uri("lb://ms-pessoas")
                 )
 
                 .build();

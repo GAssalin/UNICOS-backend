@@ -1,0 +1,134 @@
+{
+	"info": {
+		"_postman_id": "d782ec42-a10d-471f-b32e-bd8c4212c97e",
+		"name": "UniCoS - MS-Pessoas - PessoaController",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14706560"
+	},
+	"item": [
+		{
+			"name": "Buscar por ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/pessoas/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"pessoas",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar todas",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtcy1hdXRoIiwic3ViIjoiZy5hc3NhbGluIiwiZXhwIjoxNzY1MzAxNTk2fQ.vn4To0vAOzJaj7BCbU3b_KHj4bRZVZvIvZTtVQiklUs",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-pessoas/v1/pessoas",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-pessoas",
+						"v1",
+						"pessoas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar por nome (contains)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/pessoas/nome/{nome}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"pessoas",
+						"nome",
+						"{nome}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar por nome exato",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/pessoas/nome-exato/{nome}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"pessoas",
+						"nome-exato",
+						"{nome}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar por tipo (FISICA ou JURIDICA)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/pessoas/tipo/{tipo}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"pessoas",
+						"tipo",
+						"{tipo}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		}
+	]
+}

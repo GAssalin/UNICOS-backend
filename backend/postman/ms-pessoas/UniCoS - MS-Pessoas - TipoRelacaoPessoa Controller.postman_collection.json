@@ -1,0 +1,189 @@
+{
+	"info": {
+		"_postman_id": "dc9b1ebd-1dae-4c6a-a253-2daec1a648ce",
+		"name": "UniCoS - MS-Pessoas - TipoRelacaoPessoa Controller",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14706560"
+	},
+	"item": [
+		{
+			"name": "Criar Tipo de Relação",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Responsável Legal\",\n  \"descricao\": \"Pessoa autorizada a responder legalmente por outra.\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/ms-pessoas/v1/pessoas/tipos-relacao",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-pessoas",
+						"v1",
+						"pessoas",
+						"tipos-relacao"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Atualizar Tipo de Relação",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Dependente\",\n  \"descricao\": \"Pessoa vinculada como dependente.\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/ms-pessoas/v1/pessoas/tipos-relacao/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-pessoas",
+						"v1",
+						"pessoas",
+						"tipos-relacao",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Excluir Tipo de Relação",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-pessoas/v1/pessoas/tipos-relacao/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-pessoas",
+						"v1",
+						"pessoas",
+						"tipos-relacao",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buscar por ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-pessoas/v1/pessoas/tipos-relacao/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-pessoas",
+						"v1",
+						"pessoas",
+						"tipos-relacao",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar Todos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-pessoas/v1/pessoas/tipos-relacao",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-pessoas",
+						"v1",
+						"pessoas",
+						"tipos-relacao"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar por Nome (contains)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-pessoas/v1/pessoas/tipos-relacao/nome/respon",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-pessoas",
+						"v1",
+						"pessoas",
+						"tipos-relacao",
+						"nome",
+						"respon"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buscar por Nome Exato",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-pessoas/v1/pessoas/tipos-relacao/nome-exato/Responsável Legal",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-pessoas",
+						"v1",
+						"pessoas",
+						"tipos-relacao",
+						"nome-exato",
+						"Responsável Legal"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

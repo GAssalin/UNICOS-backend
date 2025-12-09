@@ -1,4 +1,4 @@
-package br.com.unicos.gateway.security;
+package br.com.unicos.gateway.filter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 
 public class JwtAuthFilter implements GatewayFilter {
 
-    private static final String SECRET = "1234"; // mesma chave do MS-AUTH
+    private static final String SECRET = "123456"; // mesma chave do MS-AUTH
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
