@@ -21,7 +21,6 @@ public record ProdutoResponse(
 
         ProdutoBase dadosBasicos,
         ProdutoTributacaoBase tributacao,
-        ProdutoEstoqueBase estoqueConfig,
         PrecoBase precoAtual,
 
         CategoriaResponse categoria,

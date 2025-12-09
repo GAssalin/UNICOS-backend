@@ -1,0 +1,155 @@
+{
+	"info": {
+		"_postman_id": "f570979e-1a39-4085-b42b-72791e9d961d",
+		"name": "UniCoS - MS-Produtos - HistoricoPrecoController",
+		"description": "Collection para testes do controlador de histórico de preços do ms_produtos.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14706560"
+	},
+	"item": [
+		{
+			"name": "Criar histórico de preço (POST)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"precoAnterior\": 89.90,\n  \"novoPreco\": 79.90,\n  \"motivo\": \"Ajuste devido à negociação com fornecedor\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/ms-produtos/v1/historico-precos/produto/10",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-produtos",
+						"v1",
+						"historico-precos",
+						"produto",
+						"10"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buscar histórico por ID (GET)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-produtos/v1/historico-precos/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-produtos",
+						"v1",
+						"historico-precos",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar todos os históricos (GET)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-produtos/v1/historico-precos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-produtos",
+						"v1",
+						"historico-precos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar histórico por produto (GET)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-produtos/v1/historico-precos/produto/10",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-produtos",
+						"v1",
+						"historico-precos",
+						"produto",
+						"10"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar últimos 10 registros por produto (GET)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-produtos/v1/historico-precos/produto/10/ultimos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-produtos",
+						"v1",
+						"historico-precos",
+						"produto",
+						"10",
+						"ultimos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deletar histórico por ID (DELETE)",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-produtos/v1/historico-precos/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-produtos",
+						"v1",
+						"historico-precos",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

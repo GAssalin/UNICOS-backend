@@ -1,0 +1,244 @@
+{
+	"info": {
+		"_postman_id": "f05c3fc4-daba-455d-92f8-9e66ccb365b0",
+		"name": "UniCoS - MS-Produtos - FornecedorProdutoController",
+		"description": "Collection para testes do controlador de vínculos fornecedor-produto do ms_produtos.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14706560"
+	},
+	"item": [
+		{
+			"name": "Criar vínculo fornecedor-produto",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"produtoId\": 10,\n  \"fornecedorId\": 1,\n  \"codigoFornecedor\": \"ABC-123\",\n  \"precoCusto\": 45.90,\n  \"prazoEntregaDias\": 7\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/ms-produtos/v1/fornecedores-produtos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-produtos",
+						"v1",
+						"fornecedores-produtos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Atualizar vínculo fornecedor-produto",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"produtoId\": 10,\n  \"fornecedorId\": 1,\n  \"codigoFornecedor\": \"ABC-999\",\n  \"precoCusto\": 50.00,\n  \"prazoEntregaDias\": 12\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/ms-produtos/v1/fornecedores-produtos/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-produtos",
+						"v1",
+						"fornecedores-produtos",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Atualizar preço de custo (PATCH)",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-produtos/v1/fornecedores-produtos/1/preco-custo?novoPrecoCusto=55.75",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-produtos",
+						"v1",
+						"fornecedores-produtos",
+						"1",
+						"preco-custo"
+					],
+					"query": [
+						{
+							"key": "novoPrecoCusto",
+							"value": "55.75"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deletar vínculo fornecedor-produto",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-produtos/v1/fornecedores-produtos/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-produtos",
+						"v1",
+						"fornecedores-produtos",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buscar vínculo por ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-produtos/v1/fornecedores-produtos/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-produtos",
+						"v1",
+						"fornecedores-produtos",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar todos os vínculos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-produtos/v1/fornecedores-produtos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-produtos",
+						"v1",
+						"fornecedores-produtos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar vínculos por produto",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-produtos/v1/fornecedores-produtos/produto/10",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-produtos",
+						"v1",
+						"fornecedores-produtos",
+						"produto",
+						"10"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar vínculos por fornecedor",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-produtos/v1/fornecedores-produtos/fornecedor/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-produtos",
+						"v1",
+						"fornecedores-produtos",
+						"fornecedor",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verificar existência de vínculo fornecedor-produto",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/ms-produtos/v1/fornecedores-produtos/existe?fornecedorId=1&produtoId=10",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"ms-produtos",
+						"v1",
+						"fornecedores-produtos",
+						"existe"
+					],
+					"query": [
+						{
+							"key": "fornecedorId",
+							"value": "1"
+						},
+						{
+							"key": "produtoId",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

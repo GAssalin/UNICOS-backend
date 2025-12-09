@@ -2,7 +2,6 @@ package br.com.unicos.ms_produtos.model;
 
 import br.com.unicos.core.produto.model.PrecoBase;
 import br.com.unicos.core.produto.model.ProdutoBase;
-import br.com.unicos.core.produto.model.ProdutoEstoqueBase;
 import br.com.unicos.core.produto.model.ProdutoTributacaoBase;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -55,24 +54,41 @@ public class Produto {
      * Dados básicos como nome, descrição, SKU global, classificação e tipos.
      */
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "nome", column = @Column(name = "dados_basicos_nome")),
+            @AttributeOverride(name = "descricao", column = @Column(name = "dados_basicos_descricao")),
+            @AttributeOverride(name = "sku", column = @Column(name = "dados_basicos_sku")),
+            @AttributeOverride(name = "tipoProduto", column = @Column(name = "dados_basicos_tipo")),
+            @AttributeOverride(name = "tipoVariacaoProduto", column = @Column(name = "dados_basicos_variacao")),
+            @AttributeOverride(name = "tipoOrigemProduto", column = @Column(name = "dados_basicos_origem")),
+            @AttributeOverride(name = "tipoControleEstoque", column = @Column(name = "dados_basicos_controle_estoque")),
+            @AttributeOverride(name = "tipoArmazenamentoProduto", column = @Column(name = "dados_basicos_armazenamento")),
+            @AttributeOverride(name = "tipoClassificacaoProduto", column = @Column(name = "dados_basicos_classificacao")),
+            @AttributeOverride(name = "statusProduto", column = @Column(name = "dados_basicos_status"))
+    })
     private ProdutoBase dadosBasicos;
 
     /**
      * Informações tributárias universais do produto.
      */
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "ncm", column = @Column(name = "tributacao_ncm")),
+            @AttributeOverride(name = "cest", column = @Column(name = "tributacao_cest")),
+            @AttributeOverride(name = "situacaoTributaria", column = @Column(name = "tributacao_situacao"))
+    })
     private ProdutoTributacaoBase tributacao;
-
-    /**
-     * Configurações globais de estoque.
-     */
-    @Embedded
-    private ProdutoEstoqueBase estoqueConfig;
 
     /**
      * Preço atual do produto.
      */
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "precoCusto", column = @Column(name = "preco_custo")),
+            @AttributeOverride(name = "precoVenda", column = @Column(name = "preco_venda")),
+            @AttributeOverride(name = "precoMinimo", column = @Column(name = "preco_minimo")),
+            @AttributeOverride(name = "margemPadrao", column = @Column(name = "margem_padrao"))
+    })
     private PrecoBase precoAtual;
 
     // ============================================================
