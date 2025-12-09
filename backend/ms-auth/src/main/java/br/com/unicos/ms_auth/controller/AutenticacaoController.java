@@ -3,6 +3,7 @@ package br.com.unicos.ms_auth.controller;
 import br.com.unicos.ms_auth.dto.login.DadosLogin;
 import br.com.unicos.ms_auth.dto.token.DadosRefreshToken;
 import br.com.unicos.ms_auth.dto.token.DadosToken;
+import br.com.unicos.ms_auth.model.Role;
 import br.com.unicos.ms_auth.model.Usuario;
 import br.com.unicos.ms_auth.repository.UsuarioRepository;
 import br.com.unicos.ms_auth.service.TokenService;
@@ -58,20 +59,18 @@ public class AutenticacaoController {
                 .orElse(null);
 
         // ==========================================================
-        // 2. Se não existir -> criar novo usuário
+        // 2. Se não existir -> criar novo usuário somente para testes
         // ==========================================================
         if (usuario == null) {
+            Role r = new Role();
             usuario = Usuario.builder()
-                    .login(dados.email())                 // login = email
+                    .login(dados.email().substring(0, dados.email().indexOf("@")))
                     .email(dados.email())
-                    .password(dados.senha())              // será criptografado no próximo passo
+                    .password(new BCryptPasswordEncoder().encode(dados.senha()))
                     .ativo(true)
                     .emailVerificado(true)                // se quiser exigir verificação, trocar para false
                     .roles(new HashSet<>())               // sem roles para começar (ou adicione básicas)
                     .build();
-
-            // criptografar senha
-            usuario.setPassword(new BCryptPasswordEncoder().encode(dados.senha()));
 
             usuarioRepository.save(usuario);
         }
