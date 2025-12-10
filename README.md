@@ -23,16 +23,16 @@ A estrutura geral do UniCoS segue este modelo:
                      └────────────┬────────────┘
                                   │
                         ┌─────────┴─────────┐
-                        │   API Gateway     │
-                        │ (Spring Gateway)  │
+                        │     API Gateway    │
+                        │  (Spring Gateway)  │
                         └─────────┬─────────┘
-      ┌──────────────┬────────────┼───────────────┬──────────────┐
-      │              │            │               │              │
-┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐  ┌────────────┐
-│ MS-Auth  │   │ MS-Pessoa │   │ MS-Estoque│   │ MS-Compras│  │ MS-Financeiro │
-└──────────┘   └──────────┘   └──────────┘   └──────────┘  └────────────┘
-        │              │            │               │              │
-        └──────────────┴────────────┴───────────────┴──────────────┘
+                ┌────────────────┼──────────────────┐
+                │                │                  │
+        ┌────────────┐   ┌──────────────┐   ┌──────────────┐
+        │  MS-Auth    │   │  MS-Pessoas   │   │ MS-Produtos   │
+        └────────────┘   └──────────────┘   └──────────────┘
+                │                │                  │
+                └────────────────┴──────────────────┘
                          ┌────────────────────────┐
                          │        CORE (DDD)      │
                          │  Publicado no GitHub   │
@@ -42,15 +42,9 @@ A estrutura geral do UniCoS segue este modelo:
 ---
 
 ## 🚀 Funcionalidades Principais (MVP)
-✔️ Gestão de produtos  
-✔️ Gestão de empresas  
-✔️ Catálogo de estoque  
-✔️ Compras e fornecedores  
-✔️ Módulo financeiro básico  
-✔️ Módulo de pagamentos  
-✔️ Módulo de notificações  
-✔️ Autenticação e permissões  
-✔️ Núcleo CORE com entidades, enums e contratos reutilizáveis  
+✔️ Autenticação e permissões
+✔️ Gerenciamento de dados pessoais
+✔️ Gestão de produtos
 
 ---
 
@@ -60,26 +54,21 @@ A estrutura geral do UniCoS segue este modelo:
 |--------|------------------|
 | **service-registry** | Registro e descoberta via Eureka |
 | **gateway** | Roteamento global e autenticação |
-| **ms-auth** | Login, usuários e permissões |
+| **ms-auth** | Gerencia usuários, perfis e permissões |
 | **unicos-core** | Enums, modelos e contratos padrão |
-| **ms-produtos** | Produtos, categorias e atributos |
-| **ms-empresa** | Empresas, filiais e dados corporativos |
-| **ms-estoque** | Estoque, lotes e movimentações |
-| **ms-compras** | Pedidos de compra e fornecedores |
-| **ms-financeiro** | Movimentos, contas e lançamentos |
-| **ms-pagamento** | Processamento e integração de pagamentos |
-| **ms-notificacao** | Eventos e envio de mensagens |
+| **ms-produtos** | Gerencia os produtos da empresa |
+| **ms-pessoas** | Gerencia dados de pessoas físicas e jurídicas |
 
 ---
 
 ## 🔧 Tecnologias Utilizadas
-- **Backend:** Java 21 + Spring Boot 3  
-- **Comunicação:** REST + Spring Cloud  
-- **Orquestração:** Eureka + Gateway  
-- **Banco de Dados:** MySQL  
-- **Build:** Maven  
-- **Deploy:** Docker / Docker Compose  
-- **Infra futura:** Kubernetes (opcional)  
+- **Backend:** Java 21 + Spring Boot 3
+- **Comunicação:** REST + Spring Cloud
+- **Orquestração:** Eureka + Gateway
+- **Banco de Dados:** Flyway + MySQL
+- **Build:** Maven
+- **Deploy:** Docker / Docker Compose (Em Construção)
+- **Infra futura:** Kubernetes (Em Construção)
 
 ---
 
@@ -114,15 +103,14 @@ backend/
 ├── gateway/
 ├── unicos-core/
 │   ├── core-base/
-│   ├── core-produto/
+│   ├── core-categoria/
+│   ├── core-contas/
 │   ├── core-financeiro/
-│   └── ...
+│   ├── core-pedido/
+│   ├── core-produto/
+│   ├── core-tesouraria/
 ├── ms-produtos/
-├── ms-estoque/
-├── ms-empresa/
-├── ms-compras/
-├── ms-financeiro/
-└── ms-pagamento/
+├── ms-pessoas/
 ```
 
 ---
@@ -131,7 +119,7 @@ backend/
 
 ## Backend
 
-### ✅ Rodando com Docker
+### ✅ Rodando com Docker (Em Construção)
 ```bash
 git clone https://github.com/GAssalin/ERP.git
 cd backend
@@ -156,6 +144,23 @@ make down
 
 ### ⚙️ Rodando localmente sem Docker
 ```bash
+cd service-registry
+mvn spring-boot:run
+```
+```bash
+cd gateway
+mvn spring-boot:run
+```
+```bash
+cd ms-auth
+mvn spring-boot:run
+```
+```bash
+cd ms-produtos
+mvn spring-boot:run
+```
+```bash
+cd ms-pessoas
 mvn spring-boot:run
 ```
 
@@ -184,3 +189,4 @@ A definir
 # 📬 Contato  
 Gustavo Soares Assalin  
 GitHub: https://github.com/GAssalin
+LinkedIn: https://www.linkedin.com/in/gustavo-assalin/
