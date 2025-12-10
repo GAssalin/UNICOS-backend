@@ -13,6 +13,11 @@ public class GatewayConfig {
     public RouteLocator customRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
 
+                .route("docs-page", r -> r
+                        .path("/docs")
+                        .uri("no://op") // rota interna, sem backend
+                )
+
                 // ===============================
                 // ROTA: MS-AUTH (sem JWT)
                 // ===============================

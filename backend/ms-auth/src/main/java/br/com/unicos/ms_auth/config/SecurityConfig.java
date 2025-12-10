@@ -31,6 +31,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filtrosSeguranca(HttpSecurity http) throws Exception {
 
+        String[] SWAGGER_WHITELIST = {
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/v3/api-docs",
+                "/v3/api-docs/**",
+                "/swagger-resources/**",
+                "/webjars/**"
+        };
+
         return http
                 .cors(cors -> cors.disable())
                 .csrf(csrf -> csrf.disable())
@@ -40,6 +49,7 @@ public class SecurityConfig {
                             "/v1/autenticacao/login",
                             "/v1/autenticacao/atualizar-token"
                     ).permitAll();
+                    req.requestMatchers(SWAGGER_WHITELIST).permitAll();
                     req.anyRequest().authenticated();
                 })
                 .addFilterBefore(filtroTokenAcesso, UsernamePasswordAuthenticationFilter.class)
