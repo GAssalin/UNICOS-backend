@@ -4,6 +4,12 @@ import br.com.unicos.ms_pessoas.dto.relacao.TipoRelacaoPessoaListDTO;
 import br.com.unicos.ms_pessoas.dto.relacao.TipoRelacaoPessoaRequest;
 import br.com.unicos.ms_pessoas.dto.relacao.TipoRelacaoPessoaResponse;
 import br.com.unicos.ms_pessoas.service.interfaces.TipoRelacaoPessoaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +19,17 @@ import java.util.List;
 
 /**
  * Controller responsável pelo gerenciamento dos tipos de relação entre pessoas no UniCoS.
- *
- * <p>Permite criar, atualizar, excluir e consultar os tipos de vínculo utilizados
- * em relacionamentos como dependência, sociedade, representação legal, entre outros.</p>
+ * <p>
+ * Permite criar, atualizar, excluir e consultar os tipos de vínculo utilizados
+ * em relacionamentos como dependência, sociedade, representação legal, entre outros.
  */
 @RestController
 @RequestMapping("/v1/pessoas/tipos-relacao")
 @RequiredArgsConstructor
+@Tag(
+        name = "Tipos de Relação entre Pessoas",
+        description = "Gerenciamento de tipos de vínculos utilizados em relações entre pessoas no UniCoS."
+)
 public class TipoRelacaoPessoaController {
 
     private final TipoRelacaoPessoaService service;
@@ -28,12 +38,21 @@ public class TipoRelacaoPessoaController {
     // Criar
     // ============================================================
 
-    /**
-     * Cadastra um novo tipo de relação entre pessoas.
-     *
-     * @param request dados do tipo de relação.
-     * @return ResponseEntity contendo o tipo criado.
-     */
+    @Operation(
+            summary = "Criar tipo de relação",
+            description = "Registra um novo tipo de vínculo entre pessoas.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Tipo de relação criado com sucesso",
+                            content = @Content(schema = @Schema(implementation = TipoRelacaoPessoaResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos enviados"
+                    )
+            }
+    )
     @PostMapping
     public ResponseEntity<TipoRelacaoPessoaResponse> criar(
             @RequestBody TipoRelacaoPessoaRequest request) {
@@ -48,13 +67,25 @@ public class TipoRelacaoPessoaController {
     // Atualizar
     // ============================================================
 
-    /**
-     * Atualiza um tipo de relação existente.
-     *
-     * @param id      identificador do tipo de relação.
-     * @param request dados atualizados.
-     * @return ResponseEntity contendo os dados atualizados.
-     */
+    @Operation(
+            summary = "Atualizar tipo de relação",
+            description = "Atualiza os dados de um tipo de vínculo previamente cadastrado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Tipo atualizado com sucesso",
+                            content = @Content(schema = @Schema(implementation = TipoRelacaoPessoaResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos enviados"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Tipo de relação não encontrado"
+                    )
+            }
+    )
     @PutMapping("/{id}")
     public ResponseEntity<TipoRelacaoPessoaResponse> atualizar(
             @PathVariable Long id,
@@ -68,12 +99,20 @@ public class TipoRelacaoPessoaController {
     // Excluir
     // ============================================================
 
-    /**
-     * Remove um tipo de relação pelo ID.
-     *
-     * @param id identificador do tipo.
-     * @return ResponseEntity vazio (204 No Content).
-     */
+    @Operation(
+            summary = "Excluir tipo de relação",
+            description = "Remove um tipo de relação entre pessoas com base no ID informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "Tipo excluído com sucesso"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Tipo de relação não encontrado"
+                    )
+            }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         service.excluir(id);
@@ -84,12 +123,21 @@ public class TipoRelacaoPessoaController {
     // Buscar por ID
     // ============================================================
 
-    /**
-     * Retorna os dados completos de um tipo de relação pelo seu identificador.
-     *
-     * @param id identificador da relação.
-     * @return ResponseEntity com os dados ou 404 se não encontrado.
-     */
+    @Operation(
+            summary = "Buscar tipo de relação por ID",
+            description = "Retorna os dados completos de um tipo de relação pelo identificador.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Tipo encontrado",
+                            content = @Content(schema = @Schema(implementation = TipoRelacaoPessoaResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Tipo não encontrado"
+                    )
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<TipoRelacaoPessoaResponse> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
@@ -101,11 +149,17 @@ public class TipoRelacaoPessoaController {
     // Listar Todos
     // ============================================================
 
-    /**
-     * Lista todos os tipos de relação cadastrados.
-     *
-     * @return lista simplificada contendo ID e Nome.
-     */
+    @Operation(
+            summary = "Listar todos os tipos de relação",
+            description = "Retorna todos os tipos de relação cadastrados no sistema.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = TipoRelacaoPessoaListDTO.class)))
+                    )
+            }
+    )
     @GetMapping
     public ResponseEntity<List<TipoRelacaoPessoaListDTO>> listarTodos() {
         return ResponseEntity.ok(service.listarTodos());
@@ -115,13 +169,17 @@ public class TipoRelacaoPessoaController {
     // Listar por Nome (contains)
     // ============================================================
 
-    /**
-     * Lista tipos de relação cujo nome contenha o termo informado,
-     * ignorando maiúsculas e minúsculas.
-     *
-     * @param nome texto parcial para busca.
-     * @return lista correspondente.
-     */
+    @Operation(
+            summary = "Listar tipos de relação por nome",
+            description = "Retorna tipos de vínculo cujo nome contenha o termo informado (contains, ignore case).",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista filtrada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = TipoRelacaoPessoaListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/nome/{nome}")
     public ResponseEntity<List<TipoRelacaoPessoaListDTO>> listarPorNome(@PathVariable String nome) {
         return ResponseEntity.ok(service.listarPorNome(nome));
@@ -131,12 +189,21 @@ public class TipoRelacaoPessoaController {
     // Buscar por Nome Exato
     // ============================================================
 
-    /**
-     * Retorna os dados completos de um tipo de relação pelo nome exato.
-     *
-     * @param nome nome exato do tipo de relação.
-     * @return ResponseEntity com o tipo ou 404.
-     */
+    @Operation(
+            summary = "Buscar tipo de relação por nome exato",
+            description = "Retorna o tipo de relação cujo nome corresponde exatamente ao informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Tipo encontrado",
+                            content = @Content(schema = @Schema(implementation = TipoRelacaoPessoaResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Nenhum tipo encontrado com este nome"
+                    )
+            }
+    )
     @GetMapping("/nome-exato/{nome}")
     public ResponseEntity<TipoRelacaoPessoaResponse> buscarPorNomeExato(@PathVariable String nome) {
         return service.buscarPorNomeExato(nome)

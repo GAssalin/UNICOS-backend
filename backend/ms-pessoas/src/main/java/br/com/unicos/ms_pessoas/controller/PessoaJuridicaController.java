@@ -4,6 +4,12 @@ import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaListDTO;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaRequest;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaResponse;
 import br.com.unicos.ms_pessoas.service.interfaces.PessoaJuridicaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +19,17 @@ import java.util.List;
 
 /**
  * Controller responsável pelo gerenciamento de Pessoas Jurídicas dentro do UniCoS.
- *
- * <p>Oferece operações de criação, atualização, exclusão e consultas especializadas,
- * como busca por CNPJ, razão social e nome fantasia.</p>
+ * <p>
+ * Oferece operações de criação, atualização, exclusão e consultas especializadas,
+ * como busca por CNPJ, razão social e nome fantasia.
  */
 @RestController
 @RequestMapping("/v1/pessoas/juridicas")
 @RequiredArgsConstructor
+@Tag(
+        name = "Pessoas Jurídicas",
+        description = "Endpoints para criação, atualização, exclusão e consulta de empresas (Pessoa Jurídica)."
+)
 public class PessoaJuridicaController {
 
     private final PessoaJuridicaService service;
@@ -28,12 +38,21 @@ public class PessoaJuridicaController {
     // Criar
     // ============================================================
 
-    /**
-     * Cadastra uma nova Pessoa Jurídica.
-     *
-     * @param request dados da pessoa jurídica a ser criada.
-     * @return ResponseEntity contendo o objeto criado.
-     */
+    @Operation(
+            summary = "Criar Pessoa Jurídica",
+            description = "Registra uma nova Pessoa Jurídica no sistema UniCoS.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Pessoa Jurídica criada com sucesso",
+                            content = @Content(schema = @Schema(implementation = PessoaJuridicaResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos enviados"
+                    )
+            }
+    )
     @PostMapping
     public ResponseEntity<PessoaJuridicaResponse> criar(@RequestBody PessoaJuridicaRequest request) {
         PessoaJuridicaResponse response = service.criar(request);
@@ -46,13 +65,25 @@ public class PessoaJuridicaController {
     // Atualizar
     // ============================================================
 
-    /**
-     * Atualiza os dados de uma Pessoa Jurídica existente.
-     *
-     * @param id      identificador da empresa.
-     * @param request dados atualizados.
-     * @return ResponseEntity com os dados atualizados.
-     */
+    @Operation(
+            summary = "Atualizar Pessoa Jurídica",
+            description = "Atualiza os dados de uma empresa previamente cadastrada.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Empresa atualizada com sucesso",
+                            content = @Content(schema = @Schema(implementation = PessoaJuridicaResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos enviados"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Pessoa Jurídica não encontrada"
+                    )
+            }
+    )
     @PutMapping("/{id}")
     public ResponseEntity<PessoaJuridicaResponse> atualizar(
             @PathVariable Long id,
@@ -66,12 +97,20 @@ public class PessoaJuridicaController {
     // Excluir
     // ============================================================
 
-    /**
-     * Remove uma Pessoa Jurídica pelo ID.
-     *
-     * @param id identificador da empresa.
-     * @return ResponseEntity vazio (204 No Content).
-     */
+    @Operation(
+            summary = "Excluir Pessoa Jurídica",
+            description = "Remove uma Pessoa Jurídica com base no seu ID.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "Empresa excluída com sucesso"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Pessoa Jurídica não encontrada"
+                    )
+            }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         service.excluir(id);
@@ -82,12 +121,21 @@ public class PessoaJuridicaController {
     // Buscar por ID
     // ============================================================
 
-    /**
-     * Busca os dados completos de uma Pessoa Jurídica pelo seu ID.
-     *
-     * @param id identificador da empresa.
-     * @return ResponseEntity com os dados ou 404 se não encontrada.
-     */
+    @Operation(
+            summary = "Buscar Pessoa Jurídica por ID",
+            description = "Retorna os dados completos de uma Pessoa Jurídica pelo identificador informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Empresa encontrada",
+                            content = @Content(schema = @Schema(implementation = PessoaJuridicaResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Pessoa Jurídica não encontrada"
+                    )
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<PessoaJuridicaResponse> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
@@ -99,12 +147,21 @@ public class PessoaJuridicaController {
     // Buscar por CNPJ
     // ============================================================
 
-    /**
-     * Busca uma Pessoa Jurídica pelo seu CNPJ.
-     *
-     * @param cnpj número do CNPJ (somente dígitos).
-     * @return ResponseEntity com os dados ou 404 se não encontrada.
-     */
+    @Operation(
+            summary = "Buscar Pessoa Jurídica por CNPJ",
+            description = "Consulta uma empresa pelo CNPJ informado (somente dígitos).",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Empresa encontrada",
+                            content = @Content(schema = @Schema(implementation = PessoaJuridicaResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "CNPJ não encontrado"
+                    )
+            }
+    )
     @GetMapping("/cnpj/{cnpj}")
     public ResponseEntity<PessoaJuridicaResponse> buscarPorCnpj(@PathVariable String cnpj) {
         return service.buscarPorCnpj(cnpj)
@@ -116,11 +173,17 @@ public class PessoaJuridicaController {
     // Listar todas
     // ============================================================
 
-    /**
-     * Lista todas as Pessoas Jurídicas cadastradas.
-     *
-     * @return lista simplificada contendo ID, Nome e CNPJ.
-     */
+    @Operation(
+            summary = "Listar todas as Pessoas Jurídicas",
+            description = "Retorna uma lista simplificada contendo ID, Razão Social e CNPJ.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista obtida com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = PessoaJuridicaListDTO.class)))
+                    )
+            }
+    )
     @GetMapping
     public ResponseEntity<List<PessoaJuridicaListDTO>> listarTodas() {
         return ResponseEntity.ok(service.listarTodas());
@@ -130,12 +193,17 @@ public class PessoaJuridicaController {
     // Listar por Nome Fantasia (exato)
     // ============================================================
 
-    /**
-     * Lista empresas pelo nome fantasia exato.
-     *
-     * @param nomeFantasia nome fantasia completo.
-     * @return lista de empresas encontradas.
-     */
+    @Operation(
+            summary = "Listar por Nome Fantasia (exato)",
+            description = "Retorna empresas cujo nome fantasia corresponda exatamente ao valor informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = PessoaJuridicaListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/nome-fantasia/{nomeFantasia}")
     public ResponseEntity<List<PessoaJuridicaListDTO>> listarPorNomeFantasia(@PathVariable String nomeFantasia) {
         return ResponseEntity.ok(service.listarPorNomeFantasia(nomeFantasia));
@@ -145,12 +213,17 @@ public class PessoaJuridicaController {
     // Listar por Nome (contains)
     // ============================================================
 
-    /**
-     * Lista empresas cujo nome contenha o termo informado.
-     *
-     * @param nome termo parcial.
-     * @return lista correspondente.
-     */
+    @Operation(
+            summary = "Listar empresas por nome contendo termo",
+            description = "Busca empresas cuja razão social ou nome contenha o termo informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = PessoaJuridicaListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/nome/{nome}")
     public ResponseEntity<List<PessoaJuridicaListDTO>> listarPorNome(@PathVariable String nome) {
         return ResponseEntity.ok(service.listarPorNome(nome));

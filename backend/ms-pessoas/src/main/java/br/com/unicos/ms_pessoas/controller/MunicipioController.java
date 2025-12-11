@@ -4,6 +4,12 @@ import br.com.unicos.ms_pessoas.dto.municipio.MunicipioListDTO;
 import br.com.unicos.ms_pessoas.dto.municipio.MunicipioRequest;
 import br.com.unicos.ms_pessoas.dto.municipio.MunicipioResponse;
 import br.com.unicos.ms_pessoas.service.interfaces.MunicipioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +19,17 @@ import java.util.List;
 
 /**
  * Controller responsável pelo gerenciamento de municípios dentro do UniCoS.
- *
- * <p>Permite operações de criação, atualização, exclusão e consultas
- * por nome, UF, código IBGE e ID.</p>
+ * <p>
+ * Permite operações de criação, atualização, exclusão e consultas
+ * por nome, UF, código IBGE e ID.
  */
 @RestController
 @RequestMapping("/v1/municipios")
 @RequiredArgsConstructor
+@Tag(
+        name = "Municípios",
+        description = "Operações de gestão e consulta de municípios (UF, IBGE, nome, ID)."
+)
 public class MunicipioController {
 
     private final MunicipioService service;
@@ -28,12 +38,21 @@ public class MunicipioController {
     // Criar
     // ============================================================
 
-    /**
-     * Cadastra um novo município.
-     *
-     * @param request dados do município a ser criado.
-     * @return ResponseEntity contendo o município criado.
-     */
+    @Operation(
+            summary = "Criar município",
+            description = "Registra um novo município no sistema.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Município criado com sucesso",
+                            content = @Content(schema = @Schema(implementation = MunicipioResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados enviados são inválidos"
+                    )
+            }
+    )
     @PostMapping
     public ResponseEntity<MunicipioResponse> criar(@RequestBody MunicipioRequest request) {
         MunicipioResponse response = service.criar(request);
@@ -46,17 +65,30 @@ public class MunicipioController {
     // Atualizar
     // ============================================================
 
-    /**
-     * Atualiza os dados de um município existente.
-     *
-     * @param id      identificador do município.
-     * @param request dados atualizados.
-     * @return ResponseEntity com os dados atualizados.
-     */
+    @Operation(
+            summary = "Atualizar município",
+            description = "Atualiza os dados de um município existente.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Município atualizado com sucesso",
+                            content = @Content(schema = @Schema(implementation = MunicipioResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos enviados"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Município não encontrado"
+                    )
+            }
+    )
     @PutMapping("/{id}")
     public ResponseEntity<MunicipioResponse> atualizar(
             @PathVariable Long id,
             @RequestBody MunicipioRequest request) {
+
         MunicipioResponse response = service.atualizar(id, request);
         return ResponseEntity.ok(response);
     }
@@ -65,12 +97,20 @@ public class MunicipioController {
     // Excluir
     // ============================================================
 
-    /**
-     * Exclui um município pelo ID.
-     *
-     * @param id identificador do município.
-     * @return ResponseEntity vazio (204 No Content).
-     */
+    @Operation(
+            summary = "Excluir município",
+            description = "Remove um município do sistema pelo ID informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "Município excluído com sucesso"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Município não encontrado"
+                    )
+            }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         service.excluir(id);
@@ -81,12 +121,21 @@ public class MunicipioController {
     // Buscar por ID
     // ============================================================
 
-    /**
-     * Busca um município pelo seu identificador.
-     *
-     * @param id identificador do município.
-     * @return ResponseEntity contendo o município ou 404.
-     */
+    @Operation(
+            summary = "Buscar município por ID",
+            description = "Retorna o município correspondente ao ID informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Município encontrado",
+                            content = @Content(schema = @Schema(implementation = MunicipioResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Município não encontrado"
+                    )
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<MunicipioResponse> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
@@ -98,11 +147,17 @@ public class MunicipioController {
     // Listar Todos
     // ============================================================
 
-    /**
-     * Lista todos os municípios cadastrados.
-     *
-     * @return lista simplificada de municípios.
-     */
+    @Operation(
+            summary = "Listar todos os municípios",
+            description = "Retorna todos os municípios cadastrados no sistema.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = MunicipioListDTO.class)))
+                    )
+            }
+    )
     @GetMapping
     public ResponseEntity<List<MunicipioListDTO>> listarTodos() {
         return ResponseEntity.ok(service.listarTodos());
@@ -112,12 +167,17 @@ public class MunicipioController {
     // Listar por Nome
     // ============================================================
 
-    /**
-     * Lista municípios cujo nome contenha o termo informado (ignore case).
-     *
-     * @param nome parte do nome a ser pesquisado.
-     * @return lista correspondente de municípios.
-     */
+    @Operation(
+            summary = "Listar municípios por nome",
+            description = "Retorna municípios cujo nome contenha o termo informado (ignore case).",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista filtrada retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = MunicipioListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/nome/{nome}")
     public ResponseEntity<List<MunicipioListDTO>> listarPorNome(@PathVariable String nome) {
         return ResponseEntity.ok(service.listarPorNome(nome));
@@ -127,12 +187,21 @@ public class MunicipioController {
     // Listar por UF
     // ============================================================
 
-    /**
-     * Lista todos os municípios pertencentes à UF informada.
-     *
-     * @param uf sigla da unidade federativa.
-     * @return lista de municípios da UF.
-     */
+    @Operation(
+            summary = "Listar municípios por UF",
+            description = "Retorna todos os municípios pertencentes à unidade federativa informada.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = MunicipioListDTO.class)))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "UF inválida"
+                    )
+            }
+    )
     @GetMapping("/uf/{uf}")
     public ResponseEntity<List<MunicipioListDTO>> listarPorUf(@PathVariable String uf) {
         return ResponseEntity.ok(service.listarPorUf(uf));
@@ -142,12 +211,21 @@ public class MunicipioController {
     // Buscar por Código IBGE
     // ============================================================
 
-    /**
-     * Consulta um município pelo seu código IBGE.
-     *
-     * @param codigoIbge código IBGE oficial.
-     * @return ResponseEntity contendo o município ou 404.
-     */
+    @Operation(
+            summary = "Buscar município por código IBGE",
+            description = "Consulta um município pelo seu código IBGE oficial.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Município encontrado",
+                            content = @Content(schema = @Schema(implementation = MunicipioResponse.class)))
+                    ,
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Código IBGE não encontrado"
+                    )
+            }
+    )
     @GetMapping("/ibge/{codigoIbge}")
     public ResponseEntity<MunicipioResponse> buscarPorCodigoIbge(@PathVariable String codigoIbge) {
         return service.buscarPorCodigoIbge(codigoIbge)

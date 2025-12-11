@@ -4,6 +4,12 @@ import br.com.unicos.ms_produtos.dto.marca.MarcaListDTO;
 import br.com.unicos.ms_produtos.dto.marca.MarcaRequest;
 import br.com.unicos.ms_produtos.dto.marca.MarcaResponse;
 import br.com.unicos.ms_produtos.service.MarcaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,27 +21,34 @@ import java.util.Optional;
 
 /**
  * Controlador REST responsável pelo gerenciamento de marcas de produtos.
- * <p>
- * Permite cadastrar, editar, remover, listar e buscar marcas
- * com endpoints organizados e padronizados.
  */
 @RestController
 @RequestMapping("/v1/marcas")
 @RequiredArgsConstructor
+@Tag(
+        name = "Marcas",
+        description = "Gerencia o cadastro e as consultas de marcas de produtos."
+)
 public class MarcaController {
 
     private final MarcaService marcaService;
 
     // ============================================================
-    // 🔹 Criar marca
+    // Criar marca
     // ============================================================
 
-    /**
-     * Cria uma nova marca.
-     *
-     * @param request dados da marca.
-     * @return marca criada.
-     */
+    @Operation(
+            summary = "Criar nova marca",
+            description = "Cadastra uma nova marca no sistema UniCoS.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Marca criada com sucesso",
+                            content = @Content(schema = @Schema(implementation = MarcaResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos")
+            }
+    )
     @PostMapping
     public ResponseEntity<MarcaResponse> salvar(
             @Valid @RequestBody MarcaRequest request) {
@@ -45,16 +58,21 @@ public class MarcaController {
     }
 
     // ============================================================
-    // 🔹 Atualizar marca
+    // Atualizar marca
     // ============================================================
 
-    /**
-     * Atualiza uma marca existente.
-     *
-     * @param id      ID da marca.
-     * @param request dados atualizados.
-     * @return marca atualizada.
-     */
+    @Operation(
+            summary = "Atualizar marca",
+            description = "Atualiza os dados de uma marca existente.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Marca atualizada",
+                            content = @Content(schema = @Schema(implementation = MarcaResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Marca não encontrada")
+            }
+    )
     @PutMapping("/{id}")
     public ResponseEntity<MarcaResponse> atualizar(
             @PathVariable Long id,
@@ -65,15 +83,21 @@ public class MarcaController {
     }
 
     // ============================================================
-    // 🔹 Buscar por ID
+    // Buscar por ID
     // ============================================================
 
-    /**
-     * Busca uma marca pelo ID.
-     *
-     * @param id ID da marca.
-     * @return marca encontrada ou 404 se não existir.
-     */
+    @Operation(
+            summary = "Buscar marca por ID",
+            description = "Retorna os dados completos de uma marca.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Marca encontrada",
+                            content = @Content(schema = @Schema(implementation = MarcaResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Marca não encontrada")
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<MarcaResponse> buscarPorId(@PathVariable Long id) {
 
@@ -85,58 +109,83 @@ public class MarcaController {
     }
 
     // ============================================================
-    // 🔹 Listar todas as marcas (detalhado)
+    // Listar todas
     // ============================================================
 
-    /**
-     * Lista todas as marcas cadastradas.
-     *
-     * @return lista completa de marcas.
-     */
+    @Operation(
+            summary = "Listar todas as marcas",
+            description = "Retorna a lista completa de marcas cadastradas.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada",
+                            content = @Content(
+                                    array = @ArraySchema(schema = @Schema(implementation = MarcaResponse.class))
+                            )
+                    )
+            }
+    )
     @GetMapping
     public ResponseEntity<List<MarcaResponse>> listarTodas() {
         return ResponseEntity.ok(marcaService.listarTodas());
     }
 
     // ============================================================
-    // 🔹 Listagem simplificada
+    // Listar simples
     // ============================================================
 
-    /**
-     * Lista marcas em formato simplificado.
-     *
-     * @return lista simples de marcas.
-     */
+    @Operation(
+            summary = "Listar marcas em formato simplificado",
+            description = "Retorna lista reduzida contendo apenas informações básicas da marca.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista simplificada retornada",
+                            content = @Content(
+                                    array = @ArraySchema(schema = @Schema(implementation = MarcaListDTO.class))
+                            )
+                    )
+            }
+    )
     @GetMapping("/simples")
     public ResponseEntity<List<MarcaListDTO>> listarSimples() {
         return ResponseEntity.ok(marcaService.listarSimples());
     }
 
     // ============================================================
-    // 🔹 Buscar marcas por nome (contém)
+    // Buscar por nome
     // ============================================================
 
-    /**
-     * Busca marcas pelo nome (contém, ignore case).
-     *
-     * @param nome nome ou parte do nome.
-     * @return lista de marcas encontradas.
-     */
+    @Operation(
+            summary = "Buscar marcas por nome",
+            description = "Busca marcas cujo nome contenha o valor informado (ignore case).",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada",
+                            content = @Content(
+                                    array = @ArraySchema(schema = @Schema(implementation = MarcaResponse.class))
+                            )
+                    )
+            }
+    )
     @GetMapping("/buscar")
     public ResponseEntity<List<MarcaResponse>> buscarPorNome(@RequestParam String nome) {
         return ResponseEntity.ok(marcaService.buscarPorNome(nome));
     }
 
     // ============================================================
-    // 🔹 Deletar marca
+    // Deletar marca
     // ============================================================
 
-    /**
-     * Remove uma marca pelo ID.
-     *
-     * @param id ID da marca.
-     * @return 204 se removida.
-     */
+    @Operation(
+            summary = "Excluir marca",
+            description = "Remove uma marca do sistema.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Marca removida"),
+                    @ApiResponse(responseCode = "404", description = "Marca não encontrada")
+            }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         marcaService.deletar(id);
@@ -144,15 +193,20 @@ public class MarcaController {
     }
 
     // ============================================================
-    // 🔹 Verificar se existe marca por nome
+    // Verificar existência por nome
     // ============================================================
 
-    /**
-     * Verifica se existe uma marca com o nome informado.
-     *
-     * @param nome nome da marca.
-     * @return true ou false.
-     */
+    @Operation(
+            summary = "Verificar existência de marca",
+            description = "Retorna true/false indicando se já existe uma marca com o nome informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Resultado retornado",
+                            content = @Content(schema = @Schema(implementation = Boolean.class))
+                    )
+            }
+    )
     @GetMapping("/existe")
     public ResponseEntity<Boolean> existePorNome(@RequestParam String nome) {
         return ResponseEntity.ok(marcaService.existePorNome(nome));

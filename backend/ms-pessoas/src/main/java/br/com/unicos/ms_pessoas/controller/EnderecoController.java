@@ -4,6 +4,12 @@ import br.com.unicos.ms_pessoas.dto.endereco.EnderecoListDTO;
 import br.com.unicos.ms_pessoas.dto.endereco.EnderecoRequest;
 import br.com.unicos.ms_pessoas.dto.endereco.EnderecoResponse;
 import br.com.unicos.ms_pessoas.service.interfaces.EnderecoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,14 +20,18 @@ import java.util.List;
 /**
  * Controller responsável pelo gerenciamento de endereços associados
  * a pessoas dentro do UniCoS.
- *
- * <p>Permite operações de criação, atualização, remoção e consultas
+ * <p>
+ * Permite operações de criação, atualização, remoção e consultas
  * filtradas por pessoa, tipo de endereço, município, CEP e endereço
- * principal.</p>
+ * principal.
  */
 @RestController
 @RequestMapping("/v1/enderecos")
 @RequiredArgsConstructor
+@Tag(
+        name = "Endereços",
+        description = "Operações de criação, atualização, exclusão e consultas de endereços vinculados a pessoas."
+)
 public class EnderecoController {
 
     private final EnderecoService service;
@@ -30,12 +40,21 @@ public class EnderecoController {
     // Criar
     // ============================================================
 
-    /**
-     * Cria um novo endereço para uma pessoa.
-     *
-     * @param request dados do endereço a ser cadastrado.
-     * @return ResponseEntity com o endereço criado.
-     */
+    @Operation(
+            summary = "Criar novo endereço",
+            description = "Registra um novo endereço vinculado a uma pessoa.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Endereço criado com sucesso",
+                            content = @Content(schema = @Schema(implementation = EnderecoResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos enviados na requisição"
+                    )
+            }
+    )
     @PostMapping
     public ResponseEntity<EnderecoResponse> criar(@RequestBody EnderecoRequest request) {
         EnderecoResponse response = service.criar(request);
@@ -48,13 +67,25 @@ public class EnderecoController {
     // Atualizar
     // ============================================================
 
-    /**
-     * Atualiza um endereço existente.
-     *
-     * @param id      identificador do endereço.
-     * @param request dados atualizados.
-     * @return ResponseEntity contendo o endereço atualizado.
-     */
+    @Operation(
+            summary = "Atualizar endereço existente",
+            description = "Atualiza os dados de um endereço já cadastrado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Endereço atualizado com sucesso",
+                            content = @Content(schema = @Schema(implementation = EnderecoResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos enviados"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Endereço não encontrado"
+                    )
+            }
+    )
     @PutMapping("/{id}")
     public ResponseEntity<EnderecoResponse> atualizar(
             @PathVariable Long id,
@@ -68,12 +99,20 @@ public class EnderecoController {
     // Excluir
     // ============================================================
 
-    /**
-     * Remove um endereço pelo ID.
-     *
-     * @param id identificador do endereço.
-     * @return ResponseEntity sem conteúdo (204 No Content).
-     */
+    @Operation(
+            summary = "Excluir endereço",
+            description = "Remove permanentemente um endereço pelo seu ID.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "Endereço excluído com sucesso"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Endereço não encontrado"
+                    )
+            }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         service.excluir(id);
@@ -84,12 +123,21 @@ public class EnderecoController {
     // Buscar por ID
     // ============================================================
 
-    /**
-     * Busca um endereço pelo seu identificador.
-     *
-     * @param id identificador do endereço.
-     * @return ResponseEntity contendo o endereço ou 404 caso não exista.
-     */
+    @Operation(
+            summary = "Buscar endereço por ID",
+            description = "Retorna o endereço correspondente ao ID informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Endereço encontrado",
+                            content = @Content(schema = @Schema(implementation = EnderecoResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Endereço não encontrado"
+                    )
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<EnderecoResponse> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
@@ -101,11 +149,17 @@ public class EnderecoController {
     // Listar Todos
     // ============================================================
 
-    /**
-     * Lista todos os endereços cadastrados.
-     *
-     * @return lista simplificada de endereços.
-     */
+    @Operation(
+            summary = "Listar todos os endereços",
+            description = "Retorna todos os endereços cadastrados no sistema.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = EnderecoListDTO.class)))
+                    )
+            }
+    )
     @GetMapping
     public ResponseEntity<List<EnderecoListDTO>> listarTodos() {
         return ResponseEntity.ok(service.listarTodos());
@@ -115,12 +169,21 @@ public class EnderecoController {
     // Listar por Pessoa
     // ============================================================
 
-    /**
-     * Lista todos os endereços de uma pessoa específica.
-     *
-     * @param pessoaId identificador da pessoa.
-     * @return lista de endereços da pessoa.
-     */
+    @Operation(
+            summary = "Listar endereços por pessoa",
+            description = "Retorna todos os endereços associados à pessoa informada.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = EnderecoListDTO.class)))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Pessoa não encontrada ou sem endereços"
+                    )
+            }
+    )
     @GetMapping("/pessoa/{pessoaId}")
     public ResponseEntity<List<EnderecoListDTO>> listarPorPessoa(@PathVariable Long pessoaId) {
         return ResponseEntity.ok(service.listarPorPessoa(pessoaId));
@@ -130,13 +193,21 @@ public class EnderecoController {
     // Listar por Pessoa e Tipo
     // ============================================================
 
-    /**
-     * Lista endereços de uma pessoa filtrados por tipo (Residencial, Comercial, etc.).
-     *
-     * @param pessoaId identificador da pessoa.
-     * @param tipo     nome do tipo de endereço.
-     * @return lista filtrada de endereços.
-     */
+    @Operation(
+            summary = "Listar endereços por pessoa e tipo",
+            description = "Filtra os endereços de uma pessoa pelo tipo informado (Ex.: Residencial, Comercial).",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista filtrada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = EnderecoListDTO.class)))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Pessoa não encontrada"
+                    )
+            }
+    )
     @GetMapping("/pessoa/{pessoaId}/tipo/{tipo}")
     public ResponseEntity<List<EnderecoListDTO>> listarPorPessoaETipo(
             @PathVariable Long pessoaId,
@@ -148,12 +219,17 @@ public class EnderecoController {
     // Listar por Município
     // ============================================================
 
-    /**
-     * Lista endereços pertencentes a um município específico.
-     *
-     * @param municipioId identificador do município.
-     * @return lista de endereços localizados no município informado.
-     */
+    @Operation(
+            summary = "Listar endereços por município",
+            description = "Retorna endereços cadastrados no município informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = EnderecoListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/municipio/{municipioId}")
     public ResponseEntity<List<EnderecoListDTO>> listarPorMunicipio(@PathVariable Long municipioId) {
         return ResponseEntity.ok(service.listarPorMunicipio(municipioId));
@@ -163,12 +239,17 @@ public class EnderecoController {
     // Listar por CEP
     // ============================================================
 
-    /**
-     * Lista endereços filtrados por CEP.
-     *
-     * @param cep código postal.
-     * @return lista de endereços com o CEP informado.
-     */
+    @Operation(
+            summary = "Listar endereços por CEP",
+            description = "Retorna endereços filtrados pelo CEP informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista obtida com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = EnderecoListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/cep/{cep}")
     public ResponseEntity<List<EnderecoListDTO>> listarPorCep(@PathVariable String cep) {
         return ResponseEntity.ok(service.listarPorCep(cep));
@@ -178,12 +259,21 @@ public class EnderecoController {
     // Buscar Endereço Principal
     // ============================================================
 
-    /**
-     * Retorna o endereço principal de uma pessoa, se existir.
-     *
-     * @param pessoaId identificador da pessoa.
-     * @return ResponseEntity contendo o endereço principal ou 404.
-     */
+    @Operation(
+            summary = "Buscar endereço principal",
+            description = "Retorna o endereço principal definido para a pessoa.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Endereço principal encontrado",
+                            content = @Content(schema = @Schema(implementation = EnderecoResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Nenhum endereço principal encontrado para esta pessoa"
+                    )
+            }
+    )
     @GetMapping("/pessoa/{pessoaId}/principal")
     public ResponseEntity<EnderecoResponse> buscarPrincipal(@PathVariable Long pessoaId) {
         return service.buscarPrincipal(pessoaId)

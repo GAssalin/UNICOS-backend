@@ -4,6 +4,12 @@ import br.com.unicos.ms_produtos.dto.categoria.CategoriaListDTO;
 import br.com.unicos.ms_produtos.dto.categoria.CategoriaRequest;
 import br.com.unicos.ms_produtos.dto.categoria.CategoriaResponse;
 import br.com.unicos.ms_produtos.service.CategoriaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,29 +20,35 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Controlador REST responsável pelo gerenciamento das categorias de produtos,
- * incluindo criação, atualização, remoção, busca e listagens
- * tanto detalhadas quanto simplificadas.
- * <p>
- * Suporta hierarquia entre categorias (categoria pai e filhos).
+ * Controlador REST responsável pelo gerenciamento das categorias de produtos.
  */
 @RestController
 @RequestMapping("/v1/categorias")
 @RequiredArgsConstructor
+@Tag(
+        name = "Categorias de Produto",
+        description = "Gerencia categorias, incluindo criação, atualização, consultas e hierarquia de categorias."
+)
 public class CategoriaController {
 
     private final CategoriaService categoriaService;
 
     // ============================================================
-    // 🔹 Criar categoria
+    // Criar categoria
     // ============================================================
 
-    /**
-     * Cria uma nova categoria, com suporte opcional a categoria pai.
-     *
-     * @param request DTO contendo nome, descrição e categoriaPaiId.
-     * @return Categoria criada.
-     */
+    @Operation(
+            summary = "Criar nova categoria",
+            description = "Registra uma nova categoria, com possibilidade de atribuir uma categoria pai.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Categoria criada com sucesso",
+                            content = @Content(schema = @Schema(implementation = CategoriaResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos enviados")
+            }
+    )
     @PostMapping
     public ResponseEntity<CategoriaResponse> salvar(
             @Valid @RequestBody CategoriaRequest request) {
@@ -46,16 +58,21 @@ public class CategoriaController {
     }
 
     // ============================================================
-    // 🔹 Atualizar categoria
+    // Atualizar categoria
     // ============================================================
 
-    /**
-     * Atualiza uma categoria existente.
-     *
-     * @param id      ID da categoria a ser atualizada.
-     * @param request Dados atualizados.
-     * @return Categoria atualizada.
-     */
+    @Operation(
+            summary = "Atualizar categoria",
+            description = "Atualiza os dados de uma categoria existente.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Categoria atualizada com sucesso",
+                            content = @Content(schema = @Schema(implementation = CategoriaResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
+            }
+    )
     @PutMapping("/{id}")
     public ResponseEntity<CategoriaResponse> atualizar(
             @PathVariable Long id,
@@ -66,15 +83,21 @@ public class CategoriaController {
     }
 
     // ============================================================
-    // 🔹 Buscar por ID
+    // Buscar por ID
     // ============================================================
 
-    /**
-     * Busca uma categoria pelo ID.
-     *
-     * @param id ID da categoria.
-     * @return Categoria encontrada ou 404 caso não exista.
-     */
+    @Operation(
+            summary = "Buscar categoria por ID",
+            description = "Retorna as informações completas de uma categoria específica.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Categoria encontrada",
+                            content = @Content(schema = @Schema(implementation = CategoriaResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<CategoriaResponse> buscarPorId(@PathVariable Long id) {
 
@@ -86,43 +109,70 @@ public class CategoriaController {
     }
 
     // ============================================================
-    // 🔹 Listagem detalhada
+    // Listagem detalhada
     // ============================================================
 
-    /**
-     * Lista todas as categorias com informações completas.
-     *
-     * @return Lista detalhada.
-     */
+    @Operation(
+            summary = "Listar todas as categorias (detalhadas)",
+            description = "Retorna todas as categorias com informações completas.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = CategoriaResponse.class)
+                                    )
+                            )
+                    )
+            }
+    )
     @GetMapping
     public ResponseEntity<List<CategoriaResponse>> listarTodas() {
         return ResponseEntity.ok(categoriaService.listarTodas());
     }
 
     // ============================================================
-    // 🔹 Listagem simplificada
+    // Listagem simplificada
     // ============================================================
 
-    /**
-     * Lista categorias em formato simples (id, nome e informações resumidas).
-     *
-     * @return Lista simplificada.
-     */
+    @Operation(
+            summary = "Listar categorias (modo simplificado)",
+            description = "Retorna categorias com apenas informações resumidas como ID e nome.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = CategoriaListDTO.class)
+                                    )
+                            )
+                    )
+            }
+    )
     @GetMapping("/simples")
     public ResponseEntity<List<CategoriaListDTO>> listarSimples() {
         return ResponseEntity.ok(categoriaService.listarSimples());
     }
 
     // ============================================================
-    // 🔹 Buscar por nome (contém)
+    // Buscar por nome (contains)
     // ============================================================
 
-    /**
-     * Busca categorias pelo nome (ignora maiúsculas/minúsculas).
-     *
-     * @param nome Nome ou parte do nome.
-     * @return Lista de categorias encontradas.
-     */
+    @Operation(
+            summary = "Buscar categorias por nome",
+            description = "Pesquisa categorias cujo nome contenha o texto informado (case-insensitive).",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Categorias encontradas",
+                            content = @Content(
+                                    array = @ArraySchema(schema = @Schema(implementation = CategoriaResponse.class))
+                            )
+                    )
+            }
+    )
     @GetMapping("/buscar")
     public ResponseEntity<List<CategoriaResponse>> buscarPorNome(
             @RequestParam String nome) {
@@ -131,15 +181,17 @@ public class CategoriaController {
     }
 
     // ============================================================
-    // 🔹 Deletar categoria
+    // Deletar categoria
     // ============================================================
 
-    /**
-     * Remove uma categoria pelo ID.
-     *
-     * @param id ID da categoria.
-     * @return Status 204 em caso de sucesso.
-     */
+    @Operation(
+            summary = "Excluir categoria",
+            description = "Remove uma categoria pelo ID informado.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Categoria removida"),
+                    @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
+            }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         categoriaService.deletar(id);
@@ -147,15 +199,20 @@ public class CategoriaController {
     }
 
     // ============================================================
-    // 🔹 Verificar existência por nome
+    // Verificar existência por nome
     // ============================================================
 
-    /**
-     * Verifica se existe uma categoria com o nome informado.
-     *
-     * @param nome Nome a ser verificado.
-     * @return true ou false.
-     */
+    @Operation(
+            summary = "Verificar existência de categoria por nome",
+            description = "Retorna true se existir uma categoria com o nome informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Resultado retornado com sucesso",
+                            content = @Content(schema = @Schema(implementation = Boolean.class))
+                    )
+            }
+    )
     @GetMapping("/existe")
     public ResponseEntity<Boolean> existePorNome(@RequestParam String nome) {
         return ResponseEntity.ok(categoriaService.existePorNome(nome));

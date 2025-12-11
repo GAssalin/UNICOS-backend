@@ -4,6 +4,12 @@ import br.com.unicos.ms_pessoas.dto.pessoa.PessoaFisicaListDTO;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaFisicaRequest;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaFisicaResponse;
 import br.com.unicos.ms_pessoas.service.interfaces.PessoaFisicaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +19,17 @@ import java.util.List;
 
 /**
  * Controller responsável pelo gerenciamento de Pessoas Físicas dentro do UniCoS.
- *
- * <p>Inclui operações de criação, atualização, exclusão e consultas
- * específicas, como busca por CPF, nome e nome social.</p>
+ * <p>
+ * Inclui operações de criação, atualização, exclusão e consultas
+ * específicas, como busca por CPF, nome e nome social.
  */
 @RestController
 @RequestMapping("/v1/pessoas/fisicas")
 @RequiredArgsConstructor
+@Tag(
+        name = "Pessoas Físicas",
+        description = "Operações de criação, atualização, exclusão e consultas específicas de Pessoa Física."
+)
 public class PessoaFisicaController {
 
     private final PessoaFisicaService service;
@@ -28,12 +38,21 @@ public class PessoaFisicaController {
     // Criar
     // ============================================================
 
-    /**
-     * Cria uma nova Pessoa Física.
-     *
-     * @param request dados da pessoa física a ser cadastrada.
-     * @return ResponseEntity contendo os dados criados.
-     */
+    @Operation(
+            summary = "Criar Pessoa Física",
+            description = "Registra uma nova Pessoa Física no UniCoS.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Pessoa Física criada com sucesso",
+                            content = @Content(schema = @Schema(implementation = PessoaFisicaResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos enviados"
+                    )
+            }
+    )
     @PostMapping
     public ResponseEntity<PessoaFisicaResponse> criar(@RequestBody PessoaFisicaRequest request) {
         PessoaFisicaResponse response = service.criar(request);
@@ -46,13 +65,25 @@ public class PessoaFisicaController {
     // Atualizar
     // ============================================================
 
-    /**
-     * Atualiza os dados de uma Pessoa Física existente.
-     *
-     * @param id      identificador da pessoa.
-     * @param request dados atualizados.
-     * @return PessoaFisicaResponse atualizado.
-     */
+    @Operation(
+            summary = "Atualizar Pessoa Física",
+            description = "Atualiza os dados de uma Pessoa Física previamente cadastrada.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Dados atualizados com sucesso",
+                            content = @Content(schema = @Schema(implementation = PessoaFisicaResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados enviados inválidos"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Pessoa Física não encontrada"
+                    )
+            }
+    )
     @PutMapping("/{id}")
     public ResponseEntity<PessoaFisicaResponse> atualizar(
             @PathVariable Long id,
@@ -66,12 +97,20 @@ public class PessoaFisicaController {
     // Excluir
     // ============================================================
 
-    /**
-     * Remove uma Pessoa Física pelo ID.
-     *
-     * @param id identificador da pessoa.
-     * @return ResponseEntity vazio (204 No Content).
-     */
+    @Operation(
+            summary = "Excluir Pessoa Física",
+            description = "Remove definitivamente uma Pessoa Física identificada pelo ID.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "Pessoa Física excluída com sucesso"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Pessoa Física não encontrada"
+                    )
+            }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         service.excluir(id);
@@ -82,12 +121,21 @@ public class PessoaFisicaController {
     // Buscar por ID
     // ============================================================
 
-    /**
-     * Retorna os dados completos de uma Pessoa Física pelo ID.
-     *
-     * @param id identificador da pessoa.
-     * @return ResponseEntity com os dados ou 404 caso não encontrada.
-     */
+    @Operation(
+            summary = "Buscar Pessoa Física por ID",
+            description = "Retorna os dados completos de uma Pessoa Física pelo seu identificador.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Pessoa encontrada",
+                            content = @Content(schema = @Schema(implementation = PessoaFisicaResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Pessoa Física não encontrada"
+                    )
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<PessoaFisicaResponse> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
@@ -99,12 +147,21 @@ public class PessoaFisicaController {
     // Buscar por CPF
     // ============================================================
 
-    /**
-     * Busca uma Pessoa Física pelo CPF.
-     *
-     * @param cpf CPF sem formatação.
-     * @return ResponseEntity contendo a pessoa encontrada ou 404.
-     */
+    @Operation(
+            summary = "Buscar Pessoa Física por CPF",
+            description = "Consulta uma Pessoa Física pelo CPF informado (somente números).",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Pessoa encontrada",
+                            content = @Content(schema = @Schema(implementation = PessoaFisicaResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "CPF não encontrado"
+                    )
+            }
+    )
     @GetMapping("/cpf/{cpf}")
     public ResponseEntity<PessoaFisicaResponse> buscarPorCpf(@PathVariable String cpf) {
         return service.buscarPorCpf(cpf)
@@ -116,11 +173,17 @@ public class PessoaFisicaController {
     // Listar todas
     // ============================================================
 
-    /**
-     * Lista todas as Pessoas Físicas cadastradas.
-     *
-     * @return lista simplificada contendo ID, Nome e CPF.
-     */
+    @Operation(
+            summary = "Listar todas as Pessoas Físicas",
+            description = "Retorna uma lista simplificada contendo ID, Nome e CPF.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = PessoaFisicaListDTO.class)))
+                    )
+            }
+    )
     @GetMapping
     public ResponseEntity<List<PessoaFisicaListDTO>> listarTodas() {
         return ResponseEntity.ok(service.listarTodas());
@@ -130,12 +193,17 @@ public class PessoaFisicaController {
     // Listar por Nome Social
     // ============================================================
 
-    /**
-     * Lista pessoas cujo nome social seja exatamente igual ao informado.
-     *
-     * @param nomeSocial nome social completo.
-     * @return lista de pessoas encontradas.
-     */
+    @Operation(
+            summary = "Listar Pessoas Físicas por Nome Social",
+            description = "Retorna todas as pessoas cujo nome social é exatamente igual ao informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = PessoaFisicaListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/nome-social/{nomeSocial}")
     public ResponseEntity<List<PessoaFisicaListDTO>> listarPorNomeSocial(@PathVariable String nomeSocial) {
         return ResponseEntity.ok(service.listarPorNomeSocial(nomeSocial));
@@ -145,12 +213,17 @@ public class PessoaFisicaController {
     // Listar por Nome
     // ============================================================
 
-    /**
-     * Lista Pessoas Físicas cujo nome contenha o termo informado.
-     *
-     * @param nome parte do nome da pessoa.
-     * @return lista correspondente.
-     */
+    @Operation(
+            summary = "Listar Pessoas Físicas por Nome",
+            description = "Retorna pessoas cujo nome contenha o termo informado (busca parcial).",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = PessoaFisicaListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/nome/{nome}")
     public ResponseEntity<List<PessoaFisicaListDTO>> listarPorNome(@PathVariable String nome) {
         return ResponseEntity.ok(service.listarPorNome(nome));

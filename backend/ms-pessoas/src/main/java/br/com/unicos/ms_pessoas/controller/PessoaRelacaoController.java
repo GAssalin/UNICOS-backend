@@ -4,6 +4,12 @@ import br.com.unicos.ms_pessoas.dto.relacao.PessoaRelacaoListDTO;
 import br.com.unicos.ms_pessoas.dto.relacao.PessoaRelacaoRequest;
 import br.com.unicos.ms_pessoas.dto.relacao.PessoaRelacaoResponse;
 import br.com.unicos.ms_pessoas.service.interfaces.PessoaRelacaoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +19,17 @@ import java.util.List;
 
 /**
  * Controller responsável pelo gerenciamento das relações entre pessoas no UniCoS.
- *
- * <p>Permite criar, atualizar, remover e consultar vínculos como responsável,
- * dependente, sócio, representante legal e outros tipos definidos no domínio.</p>
+ * <p>
+ * Permite criar, atualizar, remover e consultar vínculos como responsável,
+ * dependente, sócio, representante legal e outros tipos definidos no domínio.
  */
 @RestController
 @RequestMapping("/v1/pessoas/relacoes")
 @RequiredArgsConstructor
+@Tag(
+        name = "Relações entre Pessoas",
+        description = "Operações de criação, atualização, exclusão e consultas de vínculos entre pessoas."
+)
 public class PessoaRelacaoController {
 
     private final PessoaRelacaoService service;
@@ -28,12 +38,21 @@ public class PessoaRelacaoController {
     // Criar
     // ============================================================
 
-    /**
-     * Cria uma nova relação entre duas pessoas.
-     *
-     * @param request dados da relação a ser criada.
-     * @return ResponseEntity contendo a relação criada.
-     */
+    @Operation(
+            summary = "Criar relação entre pessoas",
+            description = "Registra um novo vínculo entre duas pessoas, como dependente, responsável, sócio etc.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Relação criada com sucesso",
+                            content = @Content(schema = @Schema(implementation = PessoaRelacaoResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos enviados"
+                    )
+            }
+    )
     @PostMapping
     public ResponseEntity<PessoaRelacaoResponse> criar(@RequestBody PessoaRelacaoRequest request) {
         PessoaRelacaoResponse response = service.criar(request);
@@ -46,13 +65,25 @@ public class PessoaRelacaoController {
     // Atualizar
     // ============================================================
 
-    /**
-     * Atualiza uma relação existente.
-     *
-     * @param id      identificador da relação.
-     * @param request novos dados da relação.
-     * @return ResponseEntity contendo a relação atualizada.
-     */
+    @Operation(
+            summary = "Atualizar relação entre pessoas",
+            description = "Atualiza os dados de um vínculo previamente cadastrado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Relação atualizada com sucesso",
+                            content = @Content(schema = @Schema(implementation = PessoaRelacaoResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos enviados"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Relação não encontrada"
+                    )
+            }
+    )
     @PutMapping("/{id}")
     public ResponseEntity<PessoaRelacaoResponse> atualizar(
             @PathVariable Long id,
@@ -66,12 +97,20 @@ public class PessoaRelacaoController {
     // Excluir
     // ============================================================
 
-    /**
-     * Remove uma relação pelo identificador.
-     *
-     * @param id identificador da relação.
-     * @return ResponseEntity vazio (204 No Content).
-     */
+    @Operation(
+            summary = "Excluir relação",
+            description = "Remove permanentemente uma relação entre pessoas.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "Relação excluída com sucesso"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Relação não encontrada"
+                    )
+            }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         service.excluir(id);
@@ -82,12 +121,21 @@ public class PessoaRelacaoController {
     // Buscar por ID
     // ============================================================
 
-    /**
-     * Busca uma relação pelo ID.
-     *
-     * @param id identificador da relação.
-     * @return ResponseEntity com a relação ou 404 se não encontrada.
-     */
+    @Operation(
+            summary = "Buscar relação por ID",
+            description = "Retorna os dados completos de uma relação a partir de seu identificador.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Relação encontrada",
+                            content = @Content(schema = @Schema(implementation = PessoaRelacaoResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Relação não encontrada"
+                    )
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<PessoaRelacaoResponse> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
@@ -99,11 +147,17 @@ public class PessoaRelacaoController {
     // Listar todas
     // ============================================================
 
-    /**
-     * Lista todas as relações cadastradas.
-     *
-     * @return lista simplificada de relações.
-     */
+    @Operation(
+            summary = "Listar todas as relações",
+            description = "Retorna todas as relações entre pessoas cadastradas no sistema.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = PessoaRelacaoListDTO.class)))
+                    )
+            }
+    )
     @GetMapping
     public ResponseEntity<List<PessoaRelacaoListDTO>> listarTodas() {
         return ResponseEntity.ok(service.listarTodas());
@@ -113,12 +167,17 @@ public class PessoaRelacaoController {
     // Listar por Pessoa Principal
     // ============================================================
 
-    /**
-     * Lista todas as relações em que a pessoa informada é o ator principal.
-     *
-     * @param pessoaId ID da pessoa.
-     * @return lista de relações.
-     */
+    @Operation(
+            summary = "Listar relações por pessoa principal",
+            description = "Retorna todas as relações onde a pessoa informada é o ator principal.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = PessoaRelacaoListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/pessoa/{pessoaId}")
     public ResponseEntity<List<PessoaRelacaoListDTO>> listarPorPessoa(@PathVariable Long pessoaId) {
         return ResponseEntity.ok(service.listarPorPessoa(pessoaId));
@@ -128,73 +187,97 @@ public class PessoaRelacaoController {
     // Listar por Pessoa Relacionada
     // ============================================================
 
-    /**
-     * Lista todas as relações em que a pessoa informada é o indivíduo relacionado.
-     *
-     * @param relacionadoId ID da pessoa relacionada.
-     * @return lista de relações.
-     */
+    @Operation(
+            summary = "Listar relações por pessoa relacionada",
+            description = "Retorna todas as relações onde a pessoa informada é o indivíduo relacionado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = PessoaRelacaoListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/relacionado/{relacionadoId}")
     public ResponseEntity<List<PessoaRelacaoListDTO>> listarPorRelacionado(@PathVariable Long relacionadoId) {
         return ResponseEntity.ok(service.listarPorRelacionado(relacionadoId));
     }
 
     // ============================================================
-    // Listar por Tipo de Relação
+    // Listar por Tipo
     // ============================================================
 
-    /**
-     * Lista todas as relações de um tipo específico.
-     *
-     * @param tipoRelacaoPessoaId identificador do tipo de relação.
-     * @return lista de vínculos desse tipo.
-     */
+    @Operation(
+            summary = "Listar relações por tipo",
+            description = "Retorna todas as relações pertencentes ao tipo de vínculo informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista filtrada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = PessoaRelacaoListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/tipo/{tipoRelacaoPessoaId}")
     public ResponseEntity<List<PessoaRelacaoListDTO>> listarPorTipo(@PathVariable Long tipoRelacaoPessoaId) {
         return ResponseEntity.ok(service.listarPorTipo(tipoRelacaoPessoaId));
     }
 
     // ============================================================
-    // Busca por Nome da Pessoa Principal (contains ignore case)
+    // Busca por Nome da Pessoa Principal
     // ============================================================
 
-    /**
-     * Busca relações filtrando pelo nome da pessoa principal.
-     *
-     * @param nome parte do nome.
-     * @return lista correspondente de relações.
-     */
+    @Operation(
+            summary = "Listar relações filtrando pelo nome da pessoa principal",
+            description = "Busca relações onde o nome da pessoa principal contém o termo informado (ignore case).",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = PessoaRelacaoListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/pessoa/nome/{nome}")
     public ResponseEntity<List<PessoaRelacaoListDTO>> listarPorPessoaENome(@PathVariable String nome) {
         return ResponseEntity.ok(service.listarPorPessoaENome(nome));
     }
 
     // ============================================================
-    // Busca por Nome da Pessoa Relacionada (contains ignore case)
+    // Busca por Nome da Pessoa Relacionada
     // ============================================================
 
-    /**
-     * Busca relações filtrando pelo nome da pessoa relacionada.
-     *
-     * @param nome parte do nome.
-     * @return lista de relações.
-     */
+    @Operation(
+            summary = "Listar relações filtrando pelo nome da pessoa relacionada",
+            description = "Busca relações onde o nome da pessoa relacionada contém o termo informado (ignore case).",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = PessoaRelacaoListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/relacionado/nome/{nome}")
     public ResponseEntity<List<PessoaRelacaoListDTO>> listarPorRelacionadoENome(@PathVariable String nome) {
         return ResponseEntity.ok(service.listarPorRelacionadoENome(nome));
     }
 
     // ============================================================
-    // Filtrar por Pessoa Principal e Relacionado simultaneamente
+    // Filtrar por Pessoa Principal e Relacionada
     // ============================================================
 
-    /**
-     * Lista relações específicas entre duas pessoas.
-     *
-     * @param pessoaId      ID da pessoa principal.
-     * @param relacionadoId ID da pessoa relacionada.
-     * @return lista de vínculos entre essas duas pessoas.
-     */
+    @Operation(
+            summary = "Listar relações entre duas pessoas",
+            description = "Retorna vínculos existentes onde uma pessoa é a principal e a outra é a relacionada.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = PessoaRelacaoListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/pessoa/{pessoaId}/relacionado/{relacionadoId}")
     public ResponseEntity<List<PessoaRelacaoListDTO>> listarPorPessoaERelacionado(
             @PathVariable Long pessoaId,

@@ -3,6 +3,12 @@ package br.com.unicos.ms_auth.controller;
 import br.com.unicos.ms_auth.dto.auditoria.AuditoriaAcessoResponse;
 import br.com.unicos.ms_auth.enums.TipoAcaoAcesso;
 import br.com.unicos.ms_auth.service.interfaces.AuditoriaAcessoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +27,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/auditorias")
 @RequiredArgsConstructor
+@Tag(
+        name = "Auditoria de Acesso",
+        description = "Endpoints para consulta de auditorias de login, logout e outras ações do sistema."
+)
 public class AuditoriaAcessoController {
 
     private final AuditoriaAcessoService auditoriaAcessoService;
@@ -35,6 +45,22 @@ public class AuditoriaAcessoController {
      * @param username Nome do usuário.
      * @return Lista de AuditoriaAcessoResponse.
      */
+    @Operation(
+            summary = "Listar auditorias por usuário",
+            description = "Retorna todos os registros de auditoria vinculados ao usuário informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Operação realizada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = AuditoriaAcessoResponse.class)))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Usuário não encontrado",
+                            content = @Content
+                    )
+            }
+    )
     @GetMapping("/usuario/{username}")
     public ResponseEntity<List<AuditoriaAcessoResponse>> listarPorUsuario(
             @PathVariable String username) {
@@ -48,10 +74,23 @@ public class AuditoriaAcessoController {
 
     /**
      * Lista todos os eventos de auditoria para um tipo de ação específico.
-     *
-     * @param acao Tipo da ação (ex: LOGIN_SUCESSO, LOGIN_FALHA, LOGOUT).
-     * @return Lista de AuditoriaAcessoResponse.
      */
+    @Operation(
+            summary = "Listar auditorias por tipo de ação",
+            description = "Retorna registros filtrados por tipo de ação, como LOGIN_SUCESSO, LOGIN_FALHA ou LOGOUT.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = AuditoriaAcessoResponse.class)))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Tipo de ação inválido",
+                            content = @Content
+                    )
+            }
+    )
     @GetMapping("/acao/{acao}")
     public ResponseEntity<List<AuditoriaAcessoResponse>> listarPorAcao(
             @PathVariable TipoAcaoAcesso acao) {
@@ -65,11 +104,23 @@ public class AuditoriaAcessoController {
 
     /**
      * Lista eventos registrados dentro de um intervalo de datas.
-     *
-     * @param inicio Data/hora inicial.
-     * @param fim    Data/hora final.
-     * @return Lista de AuditoriaAcessoResponse.
      */
+    @Operation(
+            summary = "Listar auditorias por período",
+            description = "Retorna registros de auditoria ocorridos entre as datas de início e fim informadas.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = AuditoriaAcessoResponse.class)))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Formato inválido de datas ou intervalo inconsistente",
+                            content = @Content
+                    )
+            }
+    )
     @GetMapping("/periodo")
     public ResponseEntity<List<AuditoriaAcessoResponse>> listarPorPeriodo(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,

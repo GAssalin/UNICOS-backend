@@ -4,6 +4,12 @@ import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoListDTO
 import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoRequest;
 import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoResponse;
 import br.com.unicos.ms_produtos.service.FornecedorProdutoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,27 +23,34 @@ import java.util.Optional;
 /**
  * Controlador REST responsável pelo gerenciamento dos vínculos
  * entre fornecedores e produtos.
- * <p>
- * Permite cadastrar, alterar, excluir e consultar vínculos,
- * além de operações específicas como atualização de preço de custo.
  */
 @RestController
 @RequestMapping("/v1/fornecedores-produtos")
 @RequiredArgsConstructor
+@Tag(
+        name = "Fornecedor-Produto",
+        description = "Gerencia vínculos entre fornecedores e produtos, com atualizações, consultas e regras específicas."
+)
 public class FornecedorProdutoController {
 
     private final FornecedorProdutoService fornecedorProdutoService;
 
     // ============================================================
-    // 🔹 Criar vínculo fornecedor-produto
+    // Criar vínculo
     // ============================================================
 
-    /**
-     * Cria um novo vínculo entre fornecedor e produto.
-     *
-     * @param request dados do vínculo.
-     * @return vínculo criado.
-     */
+    @Operation(
+            summary = "Criar vínculo fornecedor-produto",
+            description = "Registra um novo vínculo entre fornecedor e produto.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Vínculo criado com sucesso",
+                            content = @Content(schema = @Schema(implementation = FornecedorProdutoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos")
+            }
+    )
     @PostMapping
     public ResponseEntity<FornecedorProdutoResponse> salvar(
             @Valid @RequestBody FornecedorProdutoRequest request) {
@@ -47,16 +60,21 @@ public class FornecedorProdutoController {
     }
 
     // ============================================================
-    // 🔹 Atualizar vínculo
+    // Atualizar vínculo
     // ============================================================
 
-    /**
-     * Atualiza um vínculo existente entre fornecedor e produto.
-     *
-     * @param id      ID do vínculo.
-     * @param request dados atualizados.
-     * @return vínculo atualizado.
-     */
+    @Operation(
+            summary = "Atualizar vínculo fornecedor-produto",
+            description = "Atualiza informações completas do vínculo entre fornecedor e produto.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Vínculo atualizado",
+                            content = @Content(schema = @Schema(implementation = FornecedorProdutoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Vínculo não encontrado")
+            }
+    )
     @PutMapping("/{id}")
     public ResponseEntity<FornecedorProdutoResponse> atualizar(
             @PathVariable Long id,
@@ -67,16 +85,21 @@ public class FornecedorProdutoController {
     }
 
     // ============================================================
-    // 🔹 Atualizar preço de custo
+    // Atualizar preço de custo
     // ============================================================
 
-    /**
-     * Atualiza apenas o preço de custo do vínculo.
-     *
-     * @param id             ID do vínculo.
-     * @param novoPrecoCusto novo valor do preço de custo.
-     * @return vínculo atualizado.
-     */
+    @Operation(
+            summary = "Atualizar preço de custo",
+            description = "Modifica exclusivamente o preço de custo do vínculo fornecedor-produto.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Preço atualizado",
+                            content = @Content(schema = @Schema(implementation = FornecedorProdutoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Vínculo não encontrado")
+            }
+    )
     @PatchMapping("/{id}/preco-custo")
     public ResponseEntity<FornecedorProdutoResponse> atualizarPrecoCusto(
             @PathVariable Long id,
@@ -89,14 +112,17 @@ public class FornecedorProdutoController {
     }
 
     // ============================================================
-    // 🔹 Deletar vínculo
+    // Deletar vínculo
     // ============================================================
 
-    /**
-     * Remove um vínculo fornecedor-produto.
-     *
-     * @param id ID do vínculo.
-     */
+    @Operation(
+            summary = "Excluir vínculo fornecedor-produto",
+            description = "Remove o vínculo pelo ID informado.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Vínculo removido"),
+                    @ApiResponse(responseCode = "404", description = "Vínculo não encontrado")
+            }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         fornecedorProdutoService.deletar(id);
@@ -104,15 +130,21 @@ public class FornecedorProdutoController {
     }
 
     // ============================================================
-    // 🔹 Buscar por ID
+    // Buscar por ID
     // ============================================================
 
-    /**
-     * Busca um vínculo específico pelo ID.
-     *
-     * @param id ID do vínculo.
-     * @return vínculo encontrado ou 404.
-     */
+    @Operation(
+            summary = "Buscar vínculo por ID",
+            description = "Retorna os dados completos de um vínculo fornecedor-produto.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Vínculo encontrado",
+                            content = @Content(schema = @Schema(implementation = FornecedorProdutoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Vínculo não encontrado")
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<FornecedorProdutoResponse> buscarPorId(@PathVariable Long id) {
 
@@ -125,60 +157,86 @@ public class FornecedorProdutoController {
     }
 
     // ============================================================
-    // 🔹 Listar todos os vínculos
+    // Listar todos
     // ============================================================
 
-    /**
-     * Lista todos os vínculos fornecedor-produto.
-     *
-     * @return lista de vínculos.
-     */
+    @Operation(
+            summary = "Listar todos os vínculos fornecedor-produto",
+            description = "Retorna todos os registros cadastrados.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada",
+                            content = @Content(
+                                    array = @ArraySchema(schema = @Schema(implementation = FornecedorProdutoResponse.class))
+                            )
+                    )
+            }
+    )
     @GetMapping
     public ResponseEntity<List<FornecedorProdutoResponse>> listarTodos() {
         return ResponseEntity.ok(fornecedorProdutoService.listarTodos());
     }
 
     // ============================================================
-    // 🔹 Listar vínculos por produto
+    // Listar por produto
     // ============================================================
 
-    /**
-     * Lista vínculos associados a um produto específico.
-     *
-     * @param produtoId ID do produto.
-     * @return vínculos do produto.
-     */
+    @Operation(
+            summary = "Listar vínculos por produto",
+            description = "Busca todos os vínculos pertencentes ao produto informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada",
+                            content = @Content(
+                                    array = @ArraySchema(schema = @Schema(implementation = FornecedorProdutoListDTO.class))
+                            )
+                    )
+            }
+    )
     @GetMapping("/produto/{produtoId}")
     public ResponseEntity<List<FornecedorProdutoListDTO>> listarPorProduto(@PathVariable Long produtoId) {
         return ResponseEntity.ok(fornecedorProdutoService.listarPorProduto(produtoId));
     }
 
     // ============================================================
-    // 🔹 Listar vínculos por fornecedor
+    // Listar por fornecedor
     // ============================================================
 
-    /**
-     * Lista vínculos associados a um fornecedor específico.
-     *
-     * @param fornecedorId ID do fornecedor.
-     * @return vínculos do fornecedor.
-     */
+    @Operation(
+            summary = "Listar vínculos por fornecedor",
+            description = "Busca todos os vínculos pertencentes ao fornecedor informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada",
+                            content = @Content(
+                                    array = @ArraySchema(schema = @Schema(implementation = FornecedorProdutoListDTO.class))
+                            )
+                    )
+            }
+    )
     @GetMapping("/fornecedor/{fornecedorId}")
     public ResponseEntity<List<FornecedorProdutoListDTO>> listarPorFornecedor(@PathVariable Long fornecedorId) {
         return ResponseEntity.ok(fornecedorProdutoService.listarPorFornecedor(fornecedorId));
     }
 
     // ============================================================
-    // 🔹 Verificar existência de vínculo
+    // Verificar existência
     // ============================================================
 
-    /**
-     * Verifica se existe um vínculo entre um fornecedor e um produto.
-     *
-     * @param fornecedorId ID do fornecedor.
-     * @param produtoId    ID do produto.
-     * @return true ou false.
-     */
+    @Operation(
+            summary = "Verificar existência de vínculo",
+            description = "Retorna true/false indicando se há vínculo entre fornecedor e produto.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Resultado encontrado",
+                            content = @Content(schema = @Schema(implementation = Boolean.class))
+                    )
+            }
+    )
     @GetMapping("/existe")
     public ResponseEntity<Boolean> existeVinculo(
             @RequestParam Long fornecedorId,

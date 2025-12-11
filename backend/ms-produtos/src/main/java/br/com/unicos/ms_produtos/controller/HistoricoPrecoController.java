@@ -4,6 +4,12 @@ import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoListDTO;
 import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoRequest;
 import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoResponse;
 import br.com.unicos.ms_produtos.service.HistoricoPrecoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,28 +22,32 @@ import java.util.Optional;
 /**
  * Controlador REST responsável pelo gerenciamento
  * do histórico de alterações de preços dos produtos.
- * <p>
- * Permite registrar mudanças, consultar histórico completo,
- * consultar por produto e remover registros específicos.
  */
 @RestController
 @RequestMapping("/v1/historico-precos")
 @RequiredArgsConstructor
+@Tag(name = "Histórico de Preços", description = "Gerencia registros de alterações de preço dos produtos.")
 public class HistoricoPrecoController {
 
     private final HistoricoPrecoService historicoPrecoService;
 
     // ============================================================
-    // 🔹 Criar registro de histórico de preço
+    // Criar registro
     // ============================================================
 
-    /**
-     * Registra uma nova alteração de preço para um produto.
-     *
-     * @param produtoId ID do produto.
-     * @param request   dados da alteração.
-     * @return registro criado.
-     */
+    @Operation(
+            summary = "Registrar alteração de preço",
+            description = "Cria um novo registro de histórico de alteração de preço para um produto.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Registro criado com sucesso",
+                            content = @Content(schema = @Schema(implementation = HistoricoPrecoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos"),
+                    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+            }
+    )
     @PostMapping("/produto/{produtoId}")
     public ResponseEntity<HistoricoPrecoResponse> salvar(
             @PathVariable Long produtoId,
@@ -48,20 +58,25 @@ public class HistoricoPrecoController {
     }
 
     // ============================================================
-    // 🔹 Buscar por ID do histórico
+    // Buscar por ID
     // ============================================================
 
-    /**
-     * Busca um registro específico de histórico pelo ID.
-     *
-     * @param id ID do histórico.
-     * @return registro encontrado ou 404.
-     */
+    @Operation(
+            summary = "Buscar registro de histórico",
+            description = "Retorna os dados de um registro específico de histórico de preço pelo ID.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Registro encontrado",
+                            content = @Content(schema = @Schema(implementation = HistoricoPrecoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Registro não encontrado")
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<HistoricoPrecoResponse> buscarPorId(@PathVariable Long id) {
 
-        Optional<HistoricoPrecoResponse> resultado =
-                historicoPrecoService.buscarPorId(id);
+        Optional<HistoricoPrecoResponse> resultado = historicoPrecoService.buscarPorId(id);
 
         return resultado
                 .map(ResponseEntity::ok)
@@ -69,29 +84,41 @@ public class HistoricoPrecoController {
     }
 
     // ============================================================
-    // 🔹 Listar todos os registros (ordenados por data desc)
+    // Listar todos
     // ============================================================
 
-    /**
-     * Lista todos os registros de histórico de preço existentes.
-     *
-     * @return lista completa.
-     */
+    @Operation(
+            summary = "Listar todo o histórico",
+            description = "Retorna todos os registros de histórico de preço, ordenados por data DESC.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = HistoricoPrecoResponse.class)))
+                    )
+            }
+    )
     @GetMapping
     public ResponseEntity<List<HistoricoPrecoResponse>> listarTodos() {
         return ResponseEntity.ok(historicoPrecoService.listarTodos());
     }
 
     // ============================================================
-    // 🔹 Listar registros por produto
+    // Listar por produto
     // ============================================================
 
-    /**
-     * Lista todo o histórico de preço de um produto.
-     *
-     * @param produtoId ID do produto.
-     * @return lista de alterações.
-     */
+    @Operation(
+            summary = "Listar histórico por produto",
+            description = "Retorna o histórico completo de alterações de preço para um produto específico.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = HistoricoPrecoResponse.class)))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+            }
+    )
     @GetMapping("/produto/{produtoId}")
     public ResponseEntity<List<HistoricoPrecoResponse>> listarPorProduto(
             @PathVariable Long produtoId) {
@@ -100,16 +127,21 @@ public class HistoricoPrecoController {
     }
 
     // ============================================================
-    // 🔹 Listar os 10 últimos registros por produto (resumido)
+    // Listar últimos registros (listagem reduzida)
     // ============================================================
 
-    /**
-     * Lista os últimos 10 registros de histórico de preço de um produto.
-     * (DTO simplificado)
-     *
-     * @param produtoId ID do produto.
-     * @return lista reduzida (10 itens).
-     */
+    @Operation(
+            summary = "Listar últimos registros de histórico por produto",
+            description = "Retorna os últimos 10 registros de histórico de preço do produto, em formato simplificado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = HistoricoPrecoListDTO.class)))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+            }
+    )
     @GetMapping("/produto/{produtoId}/ultimos")
     public ResponseEntity<List<HistoricoPrecoListDTO>> listarUltimosPorProduto(
             @PathVariable Long produtoId) {
@@ -118,15 +150,17 @@ public class HistoricoPrecoController {
     }
 
     // ============================================================
-    // 🔹 Deletar registro de histórico
+    // Deletar registro
     // ============================================================
 
-    /**
-     * Remove um registro de histórico de preço.
-     *
-     * @param id ID do registro.
-     * @return 204 se removido.
-     */
+    @Operation(
+            summary = "Excluir registro de histórico",
+            description = "Remove um registro de histórico de preço pelo ID.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Registro removido"),
+                    @ApiResponse(responseCode = "404", description = "Registro não encontrado")
+            }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         historicoPrecoService.deletar(id);

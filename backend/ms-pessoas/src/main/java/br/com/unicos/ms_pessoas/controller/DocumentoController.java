@@ -4,6 +4,12 @@ import br.com.unicos.ms_pessoas.dto.documento.DocumentoListDTO;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoRequest;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoResponse;
 import br.com.unicos.ms_pessoas.service.interfaces.DocumentoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +20,17 @@ import java.util.List;
 /**
  * Controller responsável pelo gerenciamento dos documentos associados
  * a pessoas dentro do UniCoS.
- *
- * <p>Permite operações de criação, atualização, exclusão e consultas de
- * documentos como CPF, RG, CNPJ e demais identificadores formais.</p>
+ * <p>
+ * Permite operações de criação, atualização, exclusão e consultas de
+ * documentos como CPF, RG, CNPJ e demais identificadores formais.
  */
 @RestController
 @RequestMapping("/v1/documentos")
 @RequiredArgsConstructor
+@Tag(
+        name = "Documentos",
+        description = "Operações relativas a documentos formais (CPF, RG, CNPJ etc.) associados a pessoas."
+)
 public class DocumentoController {
 
     private final DocumentoService service;
@@ -29,12 +39,22 @@ public class DocumentoController {
     // Criar
     // ============================================================
 
-    /**
-     * Cria um novo documento vinculado a uma pessoa.
-     *
-     * @param request dados do documento a ser criado.
-     * @return ResponseEntity com o documento criado e header Location.
-     */
+    @Operation(
+            summary = "Criar um novo documento",
+            description = "Registra um novo documento vinculado a uma pessoa.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Documento criado com sucesso",
+                            content = @Content(schema = @Schema(implementation = DocumentoResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos enviados para criação",
+                            content = @Content
+                    )
+            }
+    )
     @PostMapping
     public ResponseEntity<DocumentoResponse> criar(@RequestBody DocumentoRequest request) {
         DocumentoResponse response = service.criar(request);
@@ -47,13 +67,27 @@ public class DocumentoController {
     // Atualizar
     // ============================================================
 
-    /**
-     * Atualiza os dados de um documento existente.
-     *
-     * @param id      identificador do documento.
-     * @param request dados atualizados do documento.
-     * @return ResponseEntity contendo o documento atualizado.
-     */
+    @Operation(
+            summary = "Atualizar documento existente",
+            description = "Altera os dados de um documento previamente cadastrado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Documento atualizado com sucesso",
+                            content = @Content(schema = @Schema(implementation = DocumentoResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos enviados",
+                            content = @Content
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Documento não encontrado",
+                            content = @Content
+                    )
+            }
+    )
     @PutMapping("/{id}")
     public ResponseEntity<DocumentoResponse> atualizar(
             @PathVariable Long id,
@@ -67,12 +101,20 @@ public class DocumentoController {
     // Excluir
     // ============================================================
 
-    /**
-     * Exclui um documento pelo seu identificador.
-     *
-     * @param id identificador do documento.
-     * @return ResponseEntity sem conteúdo (204 No Content).
-     */
+    @Operation(
+            summary = "Excluir documento",
+            description = "Remove definitivamente um documento do sistema.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "Documento excluído com sucesso"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Documento não encontrado"
+                    )
+            }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         service.excluir(id);
@@ -83,12 +125,22 @@ public class DocumentoController {
     // Buscar por ID
     // ============================================================
 
-    /**
-     * Busca um documento pelo seu ID.
-     *
-     * @param id identificador do documento.
-     * @return ResponseEntity contendo o documento ou 404 se não for encontrado.
-     */
+    @Operation(
+            summary = "Buscar documento por ID",
+            description = "Retorna os dados de um documento específico pelo seu identificador.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Documento encontrado",
+                            content = @Content(schema = @Schema(implementation = DocumentoResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Documento não encontrado",
+                            content = @Content
+                    )
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<DocumentoResponse> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
@@ -100,11 +152,17 @@ public class DocumentoController {
     // Listar Todos
     // ============================================================
 
-    /**
-     * Lista todos os documentos cadastrados.
-     *
-     * @return lista simplificada de documentos.
-     */
+    @Operation(
+            summary = "Listar todos os documentos",
+            description = "Retorna todos os documentos cadastrados no sistema.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = DocumentoListDTO.class)))
+                    )
+            }
+    )
     @GetMapping
     public ResponseEntity<List<DocumentoListDTO>> listarTodos() {
         return ResponseEntity.ok(service.listarTodos());
@@ -114,12 +172,22 @@ public class DocumentoController {
     // Listar por Pessoa
     // ============================================================
 
-    /**
-     * Lista todos os documentos pertencentes a uma pessoa específica.
-     *
-     * @param pessoaId identificador da pessoa.
-     * @return lista de documentos da pessoa informada.
-     */
+    @Operation(
+            summary = "Listar documentos por pessoa",
+            description = "Retorna todos os documentos pertencentes a uma pessoa específica.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = DocumentoListDTO.class)))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Pessoa não encontrada ou sem documentos",
+                            content = @Content
+                    )
+            }
+    )
     @GetMapping("/pessoa/{pessoaId}")
     public ResponseEntity<List<DocumentoListDTO>> listarPorPessoa(@PathVariable Long pessoaId) {
         return ResponseEntity.ok(service.listarPorPessoa(pessoaId));
@@ -129,12 +197,22 @@ public class DocumentoController {
     // Listar por Tipo
     // ============================================================
 
-    /**
-     * Lista documentos filtrados por tipo (CPF, RG, CNPJ etc.).
-     *
-     * @param tipo nome do tipo de documento.
-     * @return lista de documentos do tipo especificado.
-     */
+    @Operation(
+            summary = "Listar documentos por tipo",
+            description = "Retorna todos os documentos filtrados por tipo (CPF, RG, CNPJ, etc.).",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada com sucesso",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = DocumentoListDTO.class)))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Tipo informado inválido",
+                            content = @Content
+                    )
+            }
+    )
     @GetMapping("/tipo/{tipo}")
     public ResponseEntity<List<DocumentoListDTO>> listarPorTipo(@PathVariable String tipo) {
         return ResponseEntity.ok(service.listarPorTipo(tipo));

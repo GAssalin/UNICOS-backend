@@ -4,6 +4,12 @@ import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaListDTO;
 import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaRequest;
 import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaResponse;
 import br.com.unicos.ms_produtos.service.UnidadeMedidaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,27 +21,34 @@ import java.util.Optional;
 
 /**
  * Controlador REST responsável pelo gerenciamento de unidades de medida.
- * <p>
- * Permite cadastrar, atualizar, remover, consultar e realizar buscas
- * por nome, sigla e listagens simples/detalhadas.
  */
 @RestController
 @RequestMapping("/v1/unidades-medida")
 @RequiredArgsConstructor
+@Tag(
+        name = "Unidades de Medida",
+        description = "Gerencia unidades de medida utilizadas no cadastro de produtos."
+)
 public class UnidadeMedidaController {
 
     private final UnidadeMedidaService unidadeMedidaService;
 
     // ============================================================
-    // 🔹 Criar
+    // CRIAR
     // ============================================================
 
-    /**
-     * Cadastra uma nova unidade de medida.
-     *
-     * @param request dados da unidade.
-     * @return unidade criada.
-     */
+    @Operation(
+            summary = "Criar unidade de medida",
+            description = "Cadastra uma nova unidade de medida no sistema.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Unidade criada",
+                            content = @Content(schema = @Schema(implementation = UnidadeMedidaResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos")
+            }
+    )
     @PostMapping
     public ResponseEntity<UnidadeMedidaResponse> salvar(
             @Valid @RequestBody UnidadeMedidaRequest request) {
@@ -45,16 +58,21 @@ public class UnidadeMedidaController {
     }
 
     // ============================================================
-    // 🔹 Atualizar
+    // ATUALIZAR
     // ============================================================
 
-    /**
-     * Atualiza uma unidade de medida existente.
-     *
-     * @param id      ID da unidade.
-     * @param request dados atualizados.
-     * @return unidade atualizada.
-     */
+    @Operation(
+            summary = "Atualizar unidade de medida",
+            description = "Atualiza os dados de uma unidade de medida existente.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Unidade atualizada",
+                            content = @Content(schema = @Schema(implementation = UnidadeMedidaResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Unidade não encontrada")
+            }
+    )
     @PutMapping("/{id}")
     public ResponseEntity<UnidadeMedidaResponse> atualizar(
             @PathVariable Long id,
@@ -65,15 +83,17 @@ public class UnidadeMedidaController {
     }
 
     // ============================================================
-    // 🔹 Deletar
+    // DELETAR
     // ============================================================
 
-    /**
-     * Remove uma unidade de medida pelo ID.
-     *
-     * @param id ID da unidade.
-     * @return 204 em caso de sucesso.
-     */
+    @Operation(
+            summary = "Remover unidade de medida",
+            description = "Exclui uma unidade de medida pelo ID.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Unidade removida"),
+                    @ApiResponse(responseCode = "404", description = "Unidade não encontrada")
+            }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         unidadeMedidaService.deletar(id);
@@ -81,15 +101,21 @@ public class UnidadeMedidaController {
     }
 
     // ============================================================
-    // 🔹 Buscar por ID
+    // BUSCAR POR ID
     // ============================================================
 
-    /**
-     * Busca uma unidade de medida pelo ID.
-     *
-     * @param id ID da unidade.
-     * @return unidade encontrada ou 404.
-     */
+    @Operation(
+            summary = "Buscar unidade por ID",
+            description = "Retorna os dados completos de uma unidade de medida.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Unidade encontrada",
+                            content = @Content(schema = @Schema(implementation = UnidadeMedidaResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Unidade não encontrada")
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<UnidadeMedidaResponse> buscarPorId(@PathVariable Long id) {
 
@@ -102,43 +128,61 @@ public class UnidadeMedidaController {
     }
 
     // ============================================================
-    // 🔹 Listagem detalhada
+    // LISTAGEM DETALHADA
     // ============================================================
 
-    /**
-     * Lista todas as unidades de medida com informações completas.
-     *
-     * @return lista detalhada.
-     */
+    @Operation(
+            summary = "Listar todas as unidades",
+            description = "Retorna todas as unidades cadastradas com informações detalhadas.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = UnidadeMedidaResponse.class)))
+                    )
+            }
+    )
     @GetMapping
     public ResponseEntity<List<UnidadeMedidaResponse>> listarTodas() {
         return ResponseEntity.ok(unidadeMedidaService.listarTodas());
     }
 
     // ============================================================
-    // 🔹 Listagem simples
+    // LISTAGEM SIMPLES
     // ============================================================
 
-    /**
-     * Lista unidades de medida em formato simplificado.
-     *
-     * @return lista simples ordenada por nome.
-     */
+    @Operation(
+            summary = "Listar unidades (simples)",
+            description = "Retorna lista simplificada contendo ID, nome e sigla.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = UnidadeMedidaListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/simples")
     public ResponseEntity<List<UnidadeMedidaListDTO>> listarSimples() {
         return ResponseEntity.ok(unidadeMedidaService.listarSimples());
     }
 
     // ============================================================
-    // 🔹 Buscar por nome exato
+    // BUSCAR POR NOME EXATO
     // ============================================================
 
-    /**
-     * Busca uma unidade de medida pelo nome exato.
-     *
-     * @param nome nome da unidade.
-     * @return unidade encontrada ou 404.
-     */
+    @Operation(
+            summary = "Buscar unidade por nome exato",
+            description = "Retorna unidade cujo nome seja exatamente igual ao informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Unidade encontrada",
+                            content = @Content(schema = @Schema(implementation = UnidadeMedidaResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Nenhuma unidade corresponde ao nome informado")
+            }
+    )
     @GetMapping("/nome")
     public ResponseEntity<UnidadeMedidaResponse> buscarPorNome(
             @RequestParam String nome) {
@@ -152,15 +196,21 @@ public class UnidadeMedidaController {
     }
 
     // ============================================================
-    // 🔹 Buscar por sigla exata
+    // BUSCAR POR SIGLA EXATA
     // ============================================================
 
-    /**
-     * Busca uma unidade de medida pela sigla.
-     *
-     * @param sigla sigla da unidade (ex.: kg, un, cx).
-     * @return unidade encontrada ou 404.
-     */
+    @Operation(
+            summary = "Buscar unidade por sigla",
+            description = "Retorna unidade cuja sigla seja exatamente igual à informada.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Unidade encontrada",
+                            content = @Content(schema = @Schema(implementation = UnidadeMedidaResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Nenhuma unidade corresponde à sigla informada")
+            }
+    )
     @GetMapping("/sigla")
     public ResponseEntity<UnidadeMedidaResponse> buscarPorSigla(
             @RequestParam String sigla) {
@@ -174,15 +224,20 @@ public class UnidadeMedidaController {
     }
 
     // ============================================================
-    // 🔹 Buscar por nome contendo
+    // BUSCA POR NOME CONTENDO
     // ============================================================
 
-    /**
-     * Busca unidades cujo nome contenha o texto informado.
-     *
-     * @param nome texto parcial do nome.
-     * @return lista de unidades encontradas.
-     */
+    @Operation(
+            summary = "Buscar unidades pelo nome (contém)",
+            description = "Retorna unidades cujo nome contenha o termo informado (ignore case).",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista retornada",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = UnidadeMedidaListDTO.class)))
+                    )
+            }
+    )
     @GetMapping("/buscar")
     public ResponseEntity<List<UnidadeMedidaListDTO>> buscarPorNomeContendo(
             @RequestParam String nome) {
@@ -193,15 +248,20 @@ public class UnidadeMedidaController {
     }
 
     // ============================================================
-    // 🔹 Verificar sigla existente
+    // VERIFICAR SIGLA EXISTENTE
     // ============================================================
 
-    /**
-     * Verifica se já existe uma unidade cadastrada com a sigla informada.
-     *
-     * @param sigla sigla a verificar.
-     * @return true se existir, false caso contrário.
-     */
+    @Operation(
+            summary = "Verificar existência da sigla",
+            description = "Retorna true se já existir uma unidade com a sigla informada.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Resultado retornado",
+                            content = @Content(schema = @Schema(implementation = Boolean.class))
+                    )
+            }
+    )
     @GetMapping("/sigla/existe")
     public ResponseEntity<Boolean> verificarSiglaExistente(
             @RequestParam String sigla) {
