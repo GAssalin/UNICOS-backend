@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class MarcaController {
     // Criar marca
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MARCA_CRIAR')")
     @Operation(
             summary = "Criar nova marca",
             description = "Cadastra uma nova marca no sistema UniCoS.",
@@ -61,6 +63,7 @@ public class MarcaController {
     // Atualizar marca
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MARCA_ATUALIZAR')")
     @Operation(
             summary = "Atualizar marca",
             description = "Atualiza os dados de uma marca existente.",
@@ -86,6 +89,7 @@ public class MarcaController {
     // Buscar por ID
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MARCA_LISTAR')")
     @Operation(
             summary = "Buscar marca por ID",
             description = "Retorna os dados completos de uma marca.",
@@ -112,6 +116,7 @@ public class MarcaController {
     // Listar todas
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MARCA_LISTAR')")
     @Operation(
             summary = "Listar todas as marcas",
             description = "Retorna a lista completa de marcas cadastradas.",
@@ -134,6 +139,7 @@ public class MarcaController {
     // Listar simples
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MARCA_LISTAR')")
     @Operation(
             summary = "Listar marcas em formato simplificado",
             description = "Retorna lista reduzida contendo apenas informações básicas da marca.",
@@ -156,6 +162,7 @@ public class MarcaController {
     // Buscar por nome
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MARCA_LISTAR')")
     @Operation(
             summary = "Buscar marcas por nome",
             description = "Busca marcas cujo nome contenha o valor informado (ignore case).",
@@ -178,6 +185,7 @@ public class MarcaController {
     // Deletar marca
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MARCA_EXCLUIR')")
     @Operation(
             summary = "Excluir marca",
             description = "Remove uma marca do sistema.",
@@ -196,6 +204,7 @@ public class MarcaController {
     // Verificar existência por nome
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MARCA_LISTAR')")
     @Operation(
             summary = "Verificar existência de marca",
             description = "Retorna true/false indicando se já existe uma marca com o nome informado.",

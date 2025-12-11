@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,8 +38,10 @@ public class RoleController {
 
     // ============================================================
     // 🔹 Criar Role
+    // Permissão necessária: ROLE_CRIAR
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ROLE_CRIAR')")
     @Operation(
             summary = "Criar novo papel (Role)",
             description = "Cria um novo papel no sistema, que poderá conter permissões e ser associado a usuários.",
@@ -63,8 +66,10 @@ public class RoleController {
 
     // ============================================================
     // 🔹 Atualizar Role
+    // Permissão necessária: ROLE_EDITAR
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ROLE_EDITAR')")
     @Operation(
             summary = "Atualizar papel existente",
             description = "Atualiza os dados de um papel já cadastrado no sistema.",
@@ -97,8 +102,10 @@ public class RoleController {
 
     // ============================================================
     // 🔹 Buscar Role por ID
+    // Permissão necessária: ROLE_LISTAR
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ROLE_LISTAR')")
     @Operation(
             summary = "Buscar papel por ID",
             description = "Consulta os dados de um papel específico com base no ID informado.",
@@ -123,8 +130,10 @@ public class RoleController {
 
     // ============================================================
     // 🔹 Listar todos os Roles
+    // Permissão necessária: ROLE_LISTAR
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ROLE_LISTAR')")
     @Operation(
             summary = "Listar todos os papéis",
             description = "Retorna todos os papéis cadastrados no sistema.",
@@ -144,8 +153,10 @@ public class RoleController {
 
     // ============================================================
     // 🔹 Deletar Role
+    // Permissão necessária: ROLE_EXCLUIR
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ROLE_EXCLUIR')")
     @Operation(
             summary = "Deletar papel",
             description = "Remove um papel do sistema de forma permanente.",

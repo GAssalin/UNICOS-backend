@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -39,6 +40,7 @@ public class DocumentoController {
     // Criar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('DOCUMENTO_CRIAR')")
     @Operation(
             summary = "Criar um novo documento",
             description = "Registra um novo documento vinculado a uma pessoa.",
@@ -67,6 +69,7 @@ public class DocumentoController {
     // Atualizar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('DOCUMENTO_EDITAR')")
     @Operation(
             summary = "Atualizar documento existente",
             description = "Altera os dados de um documento previamente cadastrado.",
@@ -101,6 +104,7 @@ public class DocumentoController {
     // Excluir
     // ============================================================
 
+    @PreAuthorize("hasAuthority('DOCUMENTO_EXCLUIR')")
     @Operation(
             summary = "Excluir documento",
             description = "Remove definitivamente um documento do sistema.",
@@ -125,6 +129,7 @@ public class DocumentoController {
     // Buscar por ID
     // ============================================================
 
+    @PreAuthorize("hasAuthority('DOCUMENTO_LISTAR')")
     @Operation(
             summary = "Buscar documento por ID",
             description = "Retorna os dados de um documento específico pelo seu identificador.",
@@ -152,6 +157,7 @@ public class DocumentoController {
     // Listar Todos
     // ============================================================
 
+    @PreAuthorize("hasAuthority('DOCUMENTO_LISTAR')")
     @Operation(
             summary = "Listar todos os documentos",
             description = "Retorna todos os documentos cadastrados no sistema.",
@@ -172,6 +178,7 @@ public class DocumentoController {
     // Listar por Pessoa
     // ============================================================
 
+    @PreAuthorize("hasAuthority('DOCUMENTO_LISTAR')")
     @Operation(
             summary = "Listar documentos por pessoa",
             description = "Retorna todos os documentos pertencentes a uma pessoa específica.",
@@ -197,6 +204,7 @@ public class DocumentoController {
     // Listar por Tipo
     // ============================================================
 
+    @PreAuthorize("hasAuthority('DOCUMENTO_LISTAR')")
     @Operation(
             summary = "Listar documentos por tipo",
             description = "Retorna todos os documentos filtrados por tipo (CPF, RG, CNPJ, etc.).",

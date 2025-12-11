@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -38,6 +39,7 @@ public class PessoaRelacaoController {
     // Criar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_RELACAO_CRIAR')")
     @Operation(
             summary = "Criar relação entre pessoas",
             description = "Registra um novo vínculo entre duas pessoas, como dependente, responsável, sócio etc.",
@@ -65,6 +67,7 @@ public class PessoaRelacaoController {
     // Atualizar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_RELACAO_EDITAR')")
     @Operation(
             summary = "Atualizar relação entre pessoas",
             description = "Atualiza os dados de um vínculo previamente cadastrado.",
@@ -97,6 +100,7 @@ public class PessoaRelacaoController {
     // Excluir
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_RELACAO_EXCLUIR')")
     @Operation(
             summary = "Excluir relação",
             description = "Remove permanentemente uma relação entre pessoas.",
@@ -121,6 +125,7 @@ public class PessoaRelacaoController {
     // Buscar por ID
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_RELACAO_LISTAR')")
     @Operation(
             summary = "Buscar relação por ID",
             description = "Retorna os dados completos de uma relação a partir de seu identificador.",
@@ -147,6 +152,7 @@ public class PessoaRelacaoController {
     // Listar todas
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_RELACAO_LISTAR')")
     @Operation(
             summary = "Listar todas as relações",
             description = "Retorna todas as relações entre pessoas cadastradas no sistema.",
@@ -167,6 +173,7 @@ public class PessoaRelacaoController {
     // Listar por Pessoa Principal
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_RELACAO_LISTAR')")
     @Operation(
             summary = "Listar relações por pessoa principal",
             description = "Retorna todas as relações onde a pessoa informada é o ator principal.",
@@ -187,6 +194,7 @@ public class PessoaRelacaoController {
     // Listar por Pessoa Relacionada
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_RELACAO_LISTAR')")
     @Operation(
             summary = "Listar relações por pessoa relacionada",
             description = "Retorna todas as relações onde a pessoa informada é o indivíduo relacionado.",
@@ -207,6 +215,7 @@ public class PessoaRelacaoController {
     // Listar por Tipo
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_RELACAO_LISTAR')")
     @Operation(
             summary = "Listar relações por tipo",
             description = "Retorna todas as relações pertencentes ao tipo de vínculo informado.",
@@ -224,9 +233,10 @@ public class PessoaRelacaoController {
     }
 
     // ============================================================
-    // Busca por Nome da Pessoa Principal
+    // Buscar por Nome da Pessoa Principal
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_RELACAO_LISTAR')")
     @Operation(
             summary = "Listar relações filtrando pelo nome da pessoa principal",
             description = "Busca relações onde o nome da pessoa principal contém o termo informado (ignore case).",
@@ -244,9 +254,10 @@ public class PessoaRelacaoController {
     }
 
     // ============================================================
-    // Busca por Nome da Pessoa Relacionada
+    // Buscar por Nome da Pessoa Relacionada
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_RELACAO_LISTAR')")
     @Operation(
             summary = "Listar relações filtrando pelo nome da pessoa relacionada",
             description = "Busca relações onde o nome da pessoa relacionada contém o termo informado (ignore case).",
@@ -267,6 +278,7 @@ public class PessoaRelacaoController {
     // Filtrar por Pessoa Principal e Relacionada
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_RELACAO_LISTAR')")
     @Operation(
             summary = "Listar relações entre duas pessoas",
             description = "Retorna vínculos existentes onde uma pessoa é a principal e a outra é a relacionada.",

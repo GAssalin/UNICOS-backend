@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class UnidadeMedidaController {
     // CRIAR
     // ============================================================
 
+    @PreAuthorize("hasAuthority('UNIDADE_MEDIDA_CRIAR')")
     @Operation(
             summary = "Criar unidade de medida",
             description = "Cadastra uma nova unidade de medida no sistema.",
@@ -61,6 +63,7 @@ public class UnidadeMedidaController {
     // ATUALIZAR
     // ============================================================
 
+    @PreAuthorize("hasAuthority('UNIDADE_MEDIDA_ATUALIZAR')")
     @Operation(
             summary = "Atualizar unidade de medida",
             description = "Atualiza os dados de uma unidade de medida existente.",
@@ -86,6 +89,7 @@ public class UnidadeMedidaController {
     // DELETAR
     // ============================================================
 
+    @PreAuthorize("hasAuthority('UNIDADE_MEDIDA_EXCLUIR')")
     @Operation(
             summary = "Remover unidade de medida",
             description = "Exclui uma unidade de medida pelo ID.",
@@ -104,6 +108,7 @@ public class UnidadeMedidaController {
     // BUSCAR POR ID
     // ============================================================
 
+    @PreAuthorize("hasAuthority('UNIDADE_MEDIDA_LISTAR')")
     @Operation(
             summary = "Buscar unidade por ID",
             description = "Retorna os dados completos de uma unidade de medida.",
@@ -131,6 +136,7 @@ public class UnidadeMedidaController {
     // LISTAGEM DETALHADA
     // ============================================================
 
+    @PreAuthorize("hasAuthority('UNIDADE_MEDIDA_LISTAR')")
     @Operation(
             summary = "Listar todas as unidades",
             description = "Retorna todas as unidades cadastradas com informações detalhadas.",
@@ -151,6 +157,7 @@ public class UnidadeMedidaController {
     // LISTAGEM SIMPLES
     // ============================================================
 
+    @PreAuthorize("hasAuthority('UNIDADE_MEDIDA_LISTAR')")
     @Operation(
             summary = "Listar unidades (simples)",
             description = "Retorna lista simplificada contendo ID, nome e sigla.",
@@ -171,6 +178,7 @@ public class UnidadeMedidaController {
     // BUSCAR POR NOME EXATO
     // ============================================================
 
+    @PreAuthorize("hasAuthority('UNIDADE_MEDIDA_LISTAR')")
     @Operation(
             summary = "Buscar unidade por nome exato",
             description = "Retorna unidade cujo nome seja exatamente igual ao informado.",
@@ -199,6 +207,7 @@ public class UnidadeMedidaController {
     // BUSCAR POR SIGLA EXATA
     // ============================================================
 
+    @PreAuthorize("hasAuthority('UNIDADE_MEDIDA_LISTAR')")
     @Operation(
             summary = "Buscar unidade por sigla",
             description = "Retorna unidade cuja sigla seja exatamente igual à informada.",
@@ -227,6 +236,7 @@ public class UnidadeMedidaController {
     // BUSCA POR NOME CONTENDO
     // ============================================================
 
+    @PreAuthorize("hasAuthority('UNIDADE_MEDIDA_LISTAR')")
     @Operation(
             summary = "Buscar unidades pelo nome (contém)",
             description = "Retorna unidades cujo nome contenha o termo informado (ignore case).",
@@ -251,6 +261,7 @@ public class UnidadeMedidaController {
     // VERIFICAR SIGLA EXISTENTE
     // ============================================================
 
+    @PreAuthorize("hasAuthority('UNIDADE_MEDIDA_LISTAR')")
     @Operation(
             summary = "Verificar existência da sigla",
             description = "Retorna true se já existir uma unidade com a sigla informada.",

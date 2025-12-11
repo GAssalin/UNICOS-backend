@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -37,6 +38,7 @@ public class ProdutoController {
     // CRUD PRINCIPAL
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PRODUTO_CRIAR')")
     @Operation(
             summary = "Criar produto",
             description = "Cadastra um novo produto com informações completas.",
@@ -57,6 +59,7 @@ public class ProdutoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("hasAuthority('PRODUTO_ATUALIZAR')")
     @Operation(
             summary = "Atualizar produto",
             description = "Atualiza completamente os dados de um produto existente.",
@@ -78,6 +81,7 @@ public class ProdutoController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAuthority('PRODUTO_EXCLUIR')")
     @Operation(
             summary = "Remover produto",
             description = "Exclui um produto pelo ID.",
@@ -96,6 +100,7 @@ public class ProdutoController {
     // CONSULTAS GERAIS
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Buscar produto por ID",
             description = "Retorna os dados de um produto específico.",
@@ -118,6 +123,7 @@ public class ProdutoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Listar todos os produtos",
             description = "Retorna uma lista contendo todos os produtos cadastrados.",
@@ -134,6 +140,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.listarTodos());
     }
 
+    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Buscar produtos por nome",
             description = "Busca produtos cujo nome contenha o termo informado.",
@@ -150,6 +157,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.buscarPorNome(nome));
     }
 
+    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Buscar produto por SKU",
             description = "Retorna um produto a partir do seu código SKU.",
@@ -176,6 +184,7 @@ public class ProdutoController {
     // CONSULTAS POR FILTROS
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Listar produtos por categoria",
             description = "Retorna produtos associados à categoria informada.",
@@ -194,6 +203,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.listarPorCategoria(categoriaId));
     }
 
+    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Listar produtos por marca",
             description = "Retorna produtos associados à marca informada.",
@@ -206,12 +216,12 @@ public class ProdutoController {
             }
     )
     @GetMapping("/marca/{marcaId}")
-    public ResponseEntity<List<ProdutoResponse>> listarPorMarca(
-            @PathVariable Long marcaId) {
+    public ResponseEntity<List<ProdutoResponse>> listarPorMarca(@PathVariable Long marcaId) {
 
         return ResponseEntity.ok(produtoService.listarPorMarca(marcaId));
     }
 
+    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Listar produtos ativos",
             description = "Retorna apenas os produtos com status ativo.",
@@ -228,6 +238,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.listarAtivos());
     }
 
+    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Listar produtos inativos",
             description = "Retorna apenas os produtos com status inativo.",
@@ -244,6 +255,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.listarInativos());
     }
 
+    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Listar produtos por faixa de preço",
             description = "Retorna todos os produtos dentro da faixa de preço mínima e máxima informada.",
@@ -267,6 +279,7 @@ public class ProdutoController {
     // ALTERAÇÃO DE ESTADO
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PRODUTO_ATUALIZAR')")
     @Operation(
             summary = "Ativar produto",
             description = "Ativa um produto que esteja inativo.",
@@ -284,6 +297,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.ativarProduto(id));
     }
 
+    @PreAuthorize("hasAuthority('PRODUTO_ATUALIZAR')")
     @Operation(
             summary = "Inativar produto",
             description = "Inativa um produto ativo.",
@@ -305,6 +319,7 @@ public class ProdutoController {
     // PREÇO
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PRODUTO_ATUALIZAR_PRECO')")
     @Operation(
             summary = "Atualizar preço de venda",
             description = "Altera apenas o preço de venda do produto, sem afetar outros dados.",
@@ -330,6 +345,7 @@ public class ProdutoController {
     // SKU — Validação
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Verificar disponibilidade de SKU",
             description = "Retorna true se o SKU estiver disponível para uso; false se já estiver em uso.",

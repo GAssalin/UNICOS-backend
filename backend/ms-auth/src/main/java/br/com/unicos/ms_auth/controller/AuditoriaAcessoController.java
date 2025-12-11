@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -37,14 +38,9 @@ public class AuditoriaAcessoController {
 
     // ================================================
     // 🔍 CONSULTA POR USUÁRIO
+    // Permissão necessária: AUDITORIA_LISTAR
     // ================================================
-
-    /**
-     * Lista todos os eventos de auditoria associados a um usuário específico.
-     *
-     * @param username Nome do usuário.
-     * @return Lista de AuditoriaAcessoResponse.
-     */
+    @PreAuthorize("hasAuthority('AUDITORIA_LISTAR')")
     @Operation(
             summary = "Listar auditorias por usuário",
             description = "Retorna todos os registros de auditoria vinculados ao usuário informado.",
@@ -70,11 +66,9 @@ public class AuditoriaAcessoController {
 
     // ================================================
     // 🔍 CONSULTA POR TIPO DE AÇÃO
+    // Permissão necessária: AUDITORIA_LISTAR
     // ================================================
-
-    /**
-     * Lista todos os eventos de auditoria para um tipo de ação específico.
-     */
+    @PreAuthorize("hasAuthority('AUDITORIA_LISTAR')")
     @Operation(
             summary = "Listar auditorias por tipo de ação",
             description = "Retorna registros filtrados por tipo de ação, como LOGIN_SUCESSO, LOGIN_FALHA ou LOGOUT.",
@@ -100,11 +94,9 @@ public class AuditoriaAcessoController {
 
     // ================================================
     // 🔍 CONSULTA POR PERÍODO
+    // Permissão necessária: AUDITORIA_LISTAR
     // ================================================
-
-    /**
-     * Lista eventos registrados dentro de um intervalo de datas.
-     */
+    @PreAuthorize("hasAuthority('AUDITORIA_LISTAR')")
     @Operation(
             summary = "Listar auditorias por período",
             description = "Retorna registros de auditoria ocorridos entre as datas de início e fim informadas.",

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -38,6 +39,7 @@ public class PessoaJuridicaController {
     // Criar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_JURIDICA_CRIAR')")
     @Operation(
             summary = "Criar Pessoa Jurídica",
             description = "Registra uma nova Pessoa Jurídica no sistema UniCoS.",
@@ -65,6 +67,7 @@ public class PessoaJuridicaController {
     // Atualizar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_JURIDICA_EDITAR')")
     @Operation(
             summary = "Atualizar Pessoa Jurídica",
             description = "Atualiza os dados de uma empresa previamente cadastrada.",
@@ -97,6 +100,7 @@ public class PessoaJuridicaController {
     // Excluir
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_JURIDICA_EXCLUIR')")
     @Operation(
             summary = "Excluir Pessoa Jurídica",
             description = "Remove uma Pessoa Jurídica com base no seu ID.",
@@ -121,6 +125,7 @@ public class PessoaJuridicaController {
     // Buscar por ID
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_JURIDICA_LISTAR')")
     @Operation(
             summary = "Buscar Pessoa Jurídica por ID",
             description = "Retorna os dados completos de uma Pessoa Jurídica pelo identificador informado.",
@@ -147,6 +152,7 @@ public class PessoaJuridicaController {
     // Buscar por CNPJ
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_JURIDICA_LISTAR')")
     @Operation(
             summary = "Buscar Pessoa Jurídica por CNPJ",
             description = "Consulta uma empresa pelo CNPJ informado (somente dígitos).",
@@ -173,6 +179,7 @@ public class PessoaJuridicaController {
     // Listar todas
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_JURIDICA_LISTAR')")
     @Operation(
             summary = "Listar todas as Pessoas Jurídicas",
             description = "Retorna uma lista simplificada contendo ID, Razão Social e CNPJ.",
@@ -190,9 +197,10 @@ public class PessoaJuridicaController {
     }
 
     // ============================================================
-    // Listar por Nome Fantasia (exato)
+    // Listar por Nome Fantasia
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_JURIDICA_LISTAR')")
     @Operation(
             summary = "Listar por Nome Fantasia (exato)",
             description = "Retorna empresas cujo nome fantasia corresponda exatamente ao valor informado.",
@@ -213,6 +221,7 @@ public class PessoaJuridicaController {
     // Listar por Nome (contains)
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_JURIDICA_LISTAR')")
     @Operation(
             summary = "Listar empresas por nome contendo termo",
             description = "Busca empresas cuja razão social ou nome contenha o termo informado.",

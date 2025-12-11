@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 @Service
 public class TokenService {
@@ -23,16 +24,25 @@ public class TokenService {
     String issuer;
 
     public String gerarToken(Usuario usuario) {
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(segredo);
-            return JWT.create()
-                    .withIssuer(issuer)
-                    .withSubject(usuario.getEmail())
-                    .withExpiresAt(expiracao(5))
-                    .sign(algorithm);
-        } catch (JWTCreationException exception) {
-            throw new JWTCreationException("Erro ao gerar token JWT de acesso!", exception);
-        }
+        Algorithm algorithm = Algorithm.HMAC256(segredo);
+
+        List<String> permissoes = usuario.getRoles().stream()
+                .flatMap(role -> role.getPermissoes().stream())
+                .map(p -> p.getNome())
+                .distinct()
+                .toList();
+
+        List<String> roles = usuario.getRoles().stream()
+                .map(role -> "ROLE_" + role.getNome())
+                .toList();
+
+        return JWT.create()
+                .withIssuer(issuer)
+                .withSubject(usuario.getEmail())
+                .withClaim("roles", roles)
+                .withClaim("authorities", permissoes)
+                .withExpiresAt(expiracao(5))
+                .sign(algorithm);
     }
 
     public String gerarRefreshToken(Usuario usuario) {
@@ -48,18 +58,16 @@ public class TokenService {
         }
     }
 
-    public String verificarToken(String token) {
-        DecodedJWT decodedJWT;
+    public DecodedJWT verificarToken(String token) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(segredo);
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer(issuer)
                     .build();
 
-            decodedJWT = verifier.verify(token);
-            return decodedJWT.getSubject();
+            return verifier.verify(token);
         } catch (JWTVerificationException exception) {
-            throw new JWTCreationException("Erro ao verificar token JWT de acesso!", exception);
+            throw new JWTCreationException("Erro ao verificar token JWT!", exception);
         }
     }
 

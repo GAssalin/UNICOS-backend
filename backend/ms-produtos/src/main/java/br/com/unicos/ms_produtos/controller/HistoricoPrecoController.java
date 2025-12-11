@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,6 +36,7 @@ public class HistoricoPrecoController {
     // Criar registro
     // ============================================================
 
+    @PreAuthorize("hasAuthority('HISTORICO_PRECO_CRIAR')")
     @Operation(
             summary = "Registrar alteração de preço",
             description = "Cria um novo registro de histórico de alteração de preço para um produto.",
@@ -61,6 +63,7 @@ public class HistoricoPrecoController {
     // Buscar por ID
     // ============================================================
 
+    @PreAuthorize("hasAuthority('HISTORICO_PRECO_LISTAR')")
     @Operation(
             summary = "Buscar registro de histórico",
             description = "Retorna os dados de um registro específico de histórico de preço pelo ID.",
@@ -87,6 +90,7 @@ public class HistoricoPrecoController {
     // Listar todos
     // ============================================================
 
+    @PreAuthorize("hasAuthority('HISTORICO_PRECO_LISTAR')")
     @Operation(
             summary = "Listar todo o histórico",
             description = "Retorna todos os registros de histórico de preço, ordenados por data DESC.",
@@ -107,6 +111,7 @@ public class HistoricoPrecoController {
     // Listar por produto
     // ============================================================
 
+    @PreAuthorize("hasAuthority('HISTORICO_PRECO_LISTAR')")
     @Operation(
             summary = "Listar histórico por produto",
             description = "Retorna o histórico completo de alterações de preço para um produto específico.",
@@ -130,6 +135,7 @@ public class HistoricoPrecoController {
     // Listar últimos registros (listagem reduzida)
     // ============================================================
 
+    @PreAuthorize("hasAuthority('HISTORICO_PRECO_LISTAR')")
     @Operation(
             summary = "Listar últimos registros de histórico por produto",
             description = "Retorna os últimos 10 registros de histórico de preço do produto, em formato simplificado.",
@@ -153,6 +159,7 @@ public class HistoricoPrecoController {
     // Deletar registro
     // ============================================================
 
+    @PreAuthorize("hasAuthority('HISTORICO_PRECO_EXCLUIR')")
     @Operation(
             summary = "Excluir registro de histórico",
             description = "Remove um registro de histórico de preço pelo ID.",

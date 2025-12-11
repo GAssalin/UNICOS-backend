@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -38,6 +39,7 @@ public class PessoaFisicaController {
     // Criar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_FISICA_CRIAR')")
     @Operation(
             summary = "Criar Pessoa Física",
             description = "Registra uma nova Pessoa Física no UniCoS.",
@@ -65,6 +67,7 @@ public class PessoaFisicaController {
     // Atualizar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_FISICA_EDITAR')")
     @Operation(
             summary = "Atualizar Pessoa Física",
             description = "Atualiza os dados de uma Pessoa Física previamente cadastrada.",
@@ -97,6 +100,7 @@ public class PessoaFisicaController {
     // Excluir
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_FISICA_EXCLUIR')")
     @Operation(
             summary = "Excluir Pessoa Física",
             description = "Remove definitivamente uma Pessoa Física identificada pelo ID.",
@@ -121,6 +125,7 @@ public class PessoaFisicaController {
     // Buscar por ID
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_FISICA_LISTAR')")
     @Operation(
             summary = "Buscar Pessoa Física por ID",
             description = "Retorna os dados completos de uma Pessoa Física pelo seu identificador.",
@@ -147,6 +152,7 @@ public class PessoaFisicaController {
     // Buscar por CPF
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_FISICA_LISTAR')")
     @Operation(
             summary = "Buscar Pessoa Física por CPF",
             description = "Consulta uma Pessoa Física pelo CPF informado (somente números).",
@@ -173,6 +179,7 @@ public class PessoaFisicaController {
     // Listar todas
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_FISICA_LISTAR')")
     @Operation(
             summary = "Listar todas as Pessoas Físicas",
             description = "Retorna uma lista simplificada contendo ID, Nome e CPF.",
@@ -193,6 +200,7 @@ public class PessoaFisicaController {
     // Listar por Nome Social
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_FISICA_LISTAR')")
     @Operation(
             summary = "Listar Pessoas Físicas por Nome Social",
             description = "Retorna todas as pessoas cujo nome social é exatamente igual ao informado.",
@@ -213,6 +221,7 @@ public class PessoaFisicaController {
     // Listar por Nome
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_FISICA_LISTAR')")
     @Operation(
             summary = "Listar Pessoas Físicas por Nome",
             description = "Retorna pessoas cujo nome contenha o termo informado (busca parcial).",

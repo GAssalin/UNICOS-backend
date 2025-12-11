@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -39,6 +40,7 @@ public class FornecedorProdutoController {
     // Criar vínculo
     // ============================================================
 
+    @PreAuthorize("hasAuthority('FORNECEDOR_PRODUTO_CRIAR')")
     @Operation(
             summary = "Criar vínculo fornecedor-produto",
             description = "Registra um novo vínculo entre fornecedor e produto.",
@@ -63,6 +65,7 @@ public class FornecedorProdutoController {
     // Atualizar vínculo
     // ============================================================
 
+    @PreAuthorize("hasAuthority('FORNECEDOR_PRODUTO_EDITAR')")
     @Operation(
             summary = "Atualizar vínculo fornecedor-produto",
             description = "Atualiza informações completas do vínculo entre fornecedor e produto.",
@@ -88,6 +91,7 @@ public class FornecedorProdutoController {
     // Atualizar preço de custo
     // ============================================================
 
+    @PreAuthorize("hasAuthority('FORNECEDOR_PRODUTO_EDITAR')")
     @Operation(
             summary = "Atualizar preço de custo",
             description = "Modifica exclusivamente o preço de custo do vínculo fornecedor-produto.",
@@ -115,6 +119,7 @@ public class FornecedorProdutoController {
     // Deletar vínculo
     // ============================================================
 
+    @PreAuthorize("hasAuthority('FORNECEDOR_PRODUTO_EXCLUIR')")
     @Operation(
             summary = "Excluir vínculo fornecedor-produto",
             description = "Remove o vínculo pelo ID informado.",
@@ -133,6 +138,7 @@ public class FornecedorProdutoController {
     // Buscar por ID
     // ============================================================
 
+    @PreAuthorize("hasAuthority('FORNECEDOR_PRODUTO_LISTAR')")
     @Operation(
             summary = "Buscar vínculo por ID",
             description = "Retorna os dados completos de um vínculo fornecedor-produto.",
@@ -160,6 +166,7 @@ public class FornecedorProdutoController {
     // Listar todos
     // ============================================================
 
+    @PreAuthorize("hasAuthority('FORNECEDOR_PRODUTO_LISTAR')")
     @Operation(
             summary = "Listar todos os vínculos fornecedor-produto",
             description = "Retorna todos os registros cadastrados.",
@@ -182,6 +189,7 @@ public class FornecedorProdutoController {
     // Listar por produto
     // ============================================================
 
+    @PreAuthorize("hasAuthority('FORNECEDOR_PRODUTO_LISTAR')")
     @Operation(
             summary = "Listar vínculos por produto",
             description = "Busca todos os vínculos pertencentes ao produto informado.",
@@ -204,6 +212,7 @@ public class FornecedorProdutoController {
     // Listar por fornecedor
     // ============================================================
 
+    @PreAuthorize("hasAuthority('FORNECEDOR_PRODUTO_LISTAR')")
     @Operation(
             summary = "Listar vínculos por fornecedor",
             description = "Busca todos os vínculos pertencentes ao fornecedor informado.",
@@ -226,6 +235,7 @@ public class FornecedorProdutoController {
     // Verificar existência
     // ============================================================
 
+    @PreAuthorize("hasAuthority('FORNECEDOR_PRODUTO_LISTAR')")
     @Operation(
             summary = "Verificar existência de vínculo",
             description = "Retorna true/false indicando se há vínculo entre fornecedor e produto.",

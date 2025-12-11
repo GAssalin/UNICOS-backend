@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,9 +38,10 @@ public class UsuarioController {
     private final UsuarioEmailVerificacaoService verificacaoService;
 
     // =============================================================
-    // 🔹 Criar usuário + gerar token de verificação
+    // 🔹 Criar usuário
+    // Permissão necessária: USUARIO_CRIAR
     // =============================================================
-
+    @PreAuthorize("hasAuthority('USUARIO_CRIAR')")
     @Operation(
             summary = "Criar novo usuário",
             description = """
@@ -72,8 +74,9 @@ public class UsuarioController {
 
     // =============================================================
     // 🔹 Atualizar usuário
+    // Permissão necessária: USUARIO_EDITAR
     // =============================================================
-
+    @PreAuthorize("hasAuthority('USUARIO_EDITAR')")
     @Operation(
             summary = "Atualizar usuário",
             description = "Atualiza os dados de um usuário existente.",
@@ -106,8 +109,9 @@ public class UsuarioController {
 
     // =============================================================
     // 🔹 Buscar por ID
+    // Permissão: USUARIO_LISTAR
     // =============================================================
-
+    @PreAuthorize("hasAuthority('USUARIO_LISTAR')")
     @Operation(
             summary = "Buscar usuário por ID",
             description = "Retorna os dados do usuário correspondente ao ID informado.",
@@ -132,8 +136,9 @@ public class UsuarioController {
 
     // =============================================================
     // 🔹 Buscar por login
+    // Permissão: USUARIO_LISTAR
     // =============================================================
-
+    @PreAuthorize("hasAuthority('USUARIO_LISTAR')")
     @Operation(
             summary = "Buscar usuário por login",
             description = "Consulta os dados do usuário com base no login informado.",
@@ -158,8 +163,9 @@ public class UsuarioController {
 
     // =============================================================
     // 🔹 Listar todos
+    // Permissão: USUARIO_LISTAR
     // =============================================================
-
+    @PreAuthorize("hasAuthority('USUARIO_LISTAR')")
     @Operation(
             summary = "Listar todos os usuários",
             description = "Retorna todos os usuários cadastrados, sem filtro de status.",
@@ -178,8 +184,9 @@ public class UsuarioController {
 
     // =============================================================
     // 🔹 Listar ativos
+    // Permissão: USUARIO_LISTAR
     // =============================================================
-
+    @PreAuthorize("hasAuthority('USUARIO_LISTAR')")
     @Operation(
             summary = "Listar usuários ativos",
             description = "Retorna somente os usuários com status ativo.",
@@ -198,8 +205,9 @@ public class UsuarioController {
 
     // =============================================================
     // 🔹 Listar inativos
+    // Permissão: USUARIO_LISTAR
     // =============================================================
-
+    @PreAuthorize("hasAuthority('USUARIO_LISTAR')")
     @Operation(
             summary = "Listar usuários inativos",
             description = "Retorna somente os usuários com status inativo.",
@@ -218,8 +226,9 @@ public class UsuarioController {
 
     // =============================================================
     // 🔹 Desativar usuário
+    // Permissão: USUARIO_EDITAR
     // =============================================================
-
+    @PreAuthorize("hasAuthority('USUARIO_EDITAR')")
     @Operation(
             summary = "Desativar usuário",
             description = "Define o status do usuário para inativo, impedindo seu login.",
@@ -242,8 +251,9 @@ public class UsuarioController {
 
     // =============================================================
     // 🔹 Excluir permanentemente
+    // Permissão: USUARIO_EXCLUIR
     // =============================================================
-
+    @PreAuthorize("hasAuthority('USUARIO_EXCLUIR')")
     @Operation(
             summary = "Excluir usuário permanentemente",
             description = "Remove o usuário definitivamente do sistema.",

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -38,6 +39,7 @@ public class TipoRelacaoPessoaController {
     // Criar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('TIPO_RELACAO_PESSOA_CRIAR')")
     @Operation(
             summary = "Criar tipo de relação",
             description = "Registra um novo tipo de vínculo entre pessoas.",
@@ -67,6 +69,7 @@ public class TipoRelacaoPessoaController {
     // Atualizar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('TIPO_RELACAO_PESSOA_EDITAR')")
     @Operation(
             summary = "Atualizar tipo de relação",
             description = "Atualiza os dados de um tipo de vínculo previamente cadastrado.",
@@ -99,6 +102,7 @@ public class TipoRelacaoPessoaController {
     // Excluir
     // ============================================================
 
+    @PreAuthorize("hasAuthority('TIPO_RELACAO_PESSOA_EXCLUIR')")
     @Operation(
             summary = "Excluir tipo de relação",
             description = "Remove um tipo de relação entre pessoas com base no ID informado.",
@@ -123,6 +127,7 @@ public class TipoRelacaoPessoaController {
     // Buscar por ID
     // ============================================================
 
+    @PreAuthorize("hasAuthority('TIPO_RELACAO_PESSOA_LISTAR')")
     @Operation(
             summary = "Buscar tipo de relação por ID",
             description = "Retorna os dados completos de um tipo de relação pelo identificador.",
@@ -146,9 +151,10 @@ public class TipoRelacaoPessoaController {
     }
 
     // ============================================================
-    // Listar Todos
+    // Listar todos
     // ============================================================
 
+    @PreAuthorize("hasAuthority('TIPO_RELACAO_PESSOA_LISTAR')")
     @Operation(
             summary = "Listar todos os tipos de relação",
             description = "Retorna todos os tipos de relação cadastrados no sistema.",
@@ -169,6 +175,7 @@ public class TipoRelacaoPessoaController {
     // Listar por Nome (contains)
     // ============================================================
 
+    @PreAuthorize("hasAuthority('TIPO_RELACAO_PESSOA_LISTAR')")
     @Operation(
             summary = "Listar tipos de relação por nome",
             description = "Retorna tipos de vínculo cujo nome contenha o termo informado (contains, ignore case).",
@@ -189,6 +196,7 @@ public class TipoRelacaoPessoaController {
     // Buscar por Nome Exato
     // ============================================================
 
+    @PreAuthorize("hasAuthority('TIPO_RELACAO_PESSOA_LISTAR')")
     @Operation(
             summary = "Buscar tipo de relação por nome exato",
             description = "Retorna o tipo de relação cujo nome corresponde exatamente ao informado.",

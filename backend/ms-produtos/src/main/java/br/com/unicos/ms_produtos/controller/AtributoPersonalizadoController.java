@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,6 +42,7 @@ public class AtributoPersonalizadoController {
     // Criar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ATRIBUTO_PERSONALIZADO_CRIAR')")
     @Operation(
             summary = "Criar novo atributo personalizado",
             description = "Registra um atributo personalizado vinculado a uma categoria de produto.",
@@ -68,6 +70,7 @@ public class AtributoPersonalizadoController {
     // Atualizar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ATRIBUTO_PERSONALIZADO_EDITAR')")
     @Operation(
             summary = "Atualizar atributo personalizado",
             description = "Atualiza as informações de um atributo previamente cadastrado.",
@@ -97,6 +100,7 @@ public class AtributoPersonalizadoController {
     // Excluir
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ATRIBUTO_PERSONALIZADO_EXCLUIR')")
     @Operation(
             summary = "Excluir atributo personalizado",
             description = "Remove um atributo pelo ID informado.",
@@ -115,6 +119,7 @@ public class AtributoPersonalizadoController {
     // Buscar por ID
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ATRIBUTO_PERSONALIZADO_LISTAR')")
     @Operation(
             summary = "Buscar atributo personalizado por ID",
             description = "Retorna os dados completos de um atributo.",
@@ -142,6 +147,7 @@ public class AtributoPersonalizadoController {
     // Listar todos
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ATRIBUTO_PERSONALIZADO_LISTAR')")
     @Operation(
             summary = "Listar todos os atributos personalizados",
             description = "Retorna todos os atributos registrados no sistema.",
@@ -162,6 +168,7 @@ public class AtributoPersonalizadoController {
     // Listar por categoria
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ATRIBUTO_PERSONALIZADO_LISTAR')")
     @Operation(
             summary = "Listar atributos por categoria de produto",
             description = "Retorna os atributos personalizados associados a uma categoria específica.",

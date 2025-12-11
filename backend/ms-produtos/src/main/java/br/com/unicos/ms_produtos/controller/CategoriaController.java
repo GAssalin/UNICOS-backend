@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class CategoriaController {
     // Criar categoria
     // ============================================================
 
+    @PreAuthorize("hasAuthority('CATEGORIA_CRIAR')")
     @Operation(
             summary = "Criar nova categoria",
             description = "Registra uma nova categoria, com possibilidade de atribuir uma categoria pai.",
@@ -61,6 +63,7 @@ public class CategoriaController {
     // Atualizar categoria
     // ============================================================
 
+    @PreAuthorize("hasAuthority('CATEGORIA_EDITAR')")
     @Operation(
             summary = "Atualizar categoria",
             description = "Atualiza os dados de uma categoria existente.",
@@ -86,6 +89,7 @@ public class CategoriaController {
     // Buscar por ID
     // ============================================================
 
+    @PreAuthorize("hasAuthority('CATEGORIA_LISTAR')")
     @Operation(
             summary = "Buscar categoria por ID",
             description = "Retorna as informações completas de uma categoria específica.",
@@ -112,6 +116,7 @@ public class CategoriaController {
     // Listagem detalhada
     // ============================================================
 
+    @PreAuthorize("hasAuthority('CATEGORIA_LISTAR')")
     @Operation(
             summary = "Listar todas as categorias (detalhadas)",
             description = "Retorna todas as categorias com informações completas.",
@@ -136,6 +141,7 @@ public class CategoriaController {
     // Listagem simplificada
     // ============================================================
 
+    @PreAuthorize("hasAuthority('CATEGORIA_LISTAR')")
     @Operation(
             summary = "Listar categorias (modo simplificado)",
             description = "Retorna categorias com apenas informações resumidas como ID e nome.",
@@ -157,9 +163,10 @@ public class CategoriaController {
     }
 
     // ============================================================
-    // Buscar por nome (contains)
+    // Buscar por nome
     // ============================================================
 
+    @PreAuthorize("hasAuthority('CATEGORIA_LISTAR')")
     @Operation(
             summary = "Buscar categorias por nome",
             description = "Pesquisa categorias cujo nome contenha o texto informado (case-insensitive).",
@@ -184,6 +191,7 @@ public class CategoriaController {
     // Deletar categoria
     // ============================================================
 
+    @PreAuthorize("hasAuthority('CATEGORIA_EXCLUIR')")
     @Operation(
             summary = "Excluir categoria",
             description = "Remove uma categoria pelo ID informado.",
@@ -202,6 +210,7 @@ public class CategoriaController {
     // Verificar existência por nome
     // ============================================================
 
+    @PreAuthorize("hasAuthority('CATEGORIA_LISTAR')")
     @Operation(
             summary = "Verificar existência de categoria por nome",
             description = "Retorna true se existir uma categoria com o nome informado.",

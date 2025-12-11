@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -40,6 +41,7 @@ public class EnderecoController {
     // Criar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ENDERECO_CRIAR')")
     @Operation(
             summary = "Criar novo endereço",
             description = "Registra um novo endereço vinculado a uma pessoa.",
@@ -67,6 +69,7 @@ public class EnderecoController {
     // Atualizar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ENDERECO_EDITAR')")
     @Operation(
             summary = "Atualizar endereço existente",
             description = "Atualiza os dados de um endereço já cadastrado.",
@@ -99,6 +102,7 @@ public class EnderecoController {
     // Excluir
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ENDERECO_EXCLUIR')")
     @Operation(
             summary = "Excluir endereço",
             description = "Remove permanentemente um endereço pelo seu ID.",
@@ -123,6 +127,7 @@ public class EnderecoController {
     // Buscar por ID
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ENDERECO_LISTAR')")
     @Operation(
             summary = "Buscar endereço por ID",
             description = "Retorna o endereço correspondente ao ID informado.",
@@ -149,6 +154,7 @@ public class EnderecoController {
     // Listar Todos
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ENDERECO_LISTAR')")
     @Operation(
             summary = "Listar todos os endereços",
             description = "Retorna todos os endereços cadastrados no sistema.",
@@ -169,6 +175,7 @@ public class EnderecoController {
     // Listar por Pessoa
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ENDERECO_LISTAR')")
     @Operation(
             summary = "Listar endereços por pessoa",
             description = "Retorna todos os endereços associados à pessoa informada.",
@@ -193,6 +200,7 @@ public class EnderecoController {
     // Listar por Pessoa e Tipo
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ENDERECO_LISTAR')")
     @Operation(
             summary = "Listar endereços por pessoa e tipo",
             description = "Filtra os endereços de uma pessoa pelo tipo informado (Ex.: Residencial, Comercial).",
@@ -219,6 +227,7 @@ public class EnderecoController {
     // Listar por Município
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ENDERECO_LISTAR')")
     @Operation(
             summary = "Listar endereços por município",
             description = "Retorna endereços cadastrados no município informado.",
@@ -239,6 +248,7 @@ public class EnderecoController {
     // Listar por CEP
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ENDERECO_LISTAR')")
     @Operation(
             summary = "Listar endereços por CEP",
             description = "Retorna endereços filtrados pelo CEP informado.",
@@ -259,6 +269,7 @@ public class EnderecoController {
     // Buscar Endereço Principal
     // ============================================================
 
+    @PreAuthorize("hasAuthority('ENDERECO_LISTAR')")
     @Operation(
             summary = "Buscar endereço principal",
             description = "Retorna o endereço principal definido para a pessoa.",

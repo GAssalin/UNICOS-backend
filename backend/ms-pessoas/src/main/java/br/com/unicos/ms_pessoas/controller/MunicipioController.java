@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -38,6 +39,7 @@ public class MunicipioController {
     // Criar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MUNICIPIO_CRIAR')")
     @Operation(
             summary = "Criar município",
             description = "Registra um novo município no sistema.",
@@ -65,6 +67,7 @@ public class MunicipioController {
     // Atualizar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MUNICIPIO_EDITAR')")
     @Operation(
             summary = "Atualizar município",
             description = "Atualiza os dados de um município existente.",
@@ -97,6 +100,7 @@ public class MunicipioController {
     // Excluir
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MUNICIPIO_EXCLUIR')")
     @Operation(
             summary = "Excluir município",
             description = "Remove um município do sistema pelo ID informado.",
@@ -121,6 +125,7 @@ public class MunicipioController {
     // Buscar por ID
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MUNICIPIO_LISTAR')")
     @Operation(
             summary = "Buscar município por ID",
             description = "Retorna o município correspondente ao ID informado.",
@@ -147,6 +152,7 @@ public class MunicipioController {
     // Listar Todos
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MUNICIPIO_LISTAR')")
     @Operation(
             summary = "Listar todos os municípios",
             description = "Retorna todos os municípios cadastrados no sistema.",
@@ -167,6 +173,7 @@ public class MunicipioController {
     // Listar por Nome
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MUNICIPIO_LISTAR')")
     @Operation(
             summary = "Listar municípios por nome",
             description = "Retorna municípios cujo nome contenha o termo informado (ignore case).",
@@ -187,6 +194,7 @@ public class MunicipioController {
     // Listar por UF
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MUNICIPIO_LISTAR')")
     @Operation(
             summary = "Listar municípios por UF",
             description = "Retorna todos os municípios pertencentes à unidade federativa informada.",
@@ -211,6 +219,7 @@ public class MunicipioController {
     // Buscar por Código IBGE
     // ============================================================
 
+    @PreAuthorize("hasAuthority('MUNICIPIO_LISTAR')")
     @Operation(
             summary = "Buscar município por código IBGE",
             description = "Consulta um município pelo seu código IBGE oficial.",

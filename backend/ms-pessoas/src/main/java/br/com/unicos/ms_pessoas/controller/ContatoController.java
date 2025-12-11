@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -39,6 +40,7 @@ public class ContatoController {
     // Criar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('CONTATO_CRIAR')")
     @Operation(
             summary = "Criar um novo contato",
             description = "Registra um novo contato (telefone, e-mail, etc.) vinculado a uma pessoa.",
@@ -67,6 +69,7 @@ public class ContatoController {
     // Atualizar
     // ============================================================
 
+    @PreAuthorize("hasAuthority('CONTATO_EDITAR')")
     @Operation(
             summary = "Atualizar contato existente",
             description = "Atualiza os dados de um contato previamente cadastrado.",
@@ -101,6 +104,7 @@ public class ContatoController {
     // Excluir
     // ============================================================
 
+    @PreAuthorize("hasAuthority('CONTATO_EXCLUIR')")
     @Operation(
             summary = "Excluir contato",
             description = "Remove permanentemente um contato vinculado a uma pessoa.",
@@ -127,6 +131,7 @@ public class ContatoController {
     // Buscar por ID
     // ============================================================
 
+    @PreAuthorize("hasAuthority('CONTATO_LISTAR')")
     @Operation(
             summary = "Buscar contato por ID",
             description = "Retorna os dados de um contato específico com base no ID informado.",
@@ -154,6 +159,7 @@ public class ContatoController {
     // Listar Todos
     // ============================================================
 
+    @PreAuthorize("hasAuthority('CONTATO_LISTAR')")
     @Operation(
             summary = "Listar todos os contatos",
             description = "Retorna todos os contatos cadastrados no módulo de pessoas.",
@@ -174,6 +180,7 @@ public class ContatoController {
     // Listar Por Pessoa
     // ============================================================
 
+    @PreAuthorize("hasAuthority('CONTATO_LISTAR')")
     @Operation(
             summary = "Listar contatos por pessoa",
             description = "Retorna todos os contatos associados a uma pessoa específica.",
@@ -199,6 +206,7 @@ public class ContatoController {
     // Buscar Contato Principal
     // ============================================================
 
+    @PreAuthorize("hasAuthority('CONTATO_LISTAR')")
     @Operation(
             summary = "Buscar contato principal da pessoa",
             description = "Retorna o contato principal definido para a pessoa informada.",

@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,8 +37,9 @@ public class PermissaoController {
 
     // ============================================================
     // 🔹 Criar nova permissão
+    // Permissão necessária: PERMISSAO_GERENCIAR
     // ============================================================
-
+    @PreAuthorize("hasAuthority('PERMISSAO_GERENCIAR')")
     @Operation(
             summary = "Criar nova permissão",
             description = "Cria uma nova permissão granular que poderá ser atribuída a papéis (roles).",
@@ -62,8 +64,9 @@ public class PermissaoController {
 
     // ============================================================
     // 🔹 Atualizar permissão existente
+    // Permissão necessária: PERMISSAO_GERENCIAR
     // ============================================================
-
+    @PreAuthorize("hasAuthority('PERMISSAO_GERENCIAR')")
     @Operation(
             summary = "Atualizar permissão",
             description = "Atualiza os dados de uma permissão já cadastrada no sistema.",
@@ -96,8 +99,9 @@ public class PermissaoController {
 
     // ============================================================
     // 🔹 Buscar permissão por ID
+    // Permissão necessária: PERMISSAO_LISTAR
     // ============================================================
-
+    @PreAuthorize("hasAuthority('PERMISSAO_LISTAR')")
     @Operation(
             summary = "Buscar permissão por ID",
             description = "Retorna os detalhes de uma permissão específica com base no ID informado.",
@@ -122,8 +126,9 @@ public class PermissaoController {
 
     // ============================================================
     // 🔹 Listar todas as permissões
+    // Permissão necessária: PERMISSAO_LISTAR
     // ============================================================
-
+    @PreAuthorize("hasAuthority('PERMISSAO_LISTAR')")
     @Operation(
             summary = "Listar todas as permissões",
             description = "Retorna todas as permissões cadastradas no sistema.",
@@ -142,8 +147,9 @@ public class PermissaoController {
 
     // ============================================================
     // 🔹 Deletar permissão
+    // Permissão necessária: PERMISSAO_GERENCIAR
     // ============================================================
-
+    @PreAuthorize("hasAuthority('PERMISSAO_GERENCIAR')")
     @Operation(
             summary = "Deletar permissão",
             description = "Remove uma permissão do sistema de forma permanente.",

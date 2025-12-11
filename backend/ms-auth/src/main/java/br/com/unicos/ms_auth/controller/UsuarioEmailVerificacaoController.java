@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -43,7 +44,7 @@ public class UsuarioEmailVerificacaoController {
     private final UsuarioEmailVerificacaoRepository verificacaoRepository;
 
     // =====================================================================
-    // 🔹 Confirmar e-mail
+    // 🔹 Confirmar e-mail  (endpoint PÚBLICO)
     // =====================================================================
 
     @Operation(
@@ -87,7 +88,7 @@ public class UsuarioEmailVerificacaoController {
     }
 
     // =====================================================================
-    // 🔹 Reenviar token de verificação
+    // 🔹 Reenviar token (endpoint PÚBLICO)
     // =====================================================================
 
     @Operation(
@@ -121,8 +122,10 @@ public class UsuarioEmailVerificacaoController {
 
     // =====================================================================
     // 🔹 Listar tokens pendentes
+    // Permissão: VERIFICACAO_LISTAR
     // =====================================================================
 
+    @PreAuthorize("hasAuthority('VERIFICACAO_LISTAR')")
     @Operation(
             summary = "Listar tokens pendentes",
             description = "Retorna os tokens de verificação que ainda não foram utilizados e que não expiraram.",
@@ -152,8 +155,10 @@ public class UsuarioEmailVerificacaoController {
 
     // =====================================================================
     // 🔹 Listar tokens expirados
+    // Permissão: VERIFICACAO_LISTAR
     // =====================================================================
 
+    @PreAuthorize("hasAuthority('VERIFICACAO_LISTAR')")
     @Operation(
             summary = "Listar tokens expirados",
             description = "Retorna os tokens cujo prazo de validade já expirou.",

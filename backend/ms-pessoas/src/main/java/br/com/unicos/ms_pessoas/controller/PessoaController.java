@@ -2,7 +2,6 @@ package br.com.unicos.ms_pessoas.controller;
 
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaListDTO;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaResponse;
-import br.com.unicos.ms_pessoas.model.Pessoa;
 import br.com.unicos.ms_pessoas.service.interfaces.PessoaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -12,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +41,7 @@ public class PessoaController {
     // Buscar por ID
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_LISTAR')")
     @Operation(
             summary = "Buscar pessoa por ID",
             description = "Retorna os dados completos de uma pessoa com base no seu identificador único.",
@@ -67,6 +68,7 @@ public class PessoaController {
     // Listar todas
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_LISTAR')")
     @Operation(
             summary = "Listar todas as pessoas",
             description = "Retorna todas as pessoas cadastradas (físicas e jurídicas).",
@@ -87,6 +89,7 @@ public class PessoaController {
     // Listar por nome (contains)
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_LISTAR')")
     @Operation(
             summary = "Listar pessoas por nome contendo termo",
             description = "Retorna todas as pessoas cujo nome contenha o termo informado (busca parcial, ignore case).",
@@ -107,6 +110,7 @@ public class PessoaController {
     // Listar por nome exato
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_LISTAR')")
     @Operation(
             summary = "Listar pessoas por nome exato",
             description = "Retorna todas as pessoas cujo nome seja exatamente igual ao informado.",
@@ -127,6 +131,7 @@ public class PessoaController {
     // Listar por tipo (FISICA / JURIDICA)
     // ============================================================
 
+    @PreAuthorize("hasAuthority('PESSOA_LISTAR')")
     @Operation(
             summary = "Listar pessoas por tipo (Física ou Jurídica)",
             description = """
