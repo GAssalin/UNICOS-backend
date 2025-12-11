@@ -166,9 +166,17 @@ mvn spring-boot:run
 
 ---
 
-# 📘 Swagger
+# 📘 Swagger — Documentação Centralizada
 
-A documentação é gerada por cada microserviço.
+A documentação de todos os microsserviços do UniCoS é unificada pelo API Gateway.
+
+🔗 Acesse a documentação completa aqui:
+
+👉 http://localhost:8082/docs
+
+Este endpoint exibe uma página com links diretos para os Swagger UI de cada microserviço, detectados automaticamente via Eureka.
+
+O endpoint /docs funciona como um hub centralizado, facilitando testes, inspeção e navegação entre APIs sem precisar acessar portas individuais.
 
 ---
 
