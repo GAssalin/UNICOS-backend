@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/v1/marcas")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearer-key")
 @Tag(
         name = "Marcas",
         description = "Gerencia o cadastro e as consultas de marcas de produtos."

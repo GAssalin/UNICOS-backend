@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/enderecos")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearer-key")
 @Tag(
         name = "Endereços",
         description = "Operações de criação, atualização, exclusão e consultas de endereços vinculados a pessoas."

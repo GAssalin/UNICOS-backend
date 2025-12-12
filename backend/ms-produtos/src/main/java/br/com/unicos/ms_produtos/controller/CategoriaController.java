@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/v1/categorias")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearer-key")
 @Tag(
         name = "Categorias de Produto",
         description = "Gerencia categorias, incluindo criação, atualização, consultas e hierarquia de categorias."

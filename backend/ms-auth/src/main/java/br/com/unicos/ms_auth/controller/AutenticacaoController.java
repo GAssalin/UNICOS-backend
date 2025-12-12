@@ -3,7 +3,6 @@ package br.com.unicos.ms_auth.controller;
 import br.com.unicos.ms_auth.dto.login.DadosLogin;
 import br.com.unicos.ms_auth.dto.token.DadosRefreshToken;
 import br.com.unicos.ms_auth.dto.token.DadosToken;
-import br.com.unicos.ms_auth.model.Role;
 import br.com.unicos.ms_auth.model.Usuario;
 import br.com.unicos.ms_auth.repository.UsuarioRepository;
 import br.com.unicos.ms_auth.service.TokenService;
@@ -11,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.HashSet;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/autenticacao")
@@ -79,7 +79,7 @@ public class AutenticacaoController {
     // ============================================================
     // REFRESH TOKEN
     // ============================================================
-
+    @SecurityRequirement(name = "bearer-key")
     @Operation(
             summary = "Atualizar token de acesso",
             description = "Gera um novo token JWT de acesso utilizando um refresh token válido e ainda ativo.",

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -28,6 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/auditorias")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearer-key")
 @Tag(
         name = "Auditoria de Acesso",
         description = "Endpoints para consulta de auditorias de login, logout e outras ações do sistema."
