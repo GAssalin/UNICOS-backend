@@ -63,8 +63,6 @@ public class AutenticacaoController {
     )
     @PostMapping("/login")
     public ResponseEntity<DadosToken> efetuarLogin(@Valid @RequestBody DadosLogin dados) {
-        criarUsuarioSeNaoExistir(dados);
-
         UsernamePasswordAuthenticationToken autenticationToken =
                 new UsernamePasswordAuthenticationToken(dados.email(), dados.senha());
 
@@ -76,25 +74,6 @@ public class AutenticacaoController {
         usuarioRepository.save(usuario);
 
         return ResponseEntity.ok(new DadosToken(tokenAcesso, refreshToken));
-    }
-
-    private void criarUsuarioSeNaoExistir(DadosLogin dados) {
-        Usuario usuario = usuarioRepository.findByEmailIgnoreCaseAndEmailVerificadoTrue(dados.email())
-                .orElse(null);
-
-        if (usuario == null) {
-            Role r = new Role();
-            usuario = Usuario.builder()
-                    .login(dados.email().substring(0, dados.email().indexOf("@")))
-                    .email(dados.email())
-                    .password(new BCryptPasswordEncoder().encode(dados.senha()))
-                    .ativo(true)
-                    .emailVerificado(true)
-                    .roles(new HashSet<>())
-                    .build();
-
-            usuarioRepository.save(usuario);
-        }
     }
 
     // ============================================================
