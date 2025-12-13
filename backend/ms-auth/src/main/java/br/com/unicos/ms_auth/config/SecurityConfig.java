@@ -2,7 +2,7 @@ package br.com.unicos.ms_auth.config;
 
 import br.com.unicos.ms_auth.model.RoleHierarchyRelation;
 import br.com.unicos.ms_auth.repository.RoleHierarchyRelationRepository;
-import br.com.unicos.ms_auth.security.FiltroTokenAcesso;
+import br.com.unicos.ms_auth.security_access.FiltroTokenAcesso;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -5,7 +5,7 @@ import br.com.unicos.ms_auth.dto.token.DadosRefreshToken;
 import br.com.unicos.ms_auth.dto.token.DadosToken;
 import br.com.unicos.ms_auth.model.Usuario;
 import br.com.unicos.ms_auth.repository.UsuarioRepository;
-import br.com.unicos.ms_auth.service.TokenService;
+import br.com.unicos.ms_auth.security_access.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

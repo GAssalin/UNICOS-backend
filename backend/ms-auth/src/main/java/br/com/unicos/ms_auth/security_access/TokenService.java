@@ -1,4 +1,4 @@
-package br.com.unicos.ms_auth.service;
+package br.com.unicos.ms_auth.security_access;
 
 import br.com.unicos.ms_auth.model.Usuario;
 import com.auth0.jwt.JWT;
