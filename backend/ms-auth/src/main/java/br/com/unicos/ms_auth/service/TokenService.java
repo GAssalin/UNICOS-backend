@@ -17,20 +17,17 @@ import java.util.List;
 
 @Service
 public class TokenService {
-    //TODO: Variável de ambiente
-    String segredo = "123456";
+    @Value("${jwt.secret}")
+    private String segredo;
 
-    @Value("${auth.jwt.issuer}")
+    @Value("${jwt.issuer}")
     String issuer;
 
     public String gerarToken(Usuario usuario) {
-        Algorithm algorithm = Algorithm.HMAC256(segredo);
+        if (usuario.getEmpresaId() == null)
+            throw new IllegalArgumentException("Empresa ID não pode ser nulo");
 
-        List<String> permissoes = usuario.getRoles().stream()
-                .flatMap(role -> role.getPermissoes().stream())
-                .map(p -> p.getNome())
-                .distinct()
-                .toList();
+        Algorithm algorithm = Algorithm.HMAC256(segredo);
 
         List<String> roles = usuario.getRoles().stream()
                 .map(role -> "ROLE_" + role.getNome())
@@ -40,8 +37,8 @@ public class TokenService {
                 .withIssuer(issuer)
                 .withSubject(usuario.getEmail())
                 .withClaim("roles", roles)
-                .withClaim("authorities", permissoes)
-                .withExpiresAt(expiracao(5))
+                .withClaim("tenant_id", usuario.getEmpresaId())
+                .withExpiresAt(expiracao(15))
                 .sign(algorithm);
     }
 
@@ -51,7 +48,7 @@ public class TokenService {
             return JWT.create()
                     .withIssuer(issuer)
                     .withSubject(usuario.getId().toString())
-                    .withExpiresAt(expiracao(5))
+                    .withExpiresAt(expiracao(1440))
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
             throw new JWTCreationException("Erro ao gerar token refresh JWT de acesso!", exception);

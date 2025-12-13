@@ -1,10 +1,22 @@
 -- ============================================================
---  V3 - INSERT INICIAIS: Roles
+--  V3 - INSERT INICIAIS: Roles (Globais)
 -- ============================================================
 
 INSERT INTO role (id, nome, descricao) VALUES
-(1, 'ADMIN', 'Acesso total ao módulo de autenticação e autorização'),
-(2, 'GERENTE', 'Gerencia usuários e papéis com permissões intermediárias'),
-(3, 'OPERADOR', 'Acesso operacional básico sem permissões administrativas'),
-(4, 'SUPORTE', 'Acesso restrito para consultas e apoio técnico'),
-(5, 'LEITURA', 'Somente leitura, sem capacidade de alteração');
+-- ============================================================
+-- Roles institucionais (plataforma UNICOS)
+-- ============================================================
+(1, 'UNICOS_ADMIN', 'Administrador da plataforma UNICOS com acesso institucional e técnico'),
+
+-- ============================================================
+-- Roles administrativas (empresa)
+-- ============================================================
+(2, 'ADMIN', 'Administrador da empresa com acesso total às funcionalidades do sistema'),
+(3, 'GERENTE', 'Gerencia usuários, equipes e configurações operacionais da empresa'),
+
+-- ============================================================
+-- Roles operacionais
+-- ============================================================
+(4, 'OPERADOR', 'Executa operações do dia a dia conforme permissões concedidas'),
+(5, 'SUPORTE', 'Acesso restrito para suporte operacional e consultas'),
+(6, 'LEITURA', 'Acesso somente leitura, sem capacidade de alteração de dados');

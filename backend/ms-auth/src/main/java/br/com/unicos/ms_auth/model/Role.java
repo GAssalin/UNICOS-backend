@@ -8,9 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Define os papéis (grupos de permissões) atribuíveis aos usuários.
  */
@@ -32,15 +29,6 @@ public class Role implements GrantedAuthority {
 
     @Column(length = 255)
     private String descricao;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "role_permissao",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "permissao_id")
-    )
-    @Builder.Default
-    private Set<Permissao> permissoes = new HashSet<>();
 
     @Override
     public String getAuthority() {

@@ -1,5 +1,5 @@
 -- ============================================================
---  V5 - INSERT INICIAIS: Hierarquia de Papeis (RoleHierarchyRelation)
+--  V4 - INSERT INICIAIS: Hierarquia de Papeis (RoleHierarchyRelation)
 -- ============================================================
 
 -- ADMIN herda tudo

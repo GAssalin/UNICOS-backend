@@ -28,8 +28,17 @@ public class FiltroTokenAcesso extends OncePerRequestFilter {
     private final UsuarioRepository usuarioRepository;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+
+        return path.equals("/v1/autenticacao/login")
+                || path.equals("/v1/autenticacao/atualizar-token")
+                || path.startsWith("/swagger")
+                || path.startsWith("/v3/api-docs");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        //recuperar o token da requisição
         String token = recuperarTokenRequisicao(request);
 
         if (token != null) {
@@ -40,16 +49,21 @@ public class FiltroTokenAcesso extends OncePerRequestFilter {
 
             Usuario usuario = usuarioRepository
                     .findByEmailIgnoreCaseAndEmailVerificadoTrue(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado!"));
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
-            List<String> authoritiesClaim = decodedJWT.getClaim("authorities").asList(String.class);
+            String tenantId = decodedJWT.getClaim("tenant_id").asString();
 
-            List<SimpleGrantedAuthority> authorities = authoritiesClaim.stream()
-                    .map(SimpleGrantedAuthority::new)
-                    .toList();
+            if (tenantId == null || tenantId.isBlank()) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant não informado");
+                return;
+            }
 
             Authentication authentication =
-                    new UsernamePasswordAuthenticationToken(usuario, null, authorities);
+                    new UsernamePasswordAuthenticationToken(
+                            usuario,
+                            null,
+                            usuario.getAuthorities()
+                    );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

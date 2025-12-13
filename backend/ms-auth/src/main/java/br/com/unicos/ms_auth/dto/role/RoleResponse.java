@@ -11,6 +11,5 @@ import java.util.Set;
 public record RoleResponse(
         Long id,
         String nome,
-        String descricao,
-        Set<PermissaoResponse> permissoes
+        String descricao
 ) {}

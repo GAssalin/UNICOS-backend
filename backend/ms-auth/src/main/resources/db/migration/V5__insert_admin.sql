@@ -1,10 +1,11 @@
 -- ============================================================
---  V6 - INSERT INICIAL: Usuário ADMIN + Atribuição de Role
+--  V5 - INSERT INICIAL: Usuário ADMIN + Atribuição de Role
 -- ============================================================
 
 -- Criar usuário administrador
 INSERT INTO usuario (
     id,
+    empresa_id,
     login,
     pessoa_id,
     password,
@@ -17,6 +18,7 @@ INSERT INTO usuario (
     atualizado_em
 ) VALUES (
     1,
+    0,
     'admin',
     NULL,
     '$2a$10$kMBq/q.UCd6YpdUBKCbELO0O55dnROSVdOGgFyxPK1jjd6If6HfNO',

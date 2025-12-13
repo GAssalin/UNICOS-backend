@@ -1,13 +1,17 @@
 package br.com.unicos.gateway.config;
 
 import br.com.unicos.gateway.filter.JwtAuthFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+@RequiredArgsConstructor
 @Configuration
 public class GatewayConfig {
+
+    private final JwtAuthFilter jwtAuthFilter;
 
     @Bean
     public RouteLocator customRoutes(RouteLocatorBuilder builder) {
@@ -34,7 +38,7 @@ public class GatewayConfig {
                         .path("/ms-produtos/**")
                         .filters(f -> f
                                 .stripPrefix(1)
-                                .filter(new JwtAuthFilter()) // FILTRO JWT AQUI!
+                                .filter(jwtAuthFilter)
                         )
                         .uri("lb://ms-produtos")
                 )
@@ -46,7 +50,7 @@ public class GatewayConfig {
                         .path("/ms-pessoas/**")
                         .filters(f -> f
                                 .stripPrefix(1)
-                                .filter(new JwtAuthFilter()) // FILTRO JWT AQUI!
+                                .filter(jwtAuthFilter)
                         )
                         .uri("lb://ms-pessoas")
                 )

@@ -15,11 +15,5 @@ public record RoleRequest(
         String nome,
 
         @Size(max = 255, message = "A descrição deve ter no máximo 255 caracteres.")
-        String descricao,
-
-        /**
-         * Lista dos IDs das permissões vinculadas ao papel.
-         * Usado somente para criação/atualização.
-         */
-        Set<Long> permissoesIds
+        String descricao
 ) {}
