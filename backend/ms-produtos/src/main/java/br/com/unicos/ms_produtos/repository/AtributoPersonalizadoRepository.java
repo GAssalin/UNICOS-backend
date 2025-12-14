@@ -12,78 +12,126 @@ import java.util.Optional;
  * da entidade {@link AtributoPersonalizado}.
  *
  * <p>
- * Fornece métodos específicos de consulta e verificação
- * para atributos personalizados associados a categorias de produtos.
+ * Todas as consultas deste repositório são restritas ao contexto
+ * de uma empresa (tenant), identificado pelo {@code empresaId}.
+ * </p>
+ *
+ * <p>
+ * Esse repositório garante que atributos personalizados:
+ * <ul>
+ *     <li>não sejam compartilhados entre empresas</li>
+ *     <li>não tenham nomes duplicados dentro da mesma categoria e empresa</li>
+ * </ul>
  * </p>
  */
 @Repository
 public interface AtributoPersonalizadoRepository extends JpaRepository<AtributoPersonalizado, Long> {
 
     // ======================================================
-    // 🔹 CONSULTAS POR CATEGORIA
+    // 🔹 CONSULTAS POR CATEGORIA (TENANT-AWARE)
     // ======================================================
 
     /**
-     * Retorna todos os atributos personalizados associados a uma categoria.
+     * Retorna todos os atributos personalizados associados
+     * a uma categoria específica dentro de uma empresa.
      *
+     * @param empresaId   ID da empresa (tenant).
      * @param categoriaId ID da categoria.
-     * @return Lista de atributos personalizados vinculados à categoria.
+     * @return Lista de atributos personalizados da categoria.
      */
-    List<AtributoPersonalizado> findByCategoriaId(Long categoriaId);
+    List<AtributoPersonalizado> findByEmpresaIdAndCategoriaId(
+            Long empresaId,
+            Long categoriaId
+    );
 
     /**
-     * Busca um atributo personalizado pelo nome e categoria.
-     * Útil para verificar duplicidade de nomes dentro da mesma categoria.
+     * Busca um atributo personalizado pelo nome e categoria,
+     * restringindo a busca ao contexto da empresa.
      *
+     * <p>
+     * Utilizado principalmente para validação de duplicidade
+     * de nomes dentro da mesma categoria.
+     * </p>
+     *
+     * @param empresaId   ID da empresa (tenant).
      * @param categoriaId ID da categoria.
      * @param nome        Nome do atributo.
-     * @return Optional contendo o atributo, se encontrado.
+     * @return {@link Optional} contendo o atributo, se existir.
      */
-    Optional<AtributoPersonalizado> findByCategoriaIdAndNomeIgnoreCase(Long categoriaId, String nome);
+    Optional<AtributoPersonalizado> findByEmpresaIdAndCategoriaIdAndNomeIgnoreCase(
+            Long empresaId,
+            Long categoriaId,
+            String nome
+    );
 
     /**
-     * Verifica se já existe um atributo com o mesmo nome dentro de uma categoria.
+     * Verifica se já existe um atributo personalizado com o mesmo nome
+     * dentro de uma categoria e empresa.
      *
+     * @param empresaId   ID da empresa (tenant).
      * @param categoriaId ID da categoria.
      * @param nome        Nome do atributo.
-     * @return {@code true} se já existir, {@code false} caso contrário.
+     * @return {@code true} se existir, {@code false} caso contrário.
      */
-    boolean existsByCategoriaIdAndNomeIgnoreCase(Long categoriaId, String nome);
+    boolean existsByEmpresaIdAndCategoriaIdAndNomeIgnoreCase(
+            Long empresaId,
+            Long categoriaId,
+            String nome
+    );
 
     // ======================================================
-    // 🔹 CONSULTAS GERAIS
+    // 🔹 CONSULTAS GERAIS (TENANT-AWARE)
     // ======================================================
 
     /**
-     * Busca todos os atributos cujo nome contenha o termo informado (case insensitive).
+     * Busca atributos personalizados cujo nome contenha o termo informado,
+     * restringindo o resultado à empresa informada.
      *
-     * @param nome Parte do nome do atributo.
-     * @return Lista de atributos correspondentes à busca.
+     * @param empresaId ID da empresa (tenant).
+     * @param nome      Parte do nome do atributo.
+     * @return Lista de atributos correspondentes ao filtro.
      */
-    List<AtributoPersonalizado> findByNomeContainingIgnoreCase(String nome);
+    List<AtributoPersonalizado> findByEmpresaIdAndNomeContainingIgnoreCase(
+            Long empresaId,
+            String nome
+    );
 
     /**
-     * Retorna todos os atributos ordenados alfabeticamente por nome.
+     * Retorna todos os atributos personalizados de uma empresa,
+     * ordenados alfabeticamente pelo nome.
      *
+     * @param empresaId ID da empresa (tenant).
      * @return Lista ordenada de atributos personalizados.
      */
-    List<AtributoPersonalizado> findAllByOrderByNomeAsc();
+    List<AtributoPersonalizado> findByEmpresaIdOrderByNomeAsc(
+            Long empresaId
+    );
 
     /**
-     * Busca atributos personalizados filtrando por uma lista de categorias.
+     * Busca atributos personalizados pertencentes a uma lista
+     * específica de categorias dentro de uma empresa.
      *
+     * @param empresaId    ID da empresa (tenant).
      * @param categoriaIds Lista de IDs de categorias.
-     * @return Lista de atributos pertencentes às categorias informadas.
+     * @return Lista de atributos encontrados.
      */
-    List<AtributoPersonalizado> findByCategoriaIdIn(List<Long> categoriaIds);
+    List<AtributoPersonalizado> findByEmpresaIdAndCategoriaIdIn(
+            Long empresaId,
+            List<Long> categoriaIds
+    );
 
     /**
-     * Busca todos os atributos de uma categoria cujo nome contenha o termo informado.
-     * Útil para filtros contextuais por categoria.
+     * Busca atributos personalizados de uma categoria específica
+     * cujo nome contenha o termo informado.
      *
+     * @param empresaId   ID da empresa (tenant).
      * @param categoriaId ID da categoria.
      * @param nome        Parte do nome do atributo.
-     * @return Lista de atributos da categoria correspondente ao filtro.
+     * @return Lista de atributos filtrados.
      */
-    List<AtributoPersonalizado> findByCategoriaIdAndNomeContainingIgnoreCase(Long categoriaId, String nome);
+    List<AtributoPersonalizado> findByEmpresaIdAndCategoriaIdAndNomeContainingIgnoreCase(
+            Long empresaId,
+            Long categoriaId,
+            String nome
+    );
 }

@@ -1,7 +1,8 @@
 package br.com.unicos.ms_produtos.dto.produto_unidade;
 
 /**
- * DTO usado para listagem simples de vínculos produto–unidade de medida.
+ * DTO utilizado em listagens simples de vínculos entre produto
+ * e unidade de medida.
  */
 public record ProdutoUnidadeListDTO(
         Long id,

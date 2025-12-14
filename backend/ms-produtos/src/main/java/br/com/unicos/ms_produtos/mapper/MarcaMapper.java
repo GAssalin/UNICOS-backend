@@ -6,32 +6,32 @@ import br.com.unicos.ms_produtos.model.Marca;
 import org.springframework.stereotype.Component;
 
 /**
- * Mapper responsável por conversões entre Marca e seus DTOs.
+ * Mapper responsável pela conversão entre Marca
+ * e seus respectivos DTOs.
  */
 @Component
 public class MarcaMapper {
 
     /**
-     * Converte entidade para o DTO completo.
+     * Converte entidade para DTO de resposta detalhada.
      */
-    public MarcaResponse toResponse(Marca m) {
+    public MarcaResponse toResponse(Marca entity) {
         return new MarcaResponse(
-                m.getId(),
-                m.getNome(),
-                m.getDescricao(),
-                m.getPaisOrigem(),
-                true // flag ativo (placeholder, pois Marca não possui campo 'ativo')
+                entity.getId(),
+                entity.getNome(),
+                entity.getDescricao(),
+                entity.getPaisOrigem()
         );
     }
 
     /**
-     * Converte entidade para DTO de listagem simples.
+     * Converte entidade para DTO de listagem.
      */
-    public MarcaListDTO toListDTO(Marca m) {
+    public MarcaListDTO toListDTO(Marca entity) {
         return new MarcaListDTO(
-                m.getId(),
-                m.getNome(),
-                m.getPaisOrigem()
+                entity.getId(),
+                entity.getNome(),
+                entity.getPaisOrigem()
         );
     }
 }

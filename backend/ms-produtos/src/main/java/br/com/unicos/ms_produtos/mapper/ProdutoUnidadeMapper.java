@@ -9,20 +9,14 @@ import br.com.unicos.ms_produtos.model.UnidadeMedida;
 import org.springframework.stereotype.Component;
 
 /**
- * Mapper responsável por conversões entre ProdutoUnidade e seus DTOs.
- *
- * <p>
- * É responsável por:
- * - Entidade → Response completo
- * - Entidade → DTO simplificado de listagem
- * - Request + Produto + UnidadeMedida → Entidade
- * </p>
+ * Mapper responsável pela conversão entre ProdutoUnidade
+ * e seus respectivos DTOs.
  */
 @Component
 public class ProdutoUnidadeMapper {
 
     /**
-     * Converte entidade ProdutoUnidade → ProdutoUnidadeResponse.
+     * Converte entidade para DTO de resposta detalhada.
      */
     public ProdutoUnidadeResponse toResponse(ProdutoUnidade entity) {
 
@@ -48,12 +42,13 @@ public class ProdutoUnidadeMapper {
                 produtoNome,
                 unidadeId,
                 unidadeNome,
-                entity.getQuantidadePadrao()
+                entity.getQuantidadePadrao(),
+                entity.getFatorConversao()
         );
     }
 
     /**
-     * Converte entidade → DTO simplificado de listagem.
+     * Converte entidade para DTO de listagem.
      */
     public ProdutoUnidadeListDTO toListDTO(ProdutoUnidade entity) {
 
@@ -74,24 +69,24 @@ public class ProdutoUnidadeMapper {
     }
 
     /**
-     * Constrói a entidade ProdutoUnidade a partir do request.
-     * <p>
-     * O service deve passar:
-     * - Produto já carregado
-     * - UnidadeMedida já carregada
+     * Constrói entidade ProdutoUnidade a partir do request.
      */
     public ProdutoUnidade toEntity(
             ProdutoUnidadeRequest request,
             Produto produto,
-            UnidadeMedida unidadeMedida
+            UnidadeMedida unidadeMedida,
+            Long empresaId
     ) {
         return ProdutoUnidade.builder()
+                .empresaId(empresaId)
                 .produto(produto)
                 .unidadeMedida(unidadeMedida)
                 .quantidadePadrao(request.quantidadePadrao())
-                .fatorConversao(request.fatorConversao() != null
-                        ? request.fatorConversao()
-                        : 1.0)
+                .fatorConversao(
+                        request.fatorConversao() != null
+                                ? request.fatorConversao()
+                                : 1.0
+                )
                 .build();
     }
 }

@@ -9,14 +9,18 @@ import jakarta.validation.constraints.Size;
  * personalizado associado a um produto.
  *
  * <p>
- * Representa a combinação "atributo + valor" (ex.: "Cor = Azul",
- * "Tamanho = G").
+ * Representa a combinação "atributo + valor"
+ * (ex.: "Cor = Azul", "Tamanho = G").
+ * O produto e a empresa (tenant) são resolvidos automaticamente
+ * pelo backend.
  * </p>
  */
 public record ProdutoAtributoValorRequest(
-        @NotNull(message = "O ID do atributo é obrigatório.")
+
+        @NotNull(message = "O ID do atributo personalizado é obrigatório.")
         Long atributoPersonalizadoId,
+
         @NotBlank(message = "O valor do atributo é obrigatório.")
-        @Size(max = 100)
+        @Size(max = 100, message = "O valor do atributo deve ter no máximo 100 caracteres.")
         String valor
 ) {}

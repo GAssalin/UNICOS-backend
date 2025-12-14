@@ -8,50 +8,105 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Repositório responsável pelo acesso aos dados da entidade UnidadeMedida.
+ * Repositório responsável pelo acesso aos dados da entidade {@link UnidadeMedida}.
+ *
  * <p>
- * Fornece métodos personalizados para consultas específicas,
- * além das operações CRUD padrão fornecidas pelo JpaRepository.
+ * Todas as consultas são realizadas dentro do contexto de uma empresa (tenant),
+ * identificado pelo {@code empresaId}, garantindo isolamento total entre
+ * unidades de medida de empresas diferentes.
+ * </p>
+ *
+ * <p>
+ * Este repositório assegura que:
+ * <ul>
+ *     <li>unidades de medida não sejam compartilhadas entre empresas</li>
+ *     <li>não exista duplicidade de sigla dentro da mesma empresa</li>
+ * </ul>
+ * </p>
  */
 @Repository
 public interface UnidadeMedidaRepository extends JpaRepository<UnidadeMedida, Long> {
 
     /**
-     * Busca uma unidade de medida pelo nome (ignora maiúsculas e minúsculas).
+     * Busca uma unidade de medida pelo seu identificador,
+     * restringindo a consulta ao contexto da empresa.
      *
-     * @param nome Nome da unidade de medida.
-     * @return Optional contendo a unidade, se encontrada.
+     * @param empresaId ID da empresa (tenant).
+     * @param id        ID da unidade de medida.
+     * @return {@link Optional} contendo a unidade, se encontrada.
      */
-    Optional<UnidadeMedida> findByNomeIgnoreCase(String nome);
+    Optional<UnidadeMedida> findByEmpresaIdAndId(
+            Long empresaId,
+            Long id
+    );
 
     /**
-     * Busca uma unidade de medida pela sigla (ignora maiúsculas e minúsculas).
+     * Busca uma unidade de medida pelo nome exato,
+     * ignorando diferenças entre maiúsculas e minúsculas,
+     * dentro do contexto da empresa.
      *
-     * @param sigla Sigla da unidade de medida.
-     * @return Optional contendo a unidade, se encontrada.
+     * @param empresaId ID da empresa (tenant).
+     * @param nome      Nome da unidade de medida.
+     * @return {@link Optional} contendo a unidade, se existir.
      */
-    Optional<UnidadeMedida> findBySiglaIgnoreCase(String sigla);
+    Optional<UnidadeMedida> findByEmpresaIdAndNomeIgnoreCase(
+            Long empresaId,
+            String nome
+    );
 
     /**
-     * Retorna uma lista de unidades de medida cujo nome contenha o termo informado.
+     * Busca uma unidade de medida pela sigla exata,
+     * ignorando diferenças entre maiúsculas e minúsculas,
+     * dentro do contexto da empresa.
      *
-     * @param nome Termo de busca (parte do nome).
-     * @return Lista de unidades correspondentes.
+     * @param empresaId ID da empresa (tenant).
+     * @param sigla     Sigla da unidade de medida.
+     * @return {@link Optional} contendo a unidade, se existir.
      */
-    List<UnidadeMedida> findByNomeContainingIgnoreCase(String nome);
+    Optional<UnidadeMedida> findByEmpresaIdAndSiglaIgnoreCase(
+            Long empresaId,
+            String sigla
+    );
 
     /**
-     * Verifica se já existe uma unidade de medida com a sigla informada (ignora maiúsculas e minúsculas).
+     * Retorna todas as unidades de medida cujo nome contenha
+     * o termo informado, restringindo a busca à empresa.
      *
-     * @param sigla Sigla da unidade de medida.
-     * @return true se já existir, false caso contrário.
+     * @param empresaId ID da empresa (tenant).
+     * @param nome      Parte do nome da unidade de medida.
+     * @return Lista de unidades de medida correspondentes ao filtro.
      */
-    boolean existsBySiglaIgnoreCase(String sigla);
+    List<UnidadeMedida> findByEmpresaIdAndNomeContainingIgnoreCase(
+            Long empresaId,
+            String nome
+    );
 
     /**
-     * Lista todas as unidades de medida ordenadas alfabeticamente pelo nome.
+     * Verifica se já existe uma unidade de medida com a sigla informada
+     * dentro do contexto da empresa.
      *
+     * @param empresaId ID da empresa (tenant).
+     * @param sigla     Sigla da unidade de medida.
+     * @return {@code true} se existir, {@code false} caso contrário.
+     */
+    boolean existsByEmpresaIdAndSiglaIgnoreCase(
+            Long empresaId,
+            String sigla
+    );
+
+    /**
+     * Retorna todas as unidades de medida pertencentes a uma empresa,
+     * ordenadas alfabeticamente pelo nome.
+     *
+     * <p>
+     * Método amplamente utilizado para listagens simples,
+     * seleção em formulários e combos no frontend.
+     * </p>
+     *
+     * @param empresaId ID da empresa (tenant).
      * @return Lista ordenada de unidades de medida.
      */
-    List<UnidadeMedida> findAllByOrderByNomeAsc();
+    List<UnidadeMedida> findByEmpresaIdOrderByNomeAsc(
+            Long empresaId
+    );
 }

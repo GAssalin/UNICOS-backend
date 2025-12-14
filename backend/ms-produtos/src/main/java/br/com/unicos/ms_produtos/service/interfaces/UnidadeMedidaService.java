@@ -1,4 +1,4 @@
-package br.com.unicos.ms_produtos.service;
+package br.com.unicos.ms_produtos.service.interfaces;
 
 import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaListDTO;
 import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaRequest;
@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * Interface de serviço responsável pelas operações de negócio
  * relacionadas à entidade UnidadeMedida.
- *
+ * <p>
  * Define métodos para criação, atualização, exclusão e consultas específicas.
  */
 public interface UnidadeMedidaService {

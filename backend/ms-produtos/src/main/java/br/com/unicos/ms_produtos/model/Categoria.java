@@ -2,31 +2,35 @@ package br.com.unicos.ms_produtos.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
  * Entidade que representa uma categoria de produtos.
- * Permite organização hierárquica e agrupamento de itens no catálogo.
+ *
+ * <p>
+ * As categorias são organizadas de forma hierárquica (pai/filho)
+ * e são sempre vinculadas a uma empresa (tenant), garantindo
+ * isolamento total em ambiente multi-tenant.
+ * </p>
  */
 @Entity
 @Table(
         name = "categoria",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_categoria_nome_pai",
-                        columnNames = {"nome", "categoria_pai_id"}
+                        name = "uk_categoria_empresa_nome_pai",
+                        columnNames = {"empresa_id", "nome", "categoria_pai_id"}
                 )
         }
 )
 @EntityListeners(AuditingEntityListener.class)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -35,6 +39,14 @@ public class Categoria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /**
+     * Identificador da empresa (tenant).
+     * Campo obrigatório para isolamento multi-tenant.
+     */
+    @NotNull(message = "O identificador da empresa é obrigatório.")
+    @Column(name = "empresa_id", nullable = false, updatable = false)
+    private Long empresaId;
 
     /**
      * Nome da categoria.
@@ -47,10 +59,12 @@ public class Categoria {
      * Descrição opcional da categoria.
      */
     @Size(max = 255)
+    @Column(length = 255)
     private String descricao;
 
     /**
      * Categoria pai no modelo hierárquico.
+     * O vínculo é sempre interno à mesma empresa.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_pai_id")
@@ -68,6 +82,7 @@ public class Categoria {
     /**
      * Status de exibição/uso da categoria.
      */
+    @NotNull
     @Column(nullable = false)
     @Builder.Default
     private Boolean ativo = true;

@@ -1,4 +1,4 @@
-package br.com.unicos.ms_produtos.service;
+package br.com.unicos.ms_produtos.service.interfaces;
 
 import br.com.unicos.ms_produtos.dto.atributoPersonalizado.AtributoPersonalizadoListDTO;
 import br.com.unicos.ms_produtos.dto.atributoPersonalizado.AtributoPersonalizadoRequest;
@@ -12,8 +12,9 @@ import java.util.Optional;
  * atributos personalizados vinculados às categorias de produtos.
  *
  * <p>
- * Os atributos personalizados permitem que categorias possuam
- * propriedades específicas, como "Cor", "Tamanho", "Material", etc.
+ * Os atributos personalizados permitem que cada categoria possua
+ * propriedades específicas, como "Cor", "Tamanho", "Material", etc.,
+ * que podem ser aplicadas dinamicamente aos produtos.
  * </p>
  */
 public interface AtributoPersonalizadoService {
@@ -21,7 +22,7 @@ public interface AtributoPersonalizadoService {
     /**
      * Cria um novo atributo personalizado vinculado a uma categoria.
      *
-     * @param request dados do atributo a ser criado.
+     * @param request Dados do atributo a ser criado.
      * @return DTO contendo as informações do atributo criado.
      */
     AtributoPersonalizadoResponse criar(AtributoPersonalizadoRequest request);
@@ -29,31 +30,31 @@ public interface AtributoPersonalizadoService {
     /**
      * Atualiza um atributo personalizado existente.
      *
-     * @param id      identificador do atributo a ser atualizado.
-     * @param request novos dados para o atributo.
+     * @param id      Identificador do atributo.
+     * @param request Novos dados do atributo.
      * @return DTO contendo as informações atualizadas.
      */
     AtributoPersonalizadoResponse atualizar(Long id, AtributoPersonalizadoRequest request);
 
     /**
-     * Remove um atributo personalizado pelo ID.
+     * Remove um atributo personalizado pelo seu identificador.
      *
-     * @param id identificador do atributo.
+     * @param id Identificador do atributo.
      */
     void excluir(Long id);
 
     /**
      * Obtém um atributo personalizado pelo ID.
      *
-     * @param id identificador do atributo.
+     * @param id Identificador do atributo.
      * @return DTO detalhado do atributo, se encontrado.
      */
     Optional<AtributoPersonalizadoResponse> buscarPorId(Long id);
 
     /**
-     * Lista todos os atributos personalizados existentes.
+     * Lista todos os atributos personalizados cadastrados.
      *
-     * @return lista simplificada de atributos personalizados.
+     * @return Lista simplificada de atributos personalizados.
      */
     List<AtributoPersonalizadoListDTO> listarTodos();
 
@@ -61,7 +62,7 @@ public interface AtributoPersonalizadoService {
      * Lista todos os atributos vinculados a uma categoria específica.
      *
      * @param categoriaId ID da categoria.
-     * @return lista simplificada de atributos da categoria.
+     * @return Lista simplificada de atributos da categoria.
      */
     List<AtributoPersonalizadoListDTO> listarPorCategoria(Long categoriaId);
 }

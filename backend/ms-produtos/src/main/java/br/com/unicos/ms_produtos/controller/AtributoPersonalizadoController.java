@@ -3,7 +3,7 @@ package br.com.unicos.ms_produtos.controller;
 import br.com.unicos.ms_produtos.dto.atributoPersonalizado.AtributoPersonalizadoListDTO;
 import br.com.unicos.ms_produtos.dto.atributoPersonalizado.AtributoPersonalizadoRequest;
 import br.com.unicos.ms_produtos.dto.atributoPersonalizado.AtributoPersonalizadoResponse;
-import br.com.unicos.ms_produtos.service.AtributoPersonalizadoService;
+import br.com.unicos.ms_produtos.service.interfaces.AtributoPersonalizadoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -6,7 +6,8 @@ import br.com.unicos.ms_produtos.dto.categoria.CategoriaResponse;
 import br.com.unicos.ms_produtos.mapper.CategoriaMapper;
 import br.com.unicos.ms_produtos.model.Categoria;
 import br.com.unicos.ms_produtos.repository.CategoriaRepository;
-import br.com.unicos.ms_produtos.service.CategoriaService;
+import br.com.unicos.ms_produtos.service.interfaces.CategoriaService;
+import br.com.unicos.ms_produtos.tenant.TenantContext;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -17,8 +18,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Serviço responsável pela gestão de categorias,
- * com suporte a hierarquia e integridade estrutural.
+ * Serviço responsável pela gestão de categorias de produtos.
+ *
+ * <p>
+ * Todas as operações são restritas ao contexto da empresa (tenant),
+ * obtido automaticamente através do {@link TenantContext}.
+ * </p>
  */
 @Service
 @RequiredArgsConstructor
@@ -36,9 +41,12 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     public CategoriaResponse salvar(CategoriaRequest request) {
 
-        Categoria categoriaPai = carregarCategoriaPai(request.categoriaPaiId());
+        Long empresaId = TenantContext.getEmpresaId();
+
+        Categoria categoriaPai = carregarCategoriaPai(empresaId, request.categoriaPaiId());
 
         Categoria categoria = new Categoria();
+        categoria.setEmpresaId(empresaId);
         categoria.setNome(request.nome());
         categoria.setDescricao(request.descricao());
         categoria.setCategoriaPai(categoriaPai);
@@ -56,15 +64,16 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     public CategoriaResponse atualizar(Long id, CategoriaRequest request) {
 
-        Categoria categoria = repository.findById(id)
+        Long empresaId = TenantContext.getEmpresaId();
+
+        Categoria categoria = repository.findByEmpresaIdAndId(empresaId, id)
                 .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
 
-        validarHierarquia(id, request.categoriaPaiId());
-        Categoria novaCategoriaPai = carregarCategoriaPai(request.categoriaPaiId());
+        validarHierarquia(empresaId, id, request.categoriaPaiId());
 
-        // Atualiza campos simples via ModelMapper
+        Categoria novaCategoriaPai = carregarCategoriaPai(empresaId, request.categoriaPaiId());
+
         modelMapper.map(request, categoria);
-
         categoria.setCategoriaPai(novaCategoriaPai);
 
         repository.save(categoria);
@@ -79,7 +88,10 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     @Transactional(readOnly = true)
     public Optional<CategoriaResponse> buscarPorId(Long id) {
-        return repository.findById(id)
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.findByEmpresaIdAndId(empresaId, id)
                 .map(mapper::toResponse);
     }
 
@@ -90,7 +102,10 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     @Transactional(readOnly = true)
     public List<CategoriaResponse> listarTodas() {
-        return repository.findAll()
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.findByEmpresaId(empresaId)
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
@@ -103,7 +118,10 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     @Transactional(readOnly = true)
     public List<CategoriaListDTO> listarSimples() {
-        return repository.findAll()
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.findByEmpresaId(empresaId)
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -116,7 +134,10 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     @Transactional(readOnly = true)
     public List<CategoriaResponse> buscarPorNome(String nome) {
-        return repository.findByNomeContainingIgnoreCase(nome)
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.findByEmpresaIdAndNomeContainingIgnoreCase(empresaId, nome)
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
@@ -128,10 +149,13 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     @Override
     public void deletar(Long id) {
-        if (!repository.existsById(id)) {
-            throw new EntityNotFoundException("Categoria não encontrada");
-        }
-        repository.deleteById(id);
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        Categoria categoria = repository.findByEmpresaIdAndId(empresaId, id)
+                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
+
+        repository.delete(categoria);
     }
 
     // ============================================================
@@ -141,22 +165,27 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     @Transactional(readOnly = true)
     public boolean existePorNome(String nome) {
-        return repository.existsByNomeIgnoreCase(nome);
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.existsByEmpresaIdAndNomeIgnoreCase(empresaId, nome);
     }
 
     // ============================================================
-    // MÉTODOS DE APOIO
+    // MÉTODOS DE APOIO (TENANT-AWARE)
     // ============================================================
 
-    private Categoria carregarCategoriaPai(Long categoriaPaiId) {
+    private Categoria carregarCategoriaPai(Long empresaId, Long categoriaPaiId) {
+
         if (categoriaPaiId == null) {
             return null;
         }
-        return repository.findById(categoriaPaiId)
+
+        return repository.findByEmpresaIdAndId(empresaId, categoriaPaiId)
                 .orElseThrow(() -> new EntityNotFoundException("Categoria pai não encontrada"));
     }
 
-    private void validarHierarquia(Long categoriaId, Long categoriaPaiId) {
+    private void validarHierarquia(Long empresaId, Long categoriaId, Long categoriaPaiId) {
 
         if (categoriaPaiId == null) return;
 
@@ -164,7 +193,7 @@ public class CategoriaServiceImpl implements CategoriaService {
             throw new IllegalArgumentException("Uma categoria não pode ser pai dela mesma.");
         }
 
-        Categoria pai = repository.findById(categoriaPaiId)
+        Categoria pai = repository.findByEmpresaIdAndId(empresaId, categoriaPaiId)
                 .orElseThrow(() -> new EntityNotFoundException("Categoria pai não encontrada"));
 
         while (pai.getCategoriaPai() != null) {

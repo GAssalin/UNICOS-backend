@@ -1,8 +1,8 @@
 package br.com.unicos.ms_produtos.dto.produto_atributo;
 
 /**
- * DTO utilizado para listagens de atributos aplicados ao produto,
- * retornando informações essenciais.
+ * DTO utilizado em listagens de atributos aplicados a um produto,
+ * retornando apenas informações essenciais para exibição.
  */
 public record ProdutoAtributoValorListDTO(
         Long id,

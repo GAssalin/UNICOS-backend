@@ -11,13 +11,17 @@ import java.math.BigDecimal;
  */
 public record ProdutoVariacaoResponse(
         Long id,
+
         Long produtoId,
+
         String nome,
         String sku,
         BigDecimal preco,
+
         String codigoBarras,
         String cor,
         String tamanho,
         String material,
+
         Boolean ativo
 ) {}

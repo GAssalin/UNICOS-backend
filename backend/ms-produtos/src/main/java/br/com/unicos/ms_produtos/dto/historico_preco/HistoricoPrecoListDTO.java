@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * DTO utilizado em listagens de histórico de preço,
- * trazendo apenas os dados essenciais.
+ * DTO utilizado em listagens de histórico de preços,
+ * contendo apenas informações essenciais para exibição.
  */
 public record HistoricoPrecoListDTO(
         Long id,

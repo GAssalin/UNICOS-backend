@@ -2,7 +2,7 @@ package br.com.unicos.ms_produtos.controller;
 
 import br.com.unicos.ms_produtos.dto.produto.ProdutoRequest;
 import br.com.unicos.ms_produtos.dto.produto.ProdutoResponse;
-import br.com.unicos.ms_produtos.service.ProdutoService;
+import br.com.unicos.ms_produtos.service.interfaces.ProdutoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;

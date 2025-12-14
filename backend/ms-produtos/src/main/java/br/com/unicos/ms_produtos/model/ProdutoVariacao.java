@@ -101,4 +101,11 @@ public class ProdutoVariacao {
      */
     @Size(max = 100)
     private String material;
+
+    /**
+     * ID da empresa associada à variação, para arquitetura multi-tenant.
+     */
+    @NotNull
+    @Column(name = "empresa_id", nullable = false)
+    private Long empresaId;
 }

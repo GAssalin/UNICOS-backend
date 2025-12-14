@@ -12,6 +12,7 @@ import java.util.Optional;
  * da entidade {@link ProdutoVariacao}.
  * <p>
  * Permite consultas por produto, SKU e atributos específicos.
+ * </p>
  */
 @Repository
 public interface ProdutoVariacaoRepository extends JpaRepository<ProdutoVariacao, Long> {

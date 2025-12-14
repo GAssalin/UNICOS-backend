@@ -3,7 +3,7 @@ package br.com.unicos.ms_produtos.controller;
 import br.com.unicos.ms_produtos.dto.marca.MarcaListDTO;
 import br.com.unicos.ms_produtos.dto.marca.MarcaRequest;
 import br.com.unicos.ms_produtos.dto.marca.MarcaResponse;
-import br.com.unicos.ms_produtos.service.MarcaService;
+import br.com.unicos.ms_produtos.service.interfaces.MarcaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;

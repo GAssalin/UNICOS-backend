@@ -10,18 +10,19 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Entidade que registra o histórico de alterações de preço de um produto.
+ * Entidade que registra o histórico de alterações de preço de um produto,
+ * sempre no contexto de uma empresa (tenant).
  *
  * <p>
- * Cada registro contém o preço anterior, o novo preço, a data da alteração
- * e um motivo opcional. Essa estrutura permite rastrear mudanças financeiras
- * ao longo do tempo para auditoria, relatórios e cálculos comerciais.
+ * Permite rastrear mudanças financeiras ao longo do tempo,
+ * servindo como base para auditoria, relatórios e análises comerciais.
  * </p>
  */
 @Entity
 @Table(name = "historico_preco")
 @EntityListeners(AuditingEntityListener.class)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -32,8 +33,18 @@ public class HistoricoPreco {
     private Long id;
 
     /**
-     * Produto ao qual este histórico de preço pertence.
+     * Identificador da empresa (tenant).
+     * Campo obrigatório para isolamento multi-tenant.
      */
+    @NotNull(message = "O identificador da empresa é obrigatório.")
+    @Column(name = "empresa_id", nullable = false, updatable = false)
+    private Long empresaId;
+
+    /**
+     * Produto ao qual este histórico de preço pertence.
+     * O produto sempre pertence à mesma empresa.
+     */
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "produto_id", nullable = false)
     @ToString.Exclude

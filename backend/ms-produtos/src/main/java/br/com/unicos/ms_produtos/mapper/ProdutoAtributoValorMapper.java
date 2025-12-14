@@ -9,20 +9,19 @@ import br.com.unicos.ms_produtos.model.ProdutoAtributoValor;
 import org.springframework.stereotype.Component;
 
 /**
- * Mapper responsável por converter entidades ProdutoAtributoValor
- * para seus respectivos DTOs (List, Response) e também construir a
- * entidade a partir de um request.
+ * Mapper responsável pela conversão entre ProdutoAtributoValor
+ * e seus respectivos DTOs.
  */
 @Component
 public class ProdutoAtributoValorMapper {
 
     /**
-     * Converte entidade → DTO completo (ProdutoAtributoValorResponse).
-     *
-     * @param entity    entidade ProdutoAtributoValor
-     * @param produtoId ID do produto pai
+     * Converte entidade para DTO de resposta detalhada.
      */
-    public ProdutoAtributoValorResponse toResponse(ProdutoAtributoValor entity, Long produtoId) {
+    public ProdutoAtributoValorResponse toResponse(
+            ProdutoAtributoValor entity,
+            Long produtoId
+    ) {
 
         Long atributoId = entity.getAtributoPersonalizado() != null
                 ? entity.getAtributoPersonalizado().getId()
@@ -42,7 +41,7 @@ public class ProdutoAtributoValorMapper {
     }
 
     /**
-     * Converte entidade → DTO simplificado (ProdutoAtributoValorListDTO).
+     * Converte entidade para DTO de listagem.
      */
     public ProdutoAtributoValorListDTO toListDTO(ProdutoAtributoValor entity) {
 
@@ -58,17 +57,13 @@ public class ProdutoAtributoValorMapper {
     }
 
     /**
-     * Converte request → entidade ProdutoAtributoValor.
-     * <p>
-     * Não carrega entidades do banco aqui — o service deve fornecer:
-     * - Produto já carregado
-     * - AtributoPersonalizado já carregado
+     * Converte request para entidade ProdutoAtributoValor.
      */
     public ProdutoAtributoValor toEntity(
             ProdutoAtributoValorRequest request,
             Produto produto,
-            AtributoPersonalizado atributoPersonalizado) {
-
+            AtributoPersonalizado atributoPersonalizado
+    ) {
         return ProdutoAtributoValor.builder()
                 .produto(produto)
                 .atributoPersonalizado(atributoPersonalizado)

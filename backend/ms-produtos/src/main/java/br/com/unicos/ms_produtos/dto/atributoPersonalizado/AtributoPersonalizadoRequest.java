@@ -6,6 +6,11 @@ import jakarta.validation.constraints.Size;
 
 /**
  * DTO usado para criação e atualização de atributos personalizados de categoria.
+ *
+ * <p>
+ * O contexto da empresa (tenant) é resolvido automaticamente
+ * a partir do token de autenticação, não devendo ser informado pelo cliente.
+ * </p>
  */
 public record AtributoPersonalizadoRequest(
 

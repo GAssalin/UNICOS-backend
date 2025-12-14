@@ -2,29 +2,39 @@ package br.com.unicos.ms_produtos.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.List;
 
 /**
- * Entidade que representa uma marca ou fabricante de produtos.
+ * Entidade que representa uma marca ou fabricante de produtos,
+ * sempre vinculada a uma empresa (tenant).
  *
  * <p>
- * As marcas organizam e classificam produtos dentro do catálogo,
- * permitindo agrupamentos e filtros utilizados em consultas e exibições.
+ * Cada empresa possui seu próprio catálogo de marcas,
+ * mesmo que marcas com o mesmo nome existam em outros tenants.
  * </p>
  */
 @Entity
 @Table(
         name = "marca",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_marca_empresa_nome",
+                        columnNames = {"empresa_id", "nome"}
+                )
+        },
         indexes = {
-                @Index(name = "idx_marca_nome", columnList = "nome"),
+                @Index(name = "idx_marca_empresa", columnList = "empresa_id"),
+                @Index(name = "idx_marca_empresa_nome", columnList = "empresa_id, nome"),
                 @Index(name = "idx_marca_pais", columnList = "pais_origem")
         }
 )
 @EntityListeners(AuditingEntityListener.class)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -35,10 +45,19 @@ public class Marca {
     private Long id;
 
     /**
-     * Nome da marca (único).
+     * Identificador da empresa (tenant).
+     * Campo obrigatório para isolamento multi-tenant.
+     */
+    @NotNull(message = "O identificador da empresa é obrigatório.")
+    @Column(name = "empresa_id", nullable = false, updatable = false)
+    private Long empresaId;
+
+    /**
+     * Nome da marca.
+     * Único dentro do contexto da empresa.
      */
     @NotBlank(message = "O nome da marca é obrigatório.")
-    @Column(nullable = false, length = 100, unique = true)
+    @Column(nullable = false, length = 100)
     private String nome;
 
     /**
@@ -54,16 +73,15 @@ public class Marca {
     private String paisOrigem;
 
     /**
-     * Lista de produtos associados à marca (opcional).
+     * Lista de produtos associados à marca.
      *
      * <p>
-     * Relacionamento mantido com LAZY loading para evitar
-     * carregamento desnecessário de produtos durante consultas.
+     * Relacionamento LAZY para evitar carregamento
+     * desnecessário do catálogo de produtos.
      * </p>
      */
     @OneToMany(mappedBy = "marca", fetch = FetchType.LAZY)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Produto> produtos;
-
 }

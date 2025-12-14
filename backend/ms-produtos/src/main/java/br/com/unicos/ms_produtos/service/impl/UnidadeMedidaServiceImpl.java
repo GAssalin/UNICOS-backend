@@ -6,7 +6,8 @@ import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaResponse;
 import br.com.unicos.ms_produtos.mapper.UnidadeMedidaMapper;
 import br.com.unicos.ms_produtos.model.UnidadeMedida;
 import br.com.unicos.ms_produtos.repository.UnidadeMedidaRepository;
-import br.com.unicos.ms_produtos.service.UnidadeMedidaService;
+import br.com.unicos.ms_produtos.service.interfaces.UnidadeMedidaService;
+import br.com.unicos.ms_produtos.tenant.TenantContext;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -18,7 +19,7 @@ import java.util.Optional;
 
 /**
  * Implementação da interface {@link UnidadeMedidaService}
- * utilizando ModelMapper para conversão entre entidades e DTOs.
+ * com isolamento multi-tenant via empresaId.
  */
 @Service
 @RequiredArgsConstructor
@@ -36,19 +37,20 @@ public class UnidadeMedidaServiceImpl implements UnidadeMedidaService {
     @Transactional
     public UnidadeMedidaResponse salvar(UnidadeMedidaRequest request) {
 
-        if (repository.existsBySiglaIgnoreCase(request.sigla())) {
-            throw new IllegalArgumentException("Já existe uma unidade com esta sigla.");
+        Long empresaId = TenantContext.getEmpresaId();
+
+        if (repository.existsByEmpresaIdAndSiglaIgnoreCase(empresaId, request.sigla())) {
+            throw new IllegalArgumentException("Já existe uma unidade com esta sigla para a empresa.");
         }
 
         UnidadeMedida unidade = new UnidadeMedida();
+        unidade.setEmpresaId(empresaId);
         unidade.setNome(request.nome());
         unidade.setSigla(request.sigla());
         unidade.setDescricao(request.descricao());
         unidade.setAtivo(true);
 
-        UnidadeMedida salvo = repository.save(unidade);
-
-        return mapper.toResponse(salvo);
+        return mapper.toResponse(repository.save(unidade));
     }
 
     // ============================================================
@@ -59,20 +61,23 @@ public class UnidadeMedidaServiceImpl implements UnidadeMedidaService {
     @Transactional
     public UnidadeMedidaResponse atualizar(Long id, UnidadeMedidaRequest request) {
 
-        UnidadeMedida entidade = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Unidade de medida não encontrada."));
+        Long empresaId = TenantContext.getEmpresaId();
 
-        // Valida duplicidade de sigla
-        Optional<UnidadeMedida> outra = repository.findBySiglaIgnoreCase(request.sigla());
+        UnidadeMedida entidade = repository.findByEmpresaIdAndId(empresaId, id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Unidade de medida não encontrada.")
+                );
+
+        Optional<UnidadeMedida> outra =
+                repository.findByEmpresaIdAndSiglaIgnoreCase(empresaId, request.sigla());
+
         if (outra.isPresent() && !outra.get().getId().equals(id)) {
-            throw new IllegalArgumentException("Já existe outra unidade com esta sigla.");
+            throw new IllegalArgumentException("Já existe outra unidade com esta sigla para a empresa.");
         }
 
-        // ModelMapper atualiza os campos automaticamente
         modelMapper.map(request, entidade);
 
-        UnidadeMedida atualizado = repository.save(entidade);
-        return mapper.toResponse(atualizado);
+        return mapper.toResponse(repository.save(entidade));
     }
 
     // ============================================================
@@ -82,18 +87,20 @@ public class UnidadeMedidaServiceImpl implements UnidadeMedidaService {
     @Override
     @Transactional(readOnly = true)
     public Optional<UnidadeMedidaResponse> buscarPorId(Long id) {
-        return repository.findById(id)
+        return repository
+                .findByEmpresaIdAndId(TenantContext.getEmpresaId(), id)
                 .map(mapper::toResponse);
     }
 
     // ============================================================
-    // Listar todas (detalhado)
+    // Listar todas
     // ============================================================
 
     @Override
     @Transactional(readOnly = true)
     public List<UnidadeMedidaResponse> listarTodas() {
-        return repository.findAll()
+        return repository
+                .findByEmpresaIdOrderByNomeAsc(TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
@@ -106,8 +113,14 @@ public class UnidadeMedidaServiceImpl implements UnidadeMedidaService {
     @Override
     @Transactional
     public void deletar(Long id) {
-        var unidade = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Unidade não encontrada."));
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        UnidadeMedida unidade = repository.findByEmpresaIdAndId(empresaId, id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Unidade de medida não encontrada.")
+                );
+
         repository.delete(unidade);
     }
 
@@ -118,7 +131,8 @@ public class UnidadeMedidaServiceImpl implements UnidadeMedidaService {
     @Override
     @Transactional(readOnly = true)
     public Optional<UnidadeMedidaResponse> buscarPorNome(String nome) {
-        return repository.findByNomeIgnoreCase(nome)
+        return repository
+                .findByEmpresaIdAndNomeIgnoreCase(TenantContext.getEmpresaId(), nome)
                 .map(mapper::toResponse);
     }
 
@@ -129,7 +143,8 @@ public class UnidadeMedidaServiceImpl implements UnidadeMedidaService {
     @Override
     @Transactional(readOnly = true)
     public Optional<UnidadeMedidaResponse> buscarPorSigla(String sigla) {
-        return repository.findBySiglaIgnoreCase(sigla)
+        return repository
+                .findByEmpresaIdAndSiglaIgnoreCase(TenantContext.getEmpresaId(), sigla)
                 .map(mapper::toResponse);
     }
 
@@ -140,20 +155,23 @@ public class UnidadeMedidaServiceImpl implements UnidadeMedidaService {
     @Override
     @Transactional(readOnly = true)
     public List<UnidadeMedidaListDTO> buscarPorNomeContendo(String nome) {
-        return repository.findByNomeContainingIgnoreCase(nome)
+        return repository
+                .findByEmpresaIdAndNomeContainingIgnoreCase(
+                        TenantContext.getEmpresaId(), nome)
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
     }
 
     // ============================================================
-    // Listagem simples ordenada
+    // Listagem simples
     // ============================================================
 
     @Override
     @Transactional(readOnly = true)
     public List<UnidadeMedidaListDTO> listarSimples() {
-        return repository.findAllByOrderByNomeAsc()
+        return repository
+                .findByEmpresaIdOrderByNomeAsc(TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -166,6 +184,7 @@ public class UnidadeMedidaServiceImpl implements UnidadeMedidaService {
     @Override
     @Transactional(readOnly = true)
     public boolean verificarSiglaExistente(String sigla) {
-        return repository.existsBySiglaIgnoreCase(sigla);
+        return repository.existsByEmpresaIdAndSiglaIgnoreCase(
+                TenantContext.getEmpresaId(), sigla);
     }
 }

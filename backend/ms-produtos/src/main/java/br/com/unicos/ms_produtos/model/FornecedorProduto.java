@@ -13,17 +13,19 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Entidade que representa o vínculo entre um fornecedor e um produto.
+ * Entidade que representa o vínculo entre um fornecedor e um produto,
+ * sempre no contexto de uma empresa (tenant).
  *
  * <p>
- * Armazena informações operacionais relacionadas ao preço de custo,
- * prazos de entrega e identificação externa do fornecedor no ecossistema.
+ * O fornecedor pertence a outro microserviço (ex.: ms-pessoas ou ms-fornecedor),
+ * portanto o vínculo aqui é apenas referencial.
  * </p>
  */
 @Entity
 @Table(name = "fornecedor_produto")
 @EntityListeners(AuditingEntityListener.class)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -34,7 +36,16 @@ public class FornecedorProduto {
     private Long id;
 
     /**
-     * ID do fornecedor proveniente do ms-pessoas.
+     * Identificador da empresa (tenant).
+     * Campo obrigatório para isolamento multi-tenant.
+     */
+    @NotNull(message = "O identificador da empresa é obrigatório.")
+    @Column(name = "empresa_id", nullable = false, updatable = false)
+    private Long empresaId;
+
+    /**
+     * ID do fornecedor proveniente de outro microserviço.
+     * Não possui FK física para evitar acoplamento entre domínios.
      */
     @NotNull
     @Column(name = "fornecedor_id", nullable = false)
@@ -48,6 +59,7 @@ public class FornecedorProduto {
 
     /**
      * Produto associado ao fornecedor.
+     * O produto sempre pertence à mesma empresa.
      */
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -72,12 +84,15 @@ public class FornecedorProduto {
     private Integer prazoEntregaDias;
 
     /**
-     * Datas de criação e atualização do vínculo.
+     * Data de criação do vínculo.
      */
     @CreatedDate
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
 
+    /**
+     * Data da última atualização do vínculo.
+     */
     @LastModifiedDate
     @Column(name = "data_atualizacao")
     private LocalDateTime dataAtualizacao;

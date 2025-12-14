@@ -8,7 +8,8 @@ import br.com.unicos.ms_produtos.model.FornecedorProduto;
 import br.com.unicos.ms_produtos.model.Produto;
 import br.com.unicos.ms_produtos.repository.FornecedorProdutoRepository;
 import br.com.unicos.ms_produtos.repository.ProdutoRepository;
-import br.com.unicos.ms_produtos.service.FornecedorProdutoService;
+import br.com.unicos.ms_produtos.service.interfaces.FornecedorProdutoService;
+import br.com.unicos.ms_produtos.tenant.TenantContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,17 +37,29 @@ public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
     @Override
     public FornecedorProdutoResponse salvar(FornecedorProdutoRequest request) {
 
-        if (repository.existsByFornecedorIdAndProdutoId(request.fornecedorId(), request.produtoId())) {
-            throw new IllegalArgumentException("Já existe um vínculo entre este fornecedor e produto.");
+        Long empresaId = TenantContext.getEmpresaId();
+
+        if (repository.existsByEmpresaIdAndFornecedorIdAndProdutoId(
+                empresaId,
+                request.fornecedorId(),
+                request.produtoId()
+        )) {
+            throw new IllegalArgumentException(
+                    "Já existe um vínculo entre este fornecedor e produto para esta empresa."
+            );
         }
 
-        Produto produto = produtoRepository.findById(request.produtoId())
+        Produto produto = produtoRepository.findByEmpresaIdAndId(
+                        empresaId,
+                        request.produtoId()
+                )
                 .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
 
         FornecedorProduto novo = FornecedorProduto.builder()
+                .empresaId(empresaId)
                 .fornecedorId(request.fornecedorId())
-                .codigoFornecedor(request.codigoFornecedor())
                 .produto(produto)
+                .codigoFornecedor(request.codigoFornecedor())
                 .precoCusto(request.precoCusto())
                 .prazoEntregaDias(request.prazoEntregaDias())
                 .build();
@@ -61,15 +74,23 @@ public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
     @Override
     public FornecedorProdutoResponse atualizar(Long id, FornecedorProdutoRequest request) {
 
-        FornecedorProduto existente = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vínculo não encontrado com ID: " + id));
+        Long empresaId = TenantContext.getEmpresaId();
 
-        Produto produto = produtoRepository.findById(request.produtoId())
+        FornecedorProduto existente = repository.findById(id)
+                .filter(fp -> fp.getEmpresaId().equals(empresaId))
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Vínculo não encontrado para esta empresa."
+                ));
+
+        Produto produto = produtoRepository.findByEmpresaIdAndId(
+                        empresaId,
+                        request.produtoId()
+                )
                 .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
 
         existente.setFornecedorId(request.fornecedorId());
-        existente.setCodigoFornecedor(request.codigoFornecedor());
         existente.setProduto(produto);
+        existente.setCodigoFornecedor(request.codigoFornecedor());
         existente.setPrecoCusto(request.precoCusto());
         existente.setPrazoEntregaDias(request.prazoEntregaDias());
 
@@ -82,10 +103,16 @@ public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
 
     @Override
     public void deletar(Long id) {
-        if (!repository.existsById(id)) {
-            throw new IllegalArgumentException("Vínculo não encontrado com ID: " + id);
-        }
-        repository.deleteById(id);
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        FornecedorProduto existente = repository.findById(id)
+                .filter(fp -> fp.getEmpresaId().equals(empresaId))
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Vínculo não encontrado para esta empresa."
+                ));
+
+        repository.delete(existente);
     }
 
     // ============================================================
@@ -94,13 +121,23 @@ public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
 
     @Override
     public Optional<FornecedorProdutoResponse> buscarPorId(Long id) {
+
+        Long empresaId = TenantContext.getEmpresaId();
+
         return repository.findById(id)
+                .filter(fp -> fp.getEmpresaId().equals(empresaId))
                 .map(mapper::toResponse);
     }
 
     @Override
     public List<FornecedorProdutoResponse> listarTodos() {
-        return repository.findAll()
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.findByEmpresaIdAndFornecedorId(
+                        empresaId,
+                        null
+                )
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
@@ -108,7 +145,10 @@ public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
 
     @Override
     public List<FornecedorProdutoListDTO> listarPorProduto(Long produtoId) {
-        return repository.findByProdutoId(produtoId)
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.findByEmpresaIdAndProdutoId(empresaId, produtoId)
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -116,7 +156,10 @@ public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
 
     @Override
     public List<FornecedorProdutoListDTO> listarPorFornecedor(Long fornecedorId) {
-        return repository.findByFornecedorId(fornecedorId)
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.findByEmpresaIdAndFornecedorId(empresaId, fornecedorId)
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -129,8 +172,13 @@ public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
     @Override
     public FornecedorProdutoResponse atualizarPrecoCusto(Long id, BigDecimal novoPrecoCusto) {
 
+        Long empresaId = TenantContext.getEmpresaId();
+
         FornecedorProduto existente = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vínculo não encontrado com ID: " + id));
+                .filter(fp -> fp.getEmpresaId().equals(empresaId))
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Vínculo não encontrado para esta empresa."
+                ));
 
         existente.setPrecoCusto(novoPrecoCusto);
 
@@ -143,6 +191,13 @@ public class FornecedorProdutoServiceImpl implements FornecedorProdutoService {
 
     @Override
     public boolean existeVinculo(Long fornecedorId, Long produtoId) {
-        return repository.existsByFornecedorIdAndProdutoId(fornecedorId, produtoId);
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.existsByEmpresaIdAndFornecedorIdAndProdutoId(
+                empresaId,
+                fornecedorId,
+                produtoId
+        );
     }
 }

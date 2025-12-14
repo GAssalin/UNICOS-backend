@@ -3,7 +3,7 @@ package br.com.unicos.ms_produtos.controller;
 import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaListDTO;
 import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaRequest;
 import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaResponse;
-import br.com.unicos.ms_produtos.service.UnidadeMedidaService;
+import br.com.unicos.ms_produtos.service.interfaces.UnidadeMedidaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;

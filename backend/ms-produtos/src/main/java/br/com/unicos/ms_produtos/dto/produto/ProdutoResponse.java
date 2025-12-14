@@ -1,14 +1,15 @@
 package br.com.unicos.ms_produtos.dto.produto;
 
-import br.com.unicos.core.produto.model.*;
+import br.com.unicos.core.produto.model.PrecoBase;
+import br.com.unicos.core.produto.model.ProdutoBase;
+import br.com.unicos.core.produto.model.ProdutoTributacaoBase;
 import br.com.unicos.ms_produtos.dto.categoria.CategoriaResponse;
 import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoResponse;
-import br.com.unicos.ms_produtos.dto.marca.MarcaResponse;
 import br.com.unicos.ms_produtos.dto.imagem_produto.ImagemProdutoResponse;
+import br.com.unicos.ms_produtos.dto.marca.MarcaResponse;
 import br.com.unicos.ms_produtos.dto.produto_atributo.ProdutoAtributoValorResponse;
 import br.com.unicos.ms_produtos.dto.produto_variacao.ProdutoVariacaoResponse;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ import java.util.List;
  */
 public record ProdutoResponse(
         Long id,
-        boolean ativo,
+        Boolean ativo,
 
         ProdutoBase dadosBasicos,
         ProdutoTributacaoBase tributacao,

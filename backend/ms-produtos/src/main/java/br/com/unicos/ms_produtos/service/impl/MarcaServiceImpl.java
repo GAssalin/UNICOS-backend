@@ -1,25 +1,29 @@
 package br.com.unicos.ms_produtos.service.impl;
 
+import br.com.unicos.ms_produtos.tenant.TenantContext;
 import br.com.unicos.ms_produtos.dto.marca.MarcaListDTO;
 import br.com.unicos.ms_produtos.dto.marca.MarcaRequest;
 import br.com.unicos.ms_produtos.dto.marca.MarcaResponse;
 import br.com.unicos.ms_produtos.mapper.MarcaMapper;
 import br.com.unicos.ms_produtos.model.Marca;
 import br.com.unicos.ms_produtos.repository.MarcaRepository;
-import br.com.unicos.ms_produtos.service.MarcaService;
-import jakarta.transaction.Transactional;
+import br.com.unicos.ms_produtos.service.interfaces.MarcaService;
+import br.com.unicos.ms_produtos.tenant.TenantContext;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Serviço responsável pelo gerenciamento de marcas.
+ * Serviço responsável pelo gerenciamento de marcas,
+ * com isolamento total por empresa (tenant).
  */
 @Service
-@Transactional
 @RequiredArgsConstructor
+@Transactional
 public class MarcaServiceImpl implements MarcaService {
 
     private final MarcaRepository repository;
@@ -32,11 +36,16 @@ public class MarcaServiceImpl implements MarcaService {
     @Override
     public MarcaResponse salvar(MarcaRequest request) {
 
-        if (repository.existsByNomeIgnoreCase(request.nome())) {
-            throw new IllegalArgumentException("Já existe uma marca cadastrada com este nome.");
+        Long empresaId = TenantContext.getEmpresaId();
+
+        if (repository.existsByEmpresaIdAndNomeIgnoreCase(empresaId, request.nome())) {
+            throw new IllegalArgumentException(
+                    "Já existe uma marca cadastrada com este nome para esta empresa."
+            );
         }
 
         Marca marca = Marca.builder()
+                .empresaId(empresaId)
                 .nome(request.nome())
                 .descricao(request.descricao())
                 .paisOrigem(request.paisOrigem())
@@ -52,14 +61,21 @@ public class MarcaServiceImpl implements MarcaService {
     @Override
     public MarcaResponse atualizar(Long id, MarcaRequest request) {
 
-        Marca existente = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Marca não encontrada com ID: " + id));
+        Long empresaId = TenantContext.getEmpresaId();
+
+        Marca existente = repository.findByEmpresaIdAndId(empresaId, id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Marca não encontrada para esta empresa.")
+                );
 
         Optional<Marca> outraMarcaMesmoNome =
-                repository.findByNomeIgnoreCase(request.nome());
+                repository.findByEmpresaIdAndNomeIgnoreCase(empresaId, request.nome());
 
-        if (outraMarcaMesmoNome.isPresent() && !outraMarcaMesmoNome.get().getId().equals(id)) {
-            throw new IllegalArgumentException("Já existe outra marca cadastrada com este nome.");
+        if (outraMarcaMesmoNome.isPresent()
+                && !outraMarcaMesmoNome.get().getId().equals(id)) {
+            throw new IllegalArgumentException(
+                    "Já existe outra marca cadastrada com este nome para esta empresa."
+            );
         }
 
         existente.setNome(request.nome());
@@ -74,30 +90,46 @@ public class MarcaServiceImpl implements MarcaService {
     // ============================================================
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<MarcaResponse> buscarPorId(Long id) {
-        return repository.findById(id)
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.findByEmpresaIdAndId(empresaId, id)
                 .map(mapper::toResponse);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<MarcaResponse> listarTodas() {
-        return repository.findAll()
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.findByEmpresaIdOrderByNomeAsc(empresaId)
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<MarcaListDTO> listarSimples() {
-        return repository.findAll()
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.findByEmpresaIdOrderByNomeAsc(empresaId)
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<MarcaResponse> buscarPorNome(String nome) {
-        return repository.findByNomeContainingIgnoreCase(nome)
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.findByEmpresaIdAndNomeContainingIgnoreCase(empresaId, nome)
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
@@ -109,14 +141,24 @@ public class MarcaServiceImpl implements MarcaService {
 
     @Override
     public void deletar(Long id) {
-        if (!repository.existsById(id)) {
-            throw new IllegalArgumentException("Marca não encontrada com ID: " + id);
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        if (!repository.existsByEmpresaIdAndId(empresaId, id)) {
+            throw new EntityNotFoundException(
+                    "Marca não encontrada para esta empresa."
+            );
         }
+
         repository.deleteById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existePorNome(String nome) {
-        return repository.existsByNomeIgnoreCase(nome);
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.existsByEmpresaIdAndNomeIgnoreCase(empresaId, nome);
     }
 }

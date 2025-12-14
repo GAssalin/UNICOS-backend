@@ -10,26 +10,41 @@ import java.util.Optional;
 /**
  * Repositório responsável pelas operações de persistência
  * da entidade {@link ProdutoAtributoValor}.
+ *
  * <p>
- * Permite consultas pelos valores de atributos de um produto.
+ * Todas as consultas são restritas ao contexto da empresa (tenant),
+ * garantindo isolamento entre valores de atributos de produtos
+ * pertencentes a empresas diferentes.
+ * </p>
  */
 @Repository
 public interface ProdutoAtributoValorRepository extends JpaRepository<ProdutoAtributoValor, Long> {
 
     /**
-     * Retorna todos os valores de atributos de um produto específico.
+     * Retorna todos os valores de atributos de um produto específico
+     * dentro do contexto de uma empresa.
      *
+     * @param empresaId ID da empresa (tenant).
      * @param produtoId ID do produto.
      * @return Lista de valores de atributos.
      */
-    List<ProdutoAtributoValor> findByProdutoId(Long produtoId);
+    List<ProdutoAtributoValor> findByEmpresaIdAndProdutoId(
+            Long empresaId,
+            Long produtoId
+    );
 
     /**
-     * Busca o valor de um atributo específico de um produto.
+     * Busca o valor de um atributo específico de um produto,
+     * restringindo a busca à empresa.
      *
+     * @param empresaId  ID da empresa (tenant).
      * @param produtoId  ID do produto.
      * @param atributoId ID do atributo personalizado.
-     * @return Valor correspondente, se existir.
+     * @return {@link Optional} contendo o valor correspondente, se existir.
      */
-    Optional<ProdutoAtributoValor> findByProdutoIdAndAtributoPersonalizadoId(Long produtoId, Long atributoId);
+    Optional<ProdutoAtributoValor> findByEmpresaIdAndProdutoIdAndAtributoPersonalizadoId(
+            Long empresaId,
+            Long produtoId,
+            Long atributoId
+    );
 }

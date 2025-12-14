@@ -1,4 +1,4 @@
-package br.com.unicos.ms_produtos.service;
+package br.com.unicos.ms_produtos.service.interfaces;
 
 import br.com.unicos.ms_produtos.dto.produto_unidade.ProdutoUnidadeRequest;
 import br.com.unicos.ms_produtos.dto.produto_unidade.ProdutoUnidadeResponse;
@@ -9,7 +9,7 @@ import java.util.Optional;
 /**
  * Interface de serviço responsável pelas operações de negócio
  * relacionadas à entidade ProdutoUnidade.
- *
+ * <p>
  * Define os métodos para criação, atualização, exclusão e consultas
  * de vínculos entre produtos e unidades de medida.
  */
@@ -18,10 +18,11 @@ public interface ProdutoUnidadeService {
     /**
      * Cria um novo vínculo entre produto e unidade de medida.
      *
+     * @param id      ID do produto.
      * @param request Dados do vínculo.
      * @return ProdutoUnidadeResponse criado.
      */
-    ProdutoUnidadeResponse salvar(ProdutoUnidadeRequest request);
+    ProdutoUnidadeResponse salvar(Long id, ProdutoUnidadeRequest request);
 
     /**
      * Atualiza um vínculo existente entre produto e unidade de medida.

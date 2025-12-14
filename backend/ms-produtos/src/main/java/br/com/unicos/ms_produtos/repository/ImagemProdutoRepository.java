@@ -10,41 +10,70 @@ import java.util.Optional;
 /**
  * Repositório responsável pelas operações de persistência
  * da entidade {@link ImagemProduto}.
+ *
  * <p>
- * Fornece métodos para buscar imagens de produtos e suas ordens de exibição.
+ * Todas as consultas são restritas ao contexto da empresa (tenant),
+ * garantindo que imagens de produtos não sejam compartilhadas
+ * entre empresas diferentes.
+ * </p>
  */
 @Repository
 public interface ImagemProdutoRepository extends JpaRepository<ImagemProduto, Long> {
 
     /**
-     * Retorna todas as imagens de um produto.
+     * Retorna todas as imagens associadas a um produto específico
+     * dentro do contexto de uma empresa.
      *
+     * @param empresaId ID da empresa (tenant).
      * @param produtoId ID do produto.
-     * @return Lista de imagens associadas.
+     * @return Lista de imagens associadas ao produto.
      */
-    List<ImagemProduto> findByProdutoId(Long produtoId);
+    List<ImagemProduto> findByEmpresaIdAndProdutoId(
+            Long empresaId,
+            Long produtoId
+    );
 
     /**
-     * Retorna as imagens ativas de um produto.
+     * Retorna todas as imagens ativas de um produto
+     * pertencente a uma empresa.
      *
+     * @param empresaId ID da empresa (tenant).
      * @param produtoId ID do produto.
      * @return Lista de imagens ativas.
      */
-    List<ImagemProduto> findByProdutoIdAndAtivoTrue(Long produtoId);
+    List<ImagemProduto> findByEmpresaIdAndProdutoIdAndAtivoTrue(
+            Long empresaId,
+            Long produtoId
+    );
 
     /**
-     * Busca a imagem principal de um produto.
+     * Busca a imagem principal de um produto dentro
+     * do contexto de uma empresa.
      *
+     * <p>
+     * Caso existam múltiplas imagens marcadas como principais,
+     * o retorno será a primeira encontrada.
+     * </p>
+     *
+     * @param empresaId ID da empresa (tenant).
      * @param produtoId ID do produto.
-     * @return Imagem principal, se houver.
+     * @return {@link Optional} contendo a imagem principal, se existir.
      */
-    Optional<ImagemProduto> findFirstByProdutoIdAndPrincipalTrue(Long produtoId);
+    Optional<ImagemProduto> findFirstByEmpresaIdAndProdutoIdAndPrincipalTrue(
+            Long empresaId,
+            Long produtoId
+    );
 
     /**
-     * Retorna imagens ordenadas conforme a posição definida.
+     * Retorna as imagens de um produto ordenadas conforme
+     * a ordem de exibição definida.
      *
+     * @param empresaId ID da empresa (tenant).
      * @param produtoId ID do produto.
      * @return Lista de imagens ordenadas por ordem de exibição.
      */
-    List<ImagemProduto> findByProdutoIdOrderByOrdemExibicaoAsc(Long produtoId);
+    List<ImagemProduto> findByEmpresaIdAndProdutoIdOrderByOrdemExibicaoAsc(
+            Long empresaId,
+            Long produtoId
+    );
 }

@@ -2,13 +2,15 @@ package br.com.unicos.ms_produtos.service.impl;
 
 import br.com.unicos.ms_produtos.dto.produto_unidade.ProdutoUnidadeRequest;
 import br.com.unicos.ms_produtos.dto.produto_unidade.ProdutoUnidadeResponse;
+import br.com.unicos.ms_produtos.mapper.ProdutoUnidadeMapper;
 import br.com.unicos.ms_produtos.model.Produto;
 import br.com.unicos.ms_produtos.model.ProdutoUnidade;
 import br.com.unicos.ms_produtos.model.UnidadeMedida;
 import br.com.unicos.ms_produtos.repository.ProdutoRepository;
 import br.com.unicos.ms_produtos.repository.ProdutoUnidadeRepository;
 import br.com.unicos.ms_produtos.repository.UnidadeMedidaRepository;
-import br.com.unicos.ms_produtos.service.ProdutoUnidadeService;
+import br.com.unicos.ms_produtos.service.interfaces.ProdutoUnidadeService;
+import br.com.unicos.ms_produtos.tenant.TenantContext;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,12 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Implementação da interface {@link ProdutoUnidadeService}.
- * <p>
- * Responsável por aplicar as regras de negócio relacionadas
- * ao vínculo entre produtos e unidades de medida.
- */
 @Service
 @RequiredArgsConstructor
 public class ProdutoUnidadeServiceImpl implements ProdutoUnidadeService {
@@ -30,140 +26,156 @@ public class ProdutoUnidadeServiceImpl implements ProdutoUnidadeService {
     private final ProdutoUnidadeRepository produtoUnidadeRepository;
     private final ProdutoRepository produtoRepository;
     private final UnidadeMedidaRepository unidadeMedidaRepository;
+    private final ProdutoUnidadeMapper produtoUnidadeMapper;
 
     // ============================================================
-    // Criar
+    // CRIAR
     // ============================================================
 
     @Override
     @Transactional
-    public ProdutoUnidadeResponse salvar(ProdutoUnidadeRequest request) {
+    public ProdutoUnidadeResponse salvar(Long produtoId, ProdutoUnidadeRequest request) {
 
-        Produto produto = produtoRepository.findById(request.unidadeMedidaId())
-                .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado."));
+        Long empresaId = TenantContext.getEmpresaId();
 
-        ProdutoUnidade novo = new ProdutoUnidade();
-        novo.setProduto(produto);
+        Produto produto = produtoRepository
+                .findByEmpresaIdAndId(empresaId, produtoId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Produto não encontrado.")
+                );
 
-        UnidadeMedida unidadeMedida = unidadeMedidaRepository.findById(request.unidadeMedidaId())
-                .orElseThrow(() -> new EntityNotFoundException("Unidade Medida não encontrada."));
-        novo.setUnidadeMedida(unidadeMedida);
+        UnidadeMedida unidadeMedida = unidadeMedidaRepository
+                .findById(request.unidadeMedidaId())
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Unidade de medida não encontrada.")
+                );
 
-        novo.setQuantidadePadrao(request.quantidadePadrao());
-        novo.setFatorConversao(request.fatorConversao());
+        if (produtoUnidadeRepository.existsByEmpresaIdAndProdutoIdAndUnidadeMedidaId(
+                empresaId,
+                produto.getId(),
+                unidadeMedida.getId()
+        )) {
+            throw new IllegalArgumentException(
+                    "Este vínculo já existe para o produto."
+            );
+        }
 
-        ProdutoUnidade salvo = produtoUnidadeRepository.save(novo);
+        ProdutoUnidade entity = produtoUnidadeMapper.toEntity(
+                request,
+                produto,
+                unidadeMedida,
+                empresaId
+        );
 
-        return toResponse(salvo);
+        return produtoUnidadeMapper.toResponse(
+                produtoUnidadeRepository.save(entity)
+        );
     }
 
+
     // ============================================================
-    // Atualizar
+    // ATUALIZAR
     // ============================================================
 
     @Override
     @Transactional
     public ProdutoUnidadeResponse atualizar(Long id, ProdutoUnidadeRequest request) {
 
-        ProdutoUnidade entidade = produtoUnidadeRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Vínculo produto–unidade não encontrado."));
+        Long empresaId = TenantContext.getEmpresaId();
 
-        entidade.getUnidadeMedida().setId(request.unidadeMedidaId());
-        entidade.setQuantidadePadrao(request.quantidadePadrao());
-        entidade.setFatorConversao(request.fatorConversao());
+        ProdutoUnidade entity = produtoUnidadeRepository
+                .findByEmpresaIdAndId(empresaId, id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Vínculo produto–unidade não encontrado.")
+                );
 
-        ProdutoUnidade atualizado = produtoUnidadeRepository.save(entidade);
+        UnidadeMedida unidadeMedida = unidadeMedidaRepository.findById(request.unidadeMedidaId())
+                .orElseThrow(() -> new EntityNotFoundException("Unidade de medida não encontrada."));
 
-        return toResponse(atualizado);
+        entity.setUnidadeMedida(unidadeMedida);
+        entity.setQuantidadePadrao(request.quantidadePadrao());
+        entity.setFatorConversao(
+                request.fatorConversao() != null ? request.fatorConversao() : 1.0
+        );
+
+        return produtoUnidadeMapper.toResponse(
+                produtoUnidadeRepository.save(entity)
+        );
     }
 
     // ============================================================
-    // Buscar por ID
+    // CONSULTAS
     // ============================================================
 
     @Override
     @Transactional(readOnly = true)
     public Optional<ProdutoUnidadeResponse> buscarPorId(Long id) {
-        return produtoUnidadeRepository.findById(id)
-                .map(this::toResponse);
+        return produtoUnidadeRepository
+                .findByEmpresaIdAndId(TenantContext.getEmpresaId(), id)
+                .map(produtoUnidadeMapper::toResponse);
     }
-
-    // ============================================================
-    // Listar todos
-    // ============================================================
 
     @Override
     @Transactional(readOnly = true)
     public List<ProdutoUnidadeResponse> listarTodos() {
-        return produtoUnidadeRepository.findAll()
+        return produtoUnidadeRepository
+                .findByEmpresaId(TenantContext.getEmpresaId())
                 .stream()
-                .map(this::toResponse)
+                .map(produtoUnidadeMapper::toResponse)
                 .toList();
     }
-
-    // ============================================================
-    // Listar por produto
-    // ============================================================
 
     @Override
     @Transactional(readOnly = true)
     public List<ProdutoUnidadeResponse> listarPorProduto(Long produtoId) {
-        return produtoUnidadeRepository.findByProdutoId(produtoId)
+        return produtoUnidadeRepository
+                .findByEmpresaIdAndProdutoId(
+                        TenantContext.getEmpresaId(),
+                        produtoId
+                )
                 .stream()
-                .map(this::toResponse)
+                .map(produtoUnidadeMapper::toResponse)
                 .toList();
     }
-
-    // ============================================================
-    // Listar por unidade de medida
-    // ============================================================
 
     @Override
     @Transactional(readOnly = true)
     public List<ProdutoUnidadeResponse> listarPorUnidadeMedida(Long unidadeMedidaId) {
-        return produtoUnidadeRepository.findByUnidadeMedidaId(unidadeMedidaId)
+        return produtoUnidadeRepository
+                .findByEmpresaIdAndUnidadeMedidaId(
+                        TenantContext.getEmpresaId(),
+                        unidadeMedidaId
+                )
                 .stream()
-                .map(this::toResponse)
+                .map(produtoUnidadeMapper::toResponse)
                 .toList();
     }
-
-    // ============================================================
-    // Verificar vínculo
-    // ============================================================
 
     @Override
     @Transactional(readOnly = true)
     public boolean verificarVinculo(Long produtoId, Long unidadeMedidaId) {
         return produtoUnidadeRepository
-                .findByProdutoIdAndUnidadeMedidaId(produtoId, unidadeMedidaId)
-                .isPresent();
+                .existsByEmpresaIdAndProdutoIdAndUnidadeMedidaId(
+                        TenantContext.getEmpresaId(),
+                        produtoId,
+                        unidadeMedidaId
+                );
     }
 
     // ============================================================
-    // Deletar
+    // DELETE
     // ============================================================
 
     @Override
     @Transactional
     public void deletar(Long id) {
-        if (!produtoUnidadeRepository.existsById(id)) {
-            throw new EntityNotFoundException("Vínculo produto–unidade não encontrado para exclusão.");
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        if (!produtoUnidadeRepository.existsByEmpresaIdAndId(empresaId, id)) {
+            throw new EntityNotFoundException("Vínculo produto–unidade não encontrado.");
         }
+
         produtoUnidadeRepository.deleteById(id);
-    }
-
-    // ============================================================
-    // Conversão para DTO
-    // ============================================================
-
-    private ProdutoUnidadeResponse toResponse(ProdutoUnidade entidade) {
-        return new ProdutoUnidadeResponse(
-                entidade.getId(),
-                entidade.getProduto().getId(),
-                entidade.getProduto().getDadosBasicos().getNome(),
-                entidade.getUnidadeMedida().getId(),
-                null, // unidadeMedidaNome → vem do ms-empresa, via integração
-                entidade.getQuantidadePadrao()
-        );
     }
 }

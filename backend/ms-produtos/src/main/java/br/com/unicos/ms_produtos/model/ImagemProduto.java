@@ -7,22 +7,27 @@ import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
- * Entidade que representa uma imagem associada a um produto.
+ * Entidade que representa uma imagem associada a um produto,
+ * sempre no contexto de uma empresa (tenant).
  *
  * <p>
- * Suporta múltiplas imagens por produto, permitindo definir qual é a principal,
- * a ordem de exibição e metadados úteis como texto alternativo.
+ * Permite múltiplas imagens por produto, definição de imagem principal,
+ * ordenação de exibição e metadados para acessibilidade e SEO.
  * </p>
  */
 @Entity
 @Table(
         name = "imagem_produto",
         indexes = {
-                @Index(name = "idx_imagem_produto_ordem", columnList = "produto_id, ordem_exibicao")
+                @Index(
+                        name = "idx_imagem_produto_empresa_ordem",
+                        columnList = "empresa_id, produto_id, ordem_exibicao"
+                )
         }
 )
 @EntityListeners(AuditingEntityListener.class)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -33,7 +38,16 @@ public class ImagemProduto {
     private Long id;
 
     /**
+     * Identificador da empresa (tenant).
+     * Campo obrigatório para isolamento multi-tenant.
+     */
+    @NotNull(message = "O identificador da empresa é obrigatório.")
+    @Column(name = "empresa_id", nullable = false, updatable = false)
+    private Long empresaId;
+
+    /**
      * Produto ao qual a imagem pertence.
+     * O produto sempre pertence à mesma empresa.
      */
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -58,6 +72,7 @@ public class ImagemProduto {
     /**
      * Indica se esta é a imagem principal do produto.
      */
+    @NotNull
     @Column(nullable = false)
     @Builder.Default
     private Boolean principal = false;
@@ -71,6 +86,7 @@ public class ImagemProduto {
     /**
      * Status da imagem (ativa ou não).
      */
+    @NotNull
     @Column(nullable = false)
     @Builder.Default
     private Boolean ativo = true;

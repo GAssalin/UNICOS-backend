@@ -3,7 +3,7 @@ package br.com.unicos.ms_produtos.controller;
 import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoListDTO;
 import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoRequest;
 import br.com.unicos.ms_produtos.dto.fornecedor_produto.FornecedorProdutoResponse;
-import br.com.unicos.ms_produtos.service.FornecedorProdutoService;
+import br.com.unicos.ms_produtos.service.interfaces.FornecedorProdutoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;

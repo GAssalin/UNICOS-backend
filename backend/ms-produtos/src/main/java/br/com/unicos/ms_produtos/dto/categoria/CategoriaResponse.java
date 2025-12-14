@@ -4,13 +4,13 @@ import java.util.List;
 
 /**
  * DTO de retorno que representa uma categoria completa,
- * incluindo hierarquia e status.
+ * incluindo hierarquia, status e subcategorias.
  */
 public record CategoriaResponse(
         Long id,
         String nome,
         String descricao,
         Long categoriaPaiId,
-        List<CategoriaListDTO> subcategorias,
-        Boolean ativo
+        Boolean ativo,
+        List<CategoriaListDTO> subcategorias
 ) {}

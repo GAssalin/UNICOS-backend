@@ -11,8 +11,9 @@ import br.com.unicos.ms_produtos.model.Produto;
 import br.com.unicos.ms_produtos.repository.CategoriaRepository;
 import br.com.unicos.ms_produtos.repository.MarcaRepository;
 import br.com.unicos.ms_produtos.repository.ProdutoRepository;
-import br.com.unicos.ms_produtos.service.HistoricoPrecoService;
-import br.com.unicos.ms_produtos.service.ProdutoService;
+import br.com.unicos.ms_produtos.service.interfaces.HistoricoPrecoService;
+import br.com.unicos.ms_produtos.service.interfaces.ProdutoService;
+import br.com.unicos.ms_produtos.tenant.TenantContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -21,11 +22,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementação da interface ProdutoService.
+ * Implementação da interface {@link ProdutoService}.
  *
  * <p>
- * Responsável pela orquestração das regras de negócio relacionadas
- * ao cadastro, atualização, consulta e manipulação do estado dos produtos.
+ * Responsável por orquestrar todas as regras de negócio relacionadas
+ * ao cadastro, atualização, consulta, ativação/inativação e precificação
+ * de produtos, garantindo isolamento total entre empresas (multi-tenant).
  * </p>
  */
 @Service
@@ -37,22 +39,16 @@ public class ProdutoServiceImpl implements ProdutoService {
     private final MarcaRepository marcaRepository;
     private final HistoricoPrecoService historicoPrecoService;
 
-    // 🔹 Mappers
-    private final ProdutoVariacaoMapper produtoVariacaoMapper;
-    private final ProdutoAtributoValorMapper produtoAtributoValorMapper;
-    private final ImagemProdutoMapper imagemProdutoMapper;
-    private final FornecedorProdutoMapper fornecedorProdutoMapper;
-    private final CategoriaMapper categoriaMapper;
-    private final MarcaMapper marcaMapper;
+    private final ProdutoMapper produtoMapper;
 
     public ProdutoServiceImpl(
             ProdutoRepository produtoRepository,
             CategoriaRepository categoriaRepository,
             MarcaRepository marcaRepository,
             HistoricoPrecoService historicoPrecoService,
+            ProdutoMapper produtoMapper,
             ProdutoVariacaoMapper produtoVariacaoMapper,
             ProdutoAtributoValorMapper produtoAtributoValorMapper,
-            ProdutoUnidadeMapper produtoUnidadeMapper,
             ImagemProdutoMapper imagemProdutoMapper,
             FornecedorProdutoMapper fornecedorProdutoMapper,
             CategoriaMapper categoriaMapper,
@@ -62,62 +58,61 @@ public class ProdutoServiceImpl implements ProdutoService {
         this.categoriaRepository = categoriaRepository;
         this.marcaRepository = marcaRepository;
         this.historicoPrecoService = historicoPrecoService;
-
-        this.produtoVariacaoMapper = produtoVariacaoMapper;
-        this.produtoAtributoValorMapper = produtoAtributoValorMapper;
-        this.imagemProdutoMapper = imagemProdutoMapper;
-        this.fornecedorProdutoMapper = fornecedorProdutoMapper;
-        this.categoriaMapper = categoriaMapper;
-        this.marcaMapper = marcaMapper;
+        this.produtoMapper = produtoMapper;
     }
 
     // ============================================================
-    // 🔹 CRUD PRINCIPAL
+    // CRUD
     // ============================================================
 
     @Override
     public ProdutoResponse salvar(ProdutoRequest request) {
 
-        // Validar SKU
-        if (request.dadosBasicos() != null && request.dadosBasicos().getSku() != null)
-            if (!verificarDisponibilidadeSku(request.dadosBasicos().getSku()))
-                throw new IllegalArgumentException("SKU já cadastrado.");
+        Long empresaId = TenantContext.getEmpresaId();
+
+        if (request.dadosBasicos() != null
+                && request.dadosBasicos().getSku() != null
+                && produtoRepository.existsByEmpresaIdAndDadosBasicosSku(
+                empresaId,
+                request.dadosBasicos().getSku())) {
+            throw new IllegalArgumentException("SKU já cadastrado para esta empresa.");
+        }
 
         Produto produto = Produto.builder()
+                .empresaId(empresaId)
                 .dadosBasicos(request.dadosBasicos())
                 .tributacao(request.tributacao())
                 .precoAtual(request.precoAtual())
                 .ativo(true)
-                .categoria(buscarCategoriaOuNull(request.categoriaId()))
-                .marca(buscarMarcaOuNull(request.marcaId()))
+                .categoria(buscarCategoriaOuNull(empresaId, request.categoriaId()))
+                .marca(buscarMarcaOuNull(empresaId, request.marcaId()))
                 .build();
 
-        Produto salvo = produtoRepository.save(produto);
-
-        return toResponse(salvo);
+        return produtoMapper.toResponse(produtoRepository.save(produto));
     }
 
     @Override
     public ProdutoResponse atualizar(Long id, ProdutoRequest request) {
 
-        Produto existente = produtoRepository.findById(id)
+        Long empresaId = TenantContext.getEmpresaId();
+
+        Produto existente = produtoRepository.findByEmpresaIdAndId(empresaId, id)
                 .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
 
-        // SKU alterado?
-        if (request.dadosBasicos() != null) {
-            String novoSku = request.dadosBasicos().getSku();
-            if (novoSku != null && !novoSku.equals(existente.getDadosBasicos().getSku())) {
-                produtoRepository.findByDadosBasicosSku(novoSku).ifPresent(p -> {
-                    if (!p.getId().equals(id)) {
-                        throw new IllegalArgumentException("SKU já está sendo usado por outro produto.");
-                    }
-                });
-            }
+        String novoSku = request.dadosBasicos() != null
+                ? request.dadosBasicos().getSku()
+                : null;
+
+        if (novoSku != null
+                && !novoSku.equals(existente.getDadosBasicos().getSku())
+                && produtoRepository.existsByEmpresaIdAndDadosBasicosSku(empresaId, novoSku)) {
+            throw new IllegalArgumentException("SKU já utilizado por outro produto.");
         }
 
-        BigDecimal precoAnterior = existente.getPrecoAtual().getPrecoVenda();
+        BigDecimal precoAnterior = existente.getPrecoAtual() != null
+                ? existente.getPrecoAtual().getPrecoVenda()
+                : null;
 
-        // Atualizar dados universais
         if (request.dadosBasicos() != null)
             existente.setDadosBasicos(request.dadosBasicos());
 
@@ -127,240 +122,201 @@ public class ProdutoServiceImpl implements ProdutoService {
         if (request.precoAtual() != null)
             existente.setPrecoAtual(request.precoAtual());
 
-        existente.setCategoria(buscarCategoriaOuNull(request.categoriaId()));
-        existente.setMarca(buscarMarcaOuNull(request.marcaId()));
+        existente.setCategoria(buscarCategoriaOuNull(empresaId, request.categoriaId()));
+        existente.setMarca(buscarMarcaOuNull(empresaId, request.marcaId()));
 
         Produto atualizado = produtoRepository.save(existente);
 
         BigDecimal novoPreco = atualizado.getPrecoAtual().getPrecoVenda();
 
-        if (precoAnterior != null && novoPreco != null && precoAnterior.compareTo(novoPreco) != 0) {
+        if (precoAnterior != null && precoAnterior.compareTo(novoPreco) != 0) {
             historicoPrecoService.salvar(
                     atualizado.getId(),
-                    new HistoricoPrecoRequest(precoAnterior, novoPreco, "Atualização de produto")
+                    new HistoricoPrecoRequest(
+                            precoAnterior,
+                            novoPreco,
+                            "Atualização de produto"
+                    )
             );
         }
 
-        return toResponse(atualizado);
+        return produtoMapper.toResponse(atualizado);
     }
 
     @Override
     public Optional<ProdutoResponse> buscarPorId(Long id) {
-        return produtoRepository.findById(id).map(this::toResponse);
+        return produtoRepository
+                .findByEmpresaIdAndId(TenantContext.getEmpresaId(), id)
+                .map(produtoMapper::toResponse);
     }
-
-    // ============================================================
-    // 🔹 LISTAGENS E CONSULTAS
-    // ============================================================
 
     @Override
     public List<ProdutoResponse> listarTodos() {
-        return produtoRepository.findAll()
+        return produtoRepository
+                .findByEmpresaId(TenantContext.getEmpresaId())
                 .stream()
-                .map(this::toResponse)
+                .map(produtoMapper::toResponse)
                 .toList();
     }
 
     @Override
     public void deletar(Long id) {
-        if (!produtoRepository.existsById(id))
-            throw new IllegalArgumentException("Produto não encontrado com ID: " + id);
+        Long empresaId = TenantContext.getEmpresaId();
+
+        if (!produtoRepository.existsByEmpresaIdAndId(empresaId, id)) {
+            throw new IllegalArgumentException("Produto não encontrado.");
+        }
 
         produtoRepository.deleteById(id);
     }
 
+    // ============================================================
+    // CONSULTAS
+    // ============================================================
+
     @Override
     public Optional<ProdutoResponse> buscarPorSku(String sku) {
-        return produtoRepository.findByDadosBasicosSku(sku)
-                .map(this::toResponse);
+        return produtoRepository
+                .findByEmpresaIdAndDadosBasicosSku(TenantContext.getEmpresaId(), sku)
+                .map(produtoMapper::toResponse);
     }
 
     @Override
     public List<ProdutoResponse> buscarPorNome(String nome) {
-        return produtoRepository.findByDadosBasicosNomeContainingIgnoreCase(nome)
+        return produtoRepository
+                .findByEmpresaIdAndDadosBasicosNomeContainingIgnoreCase(
+                        TenantContext.getEmpresaId(), nome)
                 .stream()
-                .map(this::toResponse)
+                .map(produtoMapper::toResponse)
                 .toList();
     }
 
     @Override
     public List<ProdutoResponse> listarPorCategoria(Long categoriaId) {
-        return produtoRepository.findByCategoriaId(categoriaId)
+        return produtoRepository
+                .findByEmpresaIdAndCategoriaId(TenantContext.getEmpresaId(), categoriaId)
                 .stream()
-                .map(this::toResponse)
+                .map(produtoMapper::toResponse)
                 .toList();
     }
 
     @Override
     public List<ProdutoResponse> listarPorMarca(Long marcaId) {
-        return produtoRepository.findByMarcaId(marcaId)
+        return produtoRepository
+                .findByEmpresaIdAndMarcaId(TenantContext.getEmpresaId(), marcaId)
                 .stream()
-                .map(this::toResponse)
+                .map(produtoMapper::toResponse)
                 .toList();
     }
 
     @Override
     public List<ProdutoResponse> listarAtivos() {
-        return produtoRepository.findByAtivoTrue()
+        return produtoRepository
+                .findByEmpresaIdAndAtivoTrue(TenantContext.getEmpresaId())
                 .stream()
-                .map(this::toResponse)
+                .map(produtoMapper::toResponse)
                 .toList();
     }
 
     @Override
     public List<ProdutoResponse> listarInativos() {
-        return produtoRepository.findByAtivoFalse()
+        return produtoRepository
+                .findByEmpresaIdAndAtivoFalse(TenantContext.getEmpresaId())
                 .stream()
-                .map(this::toResponse)
+                .map(produtoMapper::toResponse)
                 .toList();
     }
 
     @Override
     public List<ProdutoResponse> listarPorFaixaDePreco(BigDecimal precoMin, BigDecimal precoMax) {
-        return produtoRepository.findByPrecoAtualPrecoVendaBetween(precoMin, precoMax)
+        return produtoRepository
+                .findByEmpresaIdAndPrecoAtualPrecoVendaBetween(
+                        TenantContext.getEmpresaId(), precoMin, precoMax)
                 .stream()
-                .map(this::toResponse)
+                .map(produtoMapper::toResponse)
                 .toList();
     }
 
-
     // ============================================================
-    // 🔹 ALTERAÇÃO DE ESTADO
+    // ESTADO E PREÇO
     // ============================================================
 
     @Override
     public ProdutoResponse ativarProduto(Long id) {
-        Produto produto = produtoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + id));
+        Produto produto = produtoRepository
+                .findByEmpresaIdAndId(TenantContext.getEmpresaId(), id)
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
 
         produto.setAtivo(true);
-        return toResponse(produtoRepository.save(produto));
+        return produtoMapper.toResponse(produtoRepository.save(produto));
     }
 
     @Override
     public ProdutoResponse inativarProduto(Long id) {
-        Produto produto = produtoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + id));
+        Produto produto = produtoRepository
+                .findByEmpresaIdAndId(TenantContext.getEmpresaId(), id)
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
 
         produto.setAtivo(false);
-        return toResponse(produtoRepository.save(produto));
+        return produtoMapper.toResponse(produtoRepository.save(produto));
     }
-
-
-    // ============================================================
-    // 🔹 PREÇO
-    // ============================================================
 
     @Override
     public ProdutoResponse atualizarPreco(Long id, BigDecimal novoPreco) {
-        Produto produto = produtoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + id));
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        Produto produto = produtoRepository.findByEmpresaIdAndId(empresaId, id)
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
 
         BigDecimal precoAnterior = produto.getPrecoAtual() != null
                 ? produto.getPrecoAtual().getPrecoVenda()
                 : null;
 
         if (produto.getPrecoAtual() == null)
-            produto.setPrecoAtual(new PrecoBase(
-                    null,
-                    novoPreco,
-                    null,
-                    null
-            ));
+            produto.setPrecoAtual(new PrecoBase(null, novoPreco, null, null));
         else
             produto.getPrecoAtual().setPrecoVenda(novoPreco);
 
         Produto atualizado = produtoRepository.save(produto);
 
-        if (precoAnterior != null && precoAnterior.compareTo(novoPreco) != 0)
+        if (precoAnterior != null && precoAnterior.compareTo(novoPreco) != 0) {
             historicoPrecoService.salvar(
                     atualizado.getId(),
-                    new HistoricoPrecoRequest(precoAnterior, novoPreco, "Atualização de preço")
+                    new HistoricoPrecoRequest(
+                            precoAnterior,
+                            novoPreco,
+                            "Atualização manual de preço"
+                    )
             );
+        }
 
-        return toResponse(atualizado);
+        return produtoMapper.toResponse(atualizado);
     }
-
-    // ============================================================
-    // 🔹 VALIDAÇÃO DE SKU
-    // ============================================================
 
     @Override
     public boolean verificarDisponibilidadeSku(String sku) {
-        return produtoRepository.findByDadosBasicosSku(sku).isEmpty();
-    }
-
-    // ============================================================
-    // 🔹 RESPONSE USANDO OS MAPPERS
-    // ============================================================
-
-    private ProdutoResponse toResponse(Produto produto) {
-
-        return new ProdutoResponse(
-                produto.getId(),
-                produto.isAtivo(),
-                produto.getDadosBasicos(),
-                produto.getTributacao(),
-                produto.getPrecoAtual(),
-
-                // Categoria via mapper
-                produto.getCategoria() != null
-                        ? categoriaMapper.toResponse(produto.getCategoria())
-                        : null,
-
-                // Marca via mapper
-                produto.getMarca() != null
-                        ? marcaMapper.toResponse(produto.getMarca())
-                        : null,
-
-                // Imagens via mapper
-                produto.getImagens() == null
-                        ? List.of()
-                        : produto.getImagens().stream()
-                        .map(imagemProdutoMapper::toResponse)
-                        .toList(),
-
-                // Atributos via mapper
-                produto.getAtributos() == null
-                        ? List.of()
-                        : produto.getAtributos().stream()
-                        .map(a -> produtoAtributoValorMapper.toResponse(a, produto.getId()))
-                        .toList(),
-
-                // Fornecedores via mapper
-                produto.getFornecedores() == null
-                        ? List.of()
-                        : produto.getFornecedores().stream()
-                        .map(fornecedorProdutoMapper::toResponse)
-                        .toList(),
-
-                // Variações via mapper
-                produto.getVariacoes() == null
-                        ? List.of()
-                        : produto.getVariacoes().stream()
-                        .map(produtoVariacaoMapper::toResponse)
-                        .toList()
+        return !produtoRepository.existsByEmpresaIdAndDadosBasicosSku(
+                TenantContext.getEmpresaId(),
+                sku
         );
     }
 
     // ============================================================
-    // 🧭 MÉTODOS AUXILIARES
+    // AUXILIARES
     // ============================================================
 
-    private Categoria buscarCategoriaOuNull(Long categoriaId) {
-        if (categoriaId == null)
-            return null;
+    private Categoria buscarCategoriaOuNull(Long empresaId, Long categoriaId) {
+        if (categoriaId == null) return null;
 
-        return categoriaRepository.findById(categoriaId)
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada com ID: " + categoriaId));
+        return categoriaRepository.findByEmpresaIdAndId(empresaId, categoriaId)
+                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada."));
     }
 
-    private Marca buscarMarcaOuNull(Long marcaId) {
-        if (marcaId == null)
-            return null;
+    private Marca buscarMarcaOuNull(Long empresaId, Long marcaId) {
+        if (marcaId == null) return null;
 
-        return marcaRepository.findById(marcaId)
-                .orElseThrow(() -> new IllegalArgumentException("Marca não encontrada com ID: " + marcaId));
+        return marcaRepository.findByEmpresaIdAndId(empresaId, marcaId)
+                .orElseThrow(() -> new IllegalArgumentException("Marca não encontrada."));
     }
-
 }

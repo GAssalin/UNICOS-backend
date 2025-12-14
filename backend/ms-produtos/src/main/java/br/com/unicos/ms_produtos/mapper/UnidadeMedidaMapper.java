@@ -3,21 +3,37 @@ package br.com.unicos.ms_produtos.mapper;
 import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaListDTO;
 import br.com.unicos.ms_produtos.dto.unidade_medida.UnidadeMedidaResponse;
 import br.com.unicos.ms_produtos.model.UnidadeMedida;
-import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+/**
+ * Mapper responsável pela conversão entre UnidadeMedida
+ * e seus respectivos DTOs.
+ */
 @Component
-@RequiredArgsConstructor
 public class UnidadeMedidaMapper {
 
-    private final ModelMapper mapper;
-
+    /**
+     * Converte entidade para DTO de resposta detalhada.
+     */
     public UnidadeMedidaResponse toResponse(UnidadeMedida entity) {
-        return mapper.map(entity, UnidadeMedidaResponse.class);
+        return new UnidadeMedidaResponse(
+                entity.getId(),
+                entity.getNome(),
+                entity.getSigla(),
+                entity.getDescricao(),
+                entity.getAtivo()
+        );
     }
 
+    /**
+     * Converte entidade para DTO de listagem.
+     */
     public UnidadeMedidaListDTO toListDTO(UnidadeMedida entity) {
-        return mapper.map(entity, UnidadeMedidaListDTO.class);
+        return new UnidadeMedidaListDTO(
+                entity.getId(),
+                entity.getNome(),
+                entity.getSigla(),
+                entity.getAtivo()
+        );
     }
 }

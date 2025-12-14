@@ -1,8 +1,7 @@
 package br.com.unicos.ms_produtos.dto.categoria;
 
 /**
- * DTO utilizado em listagens de categorias,
- * trazendo apenas informações essenciais.
+ * DTO utilizado em listagens simplificadas de categorias.
  */
 public record CategoriaListDTO(
         Long id,

@@ -1,5 +1,13 @@
+-- ============================================================
+--  V5 - INSERT INICIAIS: produto
+--  Insere produtos de exemplo no catálogo
+--  Arquitetura: MULTI-TENANT (empresa_id)
+-- ============================================================
+
 INSERT INTO produto (
     id,
+    empresa_id,
+
     dados_basicos_nome,
     dados_basicos_descricao,
     dados_basicos_sku,
@@ -20,8 +28,9 @@ INSERT INTO produto (
     marca_id
 )
 VALUES
+
 -- 1) Smartphone Samsung
-(1,
+(1, 1,
  'Smartphone Galaxy A54',
  'Smartphone Samsung com 8GB RAM e 256GB armazenamento.',
  'SM-A54-256-8',
@@ -34,7 +43,7 @@ VALUES
  TRUE, 1, 1),
 
 -- 2) Mouse Logitech
-(2,
+(2, 1,
  'Mouse Sem Fio Logitech M280',
  'Mouse ergonômico de alta precisão com receptor USB.',
  'LT-M280',
@@ -47,7 +56,7 @@ VALUES
  TRUE, 2, 2),
 
 -- 3) Tênis Nike
-(3,
+(3, 1,
  'Tênis Nike Revolution 6',
  'Calçado esportivo para caminhadas e treinos leves.',
  'NK-REV6',
@@ -60,7 +69,7 @@ VALUES
  TRUE, 3, 3),
 
 -- 4) Monitor Dell
-(4,
+(4, 1,
  'Monitor Dell 24 Polegadas',
  'Monitor LED Full HD com borda fina.',
  'DL-24-FHD',
@@ -73,7 +82,7 @@ VALUES
  TRUE, 1, 4),
 
 -- 5) Poltrona Tok&Stok
-(5,
+(5, 1,
  'Poltrona Conforto Premium',
  'Poltrona estofada para sala de estar.',
  'TS-POLTR-PRM',

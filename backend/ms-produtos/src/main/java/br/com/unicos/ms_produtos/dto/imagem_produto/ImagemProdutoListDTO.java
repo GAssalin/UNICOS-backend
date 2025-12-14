@@ -1,8 +1,8 @@
 package br.com.unicos.ms_produtos.dto.imagem_produto;
 
 /**
- * DTO utilizado em listagens de imagens do produto,
- * retornando apenas os campos essenciais.
+ * DTO utilizado em listagens de imagens de produto,
+ * retornando apenas informações essenciais para exibição.
  */
 public record ImagemProdutoListDTO(
         Long id,

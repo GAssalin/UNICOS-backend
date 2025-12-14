@@ -7,17 +7,21 @@ import jakarta.validation.constraints.Size;
  * DTO utilizado para criação ou atualização de unidades de medida.
  *
  * <p>
- * Contém apenas os dados necessários para entrada,
- * sem informações de auditoria ou identificadores.
+ * A unidade de medida será criada ou atualizada
+ * no contexto da empresa autenticada (tenant),
+ * determinado automaticamente pelo backend.
  * </p>
  */
 public record UnidadeMedidaRequest(
-        @NotBlank(message = "O nome da unidade é obrigatório.")
-        @Size(max = 50)
+
+        @NotBlank(message = "O nome da unidade de medida é obrigatório.")
+        @Size(max = 50, message = "O nome da unidade deve ter no máximo 50 caracteres.")
         String nome,
-        @NotBlank(message = "A sigla é obrigatória.")
-        @Size(max = 10)
+
+        @NotBlank(message = "A sigla da unidade de medida é obrigatória.")
+        @Size(max = 10, message = "A sigla deve ter no máximo 10 caracteres.")
         String sigla,
-        @Size(max = 255)
+
+        @Size(max = 255, message = "A descrição deve ter no máximo 255 caracteres.")
         String descricao
 ) {}

@@ -8,18 +8,21 @@ import jakarta.validation.constraints.Size;
  * DTO utilizado para criação ou atualização de imagens de produto.
  *
  * <p>
- * Representa os dados necessários para registrar uma imagem associada
- * a um produto, permitindo definir URL, texto alternativo, ordem
- * de exibição e se ela é a imagem principal.
+ * O produto e a empresa (tenant) são resolvidos automaticamente
+ * pelo backend a partir do contexto da requisição.
  * </p>
  */
 public record ImagemProdutoRequest(
+
         @NotBlank(message = "A URL da imagem é obrigatória.")
-        @Size(max = 500)
+        @Size(max = 500, message = "A URL da imagem deve ter no máximo 500 caracteres.")
         String url,
-        @Size(max = 255)
+
+        @Size(max = 255, message = "A descrição alternativa deve ter no máximo 255 caracteres.")
         String descricaoAlt,
-        @NotNull
+
+        @NotNull(message = "É obrigatório informar se a imagem é principal.")
         Boolean principal,
+
         Integer ordemExibicao
 ) {}

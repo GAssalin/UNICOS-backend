@@ -6,13 +6,14 @@ import br.com.unicos.ms_produtos.model.HistoricoPreco;
 import org.springframework.stereotype.Component;
 
 /**
- * Mapper responsável pela conversão entre HistoricoPreco e seus respectivos DTOs.
+ * Mapper responsável pela conversão entre HistoricoPreco
+ * e seus respectivos DTOs.
  */
 @Component
 public class HistoricoPrecoMapper {
 
     /**
-     * Converte a entidade para o DTO de resposta detalhada.
+     * Converte a entidade para DTO de resposta detalhada.
      */
     public HistoricoPrecoResponse toResponse(HistoricoPreco entity) {
         return new HistoricoPrecoResponse(
@@ -26,7 +27,7 @@ public class HistoricoPrecoMapper {
     }
 
     /**
-     * Converte para o DTO de listagem simplificada.
+     * Converte a entidade para DTO de listagem.
      */
     public HistoricoPrecoListDTO toListDTO(HistoricoPreco entity) {
         return new HistoricoPrecoListDTO(

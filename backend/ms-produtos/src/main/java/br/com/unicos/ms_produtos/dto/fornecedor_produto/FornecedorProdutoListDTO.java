@@ -6,15 +6,17 @@ import java.math.BigDecimal;
  * DTO utilizado para listagens de vínculos entre fornecedores e produtos.
  *
  * <p>
- * Fornece uma visão resumida contendo apenas os dados essenciais
- * para exibição em listas, sem informações de auditoria ou detalhes
- * específicos do produto.
+ * Fornece uma visão resumida do relacionamento fornecedor–produto,
+ * contendo apenas informações essenciais para exibição em listas.
+ * O contexto da empresa (tenant) é resolvido automaticamente no backend.
  * </p>
  */
 public record FornecedorProdutoListDTO(
         Long id,
+
         Long fornecedorId,
         String fornecedorNome,
+
         String codigoFornecedor,
         BigDecimal precoCusto,
         Integer prazoEntregaDias

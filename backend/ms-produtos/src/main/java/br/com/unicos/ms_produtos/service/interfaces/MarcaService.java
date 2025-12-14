@@ -1,4 +1,4 @@
-package br.com.unicos.ms_produtos.service;
+package br.com.unicos.ms_produtos.service.interfaces;
 
 import br.com.unicos.ms_produtos.dto.marca.MarcaListDTO;
 import br.com.unicos.ms_produtos.dto.marca.MarcaRequest;

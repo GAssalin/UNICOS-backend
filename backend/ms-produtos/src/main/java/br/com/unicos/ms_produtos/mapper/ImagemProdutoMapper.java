@@ -8,21 +8,19 @@ import br.com.unicos.ms_produtos.model.Produto;
 import org.springframework.stereotype.Component;
 
 /**
- * Mapper responsável por converter entidades ImagemProduto
- * para seus respectivos DTOs (List, Response) e também
- * construir entidades a partir de requests.
+ * Mapper responsável pela conversão entre ImagemProduto
+ * e seus respectivos DTOs.
  *
  * <p>
- * Não realiza acesso ao banco — isso é responsabilidade do service.
+ * Não realiza acesso a banco de dados. O carregamento de entidades
+ * é responsabilidade da camada de service.
  * </p>
  */
 @Component
 public class ImagemProdutoMapper {
 
     /**
-     * Converte entidade → DTO completo (ImagemProdutoResponse).
-     *
-     * @param entity entidade ImagemProduto
+     * Converte entidade para DTO de resposta detalhada.
      */
     public ImagemProdutoResponse toResponse(ImagemProduto entity) {
 
@@ -42,7 +40,7 @@ public class ImagemProdutoMapper {
     }
 
     /**
-     * Converte entidade → DTO simplificado (ImagemProdutoListDTO).
+     * Converte entidade para DTO de listagem.
      */
     public ImagemProdutoListDTO toListDTO(ImagemProduto entity) {
         return new ImagemProdutoListDTO(
@@ -54,10 +52,7 @@ public class ImagemProdutoMapper {
     }
 
     /**
-     * Constrói a entidade ImagemProduto a partir do request.
-     * <p>
-     * O service deve fornecer o Produto já carregado.
-     * </p>
+     * Constrói entidade ImagemProduto a partir do request.
      */
     public ImagemProduto toEntity(
             ImagemProdutoRequest request,
@@ -69,15 +64,12 @@ public class ImagemProdutoMapper {
                 .descricaoAlt(request.descricaoAlt())
                 .principal(request.principal())
                 .ordemExibicao(request.ordemExibicao())
-                .ativo(true) // padrão
+                .ativo(true)
                 .build();
     }
 
     /**
-     * Atualiza uma entidade existente com dados do request.
-     * <p>
-     * Mantém o vínculo com o Produto.
-     * </p>
+     * Atualiza entidade existente com dados do request.
      */
     public void updateEntity(
             ImagemProdutoRequest request,

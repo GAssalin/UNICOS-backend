@@ -3,7 +3,7 @@ package br.com.unicos.ms_produtos.controller;
 import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoListDTO;
 import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoRequest;
 import br.com.unicos.ms_produtos.dto.historico_preco.HistoricoPrecoResponse;
-import br.com.unicos.ms_produtos.service.HistoricoPrecoService;
+import br.com.unicos.ms_produtos.service.interfaces.HistoricoPrecoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;

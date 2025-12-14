@@ -8,10 +8,11 @@ import br.com.unicos.ms_produtos.model.HistoricoPreco;
 import br.com.unicos.ms_produtos.model.Produto;
 import br.com.unicos.ms_produtos.repository.HistoricoPrecoRepository;
 import br.com.unicos.ms_produtos.repository.ProdutoRepository;
-import br.com.unicos.ms_produtos.service.HistoricoPrecoService;
-import jakarta.transaction.Transactional;
+import br.com.unicos.ms_produtos.service.interfaces.HistoricoPrecoService;
+import br.com.unicos.ms_produtos.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,11 +36,17 @@ public class HistoricoPrecoServiceImpl implements HistoricoPrecoService {
     @Override
     public HistoricoPrecoResponse salvar(Long produtoId, HistoricoPrecoRequest request) {
 
-        Produto produto = produtoRepository.findById(produtoId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Produto não encontrado com ID: " + produtoId));
+        Long empresaId = TenantContext.getEmpresaId();
+
+        Produto produto = produtoRepository.findByEmpresaIdAndId(empresaId, produtoId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Produto não encontrado para a empresa atual"
+                        )
+                );
 
         HistoricoPreco entity = HistoricoPreco.builder()
+                .empresaId(empresaId)
                 .produto(produto)
                 .precoAnterior(request.precoAnterior())
                 .novoPreco(request.novoPreco())
@@ -54,30 +61,54 @@ public class HistoricoPrecoServiceImpl implements HistoricoPrecoService {
     // ============================================================
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<HistoricoPrecoResponse> buscarPorId(Long id) {
-        return repository.findById(id)
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.findByEmpresaIdAndId(empresaId, id)
                 .map(mapper::toResponse);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<HistoricoPrecoResponse> listarTodos() {
-        return repository.findAllByOrderByDataAlteracaoDesc()
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository.findByEmpresaIdOrderByDataAlteracaoDesc(empresaId)
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<HistoricoPrecoResponse> listarPorProduto(Long produtoId) {
-        return repository.findByProdutoIdOrderByDataAlteracaoDesc(produtoId)
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository
+                .findByEmpresaIdAndProdutoIdOrderByDataAlteracaoDesc(
+                        empresaId,
+                        produtoId
+                )
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<HistoricoPrecoListDTO> listarUltimosPorProduto(Long produtoId) {
-        return repository.findTop10ByProdutoIdOrderByDataAlteracaoDesc(produtoId)
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        return repository
+                .findTop10ByEmpresaIdAndProdutoIdOrderByDataAlteracaoDesc(
+                        empresaId,
+                        produtoId
+                )
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -89,9 +120,15 @@ public class HistoricoPrecoServiceImpl implements HistoricoPrecoService {
 
     @Override
     public void deletar(Long id) {
-        if (!repository.existsById(id)) {
-            throw new IllegalArgumentException("Histórico de preço não encontrado com ID: " + id);
+
+        Long empresaId = TenantContext.getEmpresaId();
+
+        if (!repository.existsByEmpresaIdAndId(empresaId, id)) {
+            throw new IllegalArgumentException(
+                    "Histórico de preço não encontrado para a empresa atual"
+            );
         }
+
         repository.deleteById(id);
     }
 }

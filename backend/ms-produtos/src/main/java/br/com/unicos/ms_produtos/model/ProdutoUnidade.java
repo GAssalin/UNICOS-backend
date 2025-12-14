@@ -8,7 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * Entidade que representa a unidade de medida padrão ou alternativa
- * associada a um produto.
+ * associada a um produto, sempre no contexto de uma empresa (tenant).
  *
  * <p>
  * Permite definir quantidades padrão e fatores de conversão
@@ -19,13 +19,20 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @Table(
         name = "produto_unidade",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_produto_unidade",
-                columnNames = {"produto_id", "unidade_medida_id"}
-        )
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_produto_unidade_empresa",
+                        columnNames = {"empresa_id", "produto_id", "unidade_medida_id"}
+                )
+        },
+        indexes = {
+                @Index(name = "idx_prod_unidade_empresa", columnList = "empresa_id"),
+                @Index(name = "idx_prod_unidade_empresa_produto", columnList = "empresa_id, produto_id")
+        }
 )
 @EntityListeners(AuditingEntityListener.class)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -36,7 +43,16 @@ public class ProdutoUnidade {
     private Long id;
 
     /**
+     * Identificador da empresa (tenant).
+     * Campo obrigatório para isolamento multi-tenant.
+     */
+    @NotNull(message = "O identificador da empresa é obrigatório.")
+    @Column(name = "empresa_id", nullable = false, updatable = false)
+    private Long empresaId;
+
+    /**
      * Produto ao qual esta unidade está associada.
+     * O produto sempre pertence à mesma empresa.
      */
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -47,10 +63,13 @@ public class ProdutoUnidade {
 
     /**
      * Unidade de medida utilizada (ex.: unidade, caixa, kg).
+     * A unidade também pertence à mesma empresa.
      */
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unidade_medida_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private UnidadeMedida unidadeMedida;
 
     /**
@@ -65,6 +84,7 @@ public class ProdutoUnidade {
      * Fator de conversão entre unidades.
      * Ex.: 1 caixa = 12 unidades → fatorConversao = 12.
      */
+    @NotNull
     @Positive
     @Column(name = "fator_conversao", nullable = false)
     @Builder.Default

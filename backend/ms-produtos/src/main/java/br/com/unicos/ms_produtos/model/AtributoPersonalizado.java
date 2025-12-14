@@ -2,21 +2,20 @@ package br.com.unicos.ms_produtos.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
  * Entidade que representa um atributo configurável de produto,
- * geralmente associado a uma categoria (ex.: "Cor", "Tamanho").
+ * associado a uma categoria específica dentro de uma empresa (tenant).
  *
  * <p>
- * Os atributos personalizados permitem que produtos de uma mesma categoria
- * compartilhem características específicas definidas pela empresa.
+ * Exemplo de atributos: Cor, Tamanho, Material, Voltagem.
+ * Cada empresa possui seu próprio conjunto de atributos,
+ * mesmo que compartilhem nomes semelhantes.
  * </p>
  */
 @Entity
@@ -24,13 +23,14 @@ import java.util.List;
         name = "atributo_personalizado",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_atributo_categoria",
-                        columnNames = {"nome", "categoria_id"}
+                        name = "uk_atributo_empresa_categoria",
+                        columnNames = {"empresa_id", "nome", "categoria_id"}
                 )
         }
 )
 @EntityListeners(AuditingEntityListener.class)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -41,6 +41,14 @@ public class AtributoPersonalizado {
     private Long id;
 
     /**
+     * Identificador da empresa (tenant).
+     * Campo obrigatório para isolamento multi-tenant.
+     */
+    @NotNull(message = "O identificador da empresa é obrigatório.")
+    @Column(name = "empresa_id", nullable = false, updatable = false)
+    private Long empresaId;
+
+    /**
      * Nome do atributo (ex.: "Cor", "Tamanho").
      */
     @NotBlank(message = "O nome do atributo é obrigatório.")
@@ -49,18 +57,23 @@ public class AtributoPersonalizado {
 
     /**
      * Categoria à qual o atributo pertence.
-     * Cada categoria possui seu conjunto próprio de atributos.
+     * Os atributos são específicos por categoria e por empresa.
      */
+    @NotNull(message = "A categoria é obrigatória.")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id", nullable = false)
     @ToString.Exclude
     private Categoria categoria;
 
     /**
-     * Lista de valores de atributo aplicados a produtos associados a este atributo.
+     * Valores atribuídos a produtos que utilizam este atributo.
      */
-    @OneToMany(mappedBy = "atributoPersonalizado", cascade = CascadeType.ALL,
-            orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "atributoPersonalizado",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<ProdutoAtributoValor> valores;

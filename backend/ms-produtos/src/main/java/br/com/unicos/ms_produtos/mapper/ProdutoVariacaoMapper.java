@@ -8,20 +8,14 @@ import br.com.unicos.ms_produtos.model.ProdutoVariacao;
 import org.springframework.stereotype.Component;
 
 /**
- * Mapper responsável pela conversão entre ProdutoVariacao e seus DTOs.
- *
- * <p>
- * Realiza conversões:
- * • Entidade → Response completo
- * • Entidade → DTO simples (listagem)
- * • Request + Produto → Entidade
- * </p>
+ * Mapper responsável pela conversão entre ProdutoVariacao
+ * e seus respectivos DTOs.
  */
 @Component
 public class ProdutoVariacaoMapper {
 
     /**
-     * Converte entidade ProdutoVariacao → ProdutoVariacaoResponse.
+     * Converte entidade para DTO de resposta detalhada.
      */
     public ProdutoVariacaoResponse toResponse(ProdutoVariacao entity) {
 
@@ -44,7 +38,7 @@ public class ProdutoVariacaoMapper {
     }
 
     /**
-     * Converte entidade → DTO simples de listagem.
+     * Converte entidade para DTO de listagem.
      */
     public ProdutoVariacaoListDTO toListDTO(ProdutoVariacao entity) {
         return new ProdutoVariacaoListDTO(
@@ -57,9 +51,11 @@ public class ProdutoVariacaoMapper {
     }
 
     /**
-     * Constrói a entidade ProdutoVariacao a partir do request.
+     * Constrói entidade ProdutoVariacao a partir do request.
+     *
      * <p>
-     * O service deve passar o Produto já carregado.
+     * O produto deve ser fornecido pelo service já carregado.
+     * </p>
      */
     public ProdutoVariacao toEntity(
             ProdutoVariacaoRequest request,
@@ -74,14 +70,12 @@ public class ProdutoVariacaoMapper {
                 .cor(request.cor())
                 .tamanho(request.tamanho())
                 .material(request.material())
-                .ativo(true) // padrão
+                .ativo(true)
                 .build();
     }
 
     /**
-     * Atualiza uma entidade existente com dados do request.
-     * <p>
-     * Mantém o produto já vinculado.
+     * Atualiza entidade existente com dados do request.
      */
     public void updateEntity(
             ProdutoVariacaoRequest request,

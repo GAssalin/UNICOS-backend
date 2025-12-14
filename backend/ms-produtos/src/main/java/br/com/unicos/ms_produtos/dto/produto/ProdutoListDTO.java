@@ -1,15 +1,17 @@
 package br.com.unicos.ms_produtos.dto.produto;
 
-import br.com.unicos.core.produto.model.ProdutoBase;
-
 /**
- * DTO utilizado para listagem leve dos produtos.
- * Ideal para consultas rápidas e catálogos.
+ * DTO utilizado para listagem leve de produtos.
+ * Ideal para catálogos e consultas rápidas.
  */
 public record ProdutoListDTO(
         Long id,
-        ProdutoBase dadosBasicos,
-        boolean ativo,
+
+        String nome,
+        String sku,
+
+        Boolean ativo,
+
         Long categoriaId,
         Long marcaId
 ) {}

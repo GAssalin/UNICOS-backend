@@ -8,6 +8,5 @@ public record MarcaResponse(
         Long id,
         String nome,
         String descricao,
-        String paisOrigem,
-        Boolean ativo
+        String paisOrigem
 ) {}

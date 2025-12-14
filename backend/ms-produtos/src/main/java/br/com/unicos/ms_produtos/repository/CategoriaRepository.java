@@ -10,43 +10,108 @@ import java.util.Optional;
 /**
  * Repositório responsável pelas operações de persistência
  * da entidade {@link Categoria}.
+ *
  * <p>
- * Fornece métodos de consulta personalizados para busca, ordenação
- * e verificação de existência de categorias.
+ * Todas as consultas são realizadas dentro do contexto
+ * de uma empresa (tenant), identificado pelo {@code empresaId}.
+ * </p>
+ *
+ * <p>
+ * Garante que categorias:
+ * <ul>
+ *     <li>possam ter nomes repetidos entre empresas</li>
+ *     <li>não tenham duplicidade de nomes dentro da mesma empresa</li>
+ * </ul>
+ * </p>
  */
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
     /**
-     * Busca uma categoria pelo nome exato, ignorando diferenças de maiúsculas e minúsculas.
+     * Busca uma categoria pelo nome exato, ignorando diferenças
+     * de maiúsculas e minúsculas, no contexto de uma empresa.
      *
-     * @param nome Nome da categoria.
-     * @return {@link Optional} contendo a categoria correspondente, caso exista.
+     * @param empresaId ID da empresa (tenant).
+     * @param nome      Nome da categoria.
+     * @return {@link Optional} contendo a categoria, se existir.
      */
-    Optional<Categoria> findByNomeIgnoreCase(String nome);
+    Optional<Categoria> findByEmpresaIdAndNomeIgnoreCase(
+            Long empresaId,
+            String nome
+    );
 
     /**
-     * Busca todas as categorias cujo nome contenha o termo informado (case insensitive).
-     * Útil para pesquisas parciais em telas de listagem e autocomplete.
+     * Busca uma categoria pelo ID dentro do contexto da empresa.
      *
-     * @param nome Parte do nome da categoria.
-     * @return Lista de categorias correspondentes.
+     * @param empresaId ID da empresa (tenant).
+     * @param id        ID da categoria.
+     * @return {@link Optional} contendo a categoria, se existir.
      */
-    List<Categoria> findByNomeContainingIgnoreCase(String nome);
+    Optional<Categoria> findByEmpresaIdAndId(
+            Long empresaId,
+            Long id
+    );
 
     /**
-     * Verifica se já existe uma categoria cadastrada com o nome informado.
-     * Ignora diferenças de maiúsculas e minúsculas.
+     * Retorna todas as categorias pertencentes a uma empresa.
      *
-     * @param nome Nome da categoria a verificar.
-     * @return {@code true} se já existir uma categoria com o mesmo nome, caso contrário {@code false}.
+     * @param empresaId ID da empresa (tenant).
+     * @return Lista de categorias da empresa.
      */
-    boolean existsByNomeIgnoreCase(String nome);
+    List<Categoria> findByEmpresaId(
+            Long empresaId
+    );
 
     /**
-     * Retorna todas as categorias ordenadas alfabeticamente pelo nome.
+     * Busca categorias cujo nome contenha o termo informado,
+     * restringindo o resultado à empresa.
      *
-     * @return Lista de categorias em ordem crescente de nome.
+     * @param empresaId ID da empresa (tenant).
+     * @param nome      Parte do nome da categoria.
+     * @return Lista de categorias encontradas.
      */
-    List<Categoria> findAllByOrderByNomeAsc();
+    List<Categoria> findByEmpresaIdAndNomeContainingIgnoreCase(
+            Long empresaId,
+            String nome
+    );
+
+    /**
+     * Verifica se já existe uma categoria com o nome informado
+     * dentro de uma empresa.
+     *
+     * @param empresaId ID da empresa (tenant).
+     * @param nome      Nome da categoria.
+     * @return {@code true} se existir, {@code false} caso contrário.
+     */
+    boolean existsByEmpresaIdAndNomeIgnoreCase(
+            Long empresaId,
+            String nome
+    );
+
+    /**
+     * Retorna todas as categorias de uma empresa,
+     * ordenadas alfabeticamente pelo nome.
+     *
+     * @param empresaId ID da empresa (tenant).
+     * @return Lista ordenada de categorias.
+     */
+    List<Categoria> findByEmpresaIdOrderByNomeAsc(
+            Long empresaId
+    );
+
+    /**
+     * Retorna todas as categorias raiz (sem categoria pai)
+     * pertencentes a uma empresa.
+     *
+     * <p>
+     * Muito utilizado para montagem de árvores hierárquicas
+     * no frontend.
+     * </p>
+     *
+     * @param empresaId ID da empresa (tenant).
+     * @return Lista de categorias raiz.
+     */
+    List<Categoria> findByEmpresaIdAndCategoriaPaiIsNull(
+            Long empresaId
+    );
 }

@@ -3,26 +3,20 @@ package br.com.unicos.ms_produtos.mapper;
 import br.com.unicos.ms_produtos.dto.categoria.CategoriaListDTO;
 import br.com.unicos.ms_produtos.dto.categoria.CategoriaResponse;
 import br.com.unicos.ms_produtos.model.Categoria;
-import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /**
- * Responsável por conversões entre Categoria e seus DTOs
- * utilizando ModelMapper, com ajustes manuais quando necessário
- * (especialmente para hierarquia).
+ * Mapper responsável pela conversão entre Categoria
+ * e seus respectivos DTOs.
  */
 @Component
-@RequiredArgsConstructor
 public class CategoriaMapper {
 
-    private final ModelMapper mapper;
-
     /**
-     * Converte a entidade Categoria em CategoriaResponse,
-     * incluindo subcategorias e categoriaPaiId.
+     * Converte Categoria para DTO de resposta detalhada,
+     * incluindo subcategorias.
      */
     public CategoriaResponse toResponse(Categoria entity) {
 
@@ -38,13 +32,13 @@ public class CategoriaMapper {
                 entity.getNome(),
                 entity.getDescricao(),
                 entity.getCategoriaPai() != null ? entity.getCategoriaPai().getId() : null,
-                subcategorias,
-                entity.getAtivo()
+                entity.getAtivo(),
+                subcategorias
         );
     }
 
     /**
-     * Converte Categoria para CategoriaListDTO.
+     * Converte Categoria para DTO de listagem.
      */
     public CategoriaListDTO toListDTO(Categoria entity) {
         return new CategoriaListDTO(
