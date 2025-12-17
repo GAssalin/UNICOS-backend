@@ -24,8 +24,7 @@ import java.util.Optional;
  * </p>
  */
 @Repository
-public interface UsuarioEmailVerificacaoRepository
-        extends BaseTenantRepository<UsuarioEmailVerificacao, Long> {
+public interface UsuarioEmailVerificacaoRepository extends BaseTenantRepository<UsuarioEmailVerificacao, Long> {
 
     // ============================================================
     // Consultas de runtime (NÃO PAGINADAS)
@@ -44,10 +43,7 @@ public interface UsuarioEmailVerificacaoRepository
      * @param empresaId Identificador da empresa (tenant).
      * @return Registro correspondente, caso exista no tenant.
      */
-    Optional<UsuarioEmailVerificacao> findByTokenHashAndEmpresaId(
-            String tokenHash,
-            Long empresaId
-    );
+    Optional<UsuarioEmailVerificacao> findByTokenHashAndEmpresaId(String tokenHash, Long empresaId);
 
     /**
      * Busca um token válido (não expirado) dentro da empresa (tenant).
@@ -57,11 +53,7 @@ public interface UsuarioEmailVerificacaoRepository
      * @param empresaId Identificador da empresa (tenant).
      * @return Registro válido, se encontrado no tenant.
      */
-    Optional<UsuarioEmailVerificacao> findByTokenHashAndExpiracaoAfterAndEmpresaId(
-            String tokenHash,
-            LocalDateTime agora,
-            Long empresaId
-    );
+    Optional<UsuarioEmailVerificacao> findByTokenHashAndExpiracaoAfterAndEmpresaId(String tokenHash, LocalDateTime agora, Long empresaId);
 
     /**
      * Busca o token pendente mais recente para um usuário específico,
@@ -76,10 +68,7 @@ public interface UsuarioEmailVerificacaoRepository
      * @param empresaId Identificador da empresa (tenant).
      * @return Token ainda não utilizado, se existir no tenant.
      */
-    Optional<UsuarioEmailVerificacao> findByUsuarioIdAndUtilizadoFalseAndEmpresaId(
-            Long usuarioId,
-            Long empresaId
-    );
+    Optional<UsuarioEmailVerificacao> findByUsuarioIdAndUtilizadoFalseAndEmpresaId(Long usuarioId, Long empresaId);
 
     // ============================================================
     // Consultas administrativas / batch (PAGINADAS)
@@ -98,11 +87,7 @@ public interface UsuarioEmailVerificacaoRepository
      * @param pageable  Informações de paginação.
      * @return Página de tokens expirados.
      */
-    Page<UsuarioEmailVerificacao> findByExpiracaoBeforeAndEmpresaId(
-            LocalDateTime agora,
-            Long empresaId,
-            Pageable pageable
-    );
+    Page<UsuarioEmailVerificacao> findByExpiracaoBeforeAndEmpresaId(LocalDateTime agora, Long empresaId, Pageable pageable);
 
     /**
      * Lista tokens ativos (não expirados) dentro de uma empresa (tenant),
@@ -113,11 +98,7 @@ public interface UsuarioEmailVerificacaoRepository
      * @param pageable  Informações de paginação.
      * @return Página de tokens válidos.
      */
-    Page<UsuarioEmailVerificacao> findByExpiracaoAfterAndEmpresaId(
-            LocalDateTime agora,
-            Long empresaId,
-            Pageable pageable
-    );
+    Page<UsuarioEmailVerificacao> findByExpiracaoAfterAndEmpresaId(LocalDateTime agora, Long empresaId, Pageable pageable);
 
     /**
      * Lista tokens pendentes (não utilizados) dentro de uma empresa (tenant),
@@ -131,8 +112,5 @@ public interface UsuarioEmailVerificacaoRepository
      * @param pageable  Informações de paginação.
      * @return Página de tokens pendentes.
      */
-    Page<UsuarioEmailVerificacao> findByUtilizadoFalseAndEmpresaId(
-            Long empresaId,
-            Pageable pageable
-    );
+    Page<UsuarioEmailVerificacao> findByUtilizadoFalseAndEmpresaId(Long empresaId, Pageable pageable);
 }

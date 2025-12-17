@@ -1,7 +1,7 @@
 package br.com.unicos.ms_auth.repository;
 
 import br.com.unicos.core.tenant.repository.BaseTenantRepository;
-import br.com.unicos.ms_auth.model.EmpresaRolePermissao;
+import br.com.unicos.ms_auth.model.RolePermissao;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Repositório responsável pelo acesso aos dados da entidade {@link EmpresaRolePermissao}.
+ * Repositório responsável pelo acesso aos dados da entidade {@link RolePermissao}.
  * <p>
  * Esta entidade representa o vínculo entre empresa, papel (role) e permissão,
  * sendo a base do modelo de autorização multi-tenant do UniCoS.
@@ -27,8 +27,7 @@ import java.util.Optional;
  * </p>
  */
 @Repository
-public interface EmpresaRolePermissaoRepository
-        extends BaseTenantRepository<EmpresaRolePermissao, Long> {
+public interface RolePermissaoRepository extends BaseTenantRepository<RolePermissao, Long> {
 
     // ============================================================
     // Consultas administrativas (PAGINADAS)
@@ -40,12 +39,9 @@ public interface EmpresaRolePermissaoRepository
      *
      * @param empresaId Identificador da empresa (tenant).
      * @param pageable  Informações de paginação e ordenação.
-     * @return Página de vínculos EmpresaRolePermissao.
+     * @return Página de vínculos RolePermissao.
      */
-    Page<EmpresaRolePermissao> findByEmpresaId(
-            Long empresaId,
-            Pageable pageable
-    );
+    Page<RolePermissao> findByEmpresaId(Long empresaId, Pageable pageable);
 
     /**
      * Lista todas as permissões ativas de uma empresa,
@@ -55,10 +51,7 @@ public interface EmpresaRolePermissaoRepository
      * @param pageable  Informações de paginação e ordenação.
      * @return Página de permissões ativas da empresa.
      */
-    Page<EmpresaRolePermissao> findByEmpresaIdAndAtivoTrue(
-            Long empresaId,
-            Pageable pageable
-    );
+    Page<RolePermissao> findByEmpresaIdAndAtivoTrue(Long empresaId, Pageable pageable);
 
     /**
      * Lista as permissões ativas de uma empresa para um papel específico,
@@ -69,11 +62,7 @@ public interface EmpresaRolePermissaoRepository
      * @param pageable  Informações de paginação e ordenação.
      * @return Página de permissões ativas para o papel informado.
      */
-    Page<EmpresaRolePermissao> findByEmpresaIdAndRole_IdAndAtivoTrue(
-            Long empresaId,
-            Long roleId,
-            Pageable pageable
-    );
+    Page<RolePermissao> findByEmpresaIdAndRole_IdAndAtivoTrue(Long empresaId, Long roleId, Pageable pageable);
 
     /**
      * Lista os vínculos de permissões de uma empresa
@@ -91,15 +80,12 @@ public interface EmpresaRolePermissaoRepository
      */
     @Query("""
                 select erp
-                from EmpresaRolePermissao erp
+                from RolePermissao erp
                 join fetch erp.role
                 join fetch erp.permissao
                 where erp.empresaId = :empresaId
             """)
-    Page<EmpresaRolePermissao> listarComRoleEPermissao(
-            @Param("empresaId") Long empresaId,
-            Pageable pageable
-    );
+    Page<RolePermissao> listarComRoleEPermissao(@Param("empresaId") Long empresaId, Pageable pageable);
 
     // ============================================================
     // Consultas técnicas (NÃO PAGINADAS)
@@ -108,20 +94,12 @@ public interface EmpresaRolePermissaoRepository
     /**
      * Verifica se já existe um vínculo entre empresa, papel e permissão.
      */
-    boolean existsByEmpresaIdAndRole_IdAndPermissao_Id(
-            Long empresaId,
-            Long roleId,
-            Long permissaoId
-    );
+    boolean existsByEmpresaIdAndRole_IdAndPermissao_Id(Long empresaId, Long roleId, Long permissaoId);
 
     /**
      * Busca um vínculo específico entre empresa, papel e permissão.
      */
-    Optional<EmpresaRolePermissao> findByEmpresaIdAndRole_IdAndPermissao_Id(
-            Long empresaId,
-            Long roleId,
-            Long permissaoId
-    );
+    Optional<RolePermissao> findByEmpresaIdAndRole_IdAndPermissao_Id(Long empresaId, Long roleId, Long permissaoId);
 
     /**
      * Retorna os nomes das permissões ativas de uma empresa
@@ -134,17 +112,14 @@ public interface EmpresaRolePermissaoRepository
      */
     @Query("""
                 select distinct p.nome
-                from EmpresaRolePermissao erp
+                from RolePermissao erp
                 join erp.permissao p
                 join erp.role r
                 where erp.empresaId = :empresaId
                   and erp.ativo = true
                   and r.nome in :roles
             """)
-    List<String> buscarPermissoesPorEmpresaERoles(
-            @Param("empresaId") Long empresaId,
-            @Param("roles") List<String> roles
-    );
+    List<String> buscarPermissoesPorEmpresaERoles(@Param("empresaId") Long empresaId, @Param("roles") List<String> roles);
 
     /**
      * Verifica se o usuário possui determinada permissão
@@ -152,7 +127,7 @@ public interface EmpresaRolePermissaoRepository
      */
     @Query("""
                 select count(erp) > 0
-                  from EmpresaRolePermissao erp
+                  from RolePermissao erp
                   join erp.role r
                   join erp.permissao p
                  where erp.empresaId = :empresaId
@@ -160,42 +135,30 @@ public interface EmpresaRolePermissaoRepository
                    and r.nome in :roles
                    and p.nome = :permissao
             """)
-    boolean usuarioPossuiPermissao(
-            @Param("usuarioId") Long usuarioId,
-            @Param("empresaId") Long empresaId,
-            @Param("permissao") String permissao
-    );
+    boolean usuarioPossuiPermissao(@Param("usuarioId") Long usuarioId, @Param("empresaId") Long empresaId, @Param("permissao") String permissao);
 
     @Query("""
                 select erp.id
-                  from EmpresaRolePermissao erp
+                  from RolePermissao erp
                  where erp.empresaId = :empresaId
             """)
-    Page<Long> listarIdsPorEmpresa(
-            @Param("empresaId") Long empresaId,
-            Pageable pageable
-    );
+    Page<Long> listarIdsPorEmpresa(@Param("empresaId") Long empresaId, Pageable pageable);
 
     @Query("""
                 select erp
-                  from EmpresaRolePermissao erp
+                  from RolePermissao erp
                   join fetch erp.role
                   join fetch erp.permissao
                  where erp.id in :ids
             """)
-    List<EmpresaRolePermissao> buscarComRoleEPermissaoPorIds(
-            @Param("ids") List<Long> ids
-    );
+    List<RolePermissao> buscarComRoleEPermissaoPorIds(@Param("ids") List<Long> ids);
 
     @Query("""
                 select erp.id
-                  from EmpresaRolePermissao erp
+                  from RolePermissao erp
                  where erp.empresaId = :empresaId
                    and erp.ativo = true
             """)
-    Page<Long> listarIdsAtivosPorEmpresa(
-            @Param("empresaId") Long empresaId,
-            Pageable pageable
-    );
+    Page<Long> listarIdsAtivosPorEmpresa(@Param("empresaId") Long empresaId, Pageable pageable);
 
 }

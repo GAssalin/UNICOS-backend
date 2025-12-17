@@ -1,9 +1,12 @@
 package br.com.unicos.ms_auth.model;
 
-import br.com.unicos.core.base.model.EntidadeAuditavel;
+import br.com.unicos.core.tenant.model.BaseTenantEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -37,7 +40,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class RoleHierarchyRelation extends EntidadeAuditavel {
+public class RoleHierarchyRelation extends BaseTenantEntity {
 
     /**
      * Identificador único da relação de hierarquia.

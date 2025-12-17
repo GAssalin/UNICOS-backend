@@ -1,9 +1,9 @@
 package br.com.unicos.ms_auth.controller;
 
-import br.com.unicos.ms_auth.dto.empresarolepermissao.EmpresaRolePermissaoListDTO;
-import br.com.unicos.ms_auth.dto.empresarolepermissao.EmpresaRolePermissaoRequest;
-import br.com.unicos.ms_auth.dto.empresarolepermissao.EmpresaRolePermissaoResponse;
-import br.com.unicos.ms_auth.service.EmpresaRolePermissaoService;
+import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoListDTO;
+import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoRequest;
+import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoResponse;
+import br.com.unicos.ms_auth.service.RolePermissaoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -14,18 +14,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Controller responsável pelos endpoints relacionados à entidade EmpresaRolePermissao.
+ * Controller responsável pelos endpoints relacionados à entidade RolePermissao.
  */
 @RestController
-@RequestMapping("/v1/empresa-role-permissao")
+@RequestMapping("/v1/role-permissao")
 @RequiredArgsConstructor
 @Tag(
-        name = "EmpresaRolePermissao",
-        description = "Endpoints relacionados aos vínculos entre empresa, role e permissões."
+        name = "RolePermissao",
+        description = "Endpoints relacionados aos vínculos entre role e permissões."
 )
-public class EmpresaRolePermissaoController {
+public class RolePermissaoController {
 
-    private final EmpresaRolePermissaoService service;
+    private final RolePermissaoService service;
 
     // ============================================================
     // CREATE
@@ -35,8 +35,8 @@ public class EmpresaRolePermissaoController {
             summary = "Criar vínculo entre empresa, role e permissão"
     )
     @PostMapping
-    public ResponseEntity<EmpresaRolePermissaoResponse> criar(
-            @Valid @RequestBody EmpresaRolePermissaoRequest request
+    public ResponseEntity<RolePermissaoResponse> criar(
+            @Valid @RequestBody RolePermissaoRequest request
     ) {
         return ResponseEntity
                 .status(201)
@@ -51,7 +51,7 @@ public class EmpresaRolePermissaoController {
             summary = "Alterar status do vínculo"
     )
     @PutMapping("/{id}/status")
-    public ResponseEntity<EmpresaRolePermissaoResponse> alterarStatus(
+    public ResponseEntity<RolePermissaoResponse> alterarStatus(
             @PathVariable Long id,
             @RequestParam boolean ativo
     ) {
@@ -79,7 +79,7 @@ public class EmpresaRolePermissaoController {
             summary = "Listar vínculos ativos por empresa (paginado)"
     )
     @GetMapping("/empresa/{empresaId}")
-    public ResponseEntity<Page<EmpresaRolePermissaoListDTO>> listarAtivosPorEmpresa(
+    public ResponseEntity<Page<RolePermissaoListDTO>> listarAtivosPorEmpresa(
             @PathVariable Long empresaId,
             Pageable pageable
     ) {
@@ -92,7 +92,7 @@ public class EmpresaRolePermissaoController {
             summary = "Listar todos os vínculos por empresa (paginado)"
     )
     @GetMapping("/empresa/{empresaId}/todos")
-    public ResponseEntity<Page<EmpresaRolePermissaoListDTO>> listarPorEmpresa(
+    public ResponseEntity<Page<RolePermissaoListDTO>> listarPorEmpresa(
             @PathVariable Long empresaId,
             Pageable pageable
     ) {

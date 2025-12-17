@@ -1,9 +1,12 @@
 package br.com.unicos.ms_auth.model;
 
-import br.com.unicos.core.base.model.EntidadeAuditavel;
+import br.com.unicos.core.tenant.model.BaseTenantEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -16,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Permissao extends EntidadeAuditavel {
+public class Permissao extends BaseTenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

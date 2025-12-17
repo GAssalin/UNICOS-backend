@@ -1,15 +1,15 @@
 package br.com.unicos.ms_auth.mapper;
 
-import br.com.unicos.ms_auth.dto.empresarolepermissao.EmpresaRolePermissaoListDTO;
-import br.com.unicos.ms_auth.dto.empresarolepermissao.EmpresaRolePermissaoResponse;
-import br.com.unicos.ms_auth.model.EmpresaRolePermissao;
+import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoListDTO;
+import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoResponse;
+import br.com.unicos.ms_auth.model.RolePermissao;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EmpresaRolePermissaoMapper {
+public class RolePermissaoMapper {
 
-    public EmpresaRolePermissaoResponse toResponse(EmpresaRolePermissao e) {
-        return new EmpresaRolePermissaoResponse(
+    public RolePermissaoResponse toResponse(RolePermissao e) {
+        return new RolePermissaoResponse(
                 e.getId(),
                 e.getEmpresaId(),
                 e.getRole().getId(),
@@ -22,8 +22,8 @@ public class EmpresaRolePermissaoMapper {
         );
     }
 
-    public EmpresaRolePermissaoListDTO toListDTO(EmpresaRolePermissao e) {
-        return new EmpresaRolePermissaoListDTO(
+    public RolePermissaoListDTO toListDTO(RolePermissao e) {
+        return new RolePermissaoListDTO(
                 e.getId(),
                 e.getEmpresaId(),
                 e.getRole().getId(),

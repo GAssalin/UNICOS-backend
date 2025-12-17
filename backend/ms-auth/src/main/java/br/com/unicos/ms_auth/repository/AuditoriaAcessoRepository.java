@@ -29,8 +29,7 @@ import java.time.LocalDateTime;
  * </p>
  */
 @Repository
-public interface AuditoriaAcessoRepository
-        extends BaseTenantRepository<AuditoriaAcesso, Long> {
+public interface AuditoriaAcessoRepository extends BaseTenantRepository<AuditoriaAcesso, Long> {
 
     // ============================================================
     // Consultas paginadas (auditoria sempre cresce)
@@ -45,11 +44,7 @@ public interface AuditoriaAcessoRepository
      * @param pageable  Informações de paginação e ordenação.
      * @return Página de registros de auditoria do usuário.
      */
-    Page<AuditoriaAcesso> findByUsernameAndEmpresaId(
-            String username,
-            Long empresaId,
-            Pageable pageable
-    );
+    Page<AuditoriaAcesso> findByUsernameAndEmpresaId(String username, Long empresaId, Pageable pageable);
 
     /**
      * Lista registros de auditoria de um determinado tipo de ação
@@ -60,11 +55,7 @@ public interface AuditoriaAcessoRepository
      * @param pageable  Informações de paginação e ordenação.
      * @return Página de registros de auditoria do tipo informado.
      */
-    Page<AuditoriaAcesso> findByAcaoAndEmpresaId(
-            TipoAcaoAcesso acao,
-            Long empresaId,
-            Pageable pageable
-    );
+    Page<AuditoriaAcesso> findByAcaoAndEmpresaId(TipoAcaoAcesso acao, Long empresaId, Pageable pageable);
 
     /**
      * Lista registros de auditoria ocorridos dentro de um intervalo de tempo,
@@ -76,10 +67,5 @@ public interface AuditoriaAcessoRepository
      * @param pageable  Informações de paginação e ordenação.
      * @return Página de registros de auditoria no período informado.
      */
-    Page<AuditoriaAcesso> findByDataEventoBetweenAndEmpresaId(
-            LocalDateTime inicio,
-            LocalDateTime fim,
-            Long empresaId,
-            Pageable pageable
-    );
+    Page<AuditoriaAcesso> findByDataEventoBetweenAndEmpresaId(LocalDateTime inicio, LocalDateTime fim, Long empresaId, Pageable pageable);
 }

@@ -1,5 +1,6 @@
 package br.com.unicos.ms_auth.service;
 
+import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.ms_auth.dto.usuario.UsuarioRequest;
 import br.com.unicos.ms_auth.dto.usuario.UsuarioResponse;
 import br.com.unicos.ms_auth.mapper.UsuarioMapper;
@@ -179,7 +180,7 @@ public class UsuarioService implements UserDetailsService {
             return Set.of();
 
         return ids.stream()
-                .map(id -> roleRepository.findById(id)
+                .map(id -> roleRepository.findByIdAndEmpresaId(id, TenantContext.getEmpresaId())
                         .orElseThrow(() -> new EntityNotFoundException("Role não encontrada: " + id)))
                 .collect(Collectors.toSet());
     }

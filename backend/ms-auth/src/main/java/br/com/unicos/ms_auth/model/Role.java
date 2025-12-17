@@ -1,9 +1,12 @@
 package br.com.unicos.ms_auth.model;
 
-import br.com.unicos.core.base.model.EntidadeAuditavel;
+import br.com.unicos.core.tenant.model.BaseTenantEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -17,7 +20,7 @@ import org.springframework.security.core.GrantedAuthority;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Role extends EntidadeAuditavel implements GrantedAuthority {
+public class Role extends BaseTenantEntity implements GrantedAuthority {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

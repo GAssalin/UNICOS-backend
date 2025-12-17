@@ -1,9 +1,9 @@
-package br.com.unicos.ms_auth.dto.empresarolepermissao;
+package br.com.unicos.ms_auth.dto.role_permissao;
 
 /**
  * DTO para listagem de permissões por role e empresa.
  */
-public record EmpresaRolePermissaoListDTO(
+public record RolePermissaoListDTO(
 
         Long id,
 

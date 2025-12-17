@@ -1,9 +1,9 @@
 package br.com.unicos.ms_auth.repository;
 
+import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_auth.model.RoleHierarchyRelation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -20,8 +20,7 @@ import org.springframework.stereotype.Repository;
  * </p>
  */
 @Repository
-public interface RoleHierarchyRelationRepository
-        extends JpaRepository<RoleHierarchyRelation, Long> {
+public interface RoleHierarchyRelationRepository extends BaseTenantRepository<RoleHierarchyRelation, Long> {
 
     // ============================================================
     // Consultas paginadas (uso administrativo)

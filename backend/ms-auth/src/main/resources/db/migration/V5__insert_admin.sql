@@ -1,10 +1,8 @@
 -- ============================================================
---  V5 - INSERT INICIAL: Usuário ADMIN + Atribuição de Role
+--  V5 - INSERT INICIAL: Usuário ADMIN
 -- ============================================================
 
--- Criar usuário administrador
 INSERT INTO usuario (
-    id,
     empresa_id,
     login,
     pessoa_id,
@@ -13,11 +11,9 @@ INSERT INTO usuario (
     email_verificado,
     refresh_token,
     expiracao_refresh_token,
-    ativo,
     criado_em,
-    atualizado_em
+    ativo
 ) VALUES (
-    1,
     0,
     'admin',
     NULL,
@@ -26,11 +22,24 @@ INSERT INTO usuario (
     1,
     NULL,
     NULL,
-    1,
     NOW(),
-    NOW()
+    1
 );
 
--- Atribuir ROLE_ADMIN (role_id = 1)
-INSERT INTO usuario_role (usuario_id, role_id)
-VALUES (1, 1);
+-- Atribuir ROLE UNICOS_ADMIN
+INSERT INTO usuario_role (
+    empresa_id,
+    usuario_id,
+    role_id,
+    criado_em,
+    ativo
+)
+SELECT
+    0,
+    u.id,
+    r.id,
+    NOW(),
+    1
+FROM usuario u, role r
+WHERE u.login = 'admin'
+  AND r.nome = 'UNICOS_ADMIN';

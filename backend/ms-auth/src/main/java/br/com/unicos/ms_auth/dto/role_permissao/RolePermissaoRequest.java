@@ -1,11 +1,11 @@
-package br.com.unicos.ms_auth.dto.empresarolepermissao;
+package br.com.unicos.ms_auth.dto.role_permissao;
 
 import jakarta.validation.constraints.NotNull;
 
 /**
  * DTO para criação ou atualização de permissões de role por empresa.
  */
-public record EmpresaRolePermissaoRequest(
+public record RolePermissaoRequest(
 
         @NotNull(message = "Empresa é obrigatória")
         Long empresaId,

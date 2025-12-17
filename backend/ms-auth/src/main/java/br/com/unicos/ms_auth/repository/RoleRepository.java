@@ -1,9 +1,9 @@
 package br.com.unicos.ms_auth.repository;
 
+import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_auth.model.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -21,7 +21,7 @@ import java.util.Optional;
  * </p>
  */
 @Repository
-public interface RoleRepository extends JpaRepository<Role, Long> {
+public interface RoleRepository extends BaseTenantRepository<Role, Long> {
 
     // ============================================================
     // Consultas pontuais (resultado único)
@@ -60,8 +60,5 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
      * @param pageable Informações de paginação e ordenação.
      * @return Página de papéis encontrados.
      */
-    Page<Role> findByNomeContainingIgnoreCase(
-            String nome,
-            Pageable pageable
-    );
+    Page<Role> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
 }

@@ -1,11 +1,11 @@
-package br.com.unicos.ms_auth.dto.empresarolepermissao;
+package br.com.unicos.ms_auth.dto.role_permissao;
 
 import java.time.LocalDateTime;
 
 /**
  * DTO de retorno da associação empresa x role x permissão.
  */
-public record EmpresaRolePermissaoResponse(
+public record RolePermissaoResponse(
 
         Long id,
 

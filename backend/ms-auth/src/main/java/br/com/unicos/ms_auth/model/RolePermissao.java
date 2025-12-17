@@ -7,10 +7,10 @@ import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(
-        name = "empresa_role_permissao",
+        name = "role_permissao",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_empresa_role_permissao",
+                        name = "uk_role_permissao",
                         columnNames = {"empresa_id", "role_id", "permissao_id"}
                 )
         }
@@ -20,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class EmpresaRolePermissao extends BaseTenantEntity {
+public class RolePermissao extends BaseTenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

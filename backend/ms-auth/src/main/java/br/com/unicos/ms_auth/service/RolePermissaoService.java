@@ -1,13 +1,13 @@
 package br.com.unicos.ms_auth.service;
 
-import br.com.unicos.ms_auth.dto.empresarolepermissao.EmpresaRolePermissaoListDTO;
-import br.com.unicos.ms_auth.dto.empresarolepermissao.EmpresaRolePermissaoRequest;
-import br.com.unicos.ms_auth.dto.empresarolepermissao.EmpresaRolePermissaoResponse;
-import br.com.unicos.ms_auth.mapper.EmpresaRolePermissaoMapper;
-import br.com.unicos.ms_auth.model.EmpresaRolePermissao;
+import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoListDTO;
+import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoRequest;
+import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoResponse;
+import br.com.unicos.ms_auth.mapper.RolePermissaoMapper;
 import br.com.unicos.ms_auth.model.Permissao;
 import br.com.unicos.ms_auth.model.Role;
-import br.com.unicos.ms_auth.repository.EmpresaRolePermissaoRepository;
+import br.com.unicos.ms_auth.model.RolePermissao;
+import br.com.unicos.ms_auth.repository.RolePermissaoRepository;
 import br.com.unicos.ms_auth.repository.PermissaoRepository;
 import br.com.unicos.ms_auth.repository.RoleRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * Serviço responsável pelas regras de negócio
- * relacionadas ao vínculo Empresa-Role-Permissão.
+ * relacionadas ao vínculo Role-Permissão.
  *
  * <p>
  * As operações administrativas utilizam paginação.
@@ -31,18 +31,18 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class EmpresaRolePermissaoService {
+public class RolePermissaoService {
 
-    private final EmpresaRolePermissaoRepository repository;
+    private final RolePermissaoRepository repository;
     private final RoleRepository roleRepository;
     private final PermissaoRepository permissaoRepository;
-    private final EmpresaRolePermissaoMapper mapper;
+    private final RolePermissaoMapper mapper;
 
     // ============================================================
     // CREATE
     // ============================================================
 
-    public EmpresaRolePermissaoResponse criar(EmpresaRolePermissaoRequest request) {
+    public RolePermissaoResponse criar(RolePermissaoRequest request) {
 
         if (repository.existsByEmpresaIdAndRole_IdAndPermissao_Id(
                 request.empresaId(),
@@ -58,7 +58,7 @@ public class EmpresaRolePermissaoService {
         Permissao permissao = permissaoRepository.findById(request.permissaoId())
                 .orElseThrow(() -> new EntityNotFoundException("Permissão não encontrada"));
 
-        EmpresaRolePermissao entity = EmpresaRolePermissao.builder()
+        RolePermissao entity = RolePermissao.builder()
                 .empresaId(request.empresaId())
                 .role(role)
                 .permissao(permissao)
@@ -72,12 +72,10 @@ public class EmpresaRolePermissaoService {
     // UPDATE
     // ============================================================
 
-    public EmpresaRolePermissaoResponse alterarStatus(Long id, boolean ativo) {
+    public RolePermissaoResponse alterarStatus(Long id, boolean ativo) {
 
-        EmpresaRolePermissao entity = repository.findById(id)
-                .orElseThrow(() ->
-                        new EntityNotFoundException("Vínculo Empresa-Role-Permissão não encontrado")
-                );
+        RolePermissao entity = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Vínculo Empresa-Role-Permissão não encontrado"));
 
         entity.setAtivo(ativo);
         return mapper.toResponse(repository.save(entity));
@@ -97,13 +95,13 @@ public class EmpresaRolePermissaoService {
     // LISTAGENS ADMINISTRATIVAS (PAGINADAS)
     // ============================================================
 
-    public Page<EmpresaRolePermissaoListDTO> listarPorEmpresa(Long empresaId, Pageable pageable) {
+    public Page<RolePermissaoListDTO> listarPorEmpresa(Long empresaId, Pageable pageable) {
         Page<Long> pageIds = repository.listarIdsPorEmpresa(empresaId, pageable);
 
         if (pageIds.isEmpty())
             return Page.empty(pageable);
 
-        List<EmpresaRolePermissao> entidades = repository.buscarComRoleEPermissaoPorIds(pageIds.getContent());
+        List<RolePermissao> entidades = repository.buscarComRoleEPermissaoPorIds(pageIds.getContent());
 
         return new PageImpl<>(
                 entidades.stream()
@@ -114,13 +112,13 @@ public class EmpresaRolePermissaoService {
         );
     }
 
-    public Page<EmpresaRolePermissaoListDTO> listarAtivosPorEmpresa(Long empresaId, Pageable pageable) {
+    public Page<RolePermissaoListDTO> listarAtivosPorEmpresa(Long empresaId, Pageable pageable) {
         Page<Long> pageIds = repository.listarIdsAtivosPorEmpresa(empresaId, pageable);
 
         if (pageIds.isEmpty())
             return Page.empty(pageable);
 
-        List<EmpresaRolePermissao> entidades = repository.buscarComRoleEPermissaoPorIds(pageIds.getContent());
+        List<RolePermissao> entidades = repository.buscarComRoleEPermissaoPorIds(pageIds.getContent());
 
         return new PageImpl<>(
                 entidades.stream()

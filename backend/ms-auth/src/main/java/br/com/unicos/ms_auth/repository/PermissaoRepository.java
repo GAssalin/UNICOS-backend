@@ -1,9 +1,9 @@
 package br.com.unicos.ms_auth.repository;
 
+import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_auth.model.Permissao;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -17,11 +17,11 @@ import java.util.Optional;
  *
  * <p>
  * As permissões são associadas às empresas indiretamente
- * por meio da entidade {@code EmpresaRolePermissao}.
+ * por meio da entidade {@code Permissao}.
  * </p>
  */
 @Repository
-public interface PermissaoRepository extends JpaRepository<Permissao, Long> {
+public interface PermissaoRepository extends BaseTenantRepository<Permissao, Long> {
 
     // ============================================================
     // Consultas pontuais (resultado único)
@@ -60,8 +60,5 @@ public interface PermissaoRepository extends JpaRepository<Permissao, Long> {
      * @param pageable Informações de paginação e ordenação.
      * @return Página de permissões encontradas.
      */
-    Page<Permissao> findByNomeContainingIgnoreCase(
-            String nome,
-            Pageable pageable
-    );
+    Page<Permissao> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
 }
