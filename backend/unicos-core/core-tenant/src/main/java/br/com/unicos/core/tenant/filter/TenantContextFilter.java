@@ -11,6 +11,7 @@ import java.io.IOException;
 
 public class TenantContextFilter extends OncePerRequestFilter {
 
+    private static final String USUARIO_HEADER = "X-Usuario-Id";
     private static final String TENANT_HEADER = "X-Tenant-Id";
 
     @Override
@@ -32,7 +33,13 @@ public class TenantContextFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        String usuarioId = request.getHeader(USUARIO_HEADER);
         String tenantId = request.getHeader(TENANT_HEADER);
+
+        if (usuarioId == null) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Usuário não informado");
+            return;
+        }
 
         if (tenantId == null) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant não informado");
@@ -40,6 +47,7 @@ public class TenantContextFilter extends OncePerRequestFilter {
         }
 
         try {
+            TenantContext.setUsuarioId(Long.valueOf(usuarioId));
             TenantContext.setEmpresaId(Long.valueOf(tenantId));
             filterChain.doFilter(request, response);
         } finally {

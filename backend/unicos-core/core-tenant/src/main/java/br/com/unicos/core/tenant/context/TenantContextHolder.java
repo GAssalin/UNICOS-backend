@@ -15,6 +15,24 @@ public final class TenantContextHolder {
     }
 
     /**
+     * Recupera o usuário atual.
+     *
+     * @return identificador do usuário
+     */
+    public static Long usuarioId() {
+        return TenantContext.getUsuarioId();
+    }
+
+    /**
+     * Verifica se há usuário definido.
+     *
+     * @return {@code true} se houver usuário; caso contrário {@code false}
+     */
+    public static boolean isUsuarioDefined() {
+        return TenantContext.isUsuarioDefined();
+    }
+
+    /**
      * Recupera o tenant atual.
      *
      * @return identificador da empresa (tenant)

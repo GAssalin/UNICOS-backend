@@ -1,12 +1,12 @@
 package br.com.unicos.ms_auth.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
+import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_auth.dto.auditoria.AuditoriaAcessoResponse;
 import br.com.unicos.ms_auth.enums.TipoAcaoAcesso;
 import br.com.unicos.ms_auth.mapper.AuditoriaAcessoMapper;
 import br.com.unicos.ms_auth.model.AuditoriaAcesso;
 import br.com.unicos.ms_auth.repository.AuditoriaAcessoRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,11 +23,16 @@ import java.time.LocalDateTime;
  * </p>
  */
 @Service
-@RequiredArgsConstructor
-public class AuditoriaAcessoService {
+public class AuditoriaAcessoService extends BaseTenantService<AuditoriaAcesso, Long> {
 
     private final AuditoriaAcessoRepository auditoriaAcessoRepository;
     private final AuditoriaAcessoMapper auditoriaAcessoMapper;
+
+    public AuditoriaAcessoService(AuditoriaAcessoRepository auditoriaAcessoRepository, AuditoriaAcessoMapper auditoriaAcessoMapper) {
+        super(auditoriaAcessoRepository);
+        this.auditoriaAcessoRepository = auditoriaAcessoRepository;
+        this.auditoriaAcessoMapper = auditoriaAcessoMapper;
+    }
 
     /**
      * Registra um novo evento de auditoria no sistema.

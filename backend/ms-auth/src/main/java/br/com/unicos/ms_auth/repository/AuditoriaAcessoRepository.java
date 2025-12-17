@@ -31,10 +31,6 @@ import java.time.LocalDateTime;
 @Repository
 public interface AuditoriaAcessoRepository extends BaseTenantRepository<AuditoriaAcesso, Long> {
 
-    // ============================================================
-    // Consultas paginadas (auditoria sempre cresce)
-    // ============================================================
-
     /**
      * Lista registros de auditoria de um determinado usuário
      * dentro de uma empresa (tenant), de forma paginada.

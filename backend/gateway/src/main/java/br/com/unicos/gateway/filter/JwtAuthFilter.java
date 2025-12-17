@@ -45,15 +45,17 @@ public class JwtAuthFilter implements GatewayFilter {
                     .build()
                     .verify(token);
 
+            Long usuarioId = jwt.getClaim("usuarioId").asLong();
             Long tenantId = jwt.getClaim("tenantId").asLong();
 
-            if (tenantId == null) {
+            if (usuarioId == null || tenantId == null) {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             }
 
             ServerHttpRequest mutatedRequest = exchange.getRequest()
                     .mutate()
+                    .header("X-Usuario-Id", usuarioId.toString())
                     .header("X-Tenant-Id", tenantId.toString())
                     .build();
 

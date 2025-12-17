@@ -1,12 +1,13 @@
 package br.com.unicos.ms_auth.service;
 
+import br.com.unicos.core.tenant.context.TenantContext;
+import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_auth.dto.role.RoleRequest;
 import br.com.unicos.ms_auth.dto.role.RoleResponse;
 import br.com.unicos.ms_auth.mapper.RoleMapper;
 import br.com.unicos.ms_auth.model.Role;
 import br.com.unicos.ms_auth.repository.RoleRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,11 +18,16 @@ import java.util.List;
  * relacionadas à entidade {@link Role}.
  */
 @Service
-@RequiredArgsConstructor
-public class RoleService {
+public class RoleService extends BaseTenantService<Role, Long> {
 
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
+
+    public RoleService(RoleRepository roleRepository, RoleMapper roleMapper) {
+        super(roleRepository);
+        this.roleRepository = roleRepository;
+        this.roleMapper = roleMapper;
+    }
 
     @Transactional
     public RoleResponse salvar(RoleRequest request) {
@@ -72,7 +78,7 @@ public class RoleService {
 
     @Transactional(readOnly = true)
     public boolean existePorNome(String nome) {
-        return roleRepository.existsByNome(nome);
+        return roleRepository.existsByNomeContainingIgnoreCaseAndEmpresaId(nome, TenantContext.getEmpresaId());
     }
 
     private Role buscarEntidadePorId(Long id) {
@@ -81,7 +87,7 @@ public class RoleService {
     }
 
     private void validarNomeDuplicado(String nome) {
-        if (roleRepository.existsByNome(nome))
+        if (roleRepository.existsByNomeContainingIgnoreCaseAndEmpresaId(nome, TenantContext.getEmpresaId()))
             throw new IllegalArgumentException("Já existe um papel cadastrado com o nome informado.");
     }
 }

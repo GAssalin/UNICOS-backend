@@ -1,10 +1,9 @@
 package br.com.unicos.core.tenant.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Repositório base para entidades que operam em contexto multi-tenant.
@@ -37,17 +36,6 @@ import java.util.Optional;
 public interface BaseTenantRepository<T, ID> extends JpaRepository<T, ID> {
 
     /**
-     * Busca uma entidade pelo seu identificador, garantindo o isolamento
-     * multi-tenant por empresa.
-     *
-     * @param id        Identificador da entidade.
-     * @param empresaId Identificador da empresa (tenant).
-     * @return {@link Optional} contendo a entidade, caso encontrada dentro
-     * da empresa informada.
-     */
-    Optional<T> findByIdAndEmpresaId(ID id, Long empresaId);
-
-    /**
      * Verifica a existência de uma entidade dentro do contexto de uma empresa
      * (tenant), com base no seu identificador.
      *
@@ -64,5 +52,5 @@ public interface BaseTenantRepository<T, ID> extends JpaRepository<T, ID> {
      * @param empresaId Identificador da empresa (tenant).
      * @return Lista de entidades associadas à empresa informada.
      */
-    List<T> findByEmpresaId(Long empresaId);
+    Page<T> findAllByEmpresaId(Long empresaId, Pageable pageable);
 }

@@ -29,7 +29,6 @@ public class FiltroTokenAcesso extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         return path.equals("/v1/autenticacao/login")
-                || path.equals("/v1/autenticacao/atualizar-token")
                 || path.startsWith("/swagger")
                 || path.startsWith("/v3/api-docs");
     }

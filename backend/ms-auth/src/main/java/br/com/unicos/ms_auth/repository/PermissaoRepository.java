@@ -6,8 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 /**
  * Repositório responsável pelo acesso aos dados da entidade {@link Permissao}.
  * <p>
@@ -22,33 +20,16 @@ import java.util.Optional;
  */
 @Repository
 public interface PermissaoRepository extends BaseTenantRepository<Permissao, Long> {
-
-    // ============================================================
-    // Consultas pontuais (resultado único)
-    // ============================================================
-
     /**
-     * Busca uma permissão pelo nome exato.
+     * Verifica se já existe uma entidade com o nome informado.
      *
-     * @param nome Nome da permissão.
-     * @return {@link Optional} contendo a permissão, caso exista.
-     */
-    Optional<Permissao> findByNome(String nome);
-
-    /**
-     * Verifica se já existe uma permissão com o nome informado.
-     *
-     * @param nome Nome da permissão.
+     * @param nome Nome da entidade.
      * @return {@code true} se existir, {@code false} caso contrário.
      */
-    boolean existsByNome(String nome);
-
-    // ============================================================
-    // Consultas paginadas (listas administrativas)
-    // ============================================================
+    boolean existsByNomeContainingIgnoreCaseAndEmpresaId(String nome, Long empresaId);
 
     /**
-     * Lista permissões cujo nome contenha o termo informado,
+     * Lista entidades cujo nome contenha o termo informado,
      * ignorando diferenças de maiúsculas e minúsculas, de forma paginada.
      *
      * <p>
@@ -56,9 +37,9 @@ public interface PermissaoRepository extends BaseTenantRepository<Permissao, Lon
      * cadastros e buscas textuais.
      * </p>
      *
-     * @param nome     Parte do nome da permissão.
+     * @param nome     Parte do nome da entidade.
      * @param pageable Informações de paginação e ordenação.
-     * @return Página de permissões encontradas.
+     * @return Página de entidades encontradas.
      */
-    Page<Permissao> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
+    Page<Permissao> findByNomeContainingIgnoreCaseAndEmpresaId(String nome, Long empresaId, Pageable pageable);
 }

@@ -1,6 +1,6 @@
 package br.com.unicos.ms_auth.service;
 
-import br.com.unicos.core.tenant.context.TenantContext;
+import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_auth.dto.usuario.UsuarioRequest;
 import br.com.unicos.ms_auth.dto.usuario.UsuarioResponse;
 import br.com.unicos.ms_auth.mapper.UsuarioMapper;
@@ -9,7 +9,6 @@ import br.com.unicos.ms_auth.model.Usuario;
 import br.com.unicos.ms_auth.repository.RoleRepository;
 import br.com.unicos.ms_auth.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,13 +30,20 @@ import java.util.stream.Collectors;
  * </p>
  */
 @Service
-@RequiredArgsConstructor
-public class UsuarioService implements UserDetailsService {
+public class UsuarioService extends BaseTenantService<Usuario, Long> implements UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioMapper usuarioMapper;
+
+    public UsuarioService(UsuarioRepository usuarioRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, UsuarioMapper usuarioMapper) {
+        super(usuarioRepository);
+        this.usuarioRepository = usuarioRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.usuarioMapper = usuarioMapper;
+    }
 
     // ============================================================
     // CRUD
@@ -54,7 +60,7 @@ public class UsuarioService implements UserDetailsService {
                 .email(request.email())
                 .pessoaId(request.pessoaId())
                 .ativo(request.ativo() != null ? request.ativo() : true)
-                .roles(buscarRoles(request.rolesIds()))
+                .roles(buscarRolesByIds(request.rolesIds()))
                 .empresaId(empresaId)
                 .emailVerificado(false)
                 .build();
@@ -65,7 +71,7 @@ public class UsuarioService implements UserDetailsService {
 
     @Transactional
     public UsuarioResponse atualizar(Long id, UsuarioRequest request, Long empresaId) {
-        Usuario usuario = buscarUsuario(id, empresaId);
+        Usuario usuario = buscarUsuario(id);
 
         if (!usuario.getLogin().equalsIgnoreCase(request.login())) {
             validarLoginDuplicado(request.login(), empresaId);
@@ -79,22 +85,29 @@ public class UsuarioService implements UserDetailsService {
 
         usuario.setPessoaId(request.pessoaId());
         usuario.setAtivo(request.ativo() != null ? request.ativo() : usuario.getAtivo());
-        usuario.setRoles(buscarRoles(request.rolesIds()));
+        usuario.setRoles(buscarRolesByIds(request.rolesIds()));
 
         Usuario atualizado = usuarioRepository.save(usuario);
         return usuarioMapper.toResponse(atualizado);
     }
 
     @Transactional(readOnly = true)
-    public UsuarioResponse buscarPorId(Long id, Long empresaId) {
-        return usuarioMapper.toResponse(buscarUsuario(id, empresaId));
+    public UsuarioResponse buscarPorId(Long id) {
+        return usuarioMapper.toResponse(buscarUsuario(id));
+    }
+
+    @Transactional(readOnly = true)
+    public Usuario buscarPeloEmailAndVerificado(String email) {
+        return usuarioRepository
+                .findByEmailIgnoreCaseAndEmailVerificadoTrue(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
     }
 
     @Transactional(readOnly = true)
     public UsuarioResponse buscarPorLogin(String login, Long empresaId) {
         Usuario usuario = usuarioRepository
                 .findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(login, empresaId)
-                .orElseThrow(() ->new EntityNotFoundException("Usuário não encontrado: " + login));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + login));
 
         return usuarioMapper.toResponse(usuario);
     }
@@ -121,14 +134,14 @@ public class UsuarioService implements UserDetailsService {
     }
 
     @Transactional
-    public void desativar(Long id, Long empresaId) {
-        Usuario usuario = buscarUsuario(id, empresaId);
+    public void desativar(Long id) {
+        Usuario usuario = buscarUsuario(id);
         usuario.setAtivo(false);
         usuarioRepository.save(usuario);
     }
 
-    public void deletar(Long id, Long empresaId) {
-        Usuario usuario = buscarUsuario(id, empresaId);
+    public void deletar(Long id) {
+        Usuario usuario = buscarUsuario(id);
         usuarioRepository.delete(usuario);
     }
 
@@ -141,24 +154,13 @@ public class UsuarioService implements UserDetailsService {
         throw new UsernameNotFoundException("Autenticação deve ser realizada com tenant informado.");
     }
 
-    /**
-     * Método tenant-aware para autenticação.
-     */
-    @Transactional(readOnly = true)
-    public UserDetails loadUserByUsernameAndEmpresa(String username,Long empresaId) {
-        return usuarioRepository
-                .findByEmailIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(username, empresaId)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado no tenant informado."));
-    }
-
     // ============================================================
     // Métodos auxiliares
     // ============================================================
 
     @Transactional(readOnly = true)
-    private Usuario buscarUsuario(Long id, Long empresaId) {
+    private Usuario buscarUsuario(Long id) {
         return usuarioRepository.findById(id)
-                .filter(u -> empresaId.equals(u.getEmpresaId()))
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado no tenant informado: " + id));
     }
 
@@ -175,12 +177,12 @@ public class UsuarioService implements UserDetailsService {
             throw new IllegalArgumentException("Já existe um usuário com o e-mail informado.");
     }
 
-    private Set<Role> buscarRoles(Set<Long> ids) {
+    private Set<Role> buscarRolesByIds(Set<Long> ids) {
         if (ids == null || ids.isEmpty())
             return Set.of();
 
         return ids.stream()
-                .map(id -> roleRepository.findByIdAndEmpresaId(id, TenantContext.getEmpresaId())
+                .map(id -> roleRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Role não encontrada: " + id)))
                 .collect(Collectors.toSet());
     }

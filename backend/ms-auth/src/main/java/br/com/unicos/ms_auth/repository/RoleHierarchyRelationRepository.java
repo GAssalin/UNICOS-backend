@@ -2,8 +2,6 @@ package br.com.unicos.ms_auth.repository;
 
 import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_auth.model.RoleHierarchyRelation;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -21,22 +19,4 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface RoleHierarchyRelationRepository extends BaseTenantRepository<RoleHierarchyRelation, Long> {
-
-    // ============================================================
-    // Consultas paginadas (uso administrativo)
-    // ============================================================
-
-    /**
-     * Lista todas as relações de hierarquia entre papéis,
-     * de forma paginada.
-     *
-     * <p>
-     * Utilizado em telas administrativas de configuração
-     * da hierarquia de roles.
-     * </p>
-     *
-     * @param pageable Informações de paginação e ordenação.
-     * @return Página de relações de hierarquia entre roles.
-     */
-    Page<RoleHierarchyRelation> findAll(Pageable pageable);
 }

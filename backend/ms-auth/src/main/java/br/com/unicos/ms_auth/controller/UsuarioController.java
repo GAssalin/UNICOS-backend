@@ -64,7 +64,7 @@ public class UsuarioController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(usuarioService.buscarPorId(id, TenantContext.getEmpresaId()));
+        return ResponseEntity.ok(usuarioService.buscarPorId(id));
     }
 
     // =============================================================
@@ -102,13 +102,13 @@ public class UsuarioController {
 
     @PatchMapping("/{id}/desativar")
     public ResponseEntity<Void> desativar(@PathVariable Long id) {
-        usuarioService.desativar(id, TenantContext.getEmpresaId());
+        usuarioService.desativar(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        usuarioService.deletar(id, TenantContext.getEmpresaId());
+        usuarioService.deletar(id);
         return ResponseEntity.noContent().build();
     }
 }

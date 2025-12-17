@@ -1,6 +1,7 @@
 package br.com.unicos.core.tenant.context;
 
 import br.com.unicos.core.tenant.exception.TenantNotDefinedException;
+import br.com.unicos.core.tenant.exception.UsuarioNotDefinedException;
 
 /**
  * Contexto responsável por armazenar o identificador da empresa (tenant)
@@ -14,10 +15,42 @@ import br.com.unicos.core.tenant.exception.TenantNotDefinedException;
  */
 public final class TenantContext {
 
+    private static final ThreadLocal<Long> USUARIO_ID = new ThreadLocal<>();
     private static final ThreadLocal<Long> EMPRESA_ID = new ThreadLocal<>();
 
     private TenantContext() {
         // impede instanciação
+    }
+
+    /**
+     * Define o usuário no contexto atual.
+     *
+     * @param usuarioId identificador do usuário
+     */
+    public static void setUsuarioId(Long usuarioId) {
+        USUARIO_ID.set(usuarioId);
+    }
+
+    /**
+     * Obtém o usuário do contexto atual.
+     *
+     * @return identificador do usuário
+     * @throws UsuarioNotDefinedException se o usuário não estiver definido
+     */
+    public static Long getUsuarioId() {
+        Long usuarioId = USUARIO_ID.get();
+        if (usuarioId == null)
+            throw new UsuarioNotDefinedException();
+        return usuarioId;
+    }
+
+    /**
+     * Verifica se existe usuário definido no contexto atual.
+     *
+     * @return {@code true} se houver usuário; caso contrário {@code false}
+     */
+    public static boolean isUsuarioDefined() {
+        return USUARIO_ID.get() != null;
     }
 
     /**
@@ -58,6 +91,7 @@ public final class TenantContext {
      * </p>
      */
     public static void clear() {
+        USUARIO_ID.remove();
         EMPRESA_ID.remove();
     }
 }

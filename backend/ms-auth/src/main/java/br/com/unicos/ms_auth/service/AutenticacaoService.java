@@ -39,13 +39,15 @@ public class AutenticacaoService {
 
         Usuario usuario = (Usuario) authentication.getPrincipal();
 
-        TenantContext.setEmpresaId(usuario.getEmpresaId());
         try {
             String accessToken = tokenService.gerarAccessToken(usuario);
             String refreshToken = tokenService.gerarRefreshToken(usuario);
 
             usuario.setRefreshToken(refreshToken);
-            usuarioRepository.save(usuario);
+            usuario = usuarioRepository.save(usuario);
+
+            TenantContext.setUsuarioId(usuario.getId());
+            TenantContext.setEmpresaId(usuario.getEmpresaId());
 
             return ResponseEntity.ok(new DadosToken(accessToken, refreshToken));
         } finally {

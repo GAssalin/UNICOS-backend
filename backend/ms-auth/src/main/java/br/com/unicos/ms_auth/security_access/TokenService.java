@@ -43,6 +43,7 @@ public class TokenService {
                 .withIssuer(issuer)
                 .withSubject(usuario.getEmail())
                 .withClaim("roles", roles)
+                .withClaim("usuarioId", usuario.getId())
                 .withClaim("tenantId", usuario.getEmpresaId())
                 .withClaim("typ", "access")
                 .withExpiresAt(expiracao(tempoExpToken))
