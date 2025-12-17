@@ -1,78 +1,138 @@
 package br.com.unicos.ms_auth.repository;
 
+import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_auth.model.UsuarioEmailVerificacao;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 /**
  * Repositório responsável pelo acesso aos dados relacionados ao processo de
  * verificação de e-mail do usuário.
+ *
+ * <p>
+ * Em arquitetura multi-tenant, todos os tokens de verificação
+ * são isolados por empresa (tenant), identificada pelo campo {@code empresaId}.
+ * </p>
+ *
  * <p>
  * Gerencia tokens temporários utilizados para confirmar o endereço de e-mail
  * durante o fluxo de criação de conta, bem como seus prazos de validade.
+ * </p>
  */
 @Repository
 public interface UsuarioEmailVerificacaoRepository
-        extends JpaRepository<UsuarioEmailVerificacao, Long> {
+        extends BaseTenantRepository<UsuarioEmailVerificacao, Long> {
+
+    // ============================================================
+    // Consultas de runtime (NÃO PAGINADAS)
+    // ============================================================
 
     /**
-     * Busca um registro de verificação pelo hash do token.
+     * Busca um registro de verificação pelo hash do token,
+     * restrito à empresa (tenant).
+     *
+     * <p>
      * O token enviado ao usuário não é armazenado diretamente,
      * apenas seu hash, por questões de segurança.
+     * </p>
      *
      * @param tokenHash Hash do token gerado.
-     * @return Registro correspondente, caso exista.
+     * @param empresaId Identificador da empresa (tenant).
+     * @return Registro correspondente, caso exista no tenant.
      */
-    Optional<UsuarioEmailVerificacao> findByTokenHash(String tokenHash);
-
-    /**
-     * Busca um token válido (não expirado).
-     *
-     * @param tokenHash Hash do token.
-     * @param agora     Data/hora atual para validação da expiração.
-     * @return Registro válido, se encontrado.
-     */
-    Optional<UsuarioEmailVerificacao> findByTokenHashAndExpiracaoAfter(
+    Optional<UsuarioEmailVerificacao> findByTokenHashAndEmpresaId(
             String tokenHash,
-            LocalDateTime agora
+            Long empresaId
     );
 
     /**
-     * Lista todos os tokens já expirados.
-     * Útil para rotinas de limpeza periódica.
+     * Busca um token válido (não expirado) dentro da empresa (tenant).
      *
-     * @param agora Data/hora atual.
-     * @return Lista de tokens expirados.
+     * @param tokenHash Hash do token.
+     * @param agora     Data/hora atual para validação da expiração.
+     * @param empresaId Identificador da empresa (tenant).
+     * @return Registro válido, se encontrado no tenant.
      */
-    List<UsuarioEmailVerificacao> findByExpiracaoBefore(LocalDateTime agora);
+    Optional<UsuarioEmailVerificacao> findByTokenHashAndExpiracaoAfterAndEmpresaId(
+            String tokenHash,
+            LocalDateTime agora,
+            Long empresaId
+    );
 
     /**
-     * Lista todos os tokens ativos (não expirados).
+     * Busca o token pendente mais recente para um usuário específico,
+     * dentro da empresa (tenant).
      *
-     * @param agora Data/hora atual.
-     * @return Lista de tokens válidos.
-     */
-    List<UsuarioEmailVerificacao> findByExpiracaoAfter(LocalDateTime agora);
-
-    /**
-     * Busca o token pendente mais recente para um usuário específico.
-     * Útil para evitar geração duplicada de tokens caso o usuário solicite
-     * reenvio da confirmação de e-mail.
+     * <p>
+     * Utilizado para evitar geração duplicada de tokens
+     * em fluxos de reenvio de confirmação de e-mail.
+     * </p>
      *
      * @param usuarioId ID do usuário.
-     * @return Token ainda não utilizado.
+     * @param empresaId Identificador da empresa (tenant).
+     * @return Token ainda não utilizado, se existir no tenant.
      */
-    Optional<UsuarioEmailVerificacao> findByUsuarioIdAndUtilizadoFalse(Long usuarioId);
+    Optional<UsuarioEmailVerificacao> findByUsuarioIdAndUtilizadoFalseAndEmpresaId(
+            Long usuarioId,
+            Long empresaId
+    );
+
+    // ============================================================
+    // Consultas administrativas / batch (PAGINADAS)
+    // ============================================================
 
     /**
-     * Lista todos os tokens pendentes (não utilizados).
+     * Lista tokens de verificação já expirados dentro de uma empresa (tenant),
+     * de forma paginada.
      *
-     * @return Lista de tokens pendentes.
+     * <p>
+     * Utilizado em rotinas de limpeza periódica (jobs/batch).
+     * </p>
+     *
+     * @param agora     Data/hora atual.
+     * @param empresaId Identificador da empresa (tenant).
+     * @param pageable  Informações de paginação.
+     * @return Página de tokens expirados.
      */
-    List<UsuarioEmailVerificacao> findByUtilizadoFalse();
+    Page<UsuarioEmailVerificacao> findByExpiracaoBeforeAndEmpresaId(
+            LocalDateTime agora,
+            Long empresaId,
+            Pageable pageable
+    );
+
+    /**
+     * Lista tokens ativos (não expirados) dentro de uma empresa (tenant),
+     * de forma paginada.
+     *
+     * @param agora     Data/hora atual.
+     * @param empresaId Identificador da empresa (tenant).
+     * @param pageable  Informações de paginação.
+     * @return Página de tokens válidos.
+     */
+    Page<UsuarioEmailVerificacao> findByExpiracaoAfterAndEmpresaId(
+            LocalDateTime agora,
+            Long empresaId,
+            Pageable pageable
+    );
+
+    /**
+     * Lista tokens pendentes (não utilizados) dentro de uma empresa (tenant),
+     * de forma paginada.
+     *
+     * <p>
+     * Pode ser utilizado para auditoria ou rotinas administrativas.
+     * </p>
+     *
+     * @param empresaId Identificador da empresa (tenant).
+     * @param pageable  Informações de paginação.
+     * @return Página de tokens pendentes.
+     */
+    Page<UsuarioEmailVerificacao> findByUtilizadoFalseAndEmpresaId(
+            Long empresaId,
+            Pageable pageable
+    );
 }

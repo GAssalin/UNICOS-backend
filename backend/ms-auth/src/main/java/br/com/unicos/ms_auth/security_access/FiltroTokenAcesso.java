@@ -40,27 +40,30 @@ public class FiltroTokenAcesso extends OncePerRequestFilter {
 
         if (token != null) {
 
-            DecodedJWT decodedJWT = tokenService.verificarToken(token);
+            DecodedJWT decodedJWT;
+            try {
+                decodedJWT = tokenService.verificarAccessToken(token);
+            } catch (Exception ex) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token inválido ou expirado");
+                return;
+            }
 
-            String email = decodedJWT.getSubject();
-
-            Usuario usuario = usuarioRepository
-                    .findByEmailIgnoreCaseAndEmailVerificadoTrue(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
-
-            String tenantId = decodedJWT.getClaim("tenant_id").asString();
-
-            if (tenantId == null || tenantId.isBlank()) {
+            Long tenantId = decodedJWT.getClaim("tenantId").asLong();
+            if (tenantId == null) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant não informado");
                 return;
             }
 
-            Authentication authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            usuario,
-                            null,
-                            usuario.getAuthorities()
-                    );
+            Usuario usuario = usuarioRepository
+                    .findByEmailIgnoreCaseAndEmailVerificadoTrue(decodedJWT.getSubject())
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+
+            if (!tenantId.equals(usuario.getEmpresaId())) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant inválido");
+                return;
+            }
+
+            Authentication authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -70,8 +73,9 @@ public class FiltroTokenAcesso extends OncePerRequestFilter {
 
     private String recuperarTokenRequisicao(HttpServletRequest request) {
         var authorizationHeader = request.getHeader("Authorization");
-        if (authorizationHeader != null)
-            return authorizationHeader.replace("Bearer ", "");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer "))
+            return authorizationHeader.substring(7);
+
         return null;
     }
 }

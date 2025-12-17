@@ -1,21 +1,20 @@
 package br.com.unicos.ms_auth.model;
 
+import br.com.unicos.core.tenant.model.BaseTenantEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "usuario_email_verificacao")
-@Data
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UsuarioEmailVerificacao {
+@SuperBuilder
+public class UsuarioEmailVerificacao extends BaseTenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +33,4 @@ public class UsuarioEmailVerificacao {
     @Builder.Default
     private boolean utilizado = false;
 
-    @CreationTimestamp
-    @Column(name = "criado_em")
-    private LocalDateTime criadoEm;
 }

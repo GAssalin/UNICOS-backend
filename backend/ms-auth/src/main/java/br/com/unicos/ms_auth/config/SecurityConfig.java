@@ -1,6 +1,7 @@
 package br.com.unicos.ms_auth.config;
 
 import br.com.unicos.ms_auth.model.RoleHierarchyRelation;
+import br.com.unicos.ms_auth.provider.TenantAuthenticationProvider;
 import br.com.unicos.ms_auth.repository.RoleHierarchyRelationRepository;
 import br.com.unicos.ms_auth.security_access.FiltroTokenAcesso;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class SecurityConfig {
     private final FiltroTokenAcesso filtroTokenAcesso;
 
     @Bean
-    public SecurityFilterChain filtrosSeguranca(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filtrosSeguranca(HttpSecurity http, TenantAuthenticationProvider tenantAuthenticationProvider) throws Exception {
 
         String[] SWAGGER_WHITELIST = {
                 "/swagger-ui.html",
@@ -42,14 +43,12 @@ public class SecurityConfig {
         };
 
         return http
+                .authenticationProvider(tenantAuthenticationProvider)
                 .cors(cors -> cors.disable())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
-                    req.requestMatchers(
-                            "/v1/autenticacao/login",
-                            "/v1/autenticacao/atualizar-token"
-                    ).permitAll();
+                    req.requestMatchers("/v1/autenticacao/login").permitAll();
                     req.requestMatchers(SWAGGER_WHITELIST).permitAll();
                     req.anyRequest().authenticated();
                 })
@@ -57,15 +56,14 @@ public class SecurityConfig {
                 .build();
     }
 
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 
     @Bean
     public PasswordEncoder encriptador() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean

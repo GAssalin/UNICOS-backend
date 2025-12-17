@@ -1,11 +1,10 @@
 package br.com.unicos.ms_auth.model;
 
+import br.com.unicos.core.base.model.EntidadeAuditavel;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 
 /**
@@ -13,11 +12,12 @@ import org.springframework.security.core.GrantedAuthority;
  */
 @Entity
 @Table(name = "role")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Role implements GrantedAuthority {
+@SuperBuilder
+public class Role extends EntidadeAuditavel implements GrantedAuthority {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

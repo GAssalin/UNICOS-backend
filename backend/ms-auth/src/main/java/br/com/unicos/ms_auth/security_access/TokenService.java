@@ -1,5 +1,6 @@
 package br.com.unicos.ms_auth.security_access;
 
+import br.com.unicos.ms_auth.exception.TenantNotAssociatedException;
 import br.com.unicos.ms_auth.model.Usuario;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -11,9 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TokenService {
@@ -21,11 +21,17 @@ public class TokenService {
     private String segredo;
 
     @Value("${jwt.issuer}")
-    String issuer;
+    private String issuer;
 
-    public String gerarToken(Usuario usuario) {
+    @Value("${jwt.tempo.exp.token}")
+    private Integer tempoExpToken; //minutos
+
+    @Value("${jwt.tempo.exp.refresh.token}")
+    private Integer tempoExpRefreshToken; //minutos
+
+    public String gerarAccessToken(Usuario usuario) {
         if (usuario.getEmpresaId() == null)
-            throw new IllegalArgumentException("Empresa ID não pode ser nulo");
+            throw new TenantNotAssociatedException();
 
         Algorithm algorithm = Algorithm.HMAC256(segredo);
 
@@ -37,8 +43,9 @@ public class TokenService {
                 .withIssuer(issuer)
                 .withSubject(usuario.getEmail())
                 .withClaim("roles", roles)
-                .withClaim("tenant_id", usuario.getEmpresaId())
-                .withExpiresAt(expiracao(15))
+                .withClaim("tenantId", usuario.getEmpresaId())
+                .withClaim("typ", "access")
+                .withExpiresAt(expiracao(tempoExpToken))
                 .sign(algorithm);
     }
 
@@ -48,27 +55,44 @@ public class TokenService {
             return JWT.create()
                     .withIssuer(issuer)
                     .withSubject(usuario.getId().toString())
-                    .withExpiresAt(expiracao(1440))
+                    .withClaim("typ", "refresh")
+                    .withJWTId(UUID.randomUUID().toString())
+                    .withExpiresAt(expiracao(tempoExpRefreshToken))
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
             throw new JWTCreationException("Erro ao gerar token refresh JWT de acesso!", exception);
         }
     }
 
-    public DecodedJWT verificarToken(String token) {
+    public DecodedJWT verificarAccessToken(String token) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(segredo);
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer(issuer)
+                    .withClaim("typ", "access")
                     .build();
 
             return verifier.verify(token);
         } catch (JWTVerificationException exception) {
-            throw new JWTCreationException("Erro ao verificar token JWT!", exception);
+            throw new JWTVerificationException("Token inválido ou expirado", exception);
+        }
+    }
+
+    public DecodedJWT verificarRefreshToken(String token) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(segredo);
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer(issuer)
+                    .withClaim("typ", "refresh")
+                    .build();
+
+            return verifier.verify(token);
+        } catch (JWTVerificationException exception) {
+            throw new JWTVerificationException("Token inválido ou expirado", exception);
         }
     }
 
     private Instant expiracao(Integer minutos) {
-        return LocalDateTime.now().plusMinutes(minutos).toInstant(ZoneOffset.of("-03:00"));
+        return Instant.now().plusSeconds(minutos * 60L);
     }
 }

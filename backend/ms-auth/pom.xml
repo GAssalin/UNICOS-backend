@@ -59,6 +59,13 @@
     <!-- =============================================== -->
     <dependencies>
 
+        <!-- 🧩 CORE (publicado no GitHub Packages) -->
+        <dependency>
+            <groupId>br.com.unicos</groupId>
+            <artifactId>core-tenant</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- 🧩 Spring Boot Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

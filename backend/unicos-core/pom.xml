@@ -20,24 +20,16 @@
 
         Cada submódulo representa um domínio específico:
         - core-base: componentes, utilitários e entidades compartilhadas;
-        - core-pedido: gestão de pedidos de compra e venda;
-        - core-financeiro: núcleo de operações financeiras;
-        - core-contas: controle de contas a pagar e receber;
-        - core-tesouraria: movimentações de caixa e conciliação bancária;
-        - core-categoria: classificação contábil e centros de custo.
         - core-produto: padronização e estruturação do domínio de produtos.
+        - core-tenant: padronização e estruturação de arquitetura multi-tenant.
 
         Essa estrutura modular permite independência de evolução, reuso entre microserviços e aderência aos princípios de DDD (Domain-Driven Design).
     </description>
 
     <modules>
         <module>core-base</module>
-        <module>core-categoria</module>
-        <module>core-contas</module>
-        <module>core-financeiro</module>
-        <module>core-pedido</module>
-        <module>core-tesouraria</module>
         <module>core-produto</module>
+        <module>core-tenant</module>
     </modules>
 
     <properties>
@@ -108,31 +100,26 @@
     </distributionManagement>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <!-- Compilador Java -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.11.0</version>
-                    <configuration>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
-                        <encoding>${project.build.sourceEncoding}</encoding>
-                    </configuration>
-                </plugin>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
 
-                <!-- 🔹 Plugin de publicação no Maven -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>3.1.1</version>
-                    <configuration>
-                        <altDeploymentRepository>github::default::https://maven.pkg.github.com/GAssalin/UNICOS</altDeploymentRepository>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
 </project>

@@ -1,24 +1,18 @@
 package br.com.unicos.ms_auth.controller;
 
+import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.ms_auth.dto.usuario.UsuarioRequest;
 import br.com.unicos.ms_auth.dto.usuario.UsuarioResponse;
-import br.com.unicos.ms_auth.service.interfaces.UsuarioEmailVerificacaoService;
-import br.com.unicos.ms_auth.service.interfaces.UsuarioService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import br.com.unicos.ms_auth.service.UsuarioEmailVerificacaoService;
+import br.com.unicos.ms_auth.service.UsuarioService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * Controlador REST responsável pelo gerenciamento dos usuários autenticáveis do sistema.
@@ -29,7 +23,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/usuarios")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "bearer-key")
 @Tag(
         name = "Usuários",
         description = "Endpoints de criação, atualização, consulta, listagem e remoção de usuários autenticáveis."
@@ -40,239 +33,82 @@ public class UsuarioController {
     private final UsuarioEmailVerificacaoService verificacaoService;
 
     // =============================================================
-    // 🔹 Criar usuário
-    // Permissão necessária: USUARIO_CRIAR
+    // CREATE
     // =============================================================
-    @PreAuthorize("hasAuthority('USUARIO_CRIAR')")
-    @Operation(
-            summary = "Criar novo usuário",
-            description = """
-                    Cria um novo usuário autenticável no sistema e gera automaticamente \
-                    um token de verificação de e-mail para ativação da conta.
-                    """,
-            responses = {
-                    @ApiResponse(
-                            responseCode = "201",
-                            description = "Usuário criado com sucesso",
-                            content = @Content(schema = @Schema(implementation = UsuarioResponse.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Dados inválidos enviados para criação",
-                            content = @Content
-                    )
-            }
-    )
+
     @PostMapping
     public ResponseEntity<UsuarioResponse> salvar(@Valid @RequestBody UsuarioRequest request) {
+        Long empresaId = TenantContext.getEmpresaId();
 
-        UsuarioResponse response = usuarioService.salvar(request);
+        UsuarioResponse response = usuarioService.salvar(request, empresaId);
 
-        // Gera token de verificação (o serviço de e-mail enviará o e-mail)
         verificacaoService.gerarTokenParaUsuario(response.id());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
     // =============================================================
-    // 🔹 Atualizar usuário
-    // Permissão necessária: USUARIO_EDITAR
+    // UPDATE
     // =============================================================
-    @PreAuthorize("hasAuthority('USUARIO_EDITAR')")
-    @Operation(
-            summary = "Atualizar usuário",
-            description = "Atualiza os dados de um usuário existente.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Usuário atualizado com sucesso",
-                            content = @Content(schema = @Schema(implementation = UsuarioResponse.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Dados enviados inválidos",
-                            content = @Content
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Usuário não encontrado",
-                            content = @Content
-                    )
-            }
-    )
+
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> atualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody UsuarioRequest request
-    ) {
-        UsuarioResponse response = usuarioService.atualizar(id, request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<UsuarioResponse> atualizar(@PathVariable Long id, @Valid @RequestBody UsuarioRequest request) {
+        return ResponseEntity.ok(usuarioService.atualizar(id, request, TenantContext.getEmpresaId()));
     }
 
     // =============================================================
-    // 🔹 Buscar por ID
-    // Permissão: USUARIO_LISTAR
+    // GET BY ID
     // =============================================================
-    @PreAuthorize("hasAuthority('USUARIO_LISTAR')")
-    @Operation(
-            summary = "Buscar usuário por ID",
-            description = "Retorna os dados do usuário correspondente ao ID informado.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Usuário encontrado",
-                            content = @Content(schema = @Schema(implementation = UsuarioResponse.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Usuário não encontrado",
-                            content = @Content
-                    )
-            }
-    )
+
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponse> buscarPorId(@PathVariable Long id) {
-        UsuarioResponse response = usuarioService.buscarPorId(id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(usuarioService.buscarPorId(id, TenantContext.getEmpresaId()));
     }
 
     // =============================================================
-    // 🔹 Buscar por login
-    // Permissão: USUARIO_LISTAR
+    // GET BY LOGIN
     // =============================================================
-    @PreAuthorize("hasAuthority('USUARIO_LISTAR')")
-    @Operation(
-            summary = "Buscar usuário por login",
-            description = "Consulta os dados do usuário com base no login informado.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Usuário encontrado",
-                            content = @Content(schema = @Schema(implementation = UsuarioResponse.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Usuário não encontrado",
-                            content = @Content
-                    )
-            }
-    )
+
     @GetMapping("/login/{login}")
     public ResponseEntity<UsuarioResponse> buscarPorLogin(@PathVariable String login) {
-        UsuarioResponse response = usuarioService.buscarPorLogin(login);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(usuarioService.buscarPorLogin(login, TenantContext.getEmpresaId()));
     }
 
     // =============================================================
-    // 🔹 Listar todos
-    // Permissão: USUARIO_LISTAR
+    // LISTAGENS ADMINISTRATIVAS (PAGINADAS)
     // =============================================================
-    @PreAuthorize("hasAuthority('USUARIO_LISTAR')")
-    @Operation(
-            summary = "Listar todos os usuários",
-            description = "Retorna todos os usuários cadastrados, sem filtro de status.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Lista obtida com sucesso",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = UsuarioResponse.class)))
-                    )
-            }
-    )
+
     @GetMapping
-    public ResponseEntity<List<UsuarioResponse>> listarTodos() {
-        return ResponseEntity.ok(usuarioService.listarTodos());
+    public ResponseEntity<Page<UsuarioResponse>> listarTodos(Pageable pageable) {
+        return ResponseEntity.ok(usuarioService.listarTodos(TenantContext.getEmpresaId(), pageable));
     }
 
-    // =============================================================
-    // 🔹 Listar ativos
-    // Permissão: USUARIO_LISTAR
-    // =============================================================
-    @PreAuthorize("hasAuthority('USUARIO_LISTAR')")
-    @Operation(
-            summary = "Listar usuários ativos",
-            description = "Retorna somente os usuários com status ativo.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Lista de usuários ativos retornada com sucesso",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = UsuarioResponse.class)))
-                    )
-            }
-    )
     @GetMapping("/ativos")
-    public ResponseEntity<List<UsuarioResponse>> listarAtivos() {
-        return ResponseEntity.ok(usuarioService.listarAtivos());
+    public ResponseEntity<Page<UsuarioResponse>> listarAtivos(Pageable pageable) {
+        return ResponseEntity.ok(usuarioService.listarAtivos(TenantContext.getEmpresaId(), pageable));
     }
 
-    // =============================================================
-    // 🔹 Listar inativos
-    // Permissão: USUARIO_LISTAR
-    // =============================================================
-    @PreAuthorize("hasAuthority('USUARIO_LISTAR')")
-    @Operation(
-            summary = "Listar usuários inativos",
-            description = "Retorna somente os usuários com status inativo.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Lista de usuários inativos retornada com sucesso",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = UsuarioResponse.class)))
-                    )
-            }
-    )
     @GetMapping("/inativos")
-    public ResponseEntity<List<UsuarioResponse>> listarInativos() {
-        return ResponseEntity.ok(usuarioService.listarInativos());
+    public ResponseEntity<Page<UsuarioResponse>> listarInativos(Pageable pageable) {
+        return ResponseEntity.ok(usuarioService.listarInativos(TenantContext.getEmpresaId(), pageable)
+        );
     }
 
     // =============================================================
-    // 🔹 Desativar usuário
-    // Permissão: USUARIO_EDITAR
+    // STATUS / DELETE
     // =============================================================
-    @PreAuthorize("hasAuthority('USUARIO_EDITAR')")
-    @Operation(
-            summary = "Desativar usuário",
-            description = "Define o status do usuário para inativo, impedindo seu login.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "204",
-                            description = "Usuário desativado com sucesso"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Usuário não encontrado"
-                    )
-            }
-    )
+
     @PatchMapping("/{id}/desativar")
     public ResponseEntity<Void> desativar(@PathVariable Long id) {
-        usuarioService.desativar(id);
+        usuarioService.desativar(id, TenantContext.getEmpresaId());
         return ResponseEntity.noContent().build();
     }
 
-    // =============================================================
-    // 🔹 Excluir permanentemente
-    // Permissão: USUARIO_EXCLUIR
-    // =============================================================
-    @PreAuthorize("hasAuthority('USUARIO_EXCLUIR')")
-    @Operation(
-            summary = "Excluir usuário permanentemente",
-            description = "Remove o usuário definitivamente do sistema.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "204",
-                            description = "Usuário removido com sucesso"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Usuário não encontrado"
-                    )
-            }
-    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        usuarioService.deletar(id);
+        usuarioService.deletar(id, TenantContext.getEmpresaId());
         return ResponseEntity.noContent().build();
     }
 }

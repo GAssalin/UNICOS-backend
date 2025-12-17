@@ -27,7 +27,10 @@ public class GatewayConfig {
                 // ===============================
                 .route("ms-auth", r -> r
                         .path("/ms-auth/**")
-                        .filters(f -> f.stripPrefix(1))
+                        .filters(f -> f
+                                .stripPrefix(1)
+                                .filter(jwtAuthFilter)
+                        )
                         .uri("lb://ms-auth")
                 )
 

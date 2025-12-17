@@ -1,14 +1,9 @@
 package br.com.unicos.ms_auth.model;
 
+import br.com.unicos.core.tenant.model.BaseTenantEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDateTime;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(
@@ -20,18 +15,16 @@ import java.time.LocalDateTime;
                 )
         }
 )
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class EmpresaRolePermissao {
+@SuperBuilder
+public class EmpresaRolePermissao extends BaseTenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "empresa_id", nullable = false)
-    private Long empresaId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)
@@ -40,16 +33,4 @@ public class EmpresaRolePermissao {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "permissao_id", nullable = false)
     private Permissao permissao;
-
-    @Builder.Default
-    @Column(nullable = false)
-    private Boolean ativo = true;
-
-    @CreationTimestamp
-    @Column(name = "criado_em", updatable = false)
-    private LocalDateTime criadoEm;
-
-    @UpdateTimestamp
-    @Column(name = "atualizado_em")
-    private LocalDateTime atualizadoEm;
 }

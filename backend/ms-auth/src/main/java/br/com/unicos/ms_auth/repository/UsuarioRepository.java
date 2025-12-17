@@ -1,43 +1,111 @@
 package br.com.unicos.ms_auth.repository;
 
+import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_auth.model.Usuario;
-import org.springframework.data.jpa.repository.JpaRepository;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
- * Repositório responsável pelo acesso aos dados da entidade Usuario.
- * Mantém apenas consultas relacionadas ao próprio usuário.
+ * Repositório responsável pelo acesso aos dados da entidade {@link Usuario}.
+ *
+ * <p>
+ * Em arquitetura multi-tenant, todos os usuários são isolados
+ * por empresa (tenant), identificada pelo campo {@code empresaId}.
+ * </p>
+ *
+ * <p>
+ * Este repositório contém apenas consultas relacionadas
+ * ao ciclo de autenticação, autorização e administração de usuários.
+ * </p>
  */
 @Repository
-public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+public interface UsuarioRepository extends BaseTenantRepository<Usuario, Long> {
+
+    // ============================================================
+    // Consultas de autenticação (RUNTIME - NÃO PAGINADAS)
+    // ============================================================
 
     /**
-     * Busca um usuário pelo login.
-     * Apenas usuários com e-mail verificado são retornados.
+     * Busca um usuário pelo login dentro da empresa (tenant).
+     * Apenas usuários com e-mail verificado são considerados.
+     *
+     * @param login     Login do usuário.
+     * @param empresaId Identificador da empresa (tenant).
+     * @return {@link Optional} contendo o usuário, caso exista e esteja apto a autenticar.
      */
-    Optional<Usuario> findByLoginIgnoreCaseAndEmailVerificadoTrue(String login);
+    Optional<Usuario> findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(String login, Long empresaId);
+
+    /**
+     * Busca um usuário pelo e-mail dentro da empresa (tenant).
+     * Apenas usuários com e-mail verificado são considerados.
+     *
+     * @param email     E-mail do usuário.
+     * @param empresaId Identificador da empresa (tenant).
+     * @return {@link Optional} contendo o usuário, caso exista e esteja apto a autenticar.
+     */
+    Optional<Usuario> findByEmailIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(String email, Long empresaId);
+
+    /**
+     * Busca um usuário associado ao refresh token informado,
+     * dentro da empresa (tenant).
+     *
+     * @param refreshToken Token de refresh.
+     * @param empresaId    Identificador da empresa (tenant).
+     * @return {@link Optional} contendo o usuário, caso exista no tenant.
+     */
+    Optional<Usuario> findByRefreshTokenAndEmpresaId(String refreshToken, Long empresaId);
+
+    // ============================================================
+    // Consultas administrativas (PAGINADAS)
+    // ============================================================
+
+    /**
+     * Lista usuários ativos com e-mail verificado dentro de uma empresa (tenant),
+     * de forma paginada.
+     *
+     * @param empresaId Identificador da empresa (tenant).
+     * @param pageable  Informações de paginação e ordenação.
+     * @return Página de usuários ativos e verificados.
+     */
+    Page<Usuario> findByAtivoTrueAndEmailVerificadoTrueAndEmpresaId(Long empresaId, Pageable pageable);
+
+    /**
+     * Lista usuários inativos com e-mail verificado dentro de uma empresa (tenant),
+     * de forma paginada.
+     *
+     * @param empresaId Identificador da empresa (tenant).
+     * @param pageable  Informações de paginação e ordenação.
+     * @return Página de usuários inativos e verificados.
+     */
+    Page<Usuario> findByAtivoFalseAndEmailVerificadoTrueAndEmpresaId(Long empresaId, Pageable pageable);
 
     /**
      * Busca um usuário pelo e-mail.
      * Apenas usuários com e-mail verificado são retornados.
+     *
+     * @param email E-mail do usuário.
+     * @return {@link Optional} contendo o usuário, caso exista no tenant.
      */
     Optional<Usuario> findByEmailIgnoreCaseAndEmailVerificadoTrue(String email);
 
     /**
-     * Lista todos os usuários ativos que possuem e-mail verificado.
+     * Busca um usuário pelo id da empresa.
+     *
+     * @param empresaId Identificador da empresa (tenant).
+     * @param pageable  Informações de paginação e ordenação.
+     * @return Página de usuários para empresa desejada.
      */
-    List<Usuario> findByAtivoTrueAndEmailVerificadoTrue();
+    Page<Usuario> findByEmpresaId(Long empresaId, Pageable pageable);
 
     /**
-     * Lista todos os usuários inativos que possuem e-mail verificado.
+     * Busca um usuário pelo email.
+     *
+     * @param email email do usuário
+     * @return {@link Optional} contendo o usuário, caso exista com o email informado
      */
-    List<Usuario> findByAtivoFalseAndEmailVerificadoTrue();
-
-    /**
-     * Busca um usuário associado ao refresh token informado.
-     */
-    Optional<Usuario> findByRefreshToken(String refreshToken);
+    Optional<Usuario> findByEmailIgnoreCase(@NotBlank String email);
 }

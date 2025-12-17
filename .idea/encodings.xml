@@ -6,5 +6,23 @@
     <file url="file://$PROJECT_DIR$/backend/ms-pessoas/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/ms-produtos/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/service-registry/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-base/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-base/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-categoria/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-categoria/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-contas/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-contas/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-financeiro/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-financeiro/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-pedido/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-pedido/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-tenant/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-tenant/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-tesouraria/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-tesouraria/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/src/main/resources" charset="UTF-8" />
   </component>
 </project>

@@ -1,11 +1,10 @@
 package br.com.unicos.ms_auth.model;
 
+import br.com.unicos.core.tenant.model.BaseTenantEntity;
 import br.com.unicos.ms_auth.enums.TipoAcaoAcesso;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
@@ -14,11 +13,12 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "auditoria_acesso")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class AuditoriaAcesso {
+@SuperBuilder
+public class AuditoriaAcesso extends BaseTenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

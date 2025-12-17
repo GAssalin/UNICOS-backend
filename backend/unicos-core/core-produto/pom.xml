@@ -15,7 +15,7 @@
 
     <artifactId>core-produto</artifactId>
     <name>UNICOS :: Core Produto</name>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <description>
@@ -57,19 +57,6 @@
             <artifactId>jakarta.validation-api</artifactId>
         </dependency>
 
-        <!-- Spring Boot Starter Data JPA (necessário para integração com entidades) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Dependência opcional: logs e eventos -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
     <build>

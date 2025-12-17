@@ -21,7 +21,7 @@ INSERT INTO usuario (
     0,
     'admin',
     NULL,
-    '$2a$10$kMBq/q.UCd6YpdUBKCbELO0O55dnROSVdOGgFyxPK1jjd6If6HfNO',
+    '$2a$10$LAnWRm2Abm4HN0b.cYnUQeu7Tf5DbGeI6BzueIFsdJF6Bv7eb8vzq',
     'admin@unicos.com',
     1,
     NULL,

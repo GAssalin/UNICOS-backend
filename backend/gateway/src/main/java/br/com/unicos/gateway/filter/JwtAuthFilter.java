@@ -5,13 +5,13 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.cloud.gateway.filter.GatewayFilter;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -20,42 +20,47 @@ public class JwtAuthFilter implements GatewayFilter {
     @Value("${jwt.secret}")
     private String secret;
 
+    @Value("${jwt.issuer}")
+    private String issuer;
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        if(exchange.getRequest().getURI().getPath().equals("/v1/autenticacao/login"))
+            return chain.filter(exchange);
 
-        HttpHeaders headers = exchange.getRequest().getHeaders();
+        String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
-        if (!headers.containsKey(HttpHeaders.AUTHORIZATION)) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
 
-        String token = headers.getFirst(HttpHeaders.AUTHORIZATION)
-                .replace("Bearer ", "");
+        String token = authHeader.substring(7);
 
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
 
             DecodedJWT jwt = JWT.require(algorithm)
+                    .withIssuer(issuer)
                     .build()
                     .verify(token);
 
-            String tenantId = jwt.getClaim("tenant_id").asString();
+            Long tenantId = jwt.getClaim("tenantId").asLong();
 
-            if (tenantId == null || tenantId.isBlank()) {
-                exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            if (tenantId == null) {
+                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             }
 
             ServerHttpRequest mutatedRequest = exchange.getRequest()
                     .mutate()
-                    .header("X-Tenant-ID", tenantId)
+                    .header("X-Tenant-Id", tenantId.toString())
                     .build();
 
             return chain.filter(exchange.mutate().request(mutatedRequest).build());
 
         } catch (JWTVerificationException e) {
-            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
     }

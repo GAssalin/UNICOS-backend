@@ -2,11 +2,13 @@ package br.com.unicos.core.base.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.PrePersist;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -19,41 +21,35 @@ import java.time.LocalDateTime;
  * </p>
  */
 @MappedSuperclass
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
 public abstract class EntidadeAuditavel {
 
-    /**
-     * Identificador do usuário responsável pela criação do registro.
-     */
-    @Column(name = "criado_por")
+    @CreatedBy
+    @Column(name = "criado_por", updatable = false)
     private Long criadoPor;
 
-    /**
-     * Data e hora de criação do registro.
-     */
+    @CreatedDate
     @Column(name = "criado_em", nullable = false, updatable = false)
-    @Builder.Default
-    private LocalDateTime criadoEm = LocalDateTime.now();
+    private LocalDateTime criadoEm;
 
-    /**
-     * Identificador do usuário responsável pela última atualização do registro.
-     */
+    @LastModifiedBy
     @Column(name = "atualizado_por")
     private Long atualizadoPor;
 
-    /**
-     * Data e hora da última atualização do registro.
-     */
+    @LastModifiedDate
     @Column(name = "atualizado_em")
     private LocalDateTime atualizadoEm;
 
-    /**
-     * Indica se o registro foi removido logicamente do sistema.
-     */
     @Column(name = "ativo", nullable = false)
-    @Builder.Default
-    private Boolean ativo = true;
+    private Boolean ativo;
+
+    @PrePersist
+    public void prePersist() {
+        this.criadoEm = LocalDateTime.now();
+    }
+
 }

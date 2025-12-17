@@ -1,6 +1,10 @@
 package br.com.unicos.core.produto.model;
 
 import jakarta.persistence.Embeddable;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
@@ -19,6 +23,10 @@ import java.math.BigDecimal;
  * dentro do módulo <b>core-produto</b>.
  * </p>
  */
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Embeddable
 public class PrecoBase {
 
@@ -42,48 +50,4 @@ public class PrecoBase {
      */
     private BigDecimal margemPadrao;
 
-    public PrecoBase() {
-    }
-
-    public PrecoBase(BigDecimal precoCusto,
-                     BigDecimal precoVenda,
-                     BigDecimal precoMinimo,
-                     BigDecimal margemPadrao) {
-        this.precoCusto = precoCusto;
-        this.precoVenda = precoVenda;
-        this.precoMinimo = precoMinimo;
-        this.margemPadrao = margemPadrao;
-    }
-
-    public BigDecimal getPrecoCusto() {
-        return precoCusto;
-    }
-
-    public void setPrecoCusto(BigDecimal precoCusto) {
-        this.precoCusto = precoCusto;
-    }
-
-    public BigDecimal getPrecoVenda() {
-        return precoVenda;
-    }
-
-    public void setPrecoVenda(BigDecimal precoVenda) {
-        this.precoVenda = precoVenda;
-    }
-
-    public BigDecimal getPrecoMinimo() {
-        return precoMinimo;
-    }
-
-    public void setPrecoMinimo(BigDecimal precoMinimo) {
-        this.precoMinimo = precoMinimo;
-    }
-
-    public BigDecimal getMargemPadrao() {
-        return margemPadrao;
-    }
-
-    public void setMargemPadrao(BigDecimal margemPadrao) {
-        this.margemPadrao = margemPadrao;
-    }
 }

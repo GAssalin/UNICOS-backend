@@ -1,10 +1,12 @@
 package br.com.unicos.ms_auth.model;
 
+import br.com.unicos.core.tenant.model.BaseTenantEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,19 +26,17 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "usuario")
-@Data
+@Getter
+@Setter
 @ToString(exclude = "password")
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Usuario implements UserDetails {
+@SuperBuilder
+public class Usuario extends BaseTenantEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "empresa_id")
-    private Long empresaId;
 
     @NotBlank
     @Size(min = 4, max = 100)
@@ -65,10 +65,6 @@ public class Usuario implements UserDetails {
     @Column(name = "expiracao_refresh_token", length = 200)
     private LocalDateTime expiracaoRefreshToken;
 
-    @Builder.Default
-    @Column(nullable = false)
-    private boolean ativo = true;
-
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "usuario_role",
@@ -77,14 +73,6 @@ public class Usuario implements UserDetails {
     )
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
-
-    @CreationTimestamp
-    @Column(name = "criado_em")
-    private LocalDateTime criadoEm;
-
-    @UpdateTimestamp
-    @Column(name = "atualizado_em")
-    private LocalDateTime atualizadoEm;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -100,9 +88,4 @@ public class Usuario implements UserDetails {
         return expiracaoRefreshToken == null || expiracaoRefreshToken.isBefore(LocalDateTime.now());
     }
 
-    public String novoRefreshToken() {
-        this.refreshToken = UUID.randomUUID().toString();
-        this.expiracaoRefreshToken = LocalDateTime.now().plusHours(2);
-        return this.refreshToken;
-    }
 }
