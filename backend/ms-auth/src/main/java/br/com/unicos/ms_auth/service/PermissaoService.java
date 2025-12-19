@@ -85,7 +85,7 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
 
     @Transactional(readOnly = true)
     public Page<PermissaoResponse> listar(String nome, Pageable pageable) {
-        verificarPermissao("PERMISSAO_LISTAR");
+        possuiPermissao("PERMISSAO_LISTAR");
 
         Page<Permissao> page;
 
@@ -116,8 +116,8 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
             throw new IllegalArgumentException("Já existe uma permissão cadastrada com o nome informado.");
     }
 
-    public void verificarPermissao(String nomePermissao) {
-        if (!rolePermissaoRepository.usuarioPossuiPermissao(TenantContext.getUsuarioId(), TenantContext.getEmpresaId(), nomePermissao))
+    public void possuiPermissao(String nomePermissao) {
+        if (!rolePermissaoRepository.rolePossuiPermissao(TenantContext.getEmpresaId(), TenantContext.getRoles().stream().toList(), nomePermissao))
             throw new AccessDeniedException("Usuário não possui permissão para executar a função desejada");
     }
 }

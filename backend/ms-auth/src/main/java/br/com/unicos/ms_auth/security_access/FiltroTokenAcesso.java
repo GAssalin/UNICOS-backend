@@ -1,7 +1,5 @@
 package br.com.unicos.ms_auth.security_access;
 
-import br.com.unicos.ms_auth.model.Usuario;
-import br.com.unicos.ms_auth.repository.UsuarioRepository;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,19 +8,19 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class FiltroTokenAcesso extends OncePerRequestFilter {
 
     private final TokenService tokenService;
-    private final UsuarioRepository usuarioRepository;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -34,7 +32,12 @@ public class FiltroTokenAcesso extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
+
         String token = recuperarTokenRequisicao(request);
 
         if (token != null) {
@@ -53,16 +56,24 @@ public class FiltroTokenAcesso extends OncePerRequestFilter {
                 return;
             }
 
-            Usuario usuario = usuarioRepository
-                    .findByEmailIgnoreCaseAndEmailVerificadoTrue(decodedJWT.getSubject())
-                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+            Long userId = decodedJWT.getClaim("usuarioId").asLong();
+            String username = decodedJWT.getSubject();
 
-            if (!tenantId.equals(usuario.getEmpresaId())) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant inválido");
-                return;
-            }
+            List<String> roles = decodedJWT.getClaim("roles").asList(String.class);
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
+            var authorities = roles.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .toList();
+
+            AuthenticatedUser principal = new AuthenticatedUser(
+                    userId,
+                    username,
+                    null,
+                    tenantId,
+                    roles
+            );
+
+            Authentication authentication = new UsernamePasswordAuthenticationToken(principal, null, authorities);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -71,10 +82,9 @@ public class FiltroTokenAcesso extends OncePerRequestFilter {
     }
 
     private String recuperarTokenRequisicao(HttpServletRequest request) {
-        var authorizationHeader = request.getHeader("Authorization");
+        String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer "))
             return authorizationHeader.substring(7);
-
         return null;
     }
 }

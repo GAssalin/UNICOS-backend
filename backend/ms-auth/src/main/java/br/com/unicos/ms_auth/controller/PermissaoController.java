@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -35,6 +36,7 @@ public class PermissaoController {
     // ============================================================
 
     @Operation(summary = "Criar nova permissão")
+    @PreAuthorize("hasPermission(null, 'PERMISSAO_CRIAR')")
     @PostMapping
     public ResponseEntity<PermissaoResponse> criar(@Valid @RequestBody PermissaoRequest request) {
         return ResponseEntity
@@ -47,6 +49,7 @@ public class PermissaoController {
     // ============================================================
 
     @Operation(summary = "Atualizar permissão")
+    @PreAuthorize("hasPermission(null, 'PERMISSAO_EDITAR')")
     @PutMapping("/{id}")
     public ResponseEntity<PermissaoResponse> atualizar(@PathVariable Long id, @Valid @RequestBody PermissaoRequest request) {
         return ResponseEntity.ok(service.atualizar(id, request));
@@ -57,6 +60,7 @@ public class PermissaoController {
     // ============================================================
 
     @Operation(summary = "Buscar permissão por ID")
+    @PreAuthorize("hasPermission(null, 'PERMISSAO_LISTAR')")
     @GetMapping("/{id}")
     public ResponseEntity<PermissaoResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(service.buscarPorId(id));
@@ -67,6 +71,7 @@ public class PermissaoController {
     // ============================================================
 
     @Operation(summary = "Listar permissões (paginado)")
+    @PreAuthorize("hasPermission(null, 'PERMISSAO_LISTAR')")
     @GetMapping
     public ResponseEntity<Page<PermissaoResponse>> listar(@RequestParam(required = false) String nome, Pageable pageable) {
         return ResponseEntity.ok(service.listar(nome, pageable)
@@ -78,6 +83,7 @@ public class PermissaoController {
     // ============================================================
 
     @Operation(summary = "Deletar permissão")
+    @PreAuthorize("hasPermission(null, 'PERMISSAO_EXCLUIR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         service.deletar(id);

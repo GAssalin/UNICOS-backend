@@ -1,5 +1,7 @@
 package br.com.unicos.core.tenant.context;
 
+import java.util.Set;
+
 /**
  * Facade utilitária para acesso ao tenant atual.
  *
@@ -10,43 +12,29 @@ package br.com.unicos.core.tenant.context;
  */
 public final class TenantContextHolder {
 
-    private TenantContextHolder() {
-        // impede instanciação
-    }
+    private TenantContextHolder() {}
 
-    /**
-     * Recupera o usuário atual.
-     *
-     * @return identificador do usuário
-     */
     public static Long usuarioId() {
         return TenantContext.getUsuarioId();
     }
 
-    /**
-     * Verifica se há usuário definido.
-     *
-     * @return {@code true} se houver usuário; caso contrário {@code false}
-     */
     public static boolean isUsuarioDefined() {
         return TenantContext.isUsuarioDefined();
     }
 
-    /**
-     * Recupera o tenant atual.
-     *
-     * @return identificador da empresa (tenant)
-     */
     public static Long empresaId() {
         return TenantContext.getEmpresaId();
     }
 
-    /**
-     * Verifica se há tenant definido.
-     *
-     * @return {@code true} se houver tenant; caso contrário {@code false}
-     */
     public static boolean isEmpresaDefined() {
         return TenantContext.isEmpresaDefined();
+    }
+
+    public static Set<String> roles() {
+        return TenantContext.getRoles();
+    }
+
+    public static boolean hasRole(String role) {
+        return TenantContext.hasRole(role);
     }
 }

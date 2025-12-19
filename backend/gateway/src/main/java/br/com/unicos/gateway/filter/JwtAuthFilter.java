@@ -25,8 +25,19 @@ public class JwtAuthFilter implements GatewayFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        if(exchange.getRequest().getURI().getPath().equals("/v1/autenticacao/login"))
+
+        String path = exchange.getRequest().getURI().getPath();
+
+        // ==============================
+        // ROTAS SEM JWT
+        // ==============================
+        if (
+                path.equals("/v1/autenticacao/login") ||
+                        path.startsWith("/ms-usuario/internal/") ||
+                        path.startsWith("/ms-auth/internal/")
+        ) {
             return chain.filter(exchange);
+        }
 
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 

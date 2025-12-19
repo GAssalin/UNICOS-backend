@@ -2,6 +2,7 @@ package br.com.unicos.ms_auth.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
+import br.com.unicos.ms_auth.client.AuthUsuarioClient;
 import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoListDTO;
 import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoRequest;
 import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoResponse;
@@ -12,6 +13,7 @@ import br.com.unicos.ms_auth.model.RolePermissao;
 import br.com.unicos.ms_auth.repository.PermissaoRepository;
 import br.com.unicos.ms_auth.repository.RolePermissaoRepository;
 import br.com.unicos.ms_auth.repository.RoleRepository;
+import br.com.unicos.ms_auth.repository.RoleUsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -34,19 +36,20 @@ import java.util.List;
 @Service
 public class RolePermissaoService extends BaseTenantService<RolePermissao, Long> {
 
-    private final RolePermissaoRepository repository;
+    private final RolePermissaoRepository rolePermissaoRepository;
     private final RoleRepository roleRepository;
     private final PermissaoRepository permissaoRepository;
     private final RolePermissaoMapper mapper;
 
     public RolePermissaoService(
-            RolePermissaoRepository repository,
+            RolePermissaoRepository rolePermissaoRepository,
             RoleRepository roleRepository,
             PermissaoRepository permissaoRepository,
+            AuthUsuarioClient authUsuarioClient,
             RolePermissaoMapper mapper
     ) {
-        super(repository);
-        this.repository = repository;
+        super(rolePermissaoRepository);
+        this.rolePermissaoRepository = rolePermissaoRepository;
         this.roleRepository = roleRepository;
         this.permissaoRepository = permissaoRepository;
         this.mapper = mapper;
@@ -58,7 +61,7 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
 
     public RolePermissaoResponse criar(RolePermissaoRequest request) {
 
-        if (repository.existsByRoleIdAndPermissaoIdAndEmpresaId(
+        if (rolePermissaoRepository.existsByRoleIdAndPermissaoIdAndEmpresaId(
                 request.roleId(),
                 request.permissaoId(),
                 request.empresaId()
@@ -100,9 +103,9 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
     // ============================================================
 
     public void remover(Long id) {
-        if (!repository.existsById(id))
+        if (!rolePermissaoRepository.existsById(id))
             throw new EntityNotFoundException("Vínculo Empresa-Role-Permissão não encontrado");
-        repository.deleteById(id);
+        rolePermissaoRepository.deleteById(id);
     }
 
     // ============================================================
@@ -110,7 +113,7 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
     // ============================================================
 
     public Page<RolePermissaoListDTO> listarPorEmpresa(Long empresaId, Pageable pageable) {
-        Page<RolePermissao> entidades = repository.findAllByEmpresaId(TenantContext.getEmpresaId(), Pageable.unpaged());
+        Page<RolePermissao> entidades = rolePermissaoRepository.findAllByEmpresaId(TenantContext.getEmpresaId(), Pageable.unpaged());
 
         return new PageImpl<>(
                 entidades.stream()
@@ -123,7 +126,7 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
 
     @Transactional(readOnly = true)
     public Page<RolePermissaoListDTO> listarAtivosPorEmpresa(Long empresaId, Pageable pageable) {
-        final List<RolePermissao> ativos = repository.findByAtivoTrueAndEmpresaId(empresaId);
+        final List<RolePermissao> ativos = rolePermissaoRepository.findByAtivoTrueAndEmpresaId(empresaId);
 
         return new PageImpl<>(
                 ativos.stream()
@@ -136,7 +139,7 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
 
     @Transactional(readOnly = true)
     public Page<RolePermissaoListDTO> listarInativosPorEmpresa(Long empresaId, Pageable pageable) {
-        final List<RolePermissao> inativos = repository.findByAtivoFalseAndEmpresaId(empresaId);
+        final List<RolePermissao> inativos = rolePermissaoRepository.findByAtivoFalseAndEmpresaId(empresaId);
 
         return new PageImpl<>(
                 inativos.stream()
@@ -146,4 +149,5 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
                 inativos.size()
         );
     }
+
 }

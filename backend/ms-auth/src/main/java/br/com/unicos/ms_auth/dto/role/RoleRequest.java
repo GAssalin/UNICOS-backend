@@ -2,7 +2,6 @@ package br.com.unicos.ms_auth.dto.role;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.util.Set;
 
 /**
  * DTO utilizado para criação ou atualização de papéis (roles)
@@ -16,4 +15,4 @@ public record RoleRequest(
 
         @Size(max = 255, message = "A descrição deve ter no máximo 255 caracteres.")
         String descricao
-) {}
+) { }

@@ -4,81 +4,86 @@ import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.ms_auth.dto.login.DadosLogin;
 import br.com.unicos.ms_auth.dto.token.DadosRefreshToken;
 import br.com.unicos.ms_auth.dto.token.DadosToken;
-import br.com.unicos.ms_auth.model.Usuario;
-import br.com.unicos.ms_auth.repository.UsuarioRepository;
+import br.com.unicos.ms_auth.dto.token.TokenUserData;
+import br.com.unicos.ms_auth.loader.AuthAuthenticationLoader;
+import br.com.unicos.ms_auth.repository.RoleUsuarioRepository;
+import br.com.unicos.ms_auth.security_access.AuthenticatedUser;
 import br.com.unicos.ms_auth.security_access.TokenService;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AutenticacaoService {
 
-    private final AuthenticationManager authenticationManager;
+    private final AuthAuthenticationLoader authenticationLoader;
     private final TokenService tokenService;
-    private final UsuarioRepository usuarioRepository;
+    private final RoleUsuarioRepository roleUsuarioRepository;
 
     public ResponseEntity<DadosToken> autenticar(DadosLogin dados) {
 
-        Authentication authentication;
+        AuthenticatedUser user;
 
         try {
-            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dados.email(), dados.senha()));
+            user = authenticationLoader.authenticate(dados.email(), dados.senha());
+        } catch (DisabledException ex) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, ex.getMessage());
         } catch (BadCredentialsException ex) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário ou senha inválidos");
         }
 
-        Usuario usuario = (Usuario) authentication.getPrincipal();
-
         try {
-            String accessToken = tokenService.gerarAccessToken(usuario);
-            String refreshToken = tokenService.gerarRefreshToken(usuario);
+            TokenUserData tokenUser = new TokenUserData(
+                    user.getUserId(),
+                    user.getUsername(),
+                    user.getEmpresaId(),
+                    new ArrayList<>(roleUsuarioRepository.findRolesByUsuario(user.getUserId(), user.getEmpresaId()))
+            );
 
-            usuario.setRefreshToken(refreshToken);
-            usuario = usuarioRepository.save(usuario);
-
-            TenantContext.setUsuarioId(usuario.getId());
-            TenantContext.setEmpresaId(usuario.getEmpresaId());
+            String accessToken = tokenService.gerarAccessToken(tokenUser);
+            String refreshToken = tokenService.gerarRefreshToken(user.getUserId());
 
             return ResponseEntity.ok(new DadosToken(accessToken, refreshToken));
+
         } finally {
             TenantContext.clear();
         }
     }
 
     public ResponseEntity<DadosToken> atualizarToken(@Valid DadosRefreshToken dados) {
-        String refreshToken = dados.refreshToken();
 
         DecodedJWT jwt;
+
         try {
-            jwt = tokenService.verificarRefreshToken(refreshToken);
+            jwt = tokenService.verificarRefreshToken(dados.refreshToken());
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token inválido ou expirado");
         }
+
         Long userId = Long.valueOf(jwt.getSubject());
 
-        Usuario usuario = usuarioRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token inválido ou expirado"));
+        Long tenantId = TenantContext.getEmpresaId();
 
-        if (usuario.getRefreshToken() == null || usuario.isRefreshTokenExpirado() || !usuario.getRefreshToken().equals(refreshToken))
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token inválido ou expirado");
+        TokenUserData tokenUser = new TokenUserData(
+                userId,
+                null,
+                tenantId,
+                List.of()
+        );
 
-        String tokenAcesso = tokenService.gerarAccessToken(usuario);
-        String novoRefreshToken = tokenService.gerarRefreshToken(usuario);
+        String novoAccessToken = tokenService.gerarAccessToken(tokenUser);
+        String novoRefreshToken = tokenService.gerarRefreshToken(userId);
 
-        usuario.setRefreshToken(novoRefreshToken);
-
-        usuarioRepository.save(usuario);
-
-        return ResponseEntity.ok(new DadosToken(tokenAcesso, novoRefreshToken));
+        return ResponseEntity.ok(new DadosToken(novoAccessToken, novoRefreshToken));
     }
 }

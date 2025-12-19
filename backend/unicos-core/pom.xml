@@ -22,6 +22,8 @@
         - core-base: componentes, utilitários e entidades compartilhadas;
         - core-produto: padronização e estruturação do domínio de produtos.
         - core-tenant: padronização e estruturação de arquitetura multi-tenant.
+        - core-usuario: padronização e estruturação do domínio de usuários.
+        - core-auth: padronização e estruturação do domínio de autenticação.
 
         Essa estrutura modular permite independência de evolução, reuso entre microserviços e aderência aos princípios de DDD (Domain-Driven Design).
     </description>
@@ -30,6 +32,8 @@
         <module>core-base</module>
         <module>core-produto</module>
         <module>core-tenant</module>
+        <module>core-usuario</module>
+        <module>core-auth</module>
     </modules>
 
     <properties>

@@ -81,111 +81,7 @@ CREATE TABLE role_hierarchy_relation (
 ) ENGINE=InnoDB;
 
 -- ============================================================
--- 4) TABELA: usuario
--- ============================================================
-CREATE TABLE usuario (
-    id BIGINT NOT NULL AUTO_INCREMENT,
-
-    -- Multi-tenant
-    empresa_id BIGINT NOT NULL,
-
-    -- Identidade
-    login VARCHAR(100) NOT NULL,
-    pessoa_id BIGINT,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(150) NOT NULL,
-
-    -- Segurança
-    email_verificado BOOLEAN NOT NULL DEFAULT FALSE,
-    refresh_token VARCHAR(300),
-    expiracao_refresh_token DATETIME,
-
-    -- Auditoria
-    criado_por BIGINT,
-    criado_em DATETIME NOT NULL,
-    atualizado_por BIGINT,
-    atualizado_em DATETIME,
-    ativo BOOLEAN NOT NULL DEFAULT TRUE,
-
-    PRIMARY KEY (id),
-    UNIQUE (login),
-    UNIQUE (email),
-    INDEX idx_usuario_empresa (empresa_id)
-) ENGINE=InnoDB;
-
--- ============================================================
--- 5) TABELA ASSOCIATIVA: usuario_role (AJUSTADA)
--- ============================================================
-CREATE TABLE usuario_role (
-    id BIGINT NOT NULL AUTO_INCREMENT,
-
-    -- Multi-tenant
-    empresa_id BIGINT NOT NULL,
-
-    usuario_id BIGINT NOT NULL,
-    role_id BIGINT NOT NULL,
-
-    -- Auditoria
-    criado_por BIGINT,
-    criado_em DATETIME NOT NULL,
-    atualizado_por BIGINT,
-    atualizado_em DATETIME,
-    ativo BOOLEAN NOT NULL DEFAULT TRUE,
-
-    PRIMARY KEY (id),
-
-    CONSTRAINT uk_usuario_role
-        UNIQUE (usuario_id, role_id),
-
-    CONSTRAINT fk_usuario_role_usuario
-        FOREIGN KEY (usuario_id)
-        REFERENCES usuario(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_usuario_role_role
-        FOREIGN KEY (role_id)
-        REFERENCES role(id)
-        ON DELETE CASCADE,
-
-    INDEX idx_ur_empresa (empresa_id),
-    INDEX idx_ur_usuario (usuario_id),
-    INDEX idx_ur_role (role_id)
-) ENGINE=InnoDB;
-
--- ============================================================
--- 6) TABELA: usuario_email_verificacao
--- ============================================================
-CREATE TABLE usuario_email_verificacao (
-    id BIGINT NOT NULL AUTO_INCREMENT,
-
-    -- Multi-tenant
-    empresa_id BIGINT NOT NULL,
-
-    usuario_id BIGINT NOT NULL,
-    token_hash VARCHAR(64) NOT NULL,
-    expiracao DATETIME NOT NULL,
-    utilizado BOOLEAN NOT NULL DEFAULT FALSE,
-
-    -- Auditoria
-    criado_por BIGINT,
-    criado_em DATETIME NOT NULL,
-    atualizado_por BIGINT,
-    atualizado_em DATETIME,
-    ativo BOOLEAN NOT NULL DEFAULT TRUE,
-
-    PRIMARY KEY (id),
-
-    CONSTRAINT fk_usuario_email_verificacao_usuario
-        FOREIGN KEY (usuario_id)
-        REFERENCES usuario(id)
-        ON DELETE CASCADE,
-
-    INDEX idx_uev_empresa (empresa_id),
-    INDEX idx_uev_usuario (usuario_id)
-) ENGINE=InnoDB;
-
--- ============================================================
--- 7) TABELA: auditoria_acesso
+-- 4) TABELA: auditoria_acesso
 -- ============================================================
 CREATE TABLE auditoria_acesso (
     id BIGINT NOT NULL AUTO_INCREMENT,
@@ -215,7 +111,7 @@ CREATE TABLE auditoria_acesso (
 ) ENGINE=InnoDB;
 
 -- ============================================================
--- 8) TABELA: role_permissao
+-- 5) TABELA: role_permissao
 -- ============================================================
 CREATE TABLE role_permissao (
     id BIGINT NOT NULL AUTO_INCREMENT,
@@ -249,4 +145,37 @@ CREATE TABLE role_permissao (
     INDEX idx_erp_empresa (empresa_id),
     INDEX idx_erp_role (role_id),
     INDEX idx_erp_permissao (permissao_id)
+) ENGINE=InnoDB;
+
+-- ============================================================
+-- 6) TABELA ASSOCIATIVA: role_usuario
+-- (ms-auth NÃO referencia fisicamente ms-usuario)
+-- ============================================================
+CREATE TABLE role_usuario (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+
+    -- Multi-tenant
+    empresa_id BIGINT NOT NULL,
+
+    -- Referência lógica ao ms-usuario
+    usuario_id BIGINT NOT NULL,
+
+    -- Nome da role (ex: UNICOS_ADMIN)
+    role_nome VARCHAR(64) NOT NULL,
+
+    -- Auditoria
+    criado_por BIGINT,
+    criado_em DATETIME NOT NULL,
+    atualizado_por BIGINT,
+    atualizado_em DATETIME,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+
+    PRIMARY KEY (id),
+
+    CONSTRAINT uk_role_usuario
+        UNIQUE (empresa_id, usuario_id, role_nome),
+
+    INDEX idx_ur_empresa (empresa_id),
+    INDEX idx_ur_usuario (usuario_id),
+    INDEX idx_ur_role (role_nome)
 ) ENGINE=InnoDB;

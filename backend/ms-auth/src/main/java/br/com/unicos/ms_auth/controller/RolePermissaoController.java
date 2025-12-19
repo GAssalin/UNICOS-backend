@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -31,13 +32,10 @@ public class RolePermissaoController {
     // CREATE
     // ============================================================
 
-    @Operation(
-            summary = "Criar vínculo entre empresa, role e permissão"
-    )
+    @Operation(summary = "Criar vínculo entre empresa, role e permissão")
+    @PreAuthorize("hasPermission(null, 'EMPRESA_ROLE_PERMISSAO_CRIAR')")
     @PostMapping
-    public ResponseEntity<RolePermissaoResponse> criar(
-            @Valid @RequestBody RolePermissaoRequest request
-    ) {
+    public ResponseEntity<RolePermissaoResponse> criar(@Valid @RequestBody RolePermissaoRequest request) {
         return ResponseEntity
                 .status(201)
                 .body(service.criar(request));
@@ -47,14 +45,10 @@ public class RolePermissaoController {
     // UPDATE
     // ============================================================
 
-    @Operation(
-            summary = "Alterar status do vínculo"
-    )
+    @Operation(summary = "Alterar status do vínculo")
+    @PreAuthorize("hasPermission(null, 'EMPRESA_ROLE_PERMISSAO_EDITAR')")
     @PutMapping("/{id}/status")
-    public ResponseEntity<RolePermissaoResponse> alterarStatus(
-            @PathVariable Long id,
-            @RequestParam boolean ativo
-    ) {
+    public ResponseEntity<RolePermissaoResponse> alterarStatus(@PathVariable Long id, @RequestParam boolean ativo) {
         return ResponseEntity.ok(service.alterarStatus(id, ativo));
     }
 
@@ -62,9 +56,8 @@ public class RolePermissaoController {
     // DELETE
     // ============================================================
 
-    @Operation(
-            summary = "Remover vínculo"
-    )
+    @Operation(summary = "Remover vínculo")
+    @PreAuthorize("hasPermission(null, 'EMPRESA_ROLE_PERMISSAO_EXCLUIR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
         service.remover(id);
@@ -75,29 +68,17 @@ public class RolePermissaoController {
     // LISTAGENS ADMINISTRATIVAS (PAGINADAS)
     // ============================================================
 
-    @Operation(
-            summary = "Listar vínculos ativos por empresa (paginado)"
-    )
+    @Operation(summary = "Listar vínculos ativos por empresa (paginado)")
+    @PreAuthorize("hasPermission(null, 'EMPRESA_ROLE_PERMISSAO_LISTAR')")
     @GetMapping("/empresa/{empresaId}")
-    public ResponseEntity<Page<RolePermissaoListDTO>> listarAtivosPorEmpresa(
-            @PathVariable Long empresaId,
-            Pageable pageable
-    ) {
-        return ResponseEntity.ok(
-                service.listarAtivosPorEmpresa(empresaId, pageable)
-        );
+    public ResponseEntity<Page<RolePermissaoListDTO>> listarAtivosPorEmpresa(@PathVariable Long empresaId, Pageable pageable) {
+        return ResponseEntity.ok(service.listarAtivosPorEmpresa(empresaId, pageable));
     }
 
-    @Operation(
-            summary = "Listar todos os vínculos por empresa (paginado)"
-    )
+    @Operation(summary = "Listar todos os vínculos por empresa (paginado)")
+    @PreAuthorize("hasPermission(null, 'EMPRESA_ROLE_PERMISSAO_LISTAR')")
     @GetMapping("/empresa/{empresaId}/todos")
-    public ResponseEntity<Page<RolePermissaoListDTO>> listarPorEmpresa(
-            @PathVariable Long empresaId,
-            Pageable pageable
-    ) {
-        return ResponseEntity.ok(
-                service.listarPorEmpresa(empresaId, pageable)
-        );
+    public ResponseEntity<Page<RolePermissaoListDTO>> listarPorEmpresa(@PathVariable Long empresaId, Pageable pageable) {
+        return ResponseEntity.ok(service.listarPorEmpresa(empresaId, pageable));
     }
 }

@@ -48,26 +48,18 @@ public interface RolePermissaoRepository extends BaseTenantRepository<RolePermis
      */
     List<String> findAllByRoleIdAndPermissaoIdAndEmpresaId(Long roleId, Long permissaoId, Long empresaId);
 
-    /**
-     * Verifica se o usuário possui determinada permissão
-     * considerando a empresa (tenant) atual.
-     */
     @Query("""
-                select count(erp) > 0
-                  from RolePermissao erp
-                  join erp.role r
-                  join UsuarioRole ur on ur.role = r
-                  join ur.usuario u
-                  join erp.permissao p
-                 where u.id = :usuarioId
-                   and erp.empresaId = :empresaId
-                   and erp.ativo = true
-                   and p.nome = :permissao
+                select count(rp) > 0
+                from RolePermissao rp
+                join rp.permissao p
+                join rp.role r
+                where rp.empresaId = :empresaId
+                  and r.nome in :roles
+                  and p.nome = :nomePermissao
             """)
-    boolean usuarioPossuiPermissao(@Param("usuarioId") Long usuarioId, @Param("empresaId") Long empresaId, @Param("permissao") String nomePermissao);
+    boolean rolePossuiPermissao(@Param("empresaId") Long empresaId, @Param("roles") List<String> roles, @Param("nomePermissao") String nomePermissao);
 
     List<RolePermissao> findByAtivoTrueAndEmpresaId(Long empresaId);
 
     List<RolePermissao> findByAtivoFalseAndEmpresaId(Long empresaId);
-
 }

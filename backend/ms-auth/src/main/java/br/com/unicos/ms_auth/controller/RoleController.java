@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class RoleController {
                     @ApiResponse(responseCode = "400", description = "Dados inválidos enviados", content = @Content)
             }
     )
+    @PreAuthorize("hasPermission(null, 'ROLE_CRIAR')")
     @PostMapping
     public ResponseEntity<RoleResponse> criar(@Valid @RequestBody RoleRequest request) {
         RoleResponse response = roleService.salvar(request);
@@ -55,6 +57,7 @@ public class RoleController {
                     @ApiResponse(responseCode = "404", description = "Role não encontrado", content = @Content)
             }
     )
+    @PreAuthorize("hasPermission(null, 'ROLE_EDITAR')")
     @PutMapping("/{id}")
     public ResponseEntity<RoleResponse> atualizar(@PathVariable Long id, @Valid @RequestBody RoleRequest request) {
         RoleResponse response = roleService.atualizar(id, request);
@@ -69,6 +72,7 @@ public class RoleController {
                     @ApiResponse(responseCode = "404", description = "Role não encontrado", content = @Content)
             }
     )
+    @PreAuthorize("hasPermission(null, 'ROLE_LISTAR')")
     @GetMapping("/{id}")
     public ResponseEntity<RoleResponse> buscarPorId(@PathVariable Long id) {
         RoleResponse response = roleService.buscarPorId(id);
@@ -82,6 +86,7 @@ public class RoleController {
                     @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso", content = @Content(array = @ArraySchema(schema = @Schema(implementation = RoleResponse.class))))
             }
     )
+    @PreAuthorize("hasPermission(null, 'ROLE_LISTAR')")
     @GetMapping
     public ResponseEntity<List<RoleResponse>> listarTodos() {
         List<RoleResponse> lista = roleService.listarTodos();
@@ -96,6 +101,7 @@ public class RoleController {
                     @ApiResponse(responseCode = "404", description = "Role não encontrado", content = @Content)
             }
     )
+    @PreAuthorize("hasPermission(null, 'ROLE_EXCLUIR')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletar(@PathVariable Long id) {
