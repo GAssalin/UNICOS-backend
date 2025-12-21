@@ -1,6 +1,5 @@
 package br.com.unicos.ms_auth.config;
 
-import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.ms_auth.model.RoleHierarchyRelation;
 import br.com.unicos.ms_auth.provider.TenantAuthenticationProvider;
 import br.com.unicos.ms_auth.repository.RoleHierarchyRelationRepository;
@@ -8,8 +7,6 @@ import br.com.unicos.ms_auth.security_access.FiltroTokenAcesso;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
