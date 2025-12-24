@@ -1,5 +1,6 @@
 package br.com.unicos.ms_usuario.config;
 
+import br.com.unicos.ms_usuario.filter.AuthTokenFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,12 +9,15 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+
+    private final AuthTokenFilter authTokenFilter;
 
     String[] SWAGGER_WHITELIST = {
             "/swagger-ui.html",
@@ -35,6 +39,7 @@ public class SecurityConfig {
                     req.requestMatchers(SWAGGER_WHITELIST).permitAll();
                     req.anyRequest().authenticated();
                 })
+                .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
