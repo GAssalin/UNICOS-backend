@@ -20,8 +20,13 @@
         <module name="ms-produtos" />
         <module name="ms-pessoas" />
         <module name="ms-auth" />
-        <module name="ms-usuario" />
+        <module name="core-request" />
         <module name="core-auth" />
+        <module name="core-produto" />
+        <module name="core-usuario" />
+        <module name="ms-usuario" />
+        <module name="core-base" />
+        <module name="core-tenant" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

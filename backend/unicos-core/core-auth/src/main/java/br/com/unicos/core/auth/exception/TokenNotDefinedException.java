@@ -1,23 +1,23 @@
-package br.com.unicos.core.tenant.exception;
+package br.com.unicos.core.auth.exception;
 
 /**
- * Exceção lançada quando o usuario não está definido
+ * Exceção lançada quando o token não está definido
  * no contexto de execução atual.
  *
  * <p>
  * Em arquitetura multi-tenant, operações de leitura/escrita devem
- * ocorrer sempre associadas a um {@code usuarioId}. Quando o tenant
+ * ocorrer sempre associadas a um {@code token}. Quando o token
  * não é resolvido (por exemplo, ausência de header/JWT no microserviço),
  * esta exceção sinaliza falha de contexto.
  * </p>
  */
-public class UsuarioNotDefinedException extends IllegalStateException {
+public class TokenNotDefinedException extends IllegalStateException {
 
     /**
      * Cria a exceção com mensagem padrão.
      */
-    public UsuarioNotDefinedException() {
-        super("Usuario não definida no contexto.");
+    public TokenNotDefinedException() {
+        super("Token não definido no contexto.");
     }
 
     /**
@@ -25,7 +25,7 @@ public class UsuarioNotDefinedException extends IllegalStateException {
      *
      * @param message mensagem detalhada
      */
-    public UsuarioNotDefinedException(String message) {
+    public TokenNotDefinedException(String message) {
         super(message);
     }
 }

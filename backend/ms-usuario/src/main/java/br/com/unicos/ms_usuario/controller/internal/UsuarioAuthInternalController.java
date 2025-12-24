@@ -21,4 +21,5 @@ public class UsuarioAuthInternalController {
     public UsuarioAuthResponse buscarPorEmail(@RequestParam String email) {
         return usuarioService.buscarParaAutenticacao(email);
     }
+
 }

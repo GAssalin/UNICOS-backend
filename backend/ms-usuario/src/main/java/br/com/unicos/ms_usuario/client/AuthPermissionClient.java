@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
         name = "ms-auth",
-        contextId = "AuthPermissionClient"
+        contextId = "authPermissionClient"
 )
 public interface AuthPermissionClient {
 
     @PostMapping("/internal/auth/permissions/check")
-    boolean usuarioPossuiPermissao(@RequestParam Long usuarioId, @RequestParam Long empresaId, @RequestParam String permissao);
+    boolean usuarioPossuiPermissao(@RequestParam String nomePermissao);
 }

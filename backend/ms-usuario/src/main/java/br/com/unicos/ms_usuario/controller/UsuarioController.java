@@ -3,6 +3,7 @@ package br.com.unicos.ms_usuario.controller;
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.ms_usuario.dto.usuario.UsuarioRequest;
 import br.com.unicos.ms_usuario.dto.usuario.UsuarioResponse;
+import br.com.unicos.ms_usuario.model.Usuario;
 import br.com.unicos.ms_usuario.service.UsuarioEmailVerificacaoService;
 import br.com.unicos.ms_usuario.service.UsuarioService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,9 +11,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -37,12 +38,9 @@ public class UsuarioController {
     // CREATE
     // =============================================================
 
-    @PreAuthorize("hasPermission(null, 'USUARIO_CRIAR')")
     @PostMapping
     public ResponseEntity<UsuarioResponse> salvar(@Valid @RequestBody UsuarioRequest request) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        UsuarioResponse response = usuarioService.salvar(request, empresaId);
+        UsuarioResponse response = usuarioService.salvar(request, TenantContext.getEmpresaId());
 
         verificacaoService.gerarTokenParaUsuario(response.id());
 
@@ -55,7 +53,6 @@ public class UsuarioController {
     // UPDATE
     // =============================================================
 
-    @PreAuthorize("hasPermission(null, 'USUARIO_EDITAR')")
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResponse> atualizar(@PathVariable Long id, @Valid @RequestBody UsuarioRequest request) {
         return ResponseEntity.ok(usuarioService.atualizar(id, request, TenantContext.getEmpresaId()));
@@ -65,7 +62,6 @@ public class UsuarioController {
     // GET BY ID
     // =============================================================
 
-    @PreAuthorize("hasPermission(null, 'USUARIO_LISTAR')")
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.buscarPorId(id));
@@ -75,7 +71,6 @@ public class UsuarioController {
     // GET BY LOGIN
     // =============================================================
 
-    @PreAuthorize("hasPermission(null, 'USUARIO_LISTAR')")
     @GetMapping("/login/{login}")
     public ResponseEntity<UsuarioResponse> buscarPorLogin(@PathVariable String login) {
         return ResponseEntity.ok(usuarioService.buscarPorLogin(login, TenantContext.getEmpresaId()));
@@ -85,40 +80,44 @@ public class UsuarioController {
     // LISTAGENS ADMINISTRATIVAS (PAGINADAS)
     // =============================================================
 
-    @PreAuthorize("hasPermission(null, 'USUARIO_LISTAR')")
     @GetMapping
     public ResponseEntity<Page<UsuarioResponse>> listarTodos(Pageable pageable) {
         return ResponseEntity.ok(usuarioService.listarTodos(TenantContext.getEmpresaId(), pageable));
     }
 
-    @PreAuthorize("hasPermission(null, 'USUARIO_LISTAR')")
     @GetMapping("/ativos")
     public ResponseEntity<Page<UsuarioResponse>> listarAtivos(Pageable pageable) {
         return ResponseEntity.ok(usuarioService.listarAtivos(TenantContext.getEmpresaId(), pageable));
     }
 
-    @PreAuthorize("hasPermission(null, 'USUARIO_LISTAR')")
     @GetMapping("/inativos")
     public ResponseEntity<Page<UsuarioResponse>> listarInativos(Pageable pageable) {
-        return ResponseEntity.ok(usuarioService.listarInativos(TenantContext.getEmpresaId(), pageable)
-        );
+        return ResponseEntity.ok(usuarioService.listarInativos(TenantContext.getEmpresaId(), pageable));
     }
 
     // =============================================================
     // STATUS / DELETE
     // =============================================================
 
-    @PreAuthorize("hasPermission(null, 'USUARIO_EXCLUIR')")
     @PatchMapping("/{id}/desativar")
     public ResponseEntity<Void> desativar(@PathVariable Long id) {
-        usuarioService.desativar(id);
-        return ResponseEntity.noContent().build();
+        Usuario usuario = usuarioService.desativar(id);
+
+        if (usuario == null)
+            return ResponseEntity.status(401).build();
+        if (usuario.getAtivo())
+            return ResponseEntity.status(422).build();
+        return ResponseEntity.ok().build();
     }
 
-    @PreAuthorize("hasPermission(null, 'USUARIO_EXCLUIR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        usuarioService.deletar(id);
-        return ResponseEntity.noContent().build();
+        Usuario usuario = usuarioService.deletar(id);
+
+        if (usuario == null)
+            return ResponseEntity.status(401).build();
+        if (usuario.getId() > 0)
+            return ResponseEntity.status(422).build();
+        return ResponseEntity.ok().build();
     }
 }

@@ -3,7 +3,6 @@ package br.com.unicos.ms_auth.provider;
 import br.com.unicos.ms_auth.loader.AuthAuthenticationLoader;
 import br.com.unicos.ms_auth.security_access.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class TenantAuthenticationProvider implements AuthenticationProvider {
+public class AuthProvider implements org.springframework.security.authentication.AuthenticationProvider {
 
     private final AuthAuthenticationLoader loader;
 

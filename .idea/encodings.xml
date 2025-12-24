@@ -21,6 +21,8 @@
     <file url="file://$PROJECT_DIR$/backend/unicos-core/core-pedido/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-request/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-request/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/unicos-core/core-tenant/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/unicos-core/core-tenant/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/unicos-core/core-tesouraria/src/main/java" charset="UTF-8" />

@@ -10,13 +10,14 @@ import br.com.unicos.ms_usuario.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
  * Serviço responsável pela gestão de usuários do sistema.
@@ -32,16 +33,19 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioMapper usuarioMapper;
+    private final PermissionCheckService permissionCheckService;
 
     public UsuarioService(
             UsuarioRepository usuarioRepository,
             PasswordEncoder passwordEncoder,
-            UsuarioMapper usuarioMapper
+            UsuarioMapper usuarioMapper,
+            PermissionCheckService permissionCheckService
     ) {
         super(usuarioRepository);
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.usuarioMapper = usuarioMapper;
+        this.permissionCheckService = permissionCheckService;
     }
 
     // ============================================================
@@ -67,6 +71,8 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
 
     @Transactional
     public UsuarioResponse salvar(UsuarioRequest request, Long empresaId) {
+        if (!permissionCheckService.hasPermission("USUARIO_CRIAR"))
+            return null;
 
         validarLoginDuplicado(request.login(), empresaId);
         validarEmailDuplicado(request.email(), empresaId);
@@ -86,6 +92,8 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
 
     @Transactional
     public UsuarioResponse atualizar(Long id, UsuarioRequest request, Long empresaId) {
+        if (!permissionCheckService.hasPermission("USUARIO_EDITAR"))
+            return null;
 
         Usuario usuario = buscarUsuario(id);
 
@@ -107,11 +115,17 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
 
     @Transactional(readOnly = true)
     public UsuarioResponse buscarPorId(Long id) {
+        if (!permissionCheckService.hasPermission("USUARIO_LISTAR"))
+            return null;
+
         return usuarioMapper.toResponse(buscarUsuario(id));
     }
 
     @Transactional(readOnly = true)
     public UsuarioResponse buscarPorLogin(String login, Long empresaId) {
+        if (!permissionCheckService.hasPermission("USUARIO_LISTAR"))
+            return null;
+
         Usuario usuario = usuarioRepository
                 .findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(login, empresaId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + login));
@@ -121,12 +135,19 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponse> listarTodos(Long empresaId, Pageable pageable) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!permissionCheckService.hasPermission("USUARIO_LISTAR"))
+            return null;
+
         return usuarioRepository.findAllByEmpresaId(empresaId, pageable)
                 .map(usuarioMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponse> listarAtivos(Long empresaId, Pageable pageable) {
+        if (!permissionCheckService.hasPermission("USUARIO_LISTAR"))
+            return null;
+
         return usuarioRepository
                 .findByAtivoTrueAndEmailVerificadoTrueAndEmpresaId(empresaId, pageable)
                 .map(usuarioMapper::toResponse);
@@ -134,21 +155,33 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponse> listarInativos(Long empresaId, Pageable pageable) {
+        if (!permissionCheckService.hasPermission("USUARIO_LISTAR"))
+            return null;
+
         return usuarioRepository
                 .findByAtivoFalseAndEmailVerificadoTrueAndEmpresaId(empresaId, pageable)
                 .map(usuarioMapper::toResponse);
     }
 
     @Transactional
-    public void desativar(Long id) {
-        Usuario usuario = buscarUsuario(id);
-        usuario.setAtivo(false);
-        usuarioRepository.save(usuario);
+    public Usuario desativar(Long id) {
+        if (permissionCheckService.hasPermission("USUARIO_EDITAR")) {
+            Usuario usuario = buscarUsuario(id);
+            usuario.setAtivo(false);
+            return usuarioRepository.save(usuario);
+        }
+
+        return null;
     }
 
     @Transactional
-    public void deletar(Long id) {
-        usuarioRepository.delete(buscarUsuario(id));
+    public Usuario deletar(Long id) {
+        if (permissionCheckService.hasPermission("USUARIO_EXCLUIR")) {
+            usuarioRepository.delete(buscarUsuario(id));
+            Optional<Usuario> byId = usuarioRepository.findById(id);
+            return byId.orElseGet(Usuario::new);
+        }
+        return null;
     }
 
     // ============================================================

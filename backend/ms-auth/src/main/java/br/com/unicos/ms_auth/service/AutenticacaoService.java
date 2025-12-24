@@ -42,7 +42,6 @@ public class AutenticacaoService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário ou senha inválidos");
         }
 
-        try {
             TokenUserData tokenUser = new TokenUserData(
                     user.getUserId(),
                     user.getUsername(),
@@ -55,9 +54,6 @@ public class AutenticacaoService {
 
             return ResponseEntity.ok(new DadosToken(accessToken, refreshToken));
 
-        } finally {
-            TenantContext.clear();
-        }
     }
 
     public ResponseEntity<DadosToken> atualizarToken(@Valid DadosRefreshToken dados) {

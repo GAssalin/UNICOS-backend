@@ -1,5 +1,6 @@
 package br.com.unicos.ms_auth.service;
 
+import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_auth.dto.permissao.PermissaoRequest;
@@ -117,7 +118,7 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
     }
 
     public void possuiPermissao(String nomePermissao) {
-        if (!rolePermissaoRepository.rolePossuiPermissao(TenantContext.getEmpresaId(), TenantContext.getRoles().stream().toList(), nomePermissao))
+        if (!rolePermissaoRepository.rolePossuiPermissao(TenantContext.getEmpresaId(), AuthContext.getRoles().stream().toList(), nomePermissao))
             throw new AccessDeniedException("Usuário não possui permissão para executar a função desejada");
     }
 }

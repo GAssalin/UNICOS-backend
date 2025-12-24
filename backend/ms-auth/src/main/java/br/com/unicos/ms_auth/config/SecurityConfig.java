@@ -1,7 +1,7 @@
 package br.com.unicos.ms_auth.config;
 
 import br.com.unicos.ms_auth.model.RoleHierarchyRelation;
-import br.com.unicos.ms_auth.provider.TenantAuthenticationProvider;
+import br.com.unicos.ms_auth.provider.AuthProvider;
 import br.com.unicos.ms_auth.repository.RoleHierarchyRelationRepository;
 import br.com.unicos.ms_auth.security_access.FiltroTokenAcesso;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class SecurityConfig {
     private final FiltroTokenAcesso filtroTokenAcesso;
 
     @Bean
-    public SecurityFilterChain filtrosSeguranca(HttpSecurity http, TenantAuthenticationProvider tenantAuthenticationProvider) throws Exception {
+    public SecurityFilterChain filtrosSeguranca(HttpSecurity http, AuthProvider authProvider) throws Exception {
 
         String[] SWAGGER_WHITELIST = {
                 "/swagger-ui.html",
@@ -43,7 +43,7 @@ public class SecurityConfig {
         };
 
         return http
-                .authenticationProvider(tenantAuthenticationProvider)
+                .authenticationProvider(authProvider)
                 .cors(cors -> cors.disable())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
