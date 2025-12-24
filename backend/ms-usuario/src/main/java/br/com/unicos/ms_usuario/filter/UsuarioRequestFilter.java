@@ -3,6 +3,7 @@ package br.com.unicos.ms_usuario.filter;
 import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.auth.dto.TokenValidationResponse;
 import br.com.unicos.core.tenant.context.TenantContext;
+import br.com.unicos.core.usuario.auth.context.UserContext;
 import br.com.unicos.ms_usuario.client.AuthValidationClient;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,7 +23,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class AuthTokenFilter extends OncePerRequestFilter {
+public class UsuarioRequestFilter extends OncePerRequestFilter {
 
     private final AuthValidationClient authValidationClient;
 
@@ -40,6 +41,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } finally {
             AuthContext.clear();
+            TenantContext.clear();
+            UserContext.clear();
         }
     }
 

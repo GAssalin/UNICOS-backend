@@ -135,7 +135,6 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponse> listarTodos(Long empresaId, Pageable pageable) {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!permissionCheckService.hasPermission("USUARIO_LISTAR"))
             return null;
 

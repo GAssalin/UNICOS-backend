@@ -1,5 +1,7 @@
-package br.com.unicos.ms_auth.security_access;
+package br.com.unicos.ms_auth.filter;
 
+import br.com.unicos.ms_auth.security_access.AuthenticatedUser;
+import br.com.unicos.ms_auth.security_access.TokenService;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,7 +20,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class FiltroTokenAcesso extends OncePerRequestFilter {
+public class AuthRequestFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
 

@@ -3,7 +3,7 @@ package br.com.unicos.ms_auth.config;
 import br.com.unicos.ms_auth.model.RoleHierarchyRelation;
 import br.com.unicos.ms_auth.provider.AuthProvider;
 import br.com.unicos.ms_auth.repository.RoleHierarchyRelationRepository;
-import br.com.unicos.ms_auth.security_access.FiltroTokenAcesso;
+import br.com.unicos.ms_auth.filter.AuthRequestFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final FiltroTokenAcesso filtroTokenAcesso;
+    private final AuthRequestFilter authRequestFilter;
 
     @Bean
     public SecurityFilterChain filtrosSeguranca(HttpSecurity http, AuthProvider authProvider) throws Exception {
@@ -53,7 +53,7 @@ public class SecurityConfig {
                     req.requestMatchers(SWAGGER_WHITELIST).permitAll();
                     req.anyRequest().authenticated();
                 })
-                .addFilterBefore(filtroTokenAcesso, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(authRequestFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
