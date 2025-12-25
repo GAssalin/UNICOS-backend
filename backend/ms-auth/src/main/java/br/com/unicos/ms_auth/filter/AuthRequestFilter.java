@@ -29,7 +29,7 @@ public class AuthRequestFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         return path.equals("/v1/autenticacao/login")
-                || path.startsWith("/internal")
+                || path.equals("/internal/auth/validate-token")
                 || path.startsWith("/swagger")
                 || path.startsWith("/v3/api-docs");
     }
