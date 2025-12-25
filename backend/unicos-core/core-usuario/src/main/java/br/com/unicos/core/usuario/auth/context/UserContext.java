@@ -10,12 +10,10 @@ public class UserContext {
     }
 
     public static void setUsuarioId(Long usuarioId) {
-        System.out.println("UserContext - setUsuarioId");
         USUARIO_ID.set(usuarioId);
     }
 
     public static Long getUsuarioId() {
-        System.out.println("UserContext - getUsuarioId");
         Long usuarioId = USUARIO_ID.get();
         if (usuarioId == null)
             throw new UserNotDefinedException();
@@ -23,12 +21,10 @@ public class UserContext {
     }
 
     public static boolean isUsuarioDefined() {
-        System.out.println("UserContext - isUsuarioDefined");
         return USUARIO_ID.get() != null;
     }
 
     public static void clear() {
-        System.out.println("UserContext - clear");
         USUARIO_ID.remove();
     }
 }

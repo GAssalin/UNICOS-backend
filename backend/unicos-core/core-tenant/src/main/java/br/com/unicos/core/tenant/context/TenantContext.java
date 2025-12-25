@@ -21,12 +21,10 @@ public final class TenantContext {
     }
 
     public static void setEmpresaId(Long empresaId) {
-        System.out.println("TenantContext - setEmpresaId");
         EMPRESA_ID.set(empresaId);
     }
 
     public static Long getEmpresaId() {
-        System.out.println("TenantContext - getEmpresaId");
         Long empresaId = EMPRESA_ID.get();
         if (empresaId == null)
             throw new TenantNotDefinedException();
@@ -34,12 +32,10 @@ public final class TenantContext {
     }
 
     public static boolean isEmpresaDefined() {
-        System.out.println("TenantContext - isEmpresaDefined");
         return EMPRESA_ID.get() != null;
     }
 
     public static void clear() {
-        System.out.println("TenantContext - clear");
         EMPRESA_ID.remove();
     }
 }

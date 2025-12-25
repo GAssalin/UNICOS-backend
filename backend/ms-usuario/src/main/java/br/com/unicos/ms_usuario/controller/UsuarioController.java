@@ -1,6 +1,5 @@
 package br.com.unicos.ms_usuario.controller;
 
-import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.ms_usuario.dto.usuario.UsuarioRequest;
 import br.com.unicos.ms_usuario.dto.usuario.UsuarioResponse;
 import br.com.unicos.ms_usuario.model.Usuario;
@@ -11,7 +10,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +38,7 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<UsuarioResponse> salvar(@Valid @RequestBody UsuarioRequest request) {
-        UsuarioResponse response = usuarioService.salvar(request, TenantContext.getEmpresaId());
+        UsuarioResponse response = usuarioService.salvar(request);
 
         verificacaoService.gerarTokenParaUsuario(response.id());
 
@@ -55,7 +53,7 @@ public class UsuarioController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResponse> atualizar(@PathVariable Long id, @Valid @RequestBody UsuarioRequest request) {
-        return ResponseEntity.ok(usuarioService.atualizar(id, request, TenantContext.getEmpresaId()));
+        return ResponseEntity.ok(usuarioService.atualizar(id, request));
     }
 
     // =============================================================
@@ -73,7 +71,7 @@ public class UsuarioController {
 
     @GetMapping("/login/{login}")
     public ResponseEntity<UsuarioResponse> buscarPorLogin(@PathVariable String login) {
-        return ResponseEntity.ok(usuarioService.buscarPorLogin(login, TenantContext.getEmpresaId()));
+        return ResponseEntity.ok(usuarioService.buscarPorLogin(login));
     }
 
     // =============================================================
@@ -82,17 +80,17 @@ public class UsuarioController {
 
     @GetMapping
     public ResponseEntity<Page<UsuarioResponse>> listarTodos(Pageable pageable) {
-        return ResponseEntity.ok(usuarioService.listarTodos(TenantContext.getEmpresaId(), pageable));
+        return ResponseEntity.ok(usuarioService.listarTodos(pageable));
     }
 
     @GetMapping("/ativos")
     public ResponseEntity<Page<UsuarioResponse>> listarAtivos(Pageable pageable) {
-        return ResponseEntity.ok(usuarioService.listarAtivos(TenantContext.getEmpresaId(), pageable));
+        return ResponseEntity.ok(usuarioService.listarAtivos(pageable));
     }
 
     @GetMapping("/inativos")
     public ResponseEntity<Page<UsuarioResponse>> listarInativos(Pageable pageable) {
-        return ResponseEntity.ok(usuarioService.listarInativos(TenantContext.getEmpresaId(), pageable));
+        return ResponseEntity.ok(usuarioService.listarInativos(pageable));
     }
 
     // =============================================================

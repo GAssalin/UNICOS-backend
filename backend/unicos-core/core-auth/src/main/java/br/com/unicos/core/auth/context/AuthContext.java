@@ -27,12 +27,10 @@ public final class AuthContext {
        ========================= */
 
     public static void setToken(String token) {
-        System.out.println("AuthContext - setToken");
         TOKEN.set(token);
     }
 
     public static String getToken() {
-        System.out.println("AuthContext - getToken");
         String usuarioId = TOKEN.get();
         if (usuarioId == null)
             throw new TokenNotDefinedException();
@@ -48,23 +46,19 @@ public final class AuthContext {
        ========================= */
 
     public static void setRoles(Set<String> roles) {
-        System.out.println("AuthContext - setRoles");
         ROLES.set(roles);
     }
 
     public static Set<String> getRoles() {
-        System.out.println("AuthContext - getRoles");
         return ROLES.get();
     }
 
     public static boolean hasRole(String role) {
-        System.out.println("AuthContext - hasRole");
         Set<String> roles = ROLES.get();
         return roles != null && roles.contains(role);
     }
 
     public static void clear() {
-        System.out.println("AuthContext - clear");
         TOKEN.remove();
         ROLES.remove();
     }

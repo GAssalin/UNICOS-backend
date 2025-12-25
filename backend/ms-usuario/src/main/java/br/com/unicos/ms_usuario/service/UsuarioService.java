@@ -1,5 +1,6 @@
 package br.com.unicos.ms_usuario.service;
 
+import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.core.usuario.auth.dto.UsuarioAuthResponse;
 import br.com.unicos.ms_usuario.dto.usuario.UsuarioRequest;
@@ -11,8 +12,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -71,10 +70,10 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     // ============================================================
 
     @Transactional
-    public UsuarioResponse salvar(UsuarioRequest request, Long empresaId) {
+    public UsuarioResponse salvar(UsuarioRequest request) {
         if (permissionCheckService.hasPermission("USUARIO_CRIAR")) {
-            validarLoginDuplicado(request.login(), empresaId);
-            validarEmailDuplicado(request.email(), empresaId);
+            validarLoginDuplicado(request.login());
+            validarEmailDuplicado(request.email());
 
             Usuario usuario = Usuario.builder()
                     .login(request.login())
@@ -82,7 +81,7 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
                     .email(request.email())
                     .pessoaId(request.pessoaId())
                     .ativo(request.ativo() != null ? request.ativo() : true)
-                    .empresaId(empresaId)
+                    .empresaId(TenantContext.getEmpresaId())
                     .emailVerificado(false)
                     .build();
             return usuarioMapper.toResponse(usuarioRepository.save(usuario));
@@ -91,17 +90,17 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     }
 
     @Transactional
-    public UsuarioResponse atualizar(Long id, UsuarioRequest request, Long empresaId) {
+    public UsuarioResponse atualizar(Long id, UsuarioRequest request) {
         if (permissionCheckService.hasPermission("USUARIO_EDITAR")) {
             Usuario usuario = buscarUsuario(id);
 
             if (!usuario.getLogin().equalsIgnoreCase(request.login())) {
-                validarLoginDuplicado(request.login(), empresaId);
+                validarLoginDuplicado(request.login());
                 usuario.setLogin(request.login());
             }
 
             if (request.email() != null && !request.email().equalsIgnoreCase(usuario.getEmail())) {
-                validarEmailDuplicado(request.email(), empresaId);
+                validarEmailDuplicado(request.email());
                 usuario.setEmail(request.email());
             }
 
@@ -121,10 +120,10 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     }
 
     @Transactional(readOnly = true)
-    public UsuarioResponse buscarPorLogin(String login, Long empresaId) {
+    public UsuarioResponse buscarPorLogin(String login) {
         if (permissionCheckService.hasPermission("USUARIO_LISTAR")) {
             Usuario usuario = usuarioRepository
-                    .findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(login, empresaId)
+                    .findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(login, TenantContext.getEmpresaId())
                     .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + login));
             return usuarioMapper.toResponse(usuario);
         }
@@ -132,28 +131,28 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     }
 
     @Transactional(readOnly = true)
-    public Page<UsuarioResponse> listarTodos(Long empresaId, Pageable pageable) {
+    public Page<UsuarioResponse> listarTodos(Pageable pageable) {
         if (permissionCheckService.hasPermission("USUARIO_LISTAR"))
-            return usuarioRepository.findAllByEmpresaId(empresaId, pageable)
-                .map(usuarioMapper::toResponse);
+            return usuarioRepository.findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
+                    .map(usuarioMapper::toResponse);
         throw new AccessDeniedException("Usuário não possui permissão para esta operação");
     }
 
     @Transactional(readOnly = true)
-    public Page<UsuarioResponse> listarAtivos(Long empresaId, Pageable pageable) {
+    public Page<UsuarioResponse> listarAtivos(Pageable pageable) {
         if (permissionCheckService.hasPermission("USUARIO_LISTAR"))
             return usuarioRepository
-                .findByAtivoTrueAndEmailVerificadoTrueAndEmpresaId(empresaId, pageable)
-                .map(usuarioMapper::toResponse);
+                    .findByAtivoTrueAndEmailVerificadoTrueAndEmpresaId(TenantContext.getEmpresaId(), pageable)
+                    .map(usuarioMapper::toResponse);
         throw new AccessDeniedException("Usuário não possui permissão para esta operação");
     }
 
     @Transactional(readOnly = true)
-    public Page<UsuarioResponse> listarInativos(Long empresaId, Pageable pageable) {
+    public Page<UsuarioResponse> listarInativos(Pageable pageable) {
         if (permissionCheckService.hasPermission("USUARIO_LISTAR"))
             return usuarioRepository
-                .findByAtivoFalseAndEmailVerificadoTrueAndEmpresaId(empresaId, pageable)
-                .map(usuarioMapper::toResponse);
+                    .findByAtivoFalseAndEmailVerificadoTrueAndEmpresaId(TenantContext.getEmpresaId(), pageable)
+                    .map(usuarioMapper::toResponse);
         throw new AccessDeniedException("Usuário não possui permissão para esta operação");
     }
 
@@ -186,16 +185,16 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + id));
     }
 
-    private void validarLoginDuplicado(String login, Long empresaId) {
-        if (usuarioRepository.findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(login, empresaId).isPresent())
+    private void validarLoginDuplicado(String login) {
+        if (usuarioRepository.findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(login, TenantContext.getEmpresaId()).isPresent())
             throw new IllegalArgumentException("Já existe um usuário com o login informado.");
     }
 
-    private void validarEmailDuplicado(String email, Long empresaId) {
+    private void validarEmailDuplicado(String email) {
         if (email == null)
             return;
 
-        if (usuarioRepository.findByEmailIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(email, empresaId).isPresent())
+        if (usuarioRepository.findByEmailIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(email, TenantContext.getEmpresaId()).isPresent())
             throw new IllegalArgumentException("Já existe um usuário com o e-mail informado.");
     }
 }
