@@ -1,5 +1,6 @@
 package br.com.unicos.ms_usuario.service;
 
+import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.ms_usuario.client.AuthPermissionClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,9 +11,9 @@ public class PermissionCheckService {
     private final AuthPermissionClient authPermissionClient;
 
     public boolean hasPermission(String nomePermissao) {
-        if (nomePermissao == null)
+        if (nomePermissao == null || !AuthContext.isTokenDefined())
             return false;
 
-        return authPermissionClient.usuarioPossuiPermissao(nomePermissao);
+        return authPermissionClient.usuarioPossuiPermissao(AuthContext.getToken(), nomePermissao);
     }
 }

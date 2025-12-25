@@ -56,7 +56,7 @@ public class InternalController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/permissions/check")
+    @PostMapping("/permissions/check")
     public boolean usuarioPossuiPermissao(@RequestParam String nomePermissao) {
         return rolePermissaoRepository.rolePossuiPermissao(TenantContext.getEmpresaId(), AuthContext.getRoles().stream().toList(), nomePermissao);
     }

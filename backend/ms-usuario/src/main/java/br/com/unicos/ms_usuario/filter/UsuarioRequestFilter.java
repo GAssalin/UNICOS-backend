@@ -3,7 +3,6 @@ package br.com.unicos.ms_usuario.filter;
 import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.auth.dto.TokenValidationResponse;
 import br.com.unicos.core.tenant.context.TenantContext;
-import br.com.unicos.core.usuario.auth.context.UserContext;
 import br.com.unicos.ms_usuario.client.AuthValidationClient;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,22 +27,25 @@ public class UsuarioRequestFilter extends OncePerRequestFilter {
     private final AuthValidationClient authValidationClient;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+
+        return path.startsWith("/internal")
+                || path.startsWith("/swagger")
+                || path.startsWith("/v3/api-docs");
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        try {
-            resolveAuthorizationHeader(request)
-                    .ifPresent(header -> authenticateRequest(request, header));
+        resolveAuthorizationHeader(request)
+                .ifPresent(header -> authenticateRequest(request, header));
 
-            filterChain.doFilter(request, response);
-        } finally {
-            AuthContext.clear();
-            TenantContext.clear();
-            UserContext.clear();
-        }
+        filterChain.doFilter(request, response);
     }
 
     private Optional<String> resolveAuthorizationHeader(HttpServletRequest request) {
