@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/internal/auth")
 @RequiredArgsConstructor
-public class UsuarioAuthInternalController {
+public class UsuarioInternalController {
 
     private final UsuarioService usuarioService;
 

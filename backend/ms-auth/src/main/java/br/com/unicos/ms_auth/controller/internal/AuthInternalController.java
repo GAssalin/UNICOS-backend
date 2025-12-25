@@ -18,7 +18,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/internal/auth")
 @RequiredArgsConstructor
-public class InternalController {
+public class AuthInternalController {
 
     private final TokenService tokenService;
     private final RolePermissaoRepository rolePermissaoRepository;

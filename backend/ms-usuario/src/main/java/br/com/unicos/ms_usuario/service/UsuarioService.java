@@ -10,6 +10,7 @@ import br.com.unicos.ms_usuario.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -71,95 +72,89 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
 
     @Transactional
     public UsuarioResponse salvar(UsuarioRequest request, Long empresaId) {
-        if (!permissionCheckService.hasPermission("USUARIO_CRIAR"))
-            return null;
+        if (permissionCheckService.hasPermission("USUARIO_CRIAR")) {
+            validarLoginDuplicado(request.login(), empresaId);
+            validarEmailDuplicado(request.email(), empresaId);
 
-        validarLoginDuplicado(request.login(), empresaId);
-        validarEmailDuplicado(request.email(), empresaId);
-
-        Usuario usuario = Usuario.builder()
-                .login(request.login())
-                .password(passwordEncoder.encode(request.password()))
-                .email(request.email())
-                .pessoaId(request.pessoaId())
-                .ativo(request.ativo() != null ? request.ativo() : true)
-                .empresaId(empresaId)
-                .emailVerificado(false)
-                .build();
-
-        return usuarioMapper.toResponse(usuarioRepository.save(usuario));
+            Usuario usuario = Usuario.builder()
+                    .login(request.login())
+                    .password(passwordEncoder.encode(request.password()))
+                    .email(request.email())
+                    .pessoaId(request.pessoaId())
+                    .ativo(request.ativo() != null ? request.ativo() : true)
+                    .empresaId(empresaId)
+                    .emailVerificado(false)
+                    .build();
+            return usuarioMapper.toResponse(usuarioRepository.save(usuario));
+        }
+        throw new AccessDeniedException("Usuário não possui permissão para esta operação");
     }
 
     @Transactional
     public UsuarioResponse atualizar(Long id, UsuarioRequest request, Long empresaId) {
-        if (!permissionCheckService.hasPermission("USUARIO_EDITAR"))
-            return null;
+        if (permissionCheckService.hasPermission("USUARIO_EDITAR")) {
+            Usuario usuario = buscarUsuario(id);
 
-        Usuario usuario = buscarUsuario(id);
+            if (!usuario.getLogin().equalsIgnoreCase(request.login())) {
+                validarLoginDuplicado(request.login(), empresaId);
+                usuario.setLogin(request.login());
+            }
 
-        if (!usuario.getLogin().equalsIgnoreCase(request.login())) {
-            validarLoginDuplicado(request.login(), empresaId);
-            usuario.setLogin(request.login());
+            if (request.email() != null && !request.email().equalsIgnoreCase(usuario.getEmail())) {
+                validarEmailDuplicado(request.email(), empresaId);
+                usuario.setEmail(request.email());
+            }
+
+            usuario.setPessoaId(request.pessoaId());
+            usuario.setAtivo(request.ativo() != null ? request.ativo() : usuario.getAtivo());
+
+            return usuarioMapper.toResponse(usuarioRepository.save(usuario));
         }
-
-        if (request.email() != null && !request.email().equalsIgnoreCase(usuario.getEmail())) {
-            validarEmailDuplicado(request.email(), empresaId);
-            usuario.setEmail(request.email());
-        }
-
-        usuario.setPessoaId(request.pessoaId());
-        usuario.setAtivo(request.ativo() != null ? request.ativo() : usuario.getAtivo());
-
-        return usuarioMapper.toResponse(usuarioRepository.save(usuario));
+        throw new AccessDeniedException("Usuário não possui permissão para esta operação");
     }
 
     @Transactional(readOnly = true)
     public UsuarioResponse buscarPorId(Long id) {
-        if (!permissionCheckService.hasPermission("USUARIO_LISTAR"))
-            return null;
-
-        return usuarioMapper.toResponse(buscarUsuario(id));
+        if (permissionCheckService.hasPermission("USUARIO_LISTAR"))
+            return usuarioMapper.toResponse(buscarUsuario(id));
+        throw new AccessDeniedException("Usuário não possui permissão para esta operação");
     }
 
     @Transactional(readOnly = true)
     public UsuarioResponse buscarPorLogin(String login, Long empresaId) {
-        if (!permissionCheckService.hasPermission("USUARIO_LISTAR"))
-            return null;
-
-        Usuario usuario = usuarioRepository
-                .findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(login, empresaId)
-                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + login));
-
-        return usuarioMapper.toResponse(usuario);
+        if (permissionCheckService.hasPermission("USUARIO_LISTAR")) {
+            Usuario usuario = usuarioRepository
+                    .findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(login, empresaId)
+                    .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + login));
+            return usuarioMapper.toResponse(usuario);
+        }
+        throw new AccessDeniedException("Usuário não possui permissão para esta operação");
     }
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponse> listarTodos(Long empresaId, Pageable pageable) {
-        if (!permissionCheckService.hasPermission("USUARIO_LISTAR"))
-            return null;
-
-        return usuarioRepository.findAllByEmpresaId(empresaId, pageable)
+        if (permissionCheckService.hasPermission("USUARIO_LISTAR"))
+            return usuarioRepository.findAllByEmpresaId(empresaId, pageable)
                 .map(usuarioMapper::toResponse);
+        throw new AccessDeniedException("Usuário não possui permissão para esta operação");
     }
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponse> listarAtivos(Long empresaId, Pageable pageable) {
-        if (!permissionCheckService.hasPermission("USUARIO_LISTAR"))
-            return null;
-
-        return usuarioRepository
+        if (permissionCheckService.hasPermission("USUARIO_LISTAR"))
+            return usuarioRepository
                 .findByAtivoTrueAndEmailVerificadoTrueAndEmpresaId(empresaId, pageable)
                 .map(usuarioMapper::toResponse);
+        throw new AccessDeniedException("Usuário não possui permissão para esta operação");
     }
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponse> listarInativos(Long empresaId, Pageable pageable) {
-        if (!permissionCheckService.hasPermission("USUARIO_LISTAR"))
-            return null;
-
-        return usuarioRepository
+        if (permissionCheckService.hasPermission("USUARIO_LISTAR"))
+            return usuarioRepository
                 .findByAtivoFalseAndEmailVerificadoTrueAndEmpresaId(empresaId, pageable)
                 .map(usuarioMapper::toResponse);
+        throw new AccessDeniedException("Usuário não possui permissão para esta operação");
     }
 
     @Transactional
@@ -169,8 +164,7 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
             usuario.setAtivo(false);
             return usuarioRepository.save(usuario);
         }
-
-        return null;
+        throw new AccessDeniedException("Usuário não possui permissão para esta operação");
     }
 
     @Transactional
@@ -180,7 +174,7 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
             Optional<Usuario> byId = usuarioRepository.findById(id);
             return byId.orElseGet(Usuario::new);
         }
-        return null;
+        throw new AccessDeniedException("Usuário não possui permissão para esta operação");
     }
 
     // ============================================================

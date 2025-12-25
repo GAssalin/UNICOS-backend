@@ -1,5 +1,8 @@
 package br.com.unicos.ms_auth.filter;
 
+import br.com.unicos.core.auth.context.AuthContext;
+import br.com.unicos.core.tenant.context.TenantContext;
+import br.com.unicos.core.usuario.auth.context.UserContext;
 import br.com.unicos.ms_auth.security_access.AuthenticatedUser;
 import br.com.unicos.ms_auth.security_access.TokenService;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -17,6 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -75,6 +79,10 @@ public class AuthRequestFilter extends OncePerRequestFilter {
                     tenantId,
                     roles
             );
+
+            TenantContext.setEmpresaId(tenantId);
+            UserContext.setUsuarioId(userId);
+            AuthContext.setRoles(Set.copyOf(roles));
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(principal, null, authorities);
 
