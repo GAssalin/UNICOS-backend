@@ -1,7 +1,7 @@
 package br.com.unicos.ms_auth.loader;
 
 import br.com.unicos.core.usuario.auth.dto.UsuarioAuthResponse;
-import br.com.unicos.ms_auth.client.AuthUsuarioClient;
+import br.com.unicos.ms_auth.client.UsuarioClient;
 import br.com.unicos.ms_auth.repository.RoleUsuarioRepository;
 import br.com.unicos.ms_auth.security_access.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AuthAuthenticationLoader {
 
-    private final AuthUsuarioClient usuarioAuthClient;
+    private final UsuarioClient usuarioAuthClient;
     private final PasswordEncoder passwordEncoder;
     private final RoleUsuarioRepository roleUsuarioRepository;
 

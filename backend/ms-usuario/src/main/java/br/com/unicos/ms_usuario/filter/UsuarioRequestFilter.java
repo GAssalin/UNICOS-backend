@@ -3,7 +3,7 @@ package br.com.unicos.ms_usuario.filter;
 import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.auth.dto.TokenValidationResponse;
 import br.com.unicos.core.tenant.context.TenantContext;
-import br.com.unicos.ms_usuario.client.AuthValidationClient;
+import br.com.unicos.ms_usuario.client.AuthClient;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UsuarioRequestFilter extends OncePerRequestFilter {
 
-    private final AuthValidationClient authValidationClient;
+    private final AuthClient authClient;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -61,7 +61,7 @@ public class UsuarioRequestFilter extends OncePerRequestFilter {
         if (SecurityContextHolder.getContext().getAuthentication() != null)
             return;
 
-        TokenValidationResponse tokenInfo = authValidationClient.validateToken(authorizationHeader);
+        TokenValidationResponse tokenInfo = authClient.validateToken(authorizationHeader);
 
         var roles = Optional.ofNullable(tokenInfo.roles()).orElseGet(java.util.Set::of);
 

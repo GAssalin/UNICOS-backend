@@ -2,7 +2,7 @@ package br.com.unicos.ms_auth.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
-import br.com.unicos.ms_auth.client.AuthUsuarioClient;
+import br.com.unicos.ms_auth.client.UsuarioClient;
 import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoListDTO;
 import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoRequest;
 import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoResponse;
@@ -13,7 +13,6 @@ import br.com.unicos.ms_auth.model.RolePermissao;
 import br.com.unicos.ms_auth.repository.PermissaoRepository;
 import br.com.unicos.ms_auth.repository.RolePermissaoRepository;
 import br.com.unicos.ms_auth.repository.RoleRepository;
-import br.com.unicos.ms_auth.repository.RoleUsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -45,7 +44,7 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
             RolePermissaoRepository rolePermissaoRepository,
             RoleRepository roleRepository,
             PermissaoRepository permissaoRepository,
-            AuthUsuarioClient authUsuarioClient,
+            UsuarioClient usuarioClient,
             RolePermissaoMapper mapper
     ) {
         super(rolePermissaoRepository);

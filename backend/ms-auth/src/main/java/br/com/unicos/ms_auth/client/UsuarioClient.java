@@ -5,13 +5,11 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-
 @FeignClient(
         name = "ms-usuario",
-        contextId = "authUsuarioClient"
+        contextId = "UsuarioClient"
 )
-public interface AuthUsuarioClient {
+public interface UsuarioClient {
 
     @GetMapping("/internal/auth/by-email")
     UsuarioAuthResponse buscarPorEmail(@RequestParam String email);
