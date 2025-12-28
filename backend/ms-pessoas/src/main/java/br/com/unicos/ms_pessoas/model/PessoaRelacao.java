@@ -1,8 +1,10 @@
 package br.com.unicos.ms_pessoas.model;
 
+import br.com.unicos.core.tenant.model.BaseTenantEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Representa o vínculo existente entre duas pessoas cadastradas no UniCoS.
@@ -15,12 +17,12 @@ import lombok.*;
  */
 @Entity
 @Table(name = "pessoa_relacao")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@EqualsAndHashCode(callSuper = false)
-public class PessoaRelacao {
+@SuperBuilder
+public class PessoaRelacao extends BaseTenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

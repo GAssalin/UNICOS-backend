@@ -3,8 +3,16 @@
 -- ============================================================
 CREATE TABLE pessoa (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    empresa_id BIGINT NOT NULL,
+
     nome VARCHAR(150) NOT NULL,
-    tipo_pessoa VARCHAR(20) NOT NULL
+    tipo_pessoa VARCHAR(20) NOT NULL,
+
+    criado_por BIGINT,
+    criado_em TIMESTAMP NOT NULL,
+    atualizado_por BIGINT,
+    atualizado_em TIMESTAMP,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 -- ============================================================
@@ -12,6 +20,7 @@ CREATE TABLE pessoa (
 -- ============================================================
 CREATE TABLE pessoa_fisica (
     id BIGINT PRIMARY KEY,
+
     cpf VARCHAR(11) NOT NULL UNIQUE,
     data_nascimento DATE NOT NULL,
     nome_social VARCHAR(150),
@@ -26,6 +35,7 @@ CREATE TABLE pessoa_fisica (
 -- ============================================================
 CREATE TABLE pessoa_juridica (
     id BIGINT PRIMARY KEY,
+
     cnpj VARCHAR(14) NOT NULL UNIQUE,
     razao_social VARCHAR(200) NOT NULL,
     nome_fantasia VARCHAR(200),
@@ -40,9 +50,17 @@ CREATE TABLE pessoa_juridica (
 -- ============================================================
 CREATE TABLE municipio (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    empresa_id BIGINT NOT NULL,
+
     nome VARCHAR(120) NOT NULL,
     uf VARCHAR(2) NOT NULL,
-    codigo_ibge VARCHAR(10)
+    codigo_ibge VARCHAR(10),
+
+    criado_por BIGINT,
+    criado_em TIMESTAMP NOT NULL,
+    atualizado_por BIGINT,
+    atualizado_em TIMESTAMP,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 -- ============================================================
@@ -50,6 +68,8 @@ CREATE TABLE municipio (
 -- ============================================================
 CREATE TABLE endereco (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    empresa_id BIGINT NOT NULL,
+
     pessoa_id BIGINT NOT NULL,
     tipo_endereco VARCHAR(20) NOT NULL,
     logradouro VARCHAR(150) NOT NULL,
@@ -58,7 +78,13 @@ CREATE TABLE endereco (
     bairro VARCHAR(100) NOT NULL,
     municipio_id BIGINT NOT NULL,
     cep VARCHAR(8) NOT NULL,
-    principal BOOLEAN DEFAULT FALSE,
+    principal BOOLEAN NOT NULL DEFAULT FALSE,
+
+    criado_por BIGINT,
+    criado_em TIMESTAMP NOT NULL,
+    atualizado_por BIGINT,
+    atualizado_em TIMESTAMP,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
 
     CONSTRAINT fk_endereco_pessoa
         FOREIGN KEY (pessoa_id) REFERENCES pessoa(id)
@@ -77,30 +103,46 @@ CREATE INDEX idx_endereco_cep ON endereco(cep);
 -- ============================================================
 CREATE TABLE documento (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    empresa_id BIGINT NOT NULL,
+
     pessoa_id BIGINT NOT NULL,
     tipo_documento VARCHAR(20) NOT NULL,
     numero VARCHAR(50) NOT NULL,
     orgao_emissor VARCHAR(50),
     data_emissao DATE,
 
+    criado_por BIGINT,
+    criado_em TIMESTAMP NOT NULL,
+    atualizado_por BIGINT,
+    atualizado_em TIMESTAMP,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+
     CONSTRAINT fk_documento_pessoa
         FOREIGN KEY (pessoa_id) REFERENCES pessoa(id)
         ON DELETE CASCADE
 );
 
+CREATE UNIQUE INDEX uq_documento_numero ON documento(numero);
 CREATE INDEX idx_documento_pessoa ON documento(pessoa_id);
 CREATE INDEX idx_documento_tipo ON documento(tipo_documento);
-CREATE UNIQUE INDEX uq_documento_numero ON documento(numero);
 
 -- ============================================================
 -- TABELA: contato
 -- ============================================================
 CREATE TABLE contato (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    empresa_id BIGINT NOT NULL,
+
     pessoa_id BIGINT NOT NULL,
     tipo_contato VARCHAR(20) NOT NULL,
     valor VARCHAR(150) NOT NULL,
-    principal BOOLEAN DEFAULT FALSE,
+    principal BOOLEAN NOT NULL DEFAULT FALSE,
+
+    criado_por BIGINT,
+    criado_em TIMESTAMP NOT NULL,
+    atualizado_por BIGINT,
+    atualizado_em TIMESTAMP,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
 
     CONSTRAINT fk_contato_pessoa
         FOREIGN KEY (pessoa_id) REFERENCES pessoa(id)
@@ -110,22 +152,38 @@ CREATE TABLE contato (
 CREATE INDEX idx_contato_pessoa ON contato(pessoa_id);
 
 -- ============================================================
--- TABELA: tipo_relacao_pessoa (catálogo)
+-- TABELA: tipo_relacao_pessoa
 -- ============================================================
 CREATE TABLE tipo_relacao_pessoa (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    empresa_id BIGINT NOT NULL,
+
     nome VARCHAR(100) NOT NULL UNIQUE,
-    descricao VARCHAR(255)
+    descricao VARCHAR(255),
+
+    criado_por BIGINT,
+    criado_em TIMESTAMP NOT NULL,
+    atualizado_por BIGINT,
+    atualizado_em TIMESTAMP,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 -- ============================================================
--- TABELA: pessoa_relacao (vínculo entre duas pessoas)
+-- TABELA: pessoa_relacao
 -- ============================================================
 CREATE TABLE pessoa_relacao (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    empresa_id BIGINT NOT NULL,
+
     pessoa_id BIGINT NOT NULL,
     relacionado_id BIGINT NOT NULL,
     tipo_relacao_pessoa_id BIGINT NOT NULL,
+
+    criado_por BIGINT,
+    criado_em TIMESTAMP NOT NULL,
+    atualizado_por BIGINT,
+    atualizado_em TIMESTAMP,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
 
     CONSTRAINT fk_relacao_pessoa
         FOREIGN KEY (pessoa_id) REFERENCES pessoa(id)
@@ -136,7 +194,8 @@ CREATE TABLE pessoa_relacao (
         ON DELETE CASCADE,
 
     CONSTRAINT fk_relacao_tipo
-        FOREIGN KEY (tipo_relacao_pessoa_id) REFERENCES tipo_relacao_pessoa(id)
+        FOREIGN KEY (tipo_relacao_pessoa_id)
+        REFERENCES tipo_relacao_pessoa(id)
 );
 
 CREATE INDEX idx_relacao_pessoa ON pessoa_relacao(pessoa_id);

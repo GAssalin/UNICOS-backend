@@ -1,13 +1,14 @@
 package br.com.unicos.ms_pessoas.model;
 
+import br.com.unicos.core.tenant.model.BaseTenantEntity;
 import br.com.unicos.ms_pessoas.enums.TipoDocumento;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDate;
 
 /**
  * Representa um documento pertencente a uma pessoa dentro do UniCoS.
@@ -17,11 +18,12 @@ import lombok.NoArgsConstructor;
  */
 @Entity
 @Table(name = "documento")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Documento {
+@SuperBuilder
+public class Documento extends BaseTenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,5 +61,5 @@ public class Documento {
      * Data de emissão, quando disponível.
      */
     @Column(name = "data_emissao")
-    private java.time.LocalDate dataEmissao;
+    private LocalDate dataEmissao;
 }

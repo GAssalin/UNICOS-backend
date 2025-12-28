@@ -9,7 +9,7 @@ INSERT INTO role_hierarchy_relation (
     criado_em,
     ativo
 ) VALUES
-(0, 'ADMIN',    'GERENTE',  NOW(), 1),
-(0, 'ADMIN',    'SUPORTE',  NOW(), 1),
-(0, 'GERENTE',  'OPERADOR', NOW(), 1),
-(0, 'OPERADOR', 'LEITURA',  NOW(), 1);
+(1, 'ADMIN',    'GERENTE',  NOW(), 1),
+(1, 'ADMIN',    'SUPORTE',  NOW(), 1),
+(1, 'GERENTE',  'OPERADOR', NOW(), 1),
+(1, 'OPERADOR', 'LEITURA',  NOW(), 1);

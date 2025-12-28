@@ -1,4 +1,4 @@
-package br.com.unicos.ms_pessoas.service.impl;
+package br.com.unicos.ms_pessoas.service;
 
 import br.com.unicos.ms_pessoas.dto.endereco.EnderecoListDTO;
 import br.com.unicos.ms_pessoas.dto.endereco.EnderecoRequest;
@@ -11,7 +11,6 @@ import br.com.unicos.ms_pessoas.model.Pessoa;
 import br.com.unicos.ms_pessoas.repository.EnderecoRepository;
 import br.com.unicos.ms_pessoas.repository.MunicipioRepository;
 import br.com.unicos.ms_pessoas.repository.PessoaRepository;
-import br.com.unicos.ms_pessoas.service.interfaces.EnderecoService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -28,8 +27,7 @@ import java.util.Optional;
  */
 @Service
 @RequiredArgsConstructor
-@Transactional
-public class EnderecoServiceImpl implements EnderecoService {
+public class EnderecoService {
 
     private final EnderecoRepository repository;
     private final PessoaRepository pessoaRepository;
@@ -40,8 +38,7 @@ public class EnderecoServiceImpl implements EnderecoService {
     // ============================================================
     // Criar
     // ============================================================
-
-    @Override
+    @Transactional
     public EnderecoResponse criar(EnderecoRequest request) {
 
         Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
@@ -55,9 +52,8 @@ public class EnderecoServiceImpl implements EnderecoService {
         endereco.setMunicipio(municipio);
 
         // Se este novo endereço for o principal, remove o existente
-        if (Boolean.TRUE.equals(request.principal())) {
+        if (Boolean.TRUE.equals(request.principal()))
             removerPrincipalExistente(pessoa);
-        }
 
         repository.save(endereco);
 
@@ -67,8 +63,7 @@ public class EnderecoServiceImpl implements EnderecoService {
     // ============================================================
     // Atualizar
     // ============================================================
-
-    @Override
+    @Transactional
     public EnderecoResponse atualizar(Long id, EnderecoRequest request) {
 
         Endereco endereco = repository.findById(id)
@@ -81,9 +76,8 @@ public class EnderecoServiceImpl implements EnderecoService {
                 .orElseThrow(() -> new EntityNotFoundException("Município não encontrado"));
 
         // Se este for marcado como principal, remove o anterior
-        if (Boolean.TRUE.equals(request.principal())) {
+        if (Boolean.TRUE.equals(request.principal()))
             removerPrincipalExistente(pessoa);
-        }
 
         modelMapper.map(request, endereco);
         endereco.setPessoa(pessoa);
@@ -105,12 +99,10 @@ public class EnderecoServiceImpl implements EnderecoService {
     // ============================================================
     // Excluir
     // ============================================================
-
-    @Override
+    @Transactional
     public void excluir(Long id) {
-        if (!repository.existsById(id)) {
+        if (!repository.existsById(id))
             throw new EntityNotFoundException("Endereço não encontrado.");
-        }
         repository.deleteById(id);
     }
 
@@ -118,7 +110,6 @@ public class EnderecoServiceImpl implements EnderecoService {
     // Buscar por ID
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public Optional<EnderecoResponse> buscarPorId(Long id) {
         return repository.findById(id)
@@ -129,7 +120,6 @@ public class EnderecoServiceImpl implements EnderecoService {
     // Listar Todos
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<EnderecoListDTO> listarTodos() {
         return repository.findAll()
@@ -142,7 +132,6 @@ public class EnderecoServiceImpl implements EnderecoService {
     // Listar por Pessoa
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<EnderecoListDTO> listarPorPessoa(Long pessoaId) {
 
@@ -159,7 +148,6 @@ public class EnderecoServiceImpl implements EnderecoService {
     // Listar por Pessoa e Tipo
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<EnderecoListDTO> listarPorPessoaETipo(Long pessoaId, String tipo) {
 
@@ -183,7 +171,6 @@ public class EnderecoServiceImpl implements EnderecoService {
     // Listar por Município
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<EnderecoListDTO> listarPorMunicipio(Long municipioId) {
 
@@ -200,7 +187,6 @@ public class EnderecoServiceImpl implements EnderecoService {
     // Listar por CEP
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<EnderecoListDTO> listarPorCep(String cep) {
         return repository.findByCep(cep)
@@ -213,7 +199,6 @@ public class EnderecoServiceImpl implements EnderecoService {
     // Buscar Endereço Principal
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public Optional<EnderecoResponse> buscarPrincipal(Long pessoaId) {
 

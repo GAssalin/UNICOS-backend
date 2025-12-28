@@ -1,13 +1,12 @@
 package br.com.unicos.ms_pessoas.model;
 
+import br.com.unicos.core.tenant.model.BaseTenantEntity;
 import br.com.unicos.ms_pessoas.enums.TipoPessoa;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Representa uma pessoa de forma genérica dentro do UniCoS.
@@ -21,10 +20,12 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "pessoa")
 @Inheritance(strategy = InheritanceType.JOINED)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class Pessoa {
+@SuperBuilder
+public abstract class Pessoa extends BaseTenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

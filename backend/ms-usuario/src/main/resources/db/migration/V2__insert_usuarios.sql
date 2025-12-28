@@ -14,7 +14,7 @@ INSERT INTO usuario (
     criado_em,
     ativo
 ) VALUES (
-    0,
+    1,
     'admin',
     NULL,
     '$2a$10$LAnWRm2Abm4HN0b.cYnUQeu7Tf5DbGeI6BzueIFsdJF6Bv7eb8vzq',
@@ -38,7 +38,7 @@ INSERT INTO usuario (
     criado_em,
     ativo
 ) VALUES (
-    0,
+    1,
     'gerente',
     NULL,
     '$2a$10$LAnWRm2Abm4HN0b.cYnUQeu7Tf5DbGeI6BzueIFsdJF6Bv7eb8vzq',
@@ -62,7 +62,7 @@ INSERT INTO usuario (
     criado_em,
     ativo
 ) VALUES (
-    0,
+    1,
     'operador',
     NULL,
     '$2a$10$LAnWRm2Abm4HN0b.cYnUQeu7Tf5DbGeI6BzueIFsdJF6Bv7eb8vzq',
@@ -86,7 +86,7 @@ INSERT INTO usuario (
     criado_em,
     ativo
 ) VALUES (
-    0,
+    1,
     'suporte',
     NULL,
     '$2a$10$LAnWRm2Abm4HN0b.cYnUQeu7Tf5DbGeI6BzueIFsdJF6Bv7eb8vzq',
@@ -110,7 +110,7 @@ INSERT INTO usuario (
     criado_em,
     ativo
 ) VALUES (
-    0,
+    1,
     'leitura',
     NULL,
     '$2a$10$LAnWRm2Abm4HN0b.cYnUQeu7Tf5DbGeI6BzueIFsdJF6Bv7eb8vzq',

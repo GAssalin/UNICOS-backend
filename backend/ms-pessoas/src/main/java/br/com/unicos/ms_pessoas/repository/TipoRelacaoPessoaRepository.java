@@ -1,5 +1,6 @@
 package br.com.unicos.ms_pessoas.repository;
 
+import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_pessoas.model.TipoRelacaoPessoa;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -15,7 +16,7 @@ import java.util.Optional;
  * representantes legais e demais relações definidas dentro do UniCoS.
  */
 @Repository
-public interface TipoRelacaoPessoaRepository extends JpaRepository<TipoRelacaoPessoa, Long> {
+public interface TipoRelacaoPessoaRepository extends BaseTenantRepository<TipoRelacaoPessoa, Long> {
 
     /**
      * Busca um tipo de relação pelo nome exato.

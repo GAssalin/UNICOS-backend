@@ -10,7 +10,7 @@ INSERT INTO role_permissao (
     ativo
 )
 SELECT
-    0,
+    1,
     r.id,
     p.id,
     NOW(),
@@ -27,7 +27,7 @@ INSERT INTO role_permissao (
     ativo
 )
 SELECT
-    0,
+    1,
     r.id,
     p.id,
     NOW(),
@@ -63,7 +63,7 @@ INSERT INTO role_permissao (
     ativo
 )
 SELECT
-    0,
+    1,
     r.id,
     p.id,
     NOW(),
@@ -86,7 +86,7 @@ INSERT INTO role_permissao (
     ativo
 )
 SELECT
-    0,
+    1,
     r.id,
     p.id,
     NOW(),
@@ -106,7 +106,7 @@ INSERT INTO role_permissao (
     ativo
 )
 SELECT
-    0,
+    1,
     r.id,
     p.id,
     NOW(),
@@ -127,7 +127,7 @@ INSERT INTO role_permissao (
     ativo
 )
 SELECT
-    0,
+    1,
     r.id,
     p.id,
     NOW(),

@@ -9,9 +9,9 @@ INSERT INTO role (
     criado_em,
     ativo
 ) VALUES
-(0, 'UNICOS_ADMIN', 'Administrador da plataforma UNICOS', NOW(), 1),
-(0, 'ADMIN',        'Administrador da empresa', NOW(), 1),
-(0, 'GERENTE',      'Gerente da empresa', NOW(), 1),
-(0, 'OPERADOR',     'Operador do sistema', NOW(), 1),
-(0, 'SUPORTE',      'Suporte operacional', NOW(), 1),
-(0, 'LEITURA',      'Acesso somente leitura', NOW(), 1);
+(1, 'UNICOS_ADMIN', 'Administrador da plataforma UNICOS', NOW(), 1),
+(1, 'ADMIN',        'Administrador da empresa', NOW(), 1),
+(1, 'GERENTE',      'Gerente da empresa', NOW(), 1),
+(1, 'OPERADOR',     'Operador do sistema', NOW(), 1),
+(1, 'SUPORTE',      'Suporte operacional', NOW(), 1),
+(1, 'LEITURA',      'Acesso somente leitura', NOW(), 1);

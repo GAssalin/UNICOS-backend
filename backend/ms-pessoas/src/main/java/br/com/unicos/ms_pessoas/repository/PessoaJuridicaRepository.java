@@ -1,5 +1,6 @@
 package br.com.unicos.ms_pessoas.repository;
 
+import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_pessoas.model.PessoaJuridica;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -15,7 +16,7 @@ import java.util.Optional;
  * fiscais e de contratos dentro do UniCoS.
  */
 @Repository
-public interface PessoaJuridicaRepository extends JpaRepository<PessoaJuridica, Long> {
+public interface PessoaJuridicaRepository extends BaseTenantRepository<PessoaJuridica, Long> {
 
     /**
      * Busca uma Pessoa Jurídica pelo CNPJ.

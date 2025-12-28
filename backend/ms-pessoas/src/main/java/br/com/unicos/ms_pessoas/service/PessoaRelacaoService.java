@@ -1,4 +1,4 @@
-package br.com.unicos.ms_pessoas.service.impl;
+package br.com.unicos.ms_pessoas.service;
 
 import br.com.unicos.ms_pessoas.dto.relacao.PessoaRelacaoListDTO;
 import br.com.unicos.ms_pessoas.dto.relacao.PessoaRelacaoRequest;
@@ -10,7 +10,6 @@ import br.com.unicos.ms_pessoas.model.TipoRelacaoPessoa;
 import br.com.unicos.ms_pessoas.repository.PessoaRelacaoRepository;
 import br.com.unicos.ms_pessoas.repository.PessoaRepository;
 import br.com.unicos.ms_pessoas.repository.TipoRelacaoPessoaRepository;
-import br.com.unicos.ms_pessoas.service.interfaces.PessoaRelacaoService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -25,8 +24,7 @@ import java.util.Optional;
  */
 @Service
 @RequiredArgsConstructor
-@Transactional
-public class PessoaRelacaoServiceImpl implements PessoaRelacaoService {
+public class PessoaRelacaoService {
 
     private final PessoaRelacaoRepository repository;
     private final PessoaRepository pessoaRepository;
@@ -37,19 +35,16 @@ public class PessoaRelacaoServiceImpl implements PessoaRelacaoService {
     // ============================================================
     // Criar
     // ============================================================
-
-    @Override
+    @Transactional
     public PessoaRelacaoResponse criar(PessoaRelacaoRequest request) {
-
         Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa principal não encontrada."));
 
         Pessoa relacionado = pessoaRepository.findById(request.relacionadoId())
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa relacionada não encontrada."));
 
-        if (pessoa.getId().equals(relacionado.getId())) {
+        if (pessoa.getId().equals(relacionado.getId()))
             throw new IllegalArgumentException("A pessoa não pode se relacionar consigo mesma.");
-        }
 
         TipoRelacaoPessoa tipoRelacao = tipoRelacaoPessoaRepository.findById(request.tipoRelacaoPessoaId())
                 .orElseThrow(() -> new EntityNotFoundException("Tipo de relação não encontrado."));
@@ -75,10 +70,8 @@ public class PessoaRelacaoServiceImpl implements PessoaRelacaoService {
     // ============================================================
     // Atualizar
     // ============================================================
-
-    @Override
+    @Transactional
     public PessoaRelacaoResponse atualizar(Long id, PessoaRelacaoRequest request) {
-
         PessoaRelacao relacao = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Relação não encontrada."));
 
@@ -88,9 +81,8 @@ public class PessoaRelacaoServiceImpl implements PessoaRelacaoService {
         Pessoa relacionado = pessoaRepository.findById(request.relacionadoId())
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa relacionada não encontrada."));
 
-        if (pessoa.getId().equals(relacionado.getId())) {
+        if (pessoa.getId().equals(relacionado.getId()))
             throw new IllegalArgumentException("A pessoa não pode se relacionar consigo mesma.");
-        }
 
         TipoRelacaoPessoa tipoRelacao = tipoRelacaoPessoaRepository.findById(request.tipoRelacaoPessoaId())
                 .orElseThrow(() -> new EntityNotFoundException("Tipo de relação não encontrado."));
@@ -117,12 +109,10 @@ public class PessoaRelacaoServiceImpl implements PessoaRelacaoService {
     // ============================================================
     // Excluir
     // ============================================================
-
-    @Override
+    @Transactional
     public void excluir(Long id) {
-        if (!repository.existsById(id)) {
+        if (!repository.existsById(id))
             throw new EntityNotFoundException("Relação não encontrada.");
-        }
         repository.deleteById(id);
     }
 
@@ -130,7 +120,6 @@ public class PessoaRelacaoServiceImpl implements PessoaRelacaoService {
     // Buscar por ID
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public Optional<PessoaRelacaoResponse> buscarPorId(Long id) {
         return repository.findById(id)
@@ -141,7 +130,6 @@ public class PessoaRelacaoServiceImpl implements PessoaRelacaoService {
     // Listar Todas
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<PessoaRelacaoListDTO> listarTodas() {
         return repository.findAll()
@@ -154,10 +142,8 @@ public class PessoaRelacaoServiceImpl implements PessoaRelacaoService {
     // Listar por Pessoa
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<PessoaRelacaoListDTO> listarPorPessoa(Long pessoaId) {
-
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada."));
 
@@ -171,10 +157,8 @@ public class PessoaRelacaoServiceImpl implements PessoaRelacaoService {
     // Listar por Relacionado
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<PessoaRelacaoListDTO> listarPorRelacionado(Long relacionadoId) {
-
         Pessoa relacionado = pessoaRepository.findById(relacionadoId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa relacionada não encontrada."));
 
@@ -188,10 +172,8 @@ public class PessoaRelacaoServiceImpl implements PessoaRelacaoService {
     // Listar por Tipo de Relação
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<PessoaRelacaoListDTO> listarPorTipo(Long tipoRelacaoPessoaId) {
-
         TipoRelacaoPessoa tipoRelacao = tipoRelacaoPessoaRepository.findById(tipoRelacaoPessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Tipo de relação não encontrado."));
 
@@ -205,7 +187,6 @@ public class PessoaRelacaoServiceImpl implements PessoaRelacaoService {
     // Busca por Nome da Pessoa Principal
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<PessoaRelacaoListDTO> listarPorPessoaENome(String nome) {
         return repository.findByPessoa_NomeContainingIgnoreCase(nome)
@@ -218,7 +199,6 @@ public class PessoaRelacaoServiceImpl implements PessoaRelacaoService {
     // Busca por Nome da Pessoa Relacionada
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<PessoaRelacaoListDTO> listarPorRelacionadoENome(String nome) {
         return repository.findByRelacionado_NomeContainingIgnoreCase(nome)
@@ -231,10 +211,8 @@ public class PessoaRelacaoServiceImpl implements PessoaRelacaoService {
     // Filtrar por Pessoa e Relacionado ao mesmo tempo
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<PessoaRelacaoListDTO> listarPorPessoaERelacionado(Long pessoaId, Long relacionadoId) {
-
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa principal não encontrada."));
 

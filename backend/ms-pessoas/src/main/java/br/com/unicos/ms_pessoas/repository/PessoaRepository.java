@@ -1,8 +1,8 @@
 package br.com.unicos.ms_pessoas.repository;
 
+import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_pessoas.enums.TipoPessoa;
 import br.com.unicos.ms_pessoas.model.Pessoa;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
  * dentro do UniCoS.
  */
 @Repository
-public interface PessoaRepository extends JpaRepository<Pessoa, Long> {
+public interface PessoaRepository extends BaseTenantRepository<Pessoa, Long> {
 
     /**
      * Busca pessoas pelo nome exato.

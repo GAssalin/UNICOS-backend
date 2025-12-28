@@ -1,4 +1,4 @@
-package br.com.unicos.ms_pessoas.service.impl;
+package br.com.unicos.ms_pessoas.service;
 
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoListDTO;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoRequest;
@@ -9,7 +9,6 @@ import br.com.unicos.ms_pessoas.model.Documento;
 import br.com.unicos.ms_pessoas.model.Pessoa;
 import br.com.unicos.ms_pessoas.repository.DocumentoRepository;
 import br.com.unicos.ms_pessoas.repository.PessoaRepository;
-import br.com.unicos.ms_pessoas.service.interfaces.DocumentoService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -25,8 +24,7 @@ import java.util.Optional;
  */
 @Service
 @RequiredArgsConstructor
-@Transactional
-public class DocumentoServiceImpl implements DocumentoService {
+public class DocumentoService {
 
     private final DocumentoRepository repository;
     private final PessoaRepository pessoaRepository;
@@ -36,10 +34,8 @@ public class DocumentoServiceImpl implements DocumentoService {
     // ============================================================
     // Criar
     // ============================================================
-
-    @Override
+    @Transactional
     public DocumentoResponse criar(DocumentoRequest request) {
-
         Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
 
@@ -64,10 +60,8 @@ public class DocumentoServiceImpl implements DocumentoService {
     // ============================================================
     // Atualizar
     // ============================================================
-
-    @Override
+    @Transactional
     public DocumentoResponse atualizar(Long id, DocumentoRequest request) {
-
         Documento documento = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Documento não encontrado"));
 
@@ -97,12 +91,10 @@ public class DocumentoServiceImpl implements DocumentoService {
     // ============================================================
     // Excluir
     // ============================================================
-
-    @Override
+    @Transactional
     public void excluir(Long id) {
         if (!repository.existsById(id))
             throw new EntityNotFoundException("Documento não encontrado");
-
         repository.deleteById(id);
     }
 
@@ -110,7 +102,6 @@ public class DocumentoServiceImpl implements DocumentoService {
     // Buscar por ID
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public Optional<DocumentoResponse> buscarPorId(Long id) {
         return repository.findById(id)
@@ -121,7 +112,6 @@ public class DocumentoServiceImpl implements DocumentoService {
     // Listar Todos
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<DocumentoListDTO> listarTodos() {
         return repository.findAll()
@@ -134,10 +124,8 @@ public class DocumentoServiceImpl implements DocumentoService {
     // Listar por Pessoa
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<DocumentoListDTO> listarPorPessoa(Long pessoaId) {
-
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
 
@@ -151,10 +139,8 @@ public class DocumentoServiceImpl implements DocumentoService {
     // Listar por Tipo
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<DocumentoListDTO> listarPorTipo(String tipo) {
-
         TipoDocumento tipoEnum;
         try {
             tipoEnum = TipoDocumento.valueOf(tipo.toUpperCase());

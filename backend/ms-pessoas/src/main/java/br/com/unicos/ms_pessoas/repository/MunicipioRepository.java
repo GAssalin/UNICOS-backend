@@ -1,5 +1,6 @@
 package br.com.unicos.ms_pessoas.repository;
 
+import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_pessoas.enums.Uf;
 import br.com.unicos.ms_pessoas.model.Municipio;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +16,7 @@ import java.util.Optional;
  * integrações geográficas e demais operações que dependem da localização.
  */
 @Repository
-public interface MunicipioRepository extends JpaRepository<Municipio, Long> {
+public interface MunicipioRepository extends BaseTenantRepository<Municipio, Long> {
 
     /**
      * Busca um município pelo nome exato.

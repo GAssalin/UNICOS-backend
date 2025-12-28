@@ -1,5 +1,6 @@
 package br.com.unicos.ms_pessoas.repository;
 
+import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_pessoas.enums.TipoEndereco;
 import br.com.unicos.ms_pessoas.model.Endereco;
 import br.com.unicos.ms_pessoas.model.Municipio;
@@ -18,7 +19,7 @@ import java.util.Optional;
  * identificação do endereço principal.
  */
 @Repository
-public interface EnderecoRepository extends JpaRepository<Endereco, Long> {
+public interface EnderecoRepository extends BaseTenantRepository<Endereco, Long> {
 
     /**
      * Retorna todos os endereços pertencentes a uma pessoa.

@@ -1,12 +1,11 @@
-package br.com.unicos.ms_pessoas.service.impl;
+package br.com.unicos.ms_pessoas.service;
 
-import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaListDTO;
-import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaRequest;
-import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaResponse;
-import br.com.unicos.ms_pessoas.mapper.PessoaJuridicaMapper;
-import br.com.unicos.ms_pessoas.model.PessoaJuridica;
-import br.com.unicos.ms_pessoas.repository.PessoaJuridicaRepository;
-import br.com.unicos.ms_pessoas.service.interfaces.PessoaJuridicaService;
+import br.com.unicos.ms_pessoas.dto.pessoa.PessoaFisicaListDTO;
+import br.com.unicos.ms_pessoas.dto.pessoa.PessoaFisicaRequest;
+import br.com.unicos.ms_pessoas.dto.pessoa.PessoaFisicaResponse;
+import br.com.unicos.ms_pessoas.mapper.PessoaFisicaMapper;
+import br.com.unicos.ms_pessoas.model.PessoaFisica;
+import br.com.unicos.ms_pessoas.repository.PessoaFisicaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -18,30 +17,27 @@ import java.util.Optional;
 
 /**
  * Implementação das regras de negócio para cadastro e consulta
- * de Pessoas Jurídicas no UniCoS.
+ * de Pessoas Físicas no UniCoS.
  */
 @Service
 @RequiredArgsConstructor
-@Transactional
-public class PessoaJuridicaServiceImpl implements PessoaJuridicaService {
+public class PessoaFisicaService {
 
-    private final PessoaJuridicaRepository repository;
-    private final PessoaJuridicaMapper mapper;
+    private final PessoaFisicaRepository repository;
+    private final PessoaFisicaMapper mapper;
     private final ModelMapper modelMapper;
 
     // ============================================================
     // Criar
     // ============================================================
-
-    @Override
-    public PessoaJuridicaResponse criar(PessoaJuridicaRequest request) {
-
-        // Validação: CNPJ deve ser único
-        repository.findByCnpj(request.cnpj()).ifPresent(existing -> {
-            throw new IllegalArgumentException("Já existe uma pessoa jurídica cadastrada com este CNPJ.");
+    @Transactional
+    public PessoaFisicaResponse criar(PessoaFisicaRequest request) {
+        // Validação: CPF deve ser único
+        repository.findByCpf(request.cpf()).ifPresent(existing -> {
+            throw new IllegalArgumentException("Já existe uma pessoa física cadastrada com este CPF.");
         });
 
-        PessoaJuridica pessoa = mapper.toEntity(request);
+        PessoaFisica pessoa = mapper.toEntity(request);
         repository.save(pessoa);
 
         return mapper.toResponse(pessoa);
@@ -50,18 +46,15 @@ public class PessoaJuridicaServiceImpl implements PessoaJuridicaService {
     // ============================================================
     // Atualizar
     // ============================================================
+    @Transactional
+    public PessoaFisicaResponse atualizar(Long id, PessoaFisicaRequest request) {
+        PessoaFisica pessoa = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Pessoa Física não encontrada."));
 
-    @Override
-    public PessoaJuridicaResponse atualizar(Long id, PessoaJuridicaRequest request) {
-
-        PessoaJuridica pessoa = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pessoa Jurídica não encontrada."));
-
-        // Validação: CNPJ único para outra pessoa jurídica
-        repository.findByCnpj(request.cnpj()).ifPresent(existing -> {
-            if (!existing.getId().equals(id)) {
-                throw new IllegalArgumentException("Já existe outra pessoa jurídica com este CNPJ.");
-            }
+        // Validação: CPF único para outra pessoa
+        repository.findByCpf(request.cpf()).ifPresent(existing -> {
+            if (!existing.getId().equals(id))
+                throw new IllegalArgumentException("Já existe outra pessoa física com este CPF.");
         });
 
         modelMapper.map(request, pessoa);
@@ -73,12 +66,10 @@ public class PessoaJuridicaServiceImpl implements PessoaJuridicaService {
     // ============================================================
     // Excluir
     // ============================================================
-
-    @Override
+    @Transactional
     public void excluir(Long id) {
-        if (!repository.existsById(id)) {
-            throw new EntityNotFoundException("Pessoa Jurídica não encontrada.");
-        }
+        if (!repository.existsById(id))
+            throw new EntityNotFoundException("Pessoa Física não encontrada.");
         repository.deleteById(id);
     }
 
@@ -86,21 +77,19 @@ public class PessoaJuridicaServiceImpl implements PessoaJuridicaService {
     // Buscar por ID
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
-    public Optional<PessoaJuridicaResponse> buscarPorId(Long id) {
+    public Optional<PessoaFisicaResponse> buscarPorId(Long id) {
         return repository.findById(id)
                 .map(mapper::toResponse);
     }
 
     // ============================================================
-    // Buscar por CNPJ
+    // Buscar por CPF
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
-    public Optional<PessoaJuridicaResponse> buscarPorCnpj(String cnpj) {
-        return repository.findByCnpj(cnpj)
+    public Optional<PessoaFisicaResponse> buscarPorCpf(String cpf) {
+        return repository.findByCpf(cpf)
                 .map(mapper::toResponse);
     }
 
@@ -108,9 +97,8 @@ public class PessoaJuridicaServiceImpl implements PessoaJuridicaService {
     // Listar todas
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
-    public List<PessoaJuridicaListDTO> listarTodas() {
+    public List<PessoaFisicaListDTO> listarTodas() {
         return repository.findAll()
                 .stream()
                 .map(mapper::toListDTO)
@@ -118,13 +106,12 @@ public class PessoaJuridicaServiceImpl implements PessoaJuridicaService {
     }
 
     // ============================================================
-    // Listar por Nome Fantasia
+    // Listar por Nome Social
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
-    public List<PessoaJuridicaListDTO> listarPorNomeFantasia(String nomeFantasia) {
-        return repository.findByNomeFantasia(nomeFantasia)
+    public List<PessoaFisicaListDTO> listarPorNomeSocial(String nomeSocial) {
+        return repository.findByNomeSocial(nomeSocial)
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -134,9 +121,8 @@ public class PessoaJuridicaServiceImpl implements PessoaJuridicaService {
     // Listar por Nome (contains)
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
-    public List<PessoaJuridicaListDTO> listarPorNome(String nome) {
+    public List<PessoaFisicaListDTO> listarPorNome(String nome) {
         return repository.findByNomeContainingIgnoreCase(nome)
                 .stream()
                 .map(mapper::toListDTO)

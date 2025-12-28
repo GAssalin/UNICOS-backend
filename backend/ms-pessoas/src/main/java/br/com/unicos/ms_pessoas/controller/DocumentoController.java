@@ -3,228 +3,105 @@ package br.com.unicos.ms_pessoas.controller;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoListDTO;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoRequest;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoResponse;
-import br.com.unicos.ms_pessoas.service.interfaces.DocumentoService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import br.com.unicos.ms_pessoas.service.DocumentoService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Controller responsável pelo gerenciamento dos documentos associados
- * a pessoas dentro do UniCoS.
+ * Controlador REST responsável pelo gerenciamento de documentos
+ * vinculados a pessoas.
+ *
  * <p>
- * Permite operações de criação, atualização, exclusão e consultas de
- * documentos como CPF, RG, CNPJ e demais identificadores formais.
+ * Disponibiliza endpoints para criação, atualização, consulta,
+ * listagem e exclusão de documentos.
+ * </p>
  */
 @RestController
 @RequestMapping("/v1/documentos")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "bearer-key")
 @Tag(
         name = "Documentos",
-        description = "Operações relativas a documentos formais (CPF, RG, CNPJ etc.) associados a pessoas."
+        description = "Endpoints para criação, atualização, consulta, listagem e remoção de documentos de pessoas."
 )
 public class DocumentoController {
 
-    private final DocumentoService service;
+    private final DocumentoService documentoService;
 
-    // ============================================================
-    // Criar
-    // ============================================================
+    // =============================================================
+    // CREATE
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('DOCUMENTO_CRIAR')")
-    @Operation(
-            summary = "Criar um novo documento",
-            description = "Registra um novo documento vinculado a uma pessoa.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "201",
-                            description = "Documento criado com sucesso",
-                            content = @Content(schema = @Schema(implementation = DocumentoResponse.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Dados inválidos enviados para criação",
-                            content = @Content
-                    )
-            }
-    )
     @PostMapping
-    public ResponseEntity<DocumentoResponse> criar(@RequestBody DocumentoRequest request) {
-        DocumentoResponse response = service.criar(request);
+    public ResponseEntity<DocumentoResponse> criar(@Valid @RequestBody DocumentoRequest request) {
+        DocumentoResponse response = documentoService.criar(request);
         return ResponseEntity
-                .created(URI.create("/v1/documentos/" + response.id()))
+                .status(HttpStatus.CREATED)
                 .body(response);
     }
 
-    // ============================================================
-    // Atualizar
-    // ============================================================
+    // =============================================================
+    // UPDATE
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('DOCUMENTO_EDITAR')")
-    @Operation(
-            summary = "Atualizar documento existente",
-            description = "Altera os dados de um documento previamente cadastrado.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Documento atualizado com sucesso",
-                            content = @Content(schema = @Schema(implementation = DocumentoResponse.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Dados inválidos enviados",
-                            content = @Content
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Documento não encontrado",
-                            content = @Content
-                    )
-            }
-    )
     @PutMapping("/{id}")
-    public ResponseEntity<DocumentoResponse> atualizar(
-            @PathVariable Long id,
-            @RequestBody DocumentoRequest request) {
-
-        DocumentoResponse response = service.atualizar(id, request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<DocumentoResponse> atualizar(@PathVariable Long id, @Valid @RequestBody DocumentoRequest request) {
+        return ResponseEntity.ok(documentoService.atualizar(id, request));
     }
 
-    // ============================================================
-    // Excluir
-    // ============================================================
+    // =============================================================
+    // GET BY ID
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('DOCUMENTO_EXCLUIR')")
-    @Operation(
-            summary = "Excluir documento",
-            description = "Remove definitivamente um documento do sistema.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "204",
-                            description = "Documento excluído com sucesso"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Documento não encontrado"
-                    )
-            }
-    )
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        service.excluir(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ============================================================
-    // Buscar por ID
-    // ============================================================
-
-    @PreAuthorize("hasAuthority('DOCUMENTO_LISTAR')")
-    @Operation(
-            summary = "Buscar documento por ID",
-            description = "Retorna os dados de um documento específico pelo seu identificador.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Documento encontrado",
-                            content = @Content(schema = @Schema(implementation = DocumentoResponse.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Documento não encontrado",
-                            content = @Content
-                    )
-            }
-    )
     @GetMapping("/{id}")
     public ResponseEntity<DocumentoResponse> buscarPorId(@PathVariable Long id) {
-        return service.buscarPorId(id)
+        Optional<DocumentoResponse> response = documentoService.buscarPorId(id);
+        return response
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // ============================================================
-    // Listar Todos
-    // ============================================================
+    // =============================================================
+    // LISTAGENS
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('DOCUMENTO_LISTAR')")
-    @Operation(
-            summary = "Listar todos os documentos",
-            description = "Retorna todos os documentos cadastrados no sistema.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Lista retornada com sucesso",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = DocumentoListDTO.class)))
-                    )
-            }
-    )
+    /**
+     * Lista todos os documentos cadastrados.
+     */
     @GetMapping
     public ResponseEntity<List<DocumentoListDTO>> listarTodos() {
-        return ResponseEntity.ok(service.listarTodos());
+        return ResponseEntity.ok(documentoService.listarTodos());
     }
 
-    // ============================================================
-    // Listar por Pessoa
-    // ============================================================
-
-    @PreAuthorize("hasAuthority('DOCUMENTO_LISTAR')")
-    @Operation(
-            summary = "Listar documentos por pessoa",
-            description = "Retorna todos os documentos pertencentes a uma pessoa específica.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Lista retornada com sucesso",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = DocumentoListDTO.class)))
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Pessoa não encontrada ou sem documentos",
-                            content = @Content
-                    )
-            }
-    )
+    /**
+     * Lista documentos vinculados a uma pessoa.
+     */
     @GetMapping("/pessoa/{pessoaId}")
     public ResponseEntity<List<DocumentoListDTO>> listarPorPessoa(@PathVariable Long pessoaId) {
-        return ResponseEntity.ok(service.listarPorPessoa(pessoaId));
+        return ResponseEntity.ok(documentoService.listarPorPessoa(pessoaId));
     }
 
-    // ============================================================
-    // Listar por Tipo
-    // ============================================================
-
-    @PreAuthorize("hasAuthority('DOCUMENTO_LISTAR')")
-    @Operation(
-            summary = "Listar documentos por tipo",
-            description = "Retorna todos os documentos filtrados por tipo (CPF, RG, CNPJ, etc.).",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Lista retornada com sucesso",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = DocumentoListDTO.class)))
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Tipo informado inválido",
-                            content = @Content
-                    )
-            }
-    )
+    /**
+     * Lista documentos filtrando por tipo.
+     */
     @GetMapping("/tipo/{tipo}")
     public ResponseEntity<List<DocumentoListDTO>> listarPorTipo(@PathVariable String tipo) {
-        return ResponseEntity.ok(service.listarPorTipo(tipo));
+        return ResponseEntity.ok(documentoService.listarPorTipo(tipo));
+    }
+
+    // =============================================================
+    // DELETE
+    // =============================================================
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        documentoService.excluir(id);
+        return ResponseEntity.ok().build();
     }
 }

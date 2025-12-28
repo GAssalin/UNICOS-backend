@@ -1,5 +1,6 @@
 package br.com.unicos.ms_pessoas.repository;
 
+import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_pessoas.model.Pessoa;
 import br.com.unicos.ms_pessoas.model.PessoaRelacao;
 import br.com.unicos.ms_pessoas.model.TipoRelacaoPessoa;
@@ -16,7 +17,7 @@ import java.util.List;
  * representantes legais e outras relações definidas dentro do UniCoS.
  */
 @Repository
-public interface PessoaRelacaoRepository extends JpaRepository<PessoaRelacao, Long> {
+public interface PessoaRelacaoRepository extends BaseTenantRepository<PessoaRelacao, Long> {
 
     /**
      * Lista todas as relações em que a pessoa é o ator principal.

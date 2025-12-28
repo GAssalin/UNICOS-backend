@@ -1,11 +1,10 @@
 package br.com.unicos.ms_pessoas.model;
 
+import br.com.unicos.core.tenant.model.BaseTenantEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Representa um tipo de relacionamento possível entre pessoas dentro do UniCoS.
@@ -16,11 +15,12 @@ import lombok.NoArgsConstructor;
  */
 @Entity
 @Table(name = "tipo_relacao_pessoa")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class TipoRelacaoPessoa {
+@SuperBuilder
+public class TipoRelacaoPessoa extends BaseTenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

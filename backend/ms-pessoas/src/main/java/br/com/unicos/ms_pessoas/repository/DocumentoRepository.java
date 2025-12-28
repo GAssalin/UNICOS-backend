@@ -1,5 +1,6 @@
 package br.com.unicos.ms_pessoas.repository;
 
+import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_pessoas.enums.TipoDocumento;
 import br.com.unicos.ms_pessoas.model.Documento;
 import br.com.unicos.ms_pessoas.model.Pessoa;
@@ -17,7 +18,7 @@ import java.util.Optional;
  * cadastradas no UniCoS.
  */
 @Repository
-public interface DocumentoRepository extends JpaRepository<Documento, Long> {
+public interface DocumentoRepository extends BaseTenantRepository<Documento, Long> {
 
     /**
      * Busca documento pelo seu número.

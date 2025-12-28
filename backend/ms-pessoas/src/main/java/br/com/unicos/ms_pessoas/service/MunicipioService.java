@@ -1,4 +1,4 @@
-package br.com.unicos.ms_pessoas.service.impl;
+package br.com.unicos.ms_pessoas.service;
 
 import br.com.unicos.ms_pessoas.dto.municipio.MunicipioListDTO;
 import br.com.unicos.ms_pessoas.dto.municipio.MunicipioRequest;
@@ -7,7 +7,6 @@ import br.com.unicos.ms_pessoas.enums.Uf;
 import br.com.unicos.ms_pessoas.mapper.MunicipioMapper;
 import br.com.unicos.ms_pessoas.model.Municipio;
 import br.com.unicos.ms_pessoas.repository.MunicipioRepository;
-import br.com.unicos.ms_pessoas.service.interfaces.MunicipioService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -19,8 +18,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
-public class MunicipioServiceImpl implements MunicipioService {
+public class MunicipioService {
 
     private final MunicipioRepository repository;
     private final MunicipioMapper mapper;
@@ -29,21 +27,18 @@ public class MunicipioServiceImpl implements MunicipioService {
     // ============================================================
     // Criar
     // ============================================================
-
-    @Override
+    @Transactional
     public MunicipioResponse criar(MunicipioRequest request) {
-
         // Evita nome duplicado
         repository.findByNome(request.nome()).ifPresent(existing -> {
             throw new IllegalArgumentException("Já existe um município com este nome.");
         });
 
         // Evita IBGE duplicado (se informado)
-        if (request.codigoIbge() != null) {
+        if (request.codigoIbge() != null)
             repository.findByCodigoIbge(request.codigoIbge()).ifPresent(existing -> {
                 throw new IllegalArgumentException("Já existe um município com este código IBGE.");
             });
-        }
 
         Municipio municipio = mapper.toEntity(request);
         repository.save(municipio);
@@ -54,28 +49,23 @@ public class MunicipioServiceImpl implements MunicipioService {
     // ============================================================
     // Atualizar
     // ============================================================
-
-    @Override
+    @Transactional
     public MunicipioResponse atualizar(Long id, MunicipioRequest request) {
-
         Municipio municipio = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Município não encontrado"));
 
         // Validação de nome duplicado
         repository.findByNome(request.nome()).ifPresent(existing -> {
-            if (!existing.getId().equals(id)) {
+            if (!existing.getId().equals(id))
                 throw new IllegalArgumentException("Já existe outro município com este nome.");
-            }
         });
 
         // Validação de IBGE duplicado
-        if (request.codigoIbge() != null) {
+        if (request.codigoIbge() != null)
             repository.findByCodigoIbge(request.codigoIbge()).ifPresent(existing -> {
-                if (!existing.getId().equals(id)) {
+                if (!existing.getId().equals(id))
                     throw new IllegalArgumentException("Já existe outro município com este código IBGE.");
-                }
             });
-        }
 
         modelMapper.map(request, municipio);
         repository.save(municipio);
@@ -86,12 +76,10 @@ public class MunicipioServiceImpl implements MunicipioService {
     // ============================================================
     // Excluir
     // ============================================================
-
-    @Override
+    @Transactional
     public void excluir(Long id) {
-        if (!repository.existsById(id)) {
+        if (!repository.existsById(id))
             throw new EntityNotFoundException("Município não encontrado.");
-        }
         repository.deleteById(id);
     }
 
@@ -99,7 +87,6 @@ public class MunicipioServiceImpl implements MunicipioService {
     // Buscar por ID
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public Optional<MunicipioResponse> buscarPorId(Long id) {
         return repository.findById(id)
@@ -110,7 +97,6 @@ public class MunicipioServiceImpl implements MunicipioService {
     // Listar Todos
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<MunicipioListDTO> listarTodos() {
         return repository.findAll()
@@ -123,7 +109,6 @@ public class MunicipioServiceImpl implements MunicipioService {
     // Listar por Nome (contains ignore case)
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<MunicipioListDTO> listarPorNome(String nome) {
         return repository.findByNomeContainingIgnoreCase(nome)
@@ -136,10 +121,8 @@ public class MunicipioServiceImpl implements MunicipioService {
     // Listar por UF
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<MunicipioListDTO> listarPorUf(String uf) {
-
         Uf ufEnum;
         try {
             ufEnum = Uf.valueOf(uf.toUpperCase());
@@ -157,7 +140,6 @@ public class MunicipioServiceImpl implements MunicipioService {
     // Buscar por Código IBGE
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public Optional<MunicipioResponse> buscarPorCodigoIbge(String codigoIbge) {
         return repository.findByCodigoIbge(codigoIbge)

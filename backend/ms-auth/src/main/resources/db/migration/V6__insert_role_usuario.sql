@@ -10,7 +10,7 @@ INSERT INTO role_usuario (
     ativo
 )
 VALUES (
-    0,
+    1,
     1,
     'UNICOS_ADMIN',
     NOW(),
@@ -24,7 +24,7 @@ INSERT INTO role_usuario (
     criado_em,
     ativo
 ) VALUES (
-    0,
+    1,
     2,
     'GERENTE',
     NOW(),
@@ -38,7 +38,7 @@ INSERT INTO role_usuario (
     criado_em,
     ativo
 ) VALUES (
-    0,
+    1,
     3,
     'OPERADOR',
     NOW(),
@@ -52,7 +52,7 @@ INSERT INTO role_usuario (
     criado_em,
     ativo
 ) VALUES (
-    0,
+    1,
     4,
     'SUPORTE',
     NOW(),
@@ -66,7 +66,7 @@ INSERT INTO role_usuario (
     criado_em,
     ativo
 ) VALUES (
-    0,
+    1,
     5,
     'LEITURA',
     NOW(),

@@ -1,13 +1,12 @@
 package br.com.unicos.ms_pessoas.model;
 
+import br.com.unicos.core.tenant.model.BaseTenantEntity;
 import br.com.unicos.ms_pessoas.enums.TipoEndereco;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Representa um endereço associado a uma pessoa.
@@ -17,11 +16,12 @@ import lombok.NoArgsConstructor;
  */
 @Entity
 @Table(name = "endereco")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Endereco {
+@SuperBuilder
+public class Endereco extends BaseTenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

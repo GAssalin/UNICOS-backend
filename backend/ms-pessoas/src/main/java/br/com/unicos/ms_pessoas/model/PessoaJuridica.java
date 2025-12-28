@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Representa uma pessoa jurídica cadastrada no UniCoS.
@@ -14,11 +15,11 @@ import lombok.*;
  */
 @Entity
 @Table(name = "pessoa_juridica")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@EqualsAndHashCode(callSuper = true)
+@SuperBuilder
 public class PessoaJuridica extends Pessoa {
 
     /**

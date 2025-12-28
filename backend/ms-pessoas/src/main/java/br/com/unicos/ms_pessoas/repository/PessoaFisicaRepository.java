@@ -1,5 +1,6 @@
 package br.com.unicos.ms_pessoas.repository;
 
+import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_pessoas.model.PessoaFisica;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,7 @@ import java.util.Optional;
  * nome social e filtros complementares utilizados nos módulos do UniCoS.
  */
 @Repository
-public interface PessoaFisicaRepository extends JpaRepository<PessoaFisica, Long> {
+public interface PessoaFisicaRepository extends BaseTenantRepository<PessoaFisica, Long> {
 
     /**
      * Busca uma Pessoa Física pelo CPF.

@@ -1,4 +1,4 @@
-package br.com.unicos.ms_pessoas.service.impl;
+package br.com.unicos.ms_pessoas.service;
 
 import br.com.unicos.ms_pessoas.dto.relacao.TipoRelacaoPessoaListDTO;
 import br.com.unicos.ms_pessoas.dto.relacao.TipoRelacaoPessoaRequest;
@@ -6,7 +6,6 @@ import br.com.unicos.ms_pessoas.dto.relacao.TipoRelacaoPessoaResponse;
 import br.com.unicos.ms_pessoas.mapper.TipoRelacaoPessoaMapper;
 import br.com.unicos.ms_pessoas.model.TipoRelacaoPessoa;
 import br.com.unicos.ms_pessoas.repository.TipoRelacaoPessoaRepository;
-import br.com.unicos.ms_pessoas.service.interfaces.TipoRelacaoPessoaService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -22,8 +21,7 @@ import java.util.Optional;
  */
 @Service
 @RequiredArgsConstructor
-@Transactional
-public class TipoRelacaoPessoaServiceImpl implements TipoRelacaoPessoaService {
+public class TipoRelacaoPessoaService {
 
     private final TipoRelacaoPessoaRepository repository;
     private final TipoRelacaoPessoaMapper mapper;
@@ -32,10 +30,8 @@ public class TipoRelacaoPessoaServiceImpl implements TipoRelacaoPessoaService {
     // ============================================================
     // Criar
     // ============================================================
-
-    @Override
+    @Transactional
     public TipoRelacaoPessoaResponse criar(TipoRelacaoPessoaRequest request) {
-
         // Validação: nome deve ser único
         repository.findByNome(request.nome()).ifPresent(existing -> {
             throw new IllegalArgumentException("Já existe um tipo de relação com este nome.");
@@ -50,18 +46,15 @@ public class TipoRelacaoPessoaServiceImpl implements TipoRelacaoPessoaService {
     // ============================================================
     // Atualizar
     // ============================================================
-
-    @Override
+    @Transactional
     public TipoRelacaoPessoaResponse atualizar(Long id, TipoRelacaoPessoaRequest request) {
-
         TipoRelacaoPessoa entity = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Tipo de relação não encontrado."));
 
         // Validação de nome único para atualização
         repository.findByNome(request.nome()).ifPresent(existing -> {
-            if (!existing.getId().equals(id)) {
+            if (!existing.getId().equals(id))
                 throw new IllegalArgumentException("Já existe outro tipo de relação com este nome.");
-            }
         });
 
         modelMapper.map(request, entity);
@@ -73,12 +66,10 @@ public class TipoRelacaoPessoaServiceImpl implements TipoRelacaoPessoaService {
     // ============================================================
     // Excluir
     // ============================================================
-
-    @Override
+    @Transactional
     public void excluir(Long id) {
-        if (!repository.existsById(id)) {
+        if (!repository.existsById(id))
             throw new EntityNotFoundException("Tipo de relação não encontrado.");
-        }
         repository.deleteById(id);
     }
 
@@ -86,7 +77,6 @@ public class TipoRelacaoPessoaServiceImpl implements TipoRelacaoPessoaService {
     // Buscar por ID
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public Optional<TipoRelacaoPessoaResponse> buscarPorId(Long id) {
         return repository.findById(id)
@@ -97,7 +87,6 @@ public class TipoRelacaoPessoaServiceImpl implements TipoRelacaoPessoaService {
     // Listar Todos
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<TipoRelacaoPessoaListDTO> listarTodos() {
         return repository.findAll()
@@ -110,7 +99,6 @@ public class TipoRelacaoPessoaServiceImpl implements TipoRelacaoPessoaService {
     // Listar por Nome (contains)
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public List<TipoRelacaoPessoaListDTO> listarPorNome(String nome) {
         return repository.findByNomeContainingIgnoreCase(nome)
@@ -123,7 +111,6 @@ public class TipoRelacaoPessoaServiceImpl implements TipoRelacaoPessoaService {
     // Buscar por Nome Exato
     // ============================================================
 
-    @Override
     @Transactional(readOnly = true)
     public Optional<TipoRelacaoPessoaResponse> buscarPorNomeExato(String nome) {
         return repository.findByNome(nome)
