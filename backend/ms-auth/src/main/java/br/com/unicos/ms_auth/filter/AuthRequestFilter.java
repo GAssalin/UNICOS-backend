@@ -44,7 +44,6 @@ public class AuthRequestFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-
         String token = recuperarTokenRequisicao(request);
 
         if (token != null) {

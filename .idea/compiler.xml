@@ -10,7 +10,7 @@
         <module name="service-registry" />
         <module name="gateway" />
       </profile>
-      <profile name="Annotation profile for UNICOS :: MS-Pessoas" enabled="true">
+      <profile name="Annotation profile for UNICOS :: MS-Empresa" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -27,6 +27,7 @@
         <module name="ms-usuario" />
         <module name="core-base" />
         <module name="core-tenant" />
+        <module name="ms-empresa" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -43,6 +44,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="gateway" options="-parameters" />
       <module name="ms-auth" options="-parameters" />
+      <module name="ms-empresa" options="-parameters" />
       <module name="ms-pessoas" options="-parameters" />
       <module name="ms-produtos" options="-parameters" />
       <module name="ms-usuario" options="-parameters" />

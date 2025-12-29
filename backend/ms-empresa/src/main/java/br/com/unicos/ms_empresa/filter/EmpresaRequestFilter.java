@@ -1,9 +1,9 @@
-package br.com.unicos.ms_pessoas.filter;
+package br.com.unicos.ms_empresa.filter;
 
 import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.auth.dto.TokenValidationResponse;
 import br.com.unicos.core.tenant.context.TenantContext;
-import br.com.unicos.ms_pessoas.client.AuthClient;
+import br.com.unicos.ms_empresa.client.AuthClient;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +22,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class PessoaRequestFilter extends OncePerRequestFilter {
+public class EmpresaRequestFilter extends OncePerRequestFilter {
 
     private final AuthClient authClient;
 

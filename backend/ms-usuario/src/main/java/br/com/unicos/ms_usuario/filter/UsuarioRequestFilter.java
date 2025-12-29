@@ -41,19 +41,15 @@ public class UsuarioRequestFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-
         resolveAuthorizationHeader(request)
                 .ifPresent(header -> authenticateRequest(request, header));
-
         filterChain.doFilter(request, response);
     }
 
     private Optional<String> resolveAuthorizationHeader(HttpServletRequest request) {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-
         if (header == null || !header.startsWith("Bearer "))
             return Optional.empty();
-
         return Optional.of(header);
     }
 
