@@ -17,6 +17,8 @@ public class DocumentationController {
         String authUrl = resolveServiceUrl("ms-auth");
         String produtosUrl = resolveServiceUrl("ms-produtos");
         String pessoasUrl = resolveServiceUrl("ms-pessoas");
+        String empresaUrl = resolveServiceUrl("ms-empresa");
+        String usuarioUrl = resolveServiceUrl("ms-usuario");
 
         return """
                 <html>
@@ -49,6 +51,18 @@ public class DocumentationController {
                       <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
                       <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
                     </div>
+                    
+                    <div class="card">
+                      <strong>MS-USUARIO</strong><br/>
+                      <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
+                      <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
+                    </div>
+                    
+                    <div class="card">
+                      <strong>MS-EMPRESA</strong><br/>
+                      <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
+                      <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
+                    </div>
 
                     <div class="card">
                       <strong>MS-PRODUTOS</strong><br/>
@@ -64,14 +78,13 @@ public class DocumentationController {
 
                   </body>
                 </html>
-                """.formatted(authUrl, authUrl, produtosUrl, produtosUrl, pessoasUrl, pessoasUrl);
+                """.formatted(authUrl, authUrl, usuarioUrl, usuarioUrl, empresaUrl, empresaUrl, produtosUrl, produtosUrl, pessoasUrl, pessoasUrl);
     }
 
     private String resolveServiceUrl(String serviceId) {
         var instances = discoveryClient.getInstances(serviceId);
         if (instances == null || instances.isEmpty())
             return "http://service-not-found";
-
         return instances.get(0).getUri().toString();
     }
 }
