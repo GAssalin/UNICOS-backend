@@ -11,12 +11,15 @@ import br.com.unicos.ms_empresa.mapper.EmpresaUsuarioMapper;
 import br.com.unicos.ms_empresa.model.Empresa;
 import br.com.unicos.ms_empresa.model.EmpresaUsuario;
 import br.com.unicos.ms_empresa.repository.EmpresaUsuarioRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Implementação das regras de negócio relacionadas
@@ -52,12 +55,10 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     }
 
     // ============================================================
-    // CRUD
+    // CREATE
     // ============================================================
 
-    /**
-     * Vincula um usuário a uma empresa.
-     */
+    @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaUsuarioResponse criar(EmpresaUsuarioCreateRequest request) {
         if (!permissionCheckService.hasPermission("EMPRESA_USUARIO_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para vincular usuários à empresa.");
@@ -72,10 +73,16 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
         return mapper.toResponse(repository.save(entity));
     }
 
-    /**
-     * Atualiza o perfil de um usuário dentro da empresa.
-     */
-    public EmpresaUsuarioResponse atualizarPerfil(Long empresaRefId, Long usuarioId, EmpresaUsuarioUpdateRequest request) {
+    // ============================================================
+    // UPDATE PERFIL
+    // ============================================================
+
+    @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdmin")
+    public EmpresaUsuarioResponse atualizarPerfil(
+            Long empresaRefId,
+            Long usuarioId,
+            EmpresaUsuarioUpdateRequest request
+    ) {
         if (!permissionCheckService.hasPermission("EMPRESA_USUARIO_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para alterar perfis.");
 
@@ -88,25 +95,24 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
         return mapper.toResponse(repository.save(vinculo));
     }
 
-    /**
-     * Busca o vínculo de um usuário com a empresa.
-     */
+    // ============================================================
+    // GET
+    // ============================================================
+
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaUsuarioResponse buscar(Long empresaRefId, Long usuarioId) {
         if (!permissionCheckService.hasPermission("EMPRESA_USUARIO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar vínculos.");
-
         return mapper.toResponse(buscarVinculo(empresaRefId, usuarioId));
     }
 
     // ============================================================
-    // LISTAGENS
+    // LIST
     // ============================================================
 
-    /**
-     * Lista os usuários vinculados à empresa.
-     */
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdminPage")
     public Page<EmpresaUsuarioResumoResponse> listar(Long empresaRefId, Pageable pageable) {
         if (!permissionCheckService.hasPermission("EMPRESA_USUARIO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar usuários.");
@@ -122,11 +128,13 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
                 .map(mapper::toResumoResponse);
     }
 
-    /**
-     * Lista os usuários vinculados à empresa filtrando por perfil.
-     */
     @Transactional(readOnly = true)
-    public Page<EmpresaUsuarioResumoResponse> listarPorPerfil(Long empresaRefId, PerfilEmpresaUsuario perfil, Pageable pageable) {
+    @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdminPage")
+    public Page<EmpresaUsuarioResumoResponse> listarPorPerfil(
+            Long empresaRefId,
+            PerfilEmpresaUsuario perfil,
+            Pageable pageable
+    ) {
         if (!permissionCheckService.hasPermission("EMPRESA_USUARIO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar usuários.");
 
@@ -143,12 +151,10 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     }
 
     // ============================================================
-    // EXCLUSÃO
+    // DELETE
     // ============================================================
 
-    /**
-     * Remove o vínculo de um usuário com a empresa.
-     */
+    @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long empresaRefId, Long usuarioId) {
         if (!permissionCheckService.hasPermission("EMPRESA_USUARIO_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para remover usuários da empresa.");
@@ -161,7 +167,27 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     }
 
     // ============================================================
-    // MÉTODOS AUXILIARES
+    // FALLBACKS
+    // ============================================================
+
+    private EmpresaUsuarioResponse fallbackAdmin(Object req, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de usuários da empresa temporariamente indisponível");
+    }
+
+    private Page<EmpresaUsuarioResumoResponse> fallbackAdminPage(
+            Long empresaRefId,
+            Pageable pageable,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de usuários da empresa temporariamente indisponível");
+    }
+
+    private void fallbackAdminVoid(Long empresaRefId, Long usuarioId, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de usuários da empresa temporariamente indisponível");
+    }
+
+    // ============================================================
+    // AUXILIARES (SEM CB)
     // ============================================================
 
     private EmpresaUsuario buscarVinculo(Long empresaRefId, Long usuarioId) {
@@ -176,15 +202,18 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     }
 
     private void validarUsuarioNaoVinculado(Empresa empresa, Long usuarioId) {
-        if (repository.existsByEmpresaAndUsuarioIdAndEmpresaId(empresa, usuarioId, TenantContext.getEmpresaId()))
+        if (repository.existsByEmpresaAndUsuarioIdAndEmpresaId(
+                empresa,
+                usuarioId,
+                TenantContext.getEmpresaId()
+        ))
             throw new IllegalArgumentException("O usuário já está vinculado a esta empresa.");
     }
 
-    /**
-     * Impede a remoção ou downgrade do último ADMIN da empresa.
-     */
     private void protegerUltimoAdmin(EmpresaUsuario vinculo, PerfilEmpresaUsuario novoPerfil) {
-        if (vinculo.getPerfil() == PerfilEmpresaUsuario.ADMIN && (novoPerfil == null || novoPerfil != PerfilEmpresaUsuario.ADMIN)) {
+        if (vinculo.getPerfil() == PerfilEmpresaUsuario.ADMIN &&
+                (novoPerfil == null || novoPerfil != PerfilEmpresaUsuario.ADMIN)) {
+
             long totalAdmins = repository.findByEmpresaAndPerfilAndEmpresaId(
                     vinculo.getEmpresa(),
                     PerfilEmpresaUsuario.ADMIN,

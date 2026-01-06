@@ -10,12 +10,15 @@ import br.com.unicos.ms_empresa.mapper.EmpresaParametroMapper;
 import br.com.unicos.ms_empresa.model.Empresa;
 import br.com.unicos.ms_empresa.model.EmpresaParametro;
 import br.com.unicos.ms_empresa.repository.EmpresaParametroRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Implementação das regras de negócio relacionadas
@@ -50,12 +53,10 @@ public class EmpresaParametroService extends BaseTenantService<EmpresaParametro,
     }
 
     // ============================================================
-    // CRUD
+    // CREATE
     // ============================================================
 
-    /**
-     * Cria um novo parâmetro para a empresa.
-     */
+    @CircuitBreaker(name = "empresa-parametro-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaParametroResponse criar(EmpresaParametroCreateRequest request) {
         if (!permissionCheckService.hasPermission("EMPRESA_PARAMETRO_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para criar parâmetros da empresa.");
@@ -70,10 +71,16 @@ public class EmpresaParametroService extends BaseTenantService<EmpresaParametro,
         return mapper.toResponse(repository.save(parametro));
     }
 
-    /**
-     * Atualiza o valor de um parâmetro existente.
-     */
-    public EmpresaParametroResponse atualizar(Long empresaRefId, String chave, EmpresaParametroUpdateRequest request) {
+    // ============================================================
+    // UPDATE
+    // ============================================================
+
+    @CircuitBreaker(name = "empresa-parametro-admin", fallbackMethod = "fallbackAdmin")
+    public EmpresaParametroResponse atualizar(
+            Long empresaRefId,
+            String chave,
+            EmpresaParametroUpdateRequest request
+    ) {
         if (!permissionCheckService.hasPermission("EMPRESA_PARAMETRO_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para editar parâmetros da empresa.");
 
@@ -85,26 +92,28 @@ public class EmpresaParametroService extends BaseTenantService<EmpresaParametro,
         return mapper.toResponse(repository.save(parametro));
     }
 
-    /**
-     * Busca um parâmetro da empresa pelo nome da chave.
-     */
+    // ============================================================
+    // GET
+    // ============================================================
+
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "empresa-parametro-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaParametroResponse buscarPorChave(Long empresaRefId, String chave) {
         if (!permissionCheckService.hasPermission("EMPRESA_PARAMETRO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar parâmetros da empresa.");
-
         return mapper.toResponse(buscarParametroPorChaveEntidade(empresaRefId, chave));
     }
 
     // ============================================================
-    // LISTAGENS
+    // LIST
     // ============================================================
 
-    /**
-     * Lista os parâmetros da empresa de forma paginada.
-     */
     @Transactional(readOnly = true)
-    public Page<EmpresaParametroResumoResponse> listar(Long empresaRefId, Pageable pageable) {
+    @CircuitBreaker(name = "empresa-parametro-admin", fallbackMethod = "fallbackAdminPage")
+    public Page<EmpresaParametroResumoResponse> listar(
+            Long empresaRefId,
+            Pageable pageable
+    ) {
         if (!permissionCheckService.hasPermission("EMPRESA_PARAMETRO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar parâmetros da empresa.");
 
@@ -120,12 +129,10 @@ public class EmpresaParametroService extends BaseTenantService<EmpresaParametro,
     }
 
     // ============================================================
-    // EXCLUSÃO
+    // DELETE
     // ============================================================
 
-    /**
-     * Remove um parâmetro da empresa.
-     */
+    @CircuitBreaker(name = "empresa-parametro-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long empresaRefId, String chave) {
         if (!permissionCheckService.hasPermission("EMPRESA_PARAMETRO_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para excluir parâmetros da empresa.");
@@ -137,7 +144,27 @@ public class EmpresaParametroService extends BaseTenantService<EmpresaParametro,
     }
 
     // ============================================================
-    // MÉTODOS AUXILIARES
+    // FALLBACKS
+    // ============================================================
+
+    private EmpresaParametroResponse fallbackAdmin(Object req, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de parâmetros da empresa temporariamente indisponível");
+    }
+
+    private Page<EmpresaParametroResumoResponse> fallbackAdminPage(
+            Long empresaRefId,
+            Pageable pageable,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de parâmetros da empresa temporariamente indisponível");
+    }
+
+    private void fallbackAdminVoid(Long empresaRefId, String chave, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de parâmetros da empresa temporariamente indisponível");
+    }
+
+    // ============================================================
+    // AUXILIARES
     // ============================================================
 
     private EmpresaParametro buscarParametroPorChaveEntidade(Long empresaRefId, String chave) {
@@ -152,7 +179,11 @@ public class EmpresaParametroService extends BaseTenantService<EmpresaParametro,
     }
 
     private void validarChaveDuplicada(Empresa empresa, String chave) {
-        if (repository.existsByEmpresaAndChaveAndEmpresaId(empresa, chave, TenantContext.getEmpresaId()))
+        if (repository.existsByEmpresaAndChaveAndEmpresaId(
+                empresa,
+                chave,
+                TenantContext.getEmpresaId()
+        ))
             throw new IllegalArgumentException("Já existe um parâmetro cadastrado com a chave informada para esta empresa.");
     }
 

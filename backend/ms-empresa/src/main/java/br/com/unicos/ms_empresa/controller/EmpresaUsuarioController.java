@@ -44,19 +44,21 @@ public class EmpresaUsuarioController {
     private final EmpresaUsuarioService empresaUsuarioService;
 
     // ============================================================
-    // ➕ CRIAÇÃO
+    // CREATE
     // ============================================================
 
     @Operation(
             summary = "Vincular usuário à empresa",
-            description = "Cria o vínculo entre um usuário e uma empresa."
-    )
-    @ApiResponse(
-            responseCode = "201",
-            description = "Usuário vinculado com sucesso",
-            content = @Content(
-                    schema = @Schema(implementation = EmpresaUsuarioResponse.class)
-            )
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Usuário vinculado com sucesso",
+                            content = @Content(schema = @Schema(implementation = EmpresaUsuarioResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_USUARIO_CRIAR')")
     @PostMapping
@@ -72,22 +74,24 @@ public class EmpresaUsuarioController {
                         request.perfil()
                 );
 
-        EmpresaUsuarioResponse response = empresaUsuarioService.criar(normalized);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(empresaUsuarioService.criar(normalized));
     }
 
     // ============================================================
-    // ✏️ ATUALIZAÇÃO DE PERFIL
+    // UPDATE PERFIL
     // ============================================================
 
     @Operation(
             summary = "Atualizar perfil do usuário na empresa",
-            description = "Atualiza o perfil de um usuário dentro da empresa."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Perfil atualizado com sucesso"
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Perfil atualizado com sucesso"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "404", description = "Vínculo não encontrado"),
+                    @ApiResponse(responseCode = "409", description = "Violação de regra (último ADMIN)"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_USUARIO_EDITAR')")
     @PutMapping("/{usuarioId}/perfil")
@@ -106,19 +110,21 @@ public class EmpresaUsuarioController {
     }
 
     // ============================================================
-    // 🔍 CONSULTA POR USUÁRIO
+    // GET
     // ============================================================
 
     @Operation(
             summary = "Buscar vínculo de usuário",
-            description = "Retorna o vínculo de um usuário específico com a empresa."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Consulta realizada com sucesso",
-            content = @Content(
-                    schema = @Schema(implementation = EmpresaUsuarioResponse.class)
-            )
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(schema = @Schema(implementation = EmpresaUsuarioResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "404", description = "Vínculo não encontrado"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_USUARIO_LISTAR')")
     @GetMapping("/{usuarioId}")
@@ -130,21 +136,24 @@ public class EmpresaUsuarioController {
     }
 
     // ============================================================
-    // 📄 LISTAGEM
+    // LIST
     // ============================================================
 
     @Operation(
             summary = "Listar usuários da empresa",
-            description = "Lista os usuários vinculados à empresa de forma paginada."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Consulta realizada com sucesso",
-            content = @Content(
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = EmpresaUsuarioResumoResponse.class)
-                    )
-            )
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = EmpresaUsuarioResumoResponse.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_USUARIO_LISTAR')")
     @GetMapping
@@ -156,16 +165,16 @@ public class EmpresaUsuarioController {
     }
 
     // ============================================================
-    // 📄 LISTAGEM POR PERFIL
+    // LIST BY PERFIL
     // ============================================================
 
     @Operation(
             summary = "Listar usuários por perfil",
-            description = "Lista os usuários vinculados à empresa filtrando pelo perfil."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Consulta realizada com sucesso"
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Consulta realizada com sucesso"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_USUARIO_LISTAR')")
     @GetMapping("/perfil/{perfil}")
@@ -184,16 +193,17 @@ public class EmpresaUsuarioController {
     }
 
     // ============================================================
-    // 🗑️ EXCLUSÃO
+    // DELETE
     // ============================================================
 
     @Operation(
             summary = "Remover usuário da empresa",
-            description = "Remove o vínculo de um usuário com a empresa."
-    )
-    @ApiResponse(
-            responseCode = "204",
-            description = "Usuário removido com sucesso"
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Usuário removido com sucesso"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "409", description = "Violação de regra (último ADMIN)"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_USUARIO_EXCLUIR')")
     @DeleteMapping("/{usuarioId}")

@@ -11,27 +11,16 @@ import br.com.unicos.ms_empresa.mapper.EmpresaEnderecoMapper;
 import br.com.unicos.ms_empresa.model.Empresa;
 import br.com.unicos.ms_empresa.model.EmpresaEndereco;
 import br.com.unicos.ms_empresa.repository.EmpresaEnderecoRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-/**
- * Implementação das regras de negócio relacionadas
- * aos endereços institucionais da empresa.
- *
- * <p>
- * Responsável por garantir:
- * <ul>
- *     <li>Isolamento multi-tenant</li>
- *     <li>Validação de duplicidade de endereço</li>
- *     <li>Gerenciamento de endereço principal</li>
- *     <li>Controle de permissões</li>
- * </ul>
- * </p>
- */
 @Service
 @Transactional
 public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, Long> {
@@ -52,12 +41,10 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
     }
 
     // ============================================================
-    // CRUD
+    // CREATE
     // ============================================================
 
-    /**
-     * Cadastra um novo endereço institucional para a empresa.
-     */
+    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaEnderecoResponse criar(EmpresaEnderecoCreateRequest request) {
         if (!permissionCheckService.hasPermission("EMPRESA_ENDERECO_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para criar endereços da empresa.");
@@ -80,9 +67,11 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
         return mapper.toResponse(repository.save(endereco));
     }
 
-    /**
-     * Atualiza um endereço institucional existente.
-     */
+    // ============================================================
+    // UPDATE
+    // ============================================================
+
+    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaEnderecoResponse atualizar(Long id, EmpresaEnderecoUpdateRequest request) {
         if (!permissionCheckService.hasPermission("EMPRESA_ENDERECO_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para editar endereços da empresa.");
@@ -115,10 +104,12 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
         return mapper.toResponse(repository.save(endereco));
     }
 
-    /**
-     * Busca um endereço institucional pelo ID.
-     */
+    // ============================================================
+    // GET
+    // ============================================================
+
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaEnderecoResponse buscarPorId(Long id) {
         if (!permissionCheckService.hasPermission("EMPRESA_ENDERECO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar endereços da empresa.");
@@ -126,13 +117,11 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
     }
 
     // ============================================================
-    // LISTAGENS
+    // LIST
     // ============================================================
 
-    /**
-     * Lista os endereços institucionais da empresa.
-     */
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdminPage")
     public Page<EmpresaEnderecoResumoResponse> listar(Long empresaRefId, Pageable pageable) {
         if (!permissionCheckService.hasPermission("EMPRESA_ENDERECO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar endereços da empresa.");
@@ -148,11 +137,13 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
                 .map(mapper::toResumoResponse);
     }
 
-    /**
-     * Lista os endereços institucionais da empresa filtrando por tipo.
-     */
     @Transactional(readOnly = true)
-    public Page<EmpresaEnderecoResumoResponse> listarPorTipo(Long empresaRefId, TipoEnderecoEmpresa tipoEndereco, Pageable pageable) {
+    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdminPage")
+    public Page<EmpresaEnderecoResumoResponse> listarPorTipo(
+            Long empresaRefId,
+            TipoEnderecoEmpresa tipo,
+            Pageable pageable
+    ) {
         if (!permissionCheckService.hasPermission("EMPRESA_ENDERECO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar endereços da empresa.");
 
@@ -161,7 +152,7 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
         return repository
                 .findByEmpresaAndTipoEnderecoAndEmpresaId(
                         empresa,
-                        tipoEndereco,
+                        tipo,
                         TenantContext.getEmpresaId(),
                         pageable
                 )
@@ -169,12 +160,10 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
     }
 
     // ============================================================
-    // EXCLUSÃO
+    // DELETE
     // ============================================================
 
-    /**
-     * Remove um endereço institucional da empresa.
-     */
+    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
         if (!permissionCheckService.hasPermission("EMPRESA_ENDERECO_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para excluir endereços da empresa.");
@@ -182,7 +171,27 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
     }
 
     // ============================================================
-    // MÉTODOS AUXILIARES
+    // FALLBACKS
+    // ============================================================
+
+    private EmpresaEnderecoResponse fallbackAdmin(Object req, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de endereços da empresa temporariamente indisponível");
+    }
+
+    private Page<EmpresaEnderecoResumoResponse> fallbackAdminPage(
+            Long empresaRefId,
+            Pageable pageable,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de endereços da empresa temporariamente indisponível");
+    }
+
+    private void fallbackAdminVoid(Long id, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de endereços da empresa temporariamente indisponível");
+    }
+
+    // ============================================================
+    // AUXILIARES
     // ============================================================
 
     private EmpresaEndereco buscarEndereco(Long id) {
@@ -191,13 +200,16 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
     }
 
     private void validarEnderecoDuplicado(Empresa empresa, String logradouro, String numero, String cep) {
-        if (repository.existsByEmpresaAndLogradouroAndNumeroAndCepAndEmpresaId(empresa, logradouro, numero, cep, TenantContext.getEmpresaId()))
+        if (repository.existsByEmpresaAndLogradouroAndNumeroAndCepAndEmpresaId(
+                empresa,
+                logradouro,
+                numero,
+                cep,
+                TenantContext.getEmpresaId()
+        ))
             throw new IllegalArgumentException("Já existe um endereço cadastrado com os dados informados para esta empresa.");
     }
 
-    /**
-     * Garante que exista apenas um endereço principal por empresa.
-     */
     private void removerEnderecoPrincipalAtual(Empresa empresa) {
         repository
                 .findByEmpresaAndPrincipalTrueAndEmpresaId(

@@ -10,26 +10,16 @@ import br.com.unicos.ms_empresa.mapper.EmpresaConfiguracaoMapper;
 import br.com.unicos.ms_empresa.model.Empresa;
 import br.com.unicos.ms_empresa.model.EmpresaConfiguracao;
 import br.com.unicos.ms_empresa.repository.EmpresaConfiguracaoRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-/**
- * Implementação das regras de negócio relacionadas
- * às configurações globais da empresa (tenant).
- *
- * <p>
- * Responsável por garantir:
- * <ul>
- *     <li>Isolamento multi-tenant</li>
- *     <li>Validação de duplicidade de chave</li>
- *     <li>Controle de permissões</li>
- * </ul>
- * </p>
- */
 @Service
 @Transactional
 public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfiguracao, Long> {
@@ -50,18 +40,15 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
     }
 
     // ============================================================
-    // CRUD
+    // CREATE
     // ============================================================
 
-    /**
-     * Cria uma nova configuração para a empresa.
-     */
+    @CircuitBreaker(name = "empresa-configuracao-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaConfiguracaoResponse criar(EmpresaConfiguracaoCreateRequest request) {
         if (!permissionCheckService.hasPermission("EMPRESA_CONFIGURACAO_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para criar configurações.");
 
         Empresa empresaRef = empresaRef(request.empresaRefId());
-
         validarChaveDuplicada(empresaRef, request.chave());
 
         EmpresaConfiguracao entity = mapper.toEntity(request);
@@ -70,10 +57,16 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
         return mapper.toResponse(repository.save(entity));
     }
 
-    /**
-     * Atualiza uma configuração existente.
-     */
-    public EmpresaConfiguracaoResponse atualizar(Long empresaRefId, String chave, EmpresaConfiguracaoUpdateRequest request) {
+    // ============================================================
+    // UPDATE
+    // ============================================================
+
+    @CircuitBreaker(name = "empresa-configuracao-admin", fallbackMethod = "fallbackAdmin")
+    public EmpresaConfiguracaoResponse atualizar(
+            Long empresaRefId,
+            String chave,
+            EmpresaConfiguracaoUpdateRequest request
+    ) {
         if (!permissionCheckService.hasPermission("EMPRESA_CONFIGURACAO_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para editar configurações.");
 
@@ -85,25 +78,31 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
         return mapper.toResponse(repository.save(configuracao));
     }
 
-    /**
-     * Busca uma configuração pelo nome da chave.
-     */
+    // ============================================================
+    // GET BY KEY
+    // ============================================================
+
     @Transactional(readOnly = true)
-    public EmpresaConfiguracaoResponse buscarPorChave(Long empresaRefId, String chave) {
+    @CircuitBreaker(name = "empresa-configuracao-admin", fallbackMethod = "fallbackAdmin")
+    public EmpresaConfiguracaoResponse buscarPorChave(
+            Long empresaRefId,
+            String chave
+    ) {
         if (!permissionCheckService.hasPermission("EMPRESA_CONFIGURACAO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar configurações.");
         return mapper.toResponse(buscarPorChaveEntidade(empresaRefId, chave));
     }
 
     // ============================================================
-    // LISTAGENS
+    // LIST
     // ============================================================
 
-    /**
-     * Lista todas as configurações da empresa de forma paginada.
-     */
     @Transactional(readOnly = true)
-    public Page<EmpresaConfiguracaoResumoResponse> listar(Long empresaRefId, Pageable pageable) {
+    @CircuitBreaker(name = "empresa-configuracao-admin", fallbackMethod = "fallbackAdminPage")
+    public Page<EmpresaConfiguracaoResumoResponse> listar(
+            Long empresaRefId,
+            Pageable pageable
+    ) {
         if (!permissionCheckService.hasPermission("EMPRESA_CONFIGURACAO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar configurações.");
 
@@ -119,29 +118,59 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
     }
 
     // ============================================================
-    // EXCLUSÃO
+    // DELETE
     // ============================================================
 
-    /**
-     * Remove uma configuração da empresa.
-     */
+    @CircuitBreaker(name = "empresa-configuracao-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long empresaRefId, String chave) {
         if (!permissionCheckService.hasPermission("EMPRESA_CONFIGURACAO_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para excluir configurações.");
 
-        EmpresaConfiguracao configuracao = buscarPorChaveEntidade(empresaRefId, chave);
+        EmpresaConfiguracao configuracao =
+                buscarPorChaveEntidade(empresaRefId, chave);
 
         repository.delete(configuracao);
     }
 
     // ============================================================
-    // MÉTODOS AUXILIARES
+    // FALLBACKS
     // ============================================================
 
-    private EmpresaConfiguracao buscarPorChaveEntidade(Long empresaRefId, String chave) {
+    private EmpresaConfiguracaoResponse fallbackAdmin(
+            Object request,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de configurações da empresa temporariamente indisponível");
+    }
+
+    private Page<EmpresaConfiguracaoResumoResponse> fallbackAdminPage(
+            Long empresaRefId,
+            Pageable pageable,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de configurações da empresa temporariamente indisponível");
+    }
+
+    private void fallbackAdminVoid(
+            Long empresaRefId,
+            String chave,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de configurações da empresa temporariamente indisponível");
+    }
+
+    // ============================================================
+    // AUXILIARES
+    // ============================================================
+
+    private EmpresaConfiguracao buscarPorChaveEntidade(
+            Long empresaRefId,
+            String chave
+    ) {
         Empresa empresaRef = empresaRef(empresaRefId);
 
-        return repository.findByEmpresaAndChaveAndEmpresaId(
+        return repository
+                .findByEmpresaAndChaveAndEmpresaId(
                         empresaRef,
                         chave,
                         TenantContext.getEmpresaId()
@@ -150,7 +179,11 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
     }
 
     private void validarChaveDuplicada(Empresa empresa, String chave) {
-        if (repository.existsByEmpresaAndChaveAndEmpresaId(empresa, chave, TenantContext.getEmpresaId()))
+        if (repository.existsByEmpresaAndChaveAndEmpresaId(
+                empresa,
+                chave,
+                TenantContext.getEmpresaId()
+        ))
             throw new IllegalArgumentException("Já existe uma configuração cadastrada com a chave informada.");
     }
 

@@ -21,15 +21,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Controlador REST responsável pelo gerenciamento
- * das configurações globais da empresa (tenant).
- *
- * <p>
- * Todos os endpoints são restritos ao tenant
- * e respeitam as permissões do usuário autenticado.
- * </p>
- */
 @RestController
 @RequestMapping("/v1/empresas/{empresaRefId}/configuracoes")
 @RequiredArgsConstructor
@@ -43,19 +34,22 @@ public class EmpresaConfiguracaoController {
     private final EmpresaConfiguracaoService empresaConfiguracaoService;
 
     // ============================================================
-    // ➕ CRIAÇÃO
+    // CREATE
     // ============================================================
 
     @Operation(
             summary = "Criar configuração da empresa",
-            description = "Cria uma nova configuração global para a empresa."
-    )
-    @ApiResponse(
-            responseCode = "201",
-            description = "Configuração criada com sucesso",
-            content = @Content(
-                    schema = @Schema(implementation = EmpresaConfiguracaoResponse.class)
-            )
+            description = "Cria uma nova configuração global para a empresa.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Configuração criada com sucesso",
+                            content = @Content(schema = @Schema(implementation = EmpresaConfiguracaoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para criar"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_CONFIGURACAO_CRIAR')")
     @PostMapping
@@ -63,7 +57,6 @@ public class EmpresaConfiguracaoController {
             @PathVariable Long empresaRefId,
             @RequestBody @Validated EmpresaConfiguracaoCreateRequest request
     ) {
-        // garante consistência entre path e body
         EmpresaConfiguracaoCreateRequest normalized =
                 new EmpresaConfiguracaoCreateRequest(
                         request.empresaId(),
@@ -72,22 +65,27 @@ public class EmpresaConfiguracaoController {
                         request.valor()
                 );
 
-        EmpresaConfiguracaoResponse response = empresaConfiguracaoService.criar(normalized);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(empresaConfiguracaoService.criar(normalized));
     }
 
     // ============================================================
-    // ✏️ ATUALIZAÇÃO
+    // UPDATE
     // ============================================================
 
     @Operation(
             summary = "Atualizar configuração da empresa",
-            description = "Atualiza uma configuração existente identificada pela chave."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Configuração atualizada com sucesso"
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Configuração atualizada com sucesso",
+                            content = @Content(schema = @Schema(implementation = EmpresaConfiguracaoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para editar"),
+                    @ApiResponse(responseCode = "404", description = "Configuração não encontrada"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_CONFIGURACAO_EDITAR')")
     @PutMapping("/{chave}")
@@ -96,29 +94,25 @@ public class EmpresaConfiguracaoController {
             @PathVariable String chave,
             @RequestBody @Validated EmpresaConfiguracaoUpdateRequest request
     ) {
-        return ResponseEntity.ok(
-                empresaConfiguracaoService.atualizar(
-                        empresaRefId,
-                        chave,
-                        request
-                )
-        );
+        return ResponseEntity.ok(empresaConfiguracaoService.atualizar(empresaRefId, chave, request));
     }
 
     // ============================================================
-    // 🔍 CONSULTA POR CHAVE
+    // GET BY KEY
     // ============================================================
 
     @Operation(
             summary = "Buscar configuração por chave",
-            description = "Retorna os detalhes de uma configuração específica da empresa."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Consulta realizada com sucesso",
-            content = @Content(
-                    schema = @Schema(implementation = EmpresaConfiguracaoResponse.class)
-            )
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(schema = @Schema(implementation = EmpresaConfiguracaoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para consultar"),
+                    @ApiResponse(responseCode = "404", description = "Configuração não encontrada"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_CONFIGURACAO_LISTAR')")
     @GetMapping("/{chave}")
@@ -130,21 +124,27 @@ public class EmpresaConfiguracaoController {
     }
 
     // ============================================================
-    // 📄 LISTAGEM
+    // LIST (PAGINATED)
     // ============================================================
 
     @Operation(
             summary = "Listar configurações da empresa",
-            description = "Lista todas as configurações da empresa de forma paginada."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Consulta realizada com sucesso",
-            content = @Content(
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = EmpresaConfiguracaoResumoResponse.class)
-                    )
-            )
+            description = "Lista todas as configurações da empresa de forma paginada.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(
+                                                    implementation = EmpresaConfiguracaoResumoResponse.class
+                                            )
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para listar"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_CONFIGURACAO_LISTAR')")
     @GetMapping
@@ -156,16 +156,17 @@ public class EmpresaConfiguracaoController {
     }
 
     // ============================================================
-    // 🗑️ EXCLUSÃO
+    // DELETE
     // ============================================================
 
     @Operation(
             summary = "Remover configuração da empresa",
-            description = "Remove uma configuração da empresa identificada pela chave."
-    )
-    @ApiResponse(
-            responseCode = "204",
-            description = "Configuração removida com sucesso"
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Configuração removida"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para remover"),
+                    @ApiResponse(responseCode = "404", description = "Configuração não encontrada"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_CONFIGURACAO_EXCLUIR')")
     @DeleteMapping("/{chave}")

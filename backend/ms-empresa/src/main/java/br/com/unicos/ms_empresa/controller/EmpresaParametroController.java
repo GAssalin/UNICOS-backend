@@ -43,19 +43,21 @@ public class EmpresaParametroController {
     private final EmpresaParametroService empresaParametroService;
 
     // ============================================================
-    // ➕ CRIAÇÃO
+    // CREATE
     // ============================================================
 
     @Operation(
             summary = "Criar parâmetro da empresa",
-            description = "Cria um novo parâmetro (chave-valor) para a empresa."
-    )
-    @ApiResponse(
-            responseCode = "201",
-            description = "Parâmetro criado com sucesso",
-            content = @Content(
-                    schema = @Schema(implementation = EmpresaParametroResponse.class)
-            )
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Parâmetro criado com sucesso",
+                            content = @Content(schema = @Schema(implementation = EmpresaParametroResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_PARAMETRO_CRIAR')")
     @PostMapping
@@ -71,22 +73,23 @@ public class EmpresaParametroController {
                         request.valor()
                 );
 
-        EmpresaParametroResponse response = empresaParametroService.criar(normalized);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(empresaParametroService.criar(normalized));
     }
 
     // ============================================================
-    // ✏️ ATUALIZAÇÃO
+    // UPDATE
     // ============================================================
 
     @Operation(
             summary = "Atualizar parâmetro da empresa",
-            description = "Atualiza o valor de um parâmetro existente identificado pela chave."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Parâmetro atualizado com sucesso"
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Parâmetro atualizado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "404", description = "Parâmetro não encontrado"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_PARAMETRO_EDITAR')")
     @PutMapping("/{chave}")
@@ -95,29 +98,25 @@ public class EmpresaParametroController {
             @PathVariable String chave,
             @RequestBody @Validated EmpresaParametroUpdateRequest request
     ) {
-        return ResponseEntity.ok(
-                empresaParametroService.atualizar(
-                        empresaRefId,
-                        chave,
-                        request
-                )
-        );
+        return ResponseEntity.ok(empresaParametroService.atualizar(empresaRefId, chave, request));
     }
 
     // ============================================================
-    // 🔍 CONSULTA POR CHAVE
+    // GET
     // ============================================================
 
     @Operation(
             summary = "Buscar parâmetro por chave",
-            description = "Retorna os detalhes de um parâmetro específico da empresa."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Consulta realizada com sucesso",
-            content = @Content(
-                    schema = @Schema(implementation = EmpresaParametroResponse.class)
-            )
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(schema = @Schema(implementation = EmpresaParametroResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "404", description = "Parâmetro não encontrado"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_PARAMETRO_LISTAR')")
     @GetMapping("/{chave}")
@@ -129,21 +128,24 @@ public class EmpresaParametroController {
     }
 
     // ============================================================
-    // 📄 LISTAGEM
+    // LIST
     // ============================================================
 
     @Operation(
             summary = "Listar parâmetros da empresa",
-            description = "Lista os parâmetros da empresa de forma paginada."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Consulta realizada com sucesso",
-            content = @Content(
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = EmpresaParametroResumoResponse.class)
-                    )
-            )
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = EmpresaParametroResumoResponse.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_PARAMETRO_LISTAR')")
     @GetMapping
@@ -155,16 +157,17 @@ public class EmpresaParametroController {
     }
 
     // ============================================================
-    // 🗑️ EXCLUSÃO
+    // DELETE
     // ============================================================
 
     @Operation(
             summary = "Remover parâmetro da empresa",
-            description = "Remove um parâmetro da empresa identificado pela chave."
-    )
-    @ApiResponse(
-            responseCode = "204",
-            description = "Parâmetro removido com sucesso"
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Parâmetro removido"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "404", description = "Parâmetro não encontrado"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_PARAMETRO_EXCLUIR')")
     @DeleteMapping("/{chave}")

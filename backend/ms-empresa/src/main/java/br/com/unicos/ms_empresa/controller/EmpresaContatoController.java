@@ -22,15 +22,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Controlador REST responsável pelo gerenciamento
- * dos contatos institucionais da empresa.
- *
- * <p>
- * Todos os endpoints são restritos ao tenant
- * e respeitam as permissões do usuário autenticado.
- * </p>
- */
 @RestController
 @RequestMapping("/v1/empresas/{empresaRefId}/contatos")
 @RequiredArgsConstructor
@@ -44,19 +35,21 @@ public class EmpresaContatoController {
     private final EmpresaContatoService empresaContatoService;
 
     // ============================================================
-    // ➕ CRIAÇÃO
+    // CREATE
     // ============================================================
 
     @Operation(
             summary = "Criar contato institucional",
-            description = "Cadastra um novo contato institucional para a empresa."
-    )
-    @ApiResponse(
-            responseCode = "201",
-            description = "Contato criado com sucesso",
-            content = @Content(
-                    schema = @Schema(implementation = EmpresaContatoResponse.class)
-            )
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Contato criado com sucesso",
+                            content = @Content(schema = @Schema(implementation = EmpresaContatoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para criar"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_CONTATO_CRIAR')")
     @PostMapping
@@ -73,22 +66,27 @@ public class EmpresaContatoController {
                         request.principal()
                 );
 
-        EmpresaContatoResponse response = empresaContatoService.criar(normalized);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(empresaContatoService.criar(normalized));
     }
 
     // ============================================================
-    // ✏️ ATUALIZAÇÃO
+    // UPDATE
     // ============================================================
 
     @Operation(
             summary = "Atualizar contato institucional",
-            description = "Atualiza um contato institucional existente."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Contato atualizado com sucesso"
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Contato atualizado com sucesso",
+                            content = @Content(schema = @Schema(implementation = EmpresaContatoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para editar"),
+                    @ApiResponse(responseCode = "404", description = "Contato não encontrado"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_CONTATO_EDITAR')")
     @PutMapping("/{id}")
@@ -101,19 +99,21 @@ public class EmpresaContatoController {
     }
 
     // ============================================================
-    // 🔍 CONSULTA POR ID
+    // GET BY ID
     // ============================================================
 
     @Operation(
             summary = "Buscar contato institucional por ID",
-            description = "Retorna os dados de um contato institucional específico."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Consulta realizada com sucesso",
-            content = @Content(
-                    schema = @Schema(implementation = EmpresaContatoResponse.class)
-            )
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(schema = @Schema(implementation = EmpresaContatoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para consultar"),
+                    @ApiResponse(responseCode = "404", description = "Contato não encontrado"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_CONTATO_LISTAR')")
     @GetMapping("/{id}")
@@ -125,21 +125,26 @@ public class EmpresaContatoController {
     }
 
     // ============================================================
-    // 📄 LISTAGEM
+    // LIST
     // ============================================================
 
     @Operation(
             summary = "Listar contatos institucionais",
-            description = "Lista os contatos institucionais da empresa de forma paginada."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Consulta realizada com sucesso",
-            content = @Content(
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = EmpresaContatoResumoResponse.class)
-                    )
-            )
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(
+                                                    implementation = EmpresaContatoResumoResponse.class
+                                            )
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para listar"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_CONTATO_LISTAR')")
     @GetMapping
@@ -151,16 +156,16 @@ public class EmpresaContatoController {
     }
 
     // ============================================================
-    // 📄 LISTAGEM POR TIPO
+    // LIST BY TYPE
     // ============================================================
 
     @Operation(
             summary = "Listar contatos por tipo",
-            description = "Lista os contatos institucionais da empresa filtrando pelo tipo."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Consulta realizada com sucesso"
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Consulta realizada com sucesso"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para listar"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_CONTATO_LISTAR')")
     @GetMapping("/tipo/{tipo}")
@@ -169,26 +174,21 @@ public class EmpresaContatoController {
             @PathVariable TipoContatoEmpresa tipo,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(
-                empresaContatoService.listarPorTipo(
-                        empresaRefId,
-                        tipo,
-                        pageable
-                )
-        );
+        return ResponseEntity.ok(empresaContatoService.listarPorTipo(empresaRefId, tipo, pageable));
     }
 
     // ============================================================
-    // 🗑️ EXCLUSÃO
+    // DELETE
     // ============================================================
 
     @Operation(
             summary = "Remover contato institucional",
-            description = "Remove um contato institucional da empresa."
-    )
-    @ApiResponse(
-            responseCode = "204",
-            description = "Contato removido com sucesso"
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Contato removido"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para remover"),
+                    @ApiResponse(responseCode = "404", description = "Contato não encontrado"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_CONTATO_EXCLUIR')")
     @DeleteMapping("/{id}")

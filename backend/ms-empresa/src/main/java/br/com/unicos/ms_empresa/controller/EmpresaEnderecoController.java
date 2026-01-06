@@ -22,15 +22,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Controlador REST responsável pelo gerenciamento
- * dos endereços institucionais da empresa.
- *
- * <p>
- * Todos os endpoints são restritos ao tenant
- * e respeitam as permissões do usuário autenticado.
- * </p>
- */
 @RestController
 @RequestMapping("/v1/empresas/{empresaRefId}/enderecos")
 @RequiredArgsConstructor
@@ -44,19 +35,21 @@ public class EmpresaEnderecoController {
     private final EmpresaEnderecoService empresaEnderecoService;
 
     // ============================================================
-    // ➕ CRIAÇÃO
+    // CREATE
     // ============================================================
 
     @Operation(
             summary = "Criar endereço institucional",
-            description = "Cadastra um novo endereço institucional para a empresa."
-    )
-    @ApiResponse(
-            responseCode = "201",
-            description = "Endereço criado com sucesso",
-            content = @Content(
-                    schema = @Schema(implementation = EmpresaEnderecoResponse.class)
-            )
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Endereço criado com sucesso",
+                            content = @Content(schema = @Schema(implementation = EmpresaEnderecoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para criar"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_ENDERECO_CRIAR')")
     @PostMapping
@@ -79,22 +72,27 @@ public class EmpresaEnderecoController {
                         request.principal()
                 );
 
-        EmpresaEnderecoResponse response = empresaEnderecoService.criar(normalized);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(empresaEnderecoService.criar(normalized));
     }
 
     // ============================================================
-    // ✏️ ATUALIZAÇÃO
+    // UPDATE
     // ============================================================
 
     @Operation(
             summary = "Atualizar endereço institucional",
-            description = "Atualiza um endereço institucional existente."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Endereço atualizado com sucesso"
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Endereço atualizado com sucesso",
+                            content = @Content(schema = @Schema(implementation = EmpresaEnderecoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para editar"),
+                    @ApiResponse(responseCode = "404", description = "Endereço não encontrado"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_ENDERECO_EDITAR')")
     @PutMapping("/{id}")
@@ -107,19 +105,21 @@ public class EmpresaEnderecoController {
     }
 
     // ============================================================
-    // 🔍 CONSULTA POR ID
+    // GET BY ID
     // ============================================================
 
     @Operation(
             summary = "Buscar endereço institucional por ID",
-            description = "Retorna os dados de um endereço institucional específico."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Consulta realizada com sucesso",
-            content = @Content(
-                    schema = @Schema(implementation = EmpresaEnderecoResponse.class)
-            )
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(schema = @Schema(implementation = EmpresaEnderecoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para consultar"),
+                    @ApiResponse(responseCode = "404", description = "Endereço não encontrado"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_ENDERECO_LISTAR')")
     @GetMapping("/{id}")
@@ -131,21 +131,24 @@ public class EmpresaEnderecoController {
     }
 
     // ============================================================
-    // 📄 LISTAGEM
+    // LIST
     // ============================================================
 
     @Operation(
             summary = "Listar endereços institucionais",
-            description = "Lista os endereços institucionais da empresa de forma paginada."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Consulta realizada com sucesso",
-            content = @Content(
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = EmpresaEnderecoResumoResponse.class)
-                    )
-            )
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = EmpresaEnderecoResumoResponse.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para listar"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_ENDERECO_LISTAR')")
     @GetMapping
@@ -157,16 +160,16 @@ public class EmpresaEnderecoController {
     }
 
     // ============================================================
-    // 📄 LISTAGEM POR TIPO
+    // LIST BY TYPE
     // ============================================================
 
     @Operation(
             summary = "Listar endereços por tipo",
-            description = "Lista os endereços institucionais da empresa filtrando pelo tipo."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Consulta realizada com sucesso"
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Consulta realizada com sucesso"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para listar"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_ENDERECO_LISTAR')")
     @GetMapping("/tipo/{tipo}")
@@ -175,26 +178,21 @@ public class EmpresaEnderecoController {
             @PathVariable TipoEnderecoEmpresa tipo,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(
-                empresaEnderecoService.listarPorTipo(
-                        empresaRefId,
-                        tipo,
-                        pageable
-                )
-        );
+        return ResponseEntity.ok(empresaEnderecoService.listarPorTipo(empresaRefId, tipo, pageable));
     }
 
     // ============================================================
-    // 🗑️ EXCLUSÃO
+    // DELETE
     // ============================================================
 
     @Operation(
             summary = "Remover endereço institucional",
-            description = "Remove um endereço institucional da empresa."
-    )
-    @ApiResponse(
-            responseCode = "204",
-            description = "Endereço removido com sucesso"
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Endereço removido"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para remover"),
+                    @ApiResponse(responseCode = "404", description = "Endereço não encontrado"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'EMPRESA_ENDERECO_EXCLUIR')")
     @DeleteMapping("/{id}")
