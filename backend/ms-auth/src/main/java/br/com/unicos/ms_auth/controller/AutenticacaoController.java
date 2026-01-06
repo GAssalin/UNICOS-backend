@@ -12,10 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/autenticacao")
@@ -41,16 +38,10 @@ public class AutenticacaoController {
                             description = "Login realizado com sucesso",
                             content = @Content(schema = @Schema(implementation = DadosToken.class))
                     ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Dados inválidos",
-                            content = @Content
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Credenciais inválidas ou usuário não autorizado",
-                            content = @Content
-                    )
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "401", description = "Credenciais inválidas"),
+                    @ApiResponse(responseCode = "403", description = "Usuário desabilitado"),
+                    @ApiResponse(responseCode = "503", description = "Serviço temporariamente indisponível")
             }
     )
     @PostMapping("/login")
@@ -61,31 +52,10 @@ public class AutenticacaoController {
     // ============================================================
     // REFRESH TOKEN
     // ============================================================
+
     @Operation(
             summary = "Atualizar token de acesso",
-            description = "Gera um novo token JWT de acesso utilizando um refresh token válido e ainda ativo.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Novo token gerado com sucesso",
-                            content = @Content(schema = @Schema(implementation = DadosToken.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Requisição mal formada",
-                            content = @Content
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Refresh token inválido ou expirado",
-                            content = @Content
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Usuário não encontrado para o refresh token informado",
-                            content = @Content
-                    )
-            }
+            description = "Gera um novo token JWT de acesso utilizando um refresh token válido e ainda ativo."
     )
     @PostMapping("/atualizar-token")
     public ResponseEntity<DadosToken> atualizarToken(@Valid @RequestBody DadosRefreshToken dados) {

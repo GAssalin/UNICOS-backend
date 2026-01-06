@@ -23,14 +23,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
-/**
- * Controlador REST responsável pela consulta dos registros
- * de auditoria de acesso do sistema.
- * <p>
- * Todas as consultas são restritas ao tenant (empresa)
- * e utilizam paginação obrigatória.
- * </p>
- */
 @RestController
 @RequestMapping("/v1/auditorias")
 @RequiredArgsConstructor
@@ -44,11 +36,12 @@ public class AuditoriaAcessoController {
     private final AuditoriaAcessoService auditoriaAcessoService;
 
     // ============================================================
-    // 🔍 CONSULTA POR USUÁRIO
+    // CONSULTA POR USUÁRIO
     // ============================================================
+
     @Operation(
             summary = "Listar auditorias por usuário",
-            description = "Retorna registros de auditoria vinculados a um usuário específico, restritos à empresa.",
+            description = "Retorna registros de auditoria vinculados a um usuário, restritos à empresa.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -58,7 +51,9 @@ public class AuditoriaAcessoController {
                                             schema = @Schema(implementation = AuditoriaAcessoResponse.class)
                                     )
                             )
-                    )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para consultar"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
     @PreAuthorize("hasPermission(null, 'AUDITORIA_LISTAR')")
@@ -71,11 +66,16 @@ public class AuditoriaAcessoController {
     }
 
     // ============================================================
-    // 🔍 CONSULTA POR TIPO DE AÇÃO
+    // CONSULTA POR AÇÃO
     // ============================================================
+
     @Operation(
             summary = "Listar auditorias por tipo de ação",
-            description = "Retorna registros de auditoria filtrados pelo tipo de ação, restritos à empresa."
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Consulta realizada com sucesso"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para consultar"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'AUDITORIA_LISTAR')")
     @GetMapping("/acao/{acao}")
@@ -87,11 +87,18 @@ public class AuditoriaAcessoController {
     }
 
     // ============================================================
-    // 🔍 CONSULTA POR PERÍODO
+    // CONSULTA POR PERÍODO
     // ============================================================
+
     @Operation(
             summary = "Listar auditorias por período",
-            description = "Retorna registros de auditoria ocorridos dentro do intervalo de datas informado, restritos à empresa."
+            description = "Retorna registros de auditoria dentro do intervalo de datas informado.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Consulta realizada com sucesso"),
+                    @ApiResponse(responseCode = "400", description = "Período inválido"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para consultar"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
     )
     @PreAuthorize("hasPermission(null, 'AUDITORIA_LISTAR')")
     @GetMapping("/periodo")
@@ -108,7 +115,6 @@ public class AuditoriaAcessoController {
     ) {
         if (inicio.isAfter(fim))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A data/hora inicial não pode ser posterior à data/hora final");
-
         return ResponseEntity.ok(auditoriaAcessoService.listarPorPeriodo(inicio, fim, pageable));
     }
 }

@@ -7,41 +7,34 @@ import br.com.unicos.ms_auth.enums.TipoAcaoAcesso;
 import br.com.unicos.ms_auth.mapper.AuditoriaAcessoMapper;
 import br.com.unicos.ms_auth.model.AuditoriaAcesso;
 import br.com.unicos.ms_auth.repository.AuditoriaAcessoRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
-/**
- * Implementação do serviço responsável pelas regras de negócio
- * relacionadas à auditoria de acesso do sistema.
- *
- * <p>
- * Todas as operações são obrigatoriamente restritas ao tenant (empresa)
- * e utilizam paginação para evitar carga excessiva de dados.
- * </p>
- */
 @Service
 public class AuditoriaAcessoService extends BaseTenantService<AuditoriaAcesso, Long> {
 
     private final AuditoriaAcessoRepository auditoriaAcessoRepository;
     private final AuditoriaAcessoMapper auditoriaAcessoMapper;
 
-    public AuditoriaAcessoService(AuditoriaAcessoRepository auditoriaAcessoRepository, AuditoriaAcessoMapper auditoriaAcessoMapper) {
+    public AuditoriaAcessoService(
+            AuditoriaAcessoRepository auditoriaAcessoRepository,
+            AuditoriaAcessoMapper auditoriaAcessoMapper
+    ) {
         super(auditoriaAcessoRepository);
         this.auditoriaAcessoRepository = auditoriaAcessoRepository;
         this.auditoriaAcessoMapper = auditoriaAcessoMapper;
     }
 
-    /**
-     * Registra um novo evento de auditoria no sistema.
-     *
-     * @param username Usuário responsável pela ação
-     * @param acao     Tipo da ação executada
-     * @param detalhes Detalhes adicionais da ação
-     * @param ip       Endereço IP de origem
-     */
+    // ============================================================
+    // REGISTRO (SEM CIRCUIT BREAKER)
+    // ============================================================
+
     public void registrarEvento(
             String username,
             TipoAcaoAcesso acao,
@@ -60,56 +53,63 @@ public class AuditoriaAcessoService extends BaseTenantService<AuditoriaAcesso, L
         auditoriaAcessoRepository.save(evento);
     }
 
-    /**
-     * Lista eventos de auditoria de um usuário específico,
-     * restritos a uma empresa (tenant).
-     *
-     * @param username Nome do usuário
-     * @param pageable Paginação e ordenação
-     * @return Página de eventos de auditoria
-     */
+    // ============================================================
+    // CONSULTAS (COM CIRCUIT BREAKER)
+    // ============================================================
+
+    @CircuitBreaker(name = "auth-auditoria-admin", fallbackMethod = "fallbackPage")
     public Page<AuditoriaAcessoResponse> listarPorUsuario(
             String username,
             Pageable pageable
     ) {
         return auditoriaAcessoRepository
-                .findByUsernameAndEmpresaId(username, TenantContext.getEmpresaId(), pageable)
+                .findByUsernameAndEmpresaId(
+                        username,
+                        TenantContext.getEmpresaId(),
+                        pageable
+                )
                 .map(auditoriaAcessoMapper::toResponse);
     }
 
-    /**
-     * Lista eventos de auditoria por tipo de ação,
-     * restritos a uma empresa (tenant).
-     *
-     * @param acao     Tipo da ação
-     * @param pageable Paginação e ordenação
-     * @return Página de eventos de auditoria
-     */
+    @CircuitBreaker(name = "auth-auditoria-admin", fallbackMethod = "fallbackPage")
     public Page<AuditoriaAcessoResponse> listarPorAcao(
             TipoAcaoAcesso acao,
             Pageable pageable
     ) {
         return auditoriaAcessoRepository
-                .findByAcaoAndEmpresaId(acao, TenantContext.getEmpresaId(), pageable)
+                .findByAcaoAndEmpresaId(
+                        acao,
+                        TenantContext.getEmpresaId(),
+                        pageable
+                )
                 .map(auditoriaAcessoMapper::toResponse);
     }
 
-    /**
-     * Lista eventos de auditoria ocorridos dentro de um período,
-     * restritos a uma empresa (tenant).
-     *
-     * @param inicio   Data/hora inicial
-     * @param fim      Data/hora final
-     * @param pageable Paginação e ordenação
-     * @return Página de eventos de auditoria
-     */
+    @CircuitBreaker(name = "auth-auditoria-admin", fallbackMethod = "fallbackPage")
     public Page<AuditoriaAcessoResponse> listarPorPeriodo(
             LocalDateTime inicio,
             LocalDateTime fim,
             Pageable pageable
     ) {
         return auditoriaAcessoRepository
-                .findByDataEventoBetweenAndEmpresaId(inicio, fim, TenantContext.getEmpresaId(), pageable)
+                .findByDataEventoBetweenAndEmpresaId(
+                        inicio,
+                        fim,
+                        TenantContext.getEmpresaId(),
+                        pageable
+                )
                 .map(auditoriaAcessoMapper::toResponse);
+    }
+
+    // ============================================================
+    // FALLBACK
+    // ============================================================
+
+    private Page<AuditoriaAcessoResponse> fallbackPage(
+            Object param1,
+            Pageable pageable,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de auditoria temporariamente indisponível");
     }
 }

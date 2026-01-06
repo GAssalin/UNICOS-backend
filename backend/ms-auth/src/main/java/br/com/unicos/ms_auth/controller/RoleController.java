@@ -33,78 +33,125 @@ public class RoleController {
 
     private final RoleService roleService;
 
+    // ============================================================
+    // CREATE
+    // ============================================================
+
     @Operation(
             summary = "Criar novo papel (Role)",
-            description = "Cria um novo papel no sistema, que poderá conter permissões e ser associado a usuários.",
+            description = "Cria um novo papel no sistema.",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "Role criado com sucesso", content = @Content(schema = @Schema(implementation = RoleResponse.class))),
-                    @ApiResponse(responseCode = "400", description = "Dados inválidos enviados", content = @Content)
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Role criado com sucesso",
+                            content = @Content(schema = @Schema(implementation = RoleResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para criar"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
     @PreAuthorize("hasPermission(null, 'ROLE_CRIAR')")
     @PostMapping
     public ResponseEntity<RoleResponse> criar(@Valid @RequestBody RoleRequest request) {
-        RoleResponse response = roleService.salvar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(roleService.salvar(request));
     }
+
+    // ============================================================
+    // UPDATE
+    // ============================================================
 
     @Operation(
             summary = "Atualizar papel existente",
-            description = "Atualiza os dados de um papel já cadastrado no sistema.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Role atualizado com sucesso", content = @Content(schema = @Schema(implementation = RoleResponse.class))),
-                    @ApiResponse(responseCode = "400", description = "Dados inválidos enviados na requisição", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Role não encontrado", content = @Content)
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Role atualizado com sucesso",
+                            content = @Content(schema = @Schema(implementation = RoleResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para editar"),
+                    @ApiResponse(responseCode = "404", description = "Role não encontrado"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
     @PreAuthorize("hasPermission(null, 'ROLE_EDITAR')")
     @PutMapping("/{id}")
-    public ResponseEntity<RoleResponse> atualizar(@PathVariable Long id, @Valid @RequestBody RoleRequest request) {
-        RoleResponse response = roleService.atualizar(id, request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<RoleResponse> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody RoleRequest request
+    ) {
+        return ResponseEntity.ok(roleService.atualizar(id, request));
     }
+
+    // ============================================================
+    // GET BY ID
+    // ============================================================
 
     @Operation(
             summary = "Buscar papel por ID",
-            description = "Consulta os dados de um papel específico com base no ID informado.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Role encontrado", content = @Content(schema = @Schema(implementation = RoleResponse.class))),
-                    @ApiResponse(responseCode = "404", description = "Role não encontrado", content = @Content)
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Role encontrado",
+                            content = @Content(schema = @Schema(implementation = RoleResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para consultar"),
+                    @ApiResponse(responseCode = "404", description = "Role não encontrado"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
     @PreAuthorize("hasPermission(null, 'ROLE_LISTAR')")
     @GetMapping("/{id}")
     public ResponseEntity<RoleResponse> buscarPorId(@PathVariable Long id) {
-        RoleResponse response = roleService.buscarPorId(id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(roleService.buscarPorId(id));
     }
+
+    // ============================================================
+    // LIST ALL
+    // ============================================================
 
     @Operation(
             summary = "Listar todos os papéis",
-            description = "Retorna todos os papéis cadastrados no sistema.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso", content = @Content(array = @ArraySchema(schema = @Schema(implementation = RoleResponse.class))))
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista de roles",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = RoleResponse.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para listar"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
     @PreAuthorize("hasPermission(null, 'ROLE_LISTAR')")
     @GetMapping
     public ResponseEntity<List<RoleResponse>> listarTodos() {
-        List<RoleResponse> lista = roleService.listarTodos();
-        return ResponseEntity.ok(lista);
+        return ResponseEntity.ok(roleService.listarTodos());
     }
 
+    // ============================================================
+    // DELETE
+    // ============================================================
+
     @Operation(
-            summary = "Deletar papel",
-            description = "Remove um papel do sistema de forma permanente.",
+            summary = "Excluir papel",
             responses = {
-                    @ApiResponse(responseCode = "204", description = "Role removido com sucesso", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Role não encontrado", content = @Content)
+                    @ApiResponse(responseCode = "204", description = "Role excluído"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para excluir"),
+                    @ApiResponse(responseCode = "404", description = "Role não encontrado"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
     @PreAuthorize("hasPermission(null, 'ROLE_EXCLUIR')")
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletar(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
         roleService.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }

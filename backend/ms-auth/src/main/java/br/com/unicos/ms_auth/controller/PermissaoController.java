@@ -4,6 +4,9 @@ import br.com.unicos.ms_auth.dto.permissao.PermissaoRequest;
 import br.com.unicos.ms_auth.dto.permissao.PermissaoResponse;
 import br.com.unicos.ms_auth.service.PermissaoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Controlador REST responsável pelo gerenciamento das permissões do sistema.
- * <p>
- * Permite operações de criação, atualização, consulta e remoção
- * de permissões granulares utilizadas na composição de papéis (roles).
- */
 @RestController
 @RequestMapping("/v1/permissoes")
 @RequiredArgsConstructor
@@ -35,7 +32,20 @@ public class PermissaoController {
     // CREATE
     // ============================================================
 
-    @Operation(summary = "Criar nova permissão")
+    @Operation(
+            summary = "Criar nova permissão",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Permissão criada com sucesso",
+                            content = @Content(schema = @Schema(implementation = PermissaoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "401", description = "Não autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para criar"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
     @PreAuthorize("hasPermission(null, 'PERMISSAO_CRIAR')")
     @PostMapping
     public ResponseEntity<PermissaoResponse> criar(@Valid @RequestBody PermissaoRequest request) {
@@ -48,7 +58,20 @@ public class PermissaoController {
     // UPDATE
     // ============================================================
 
-    @Operation(summary = "Atualizar permissão")
+    @Operation(
+            summary = "Atualizar permissão",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Permissão atualizada com sucesso",
+                            content = @Content(schema = @Schema(implementation = PermissaoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para editar"),
+                    @ApiResponse(responseCode = "404", description = "Permissão não encontrada"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
     @PreAuthorize("hasPermission(null, 'PERMISSAO_EDITAR')")
     @PutMapping("/{id}")
     public ResponseEntity<PermissaoResponse> atualizar(@PathVariable Long id, @Valid @RequestBody PermissaoRequest request) {
@@ -59,7 +82,19 @@ public class PermissaoController {
     // GET BY ID
     // ============================================================
 
-    @Operation(summary = "Buscar permissão por ID")
+    @Operation(
+            summary = "Buscar permissão por ID",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Permissão encontrada",
+                            content = @Content(schema = @Schema(implementation = PermissaoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para consultar"),
+                    @ApiResponse(responseCode = "404", description = "Permissão não encontrada"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
     @PreAuthorize("hasPermission(null, 'PERMISSAO_LISTAR')")
     @GetMapping("/{id}")
     public ResponseEntity<PermissaoResponse> buscarPorId(@PathVariable Long id) {
@@ -67,22 +102,40 @@ public class PermissaoController {
     }
 
     // ============================================================
-    // LISTAGEM ADMINISTRATIVA (PAGINADA)
+    // LISTAGEM PAGINADA
     // ============================================================
 
-    @Operation(summary = "Listar permissões (paginado)")
+    @Operation(
+            summary = "Listar permissões (paginado)",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista paginada de permissões",
+                            content = @Content(schema = @Schema(implementation = PermissaoResponse.class))
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para listar"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
     @PreAuthorize("hasPermission(null, 'PERMISSAO_LISTAR')")
     @GetMapping
     public ResponseEntity<Page<PermissaoResponse>> listar(@RequestParam(required = false) String nome, Pageable pageable) {
-        return ResponseEntity.ok(service.listar(nome, pageable)
-        );
+        return ResponseEntity.ok(service.listar(nome, pageable));
     }
 
     // ============================================================
     // DELETE
     // ============================================================
 
-    @Operation(summary = "Deletar permissão")
+    @Operation(
+            summary = "Excluir permissão",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Permissão excluída"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão para excluir"),
+                    @ApiResponse(responseCode = "404", description = "Permissão não encontrada"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
     @PreAuthorize("hasPermission(null, 'PERMISSAO_EXCLUIR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {

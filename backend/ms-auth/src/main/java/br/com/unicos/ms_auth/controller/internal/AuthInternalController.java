@@ -25,7 +25,6 @@ public class AuthInternalController {
 
     @PostMapping("/validate-token")
     public ResponseEntity<TokenValidationResponse> validateToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) {
-
         if (authorization == null || !authorization.startsWith("Bearer "))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 

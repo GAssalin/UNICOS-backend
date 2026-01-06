@@ -10,6 +10,7 @@ import br.com.unicos.ms_auth.repository.RoleUsuarioRepository;
 import br.com.unicos.ms_auth.security_access.AuthenticatedUser;
 import br.com.unicos.ms_auth.security_access.TokenService;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,8 +31,11 @@ public class AutenticacaoService {
     private final TokenService tokenService;
     private final RoleUsuarioRepository roleUsuarioRepository;
 
+    // ============================================================
+    // LOGIN
+    // ============================================================
+    @CircuitBreaker(name = "auth-login", fallbackMethod = "fallbackLogin")
     public ResponseEntity<DadosToken> autenticar(DadosLogin dados) {
-
         AuthenticatedUser user;
 
         try {
@@ -42,22 +46,38 @@ public class AutenticacaoService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário ou senha inválidos");
         }
 
-            TokenUserData tokenUser = new TokenUserData(
-                    user.getUserId(),
-                    user.getUsername(),
-                    user.getEmpresaId(),
-                    new ArrayList<>(roleUsuarioRepository.findRolesByUsuario(user.getUserId(), user.getEmpresaId()))
-            );
+        TokenUserData tokenUser = new TokenUserData(
+                user.getUserId(),
+                user.getUsername(),
+                user.getEmpresaId(),
+                new ArrayList<>(roleUsuarioRepository.findRolesByUsuario(
+                        user.getUserId(),
+                        user.getEmpresaId()
+                ))
+        );
 
-            String accessToken = tokenService.gerarAccessToken(tokenUser);
-            String refreshToken = tokenService.gerarRefreshToken(user.getUserId());
+        String accessToken = tokenService.gerarAccessToken(tokenUser);
+        String refreshToken = tokenService.gerarRefreshToken(user.getUserId());
 
-            return ResponseEntity.ok(new DadosToken(accessToken, refreshToken));
-
+        return ResponseEntity.ok(new DadosToken(accessToken, refreshToken));
     }
 
-    public ResponseEntity<DadosToken> atualizarToken(@Valid DadosRefreshToken dados) {
+    /**
+     * Fallback acionado SOMENTE para falhas técnicas
+     * (ex.: timeout, ms-pessoas fora, DB indisponível).
+     */
+    private ResponseEntity<DadosToken> fallbackLogin(DadosLogin dados, Throwable ex) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de autenticação temporariamente indisponível"
+        );
+    }
 
+    // ============================================================
+    // REFRESH TOKEN
+    // ============================================================
+
+    public ResponseEntity<DadosToken> atualizarToken(@Valid DadosRefreshToken dados) {
         DecodedJWT jwt;
 
         try {
@@ -67,7 +87,6 @@ public class AutenticacaoService {
         }
 
         Long userId = Long.valueOf(jwt.getSubject());
-
         Long tenantId = TenantContext.getEmpresaId();
 
         TokenUserData tokenUser = new TokenUserData(

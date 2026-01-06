@@ -2,7 +2,6 @@ package br.com.unicos.ms_auth.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
-import br.com.unicos.ms_auth.client.UsuarioClient;
 import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoListDTO;
 import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoRequest;
 import br.com.unicos.ms_auth.dto.role_permissao.RolePermissaoResponse;
@@ -13,25 +12,18 @@ import br.com.unicos.ms_auth.model.RolePermissao;
 import br.com.unicos.ms_auth.repository.PermissaoRepository;
 import br.com.unicos.ms_auth.repository.RolePermissaoRepository;
 import br.com.unicos.ms_auth.repository.RoleRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-/**
- * Serviço responsável pelas regras de negócio
- * relacionadas ao vínculo Role-Permissão.
- *
- * <p>
- * As operações administrativas utilizam paginação.
- * As operações técnicas (autorização) são otimizadas
- * para execução em tempo de autenticação.
- * </p>
- */
 @Service
 public class RolePermissaoService extends BaseTenantService<RolePermissao, Long> {
 
@@ -44,7 +36,6 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
             RolePermissaoRepository rolePermissaoRepository,
             RoleRepository roleRepository,
             PermissaoRepository permissaoRepository,
-            UsuarioClient usuarioClient,
             RolePermissaoMapper mapper
     ) {
         super(rolePermissaoRepository);
@@ -58,8 +49,9 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
     // CREATE
     // ============================================================
 
+    @Transactional
+    @CircuitBreaker(name = "auth-role-permissao-admin", fallbackMethod = "fallbackAdmin")
     public RolePermissaoResponse criar(RolePermissaoRequest request) {
-
         if (rolePermissaoRepository.existsByRoleIdAndPermissaoIdAndEmpresaId(
                 request.roleId(),
                 request.permissaoId(),
@@ -88,8 +80,9 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
     // UPDATE
     // ============================================================
 
+    @Transactional
+    @CircuitBreaker(name = "auth-role-permissao-admin", fallbackMethod = "fallbackAdmin")
     public RolePermissaoResponse alterarStatus(Long id, boolean ativo) {
-
         RolePermissao entity = findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Vínculo Empresa-Role-Permissão não encontrado"));
 
@@ -101,6 +94,7 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
     // DELETE
     // ============================================================
 
+    @CircuitBreaker(name = "auth-role-permissao-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
         if (!rolePermissaoRepository.existsById(id))
             throw new EntityNotFoundException("Vínculo Empresa-Role-Permissão não encontrado");
@@ -108,45 +102,51 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
     }
 
     // ============================================================
-    // LISTAGENS ADMINISTRATIVAS (PAGINADAS)
+    // LISTAGENS ADMINISTRATIVAS
     // ============================================================
 
+    @Transactional(readOnly = true)
+    @CircuitBreaker(name = "auth-role-permissao-admin", fallbackMethod = "fallbackAdminPage")
     public Page<RolePermissaoListDTO> listarPorEmpresa(Long empresaId, Pageable pageable) {
-        Page<RolePermissao> entidades = rolePermissaoRepository.findAllByEmpresaId(TenantContext.getEmpresaId(), Pageable.unpaged());
+        Page<RolePermissao> entidades =
+                rolePermissaoRepository.findAllByEmpresaId(
+                        TenantContext.getEmpresaId(),
+                        Pageable.unpaged()
+                );
 
         return new PageImpl<>(
-                entidades.stream()
-                        .map(mapper::toListDTO)
-                        .toList(),
+                entidades.stream().map(mapper::toListDTO).toList(),
                 pageable,
                 entidades.getTotalElements()
         );
     }
 
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "auth-role-permissao-admin", fallbackMethod = "fallbackAdminPage")
     public Page<RolePermissaoListDTO> listarAtivosPorEmpresa(Long empresaId, Pageable pageable) {
-        final List<RolePermissao> ativos = rolePermissaoRepository.findByAtivoTrueAndEmpresaId(empresaId);
+        List<RolePermissao> ativos =
+                rolePermissaoRepository.findByAtivoTrueAndEmpresaId(empresaId);
 
         return new PageImpl<>(
-                ativos.stream()
-                        .map(mapper::toListDTO)
-                        .toList(),
+                ativos.stream().map(mapper::toListDTO).toList(),
                 pageable,
                 ativos.size()
         );
     }
 
-    @Transactional(readOnly = true)
-    public Page<RolePermissaoListDTO> listarInativosPorEmpresa(Long empresaId, Pageable pageable) {
-        final List<RolePermissao> inativos = rolePermissaoRepository.findByAtivoFalseAndEmpresaId(empresaId);
+    // ============================================================
+    // FALLBACKS
+    // ============================================================
 
-        return new PageImpl<>(
-                inativos.stream()
-                        .map(mapper::toListDTO)
-                        .toList(),
-                pageable,
-                inativos.size()
-        );
+    private RolePermissaoResponse fallbackAdmin(Object request, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de vínculo Role-Permissão temporariamente indisponível");
     }
 
+    private Page<RolePermissaoListDTO> fallbackAdminPage(Long empresaId, Pageable pageable, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de vínculo Role-Permissão temporariamente indisponível");
+    }
+
+    private void fallbackAdminVoid(Long id, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de vínculo Role-Permissão temporariamente indisponível");
+    }
 }
