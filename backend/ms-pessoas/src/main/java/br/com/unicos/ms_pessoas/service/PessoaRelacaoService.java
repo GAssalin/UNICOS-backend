@@ -10,11 +10,14 @@ import br.com.unicos.ms_pessoas.model.TipoRelacaoPessoa;
 import br.com.unicos.ms_pessoas.repository.PessoaRelacaoRepository;
 import br.com.unicos.ms_pessoas.repository.PessoaRepository;
 import br.com.unicos.ms_pessoas.repository.TipoRelacaoPessoaRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,10 +36,13 @@ public class PessoaRelacaoService {
     private final ModelMapper modelMapper;
 
     // ============================================================
-    // Criar
+    // CREATE
     // ============================================================
+
     @Transactional
+    @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdmin")
     public PessoaRelacaoResponse criar(PessoaRelacaoRequest request) {
+
         Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa principal não encontrada."));
 
@@ -49,7 +55,6 @@ public class PessoaRelacaoService {
         TipoRelacaoPessoa tipoRelacao = tipoRelacaoPessoaRepository.findById(request.tipoRelacaoPessoaId())
                 .orElseThrow(() -> new EntityNotFoundException("Tipo de relação não encontrado."));
 
-        // Verifica duplicidade: já existe vínculo entre estas duas pessoas?
         repository.findByPessoaAndRelacionado(pessoa, relacionado).stream()
                 .filter(rel -> rel.getTipoRelacao().getId().equals(tipoRelacao.getId()))
                 .findAny()
@@ -68,10 +73,13 @@ public class PessoaRelacaoService {
     }
 
     // ============================================================
-    // Atualizar
+    // UPDATE
     // ============================================================
+
     @Transactional
+    @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdmin")
     public PessoaRelacaoResponse atualizar(Long id, PessoaRelacaoRequest request) {
+
         PessoaRelacao relacao = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Relação não encontrada."));
 
@@ -87,7 +95,6 @@ public class PessoaRelacaoService {
         TipoRelacaoPessoa tipoRelacao = tipoRelacaoPessoaRepository.findById(request.tipoRelacaoPessoaId())
                 .orElseThrow(() -> new EntityNotFoundException("Tipo de relação não encontrado."));
 
-        // Verifica duplicidade para atualização
         repository.findByPessoaAndRelacionado(pessoa, relacionado).stream()
                 .filter(existing -> !existing.getId().equals(id))
                 .filter(existing -> existing.getTipoRelacao().getId().equals(tipoRelacao.getId()))
@@ -107,30 +114,35 @@ public class PessoaRelacaoService {
     }
 
     // ============================================================
-    // Excluir
+    // DELETE
     // ============================================================
+
     @Transactional
+    @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminVoid")
     public void excluir(Long id) {
         if (!repository.existsById(id))
             throw new EntityNotFoundException("Relação não encontrada.");
+
         repository.deleteById(id);
     }
 
     // ============================================================
-    // Buscar por ID
+    // GET
     // ============================================================
 
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminOptional")
     public Optional<PessoaRelacaoResponse> buscarPorId(Long id) {
         return repository.findById(id)
                 .map(mapper::toResponse);
     }
 
     // ============================================================
-    // Listar Todas
+    // LIST
     // ============================================================
 
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminList")
     public List<PessoaRelacaoListDTO> listarTodas() {
         return repository.findAll()
                 .stream()
@@ -138,12 +150,10 @@ public class PessoaRelacaoService {
                 .toList();
     }
 
-    // ============================================================
-    // Listar por Pessoa
-    // ============================================================
-
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminListPessoa")
     public List<PessoaRelacaoListDTO> listarPorPessoa(Long pessoaId) {
+
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada."));
 
@@ -153,12 +163,10 @@ public class PessoaRelacaoService {
                 .toList();
     }
 
-    // ============================================================
-    // Listar por Relacionado
-    // ============================================================
-
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminListRelacionado")
     public List<PessoaRelacaoListDTO> listarPorRelacionado(Long relacionadoId) {
+
         Pessoa relacionado = pessoaRepository.findById(relacionadoId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa relacionada não encontrada."));
 
@@ -168,12 +176,10 @@ public class PessoaRelacaoService {
                 .toList();
     }
 
-    // ============================================================
-    // Listar por Tipo de Relação
-    // ============================================================
-
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminListTipo")
     public List<PessoaRelacaoListDTO> listarPorTipo(Long tipoRelacaoPessoaId) {
+
         TipoRelacaoPessoa tipoRelacao = tipoRelacaoPessoaRepository.findById(tipoRelacaoPessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Tipo de relação não encontrado."));
 
@@ -183,11 +189,8 @@ public class PessoaRelacaoService {
                 .toList();
     }
 
-    // ============================================================
-    // Busca por Nome da Pessoa Principal
-    // ============================================================
-
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminListPessoaNome")
     public List<PessoaRelacaoListDTO> listarPorPessoaENome(String nome) {
         return repository.findByPessoa_NomeContainingIgnoreCase(nome)
                 .stream()
@@ -195,11 +198,8 @@ public class PessoaRelacaoService {
                 .toList();
     }
 
-    // ============================================================
-    // Busca por Nome da Pessoa Relacionada
-    // ============================================================
-
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminListRelacionadoNome")
     public List<PessoaRelacaoListDTO> listarPorRelacionadoENome(String nome) {
         return repository.findByRelacionado_NomeContainingIgnoreCase(nome)
                 .stream()
@@ -207,12 +207,10 @@ public class PessoaRelacaoService {
                 .toList();
     }
 
-    // ============================================================
-    // Filtrar por Pessoa e Relacionado ao mesmo tempo
-    // ============================================================
-
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminListPessoaRelacionado")
     public List<PessoaRelacaoListDTO> listarPorPessoaERelacionado(Long pessoaId, Long relacionadoId) {
+
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa principal não encontrada."));
 
@@ -223,5 +221,83 @@ public class PessoaRelacaoService {
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
+    }
+
+    // ============================================================
+    // FALLBACKS
+    // ============================================================
+
+    private PessoaRelacaoResponse fallbackAdmin(Object req, Throwable ex) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de relações entre pessoas temporariamente indisponível"
+        );
+    }
+
+    private void fallbackAdminVoid(Long id, Throwable ex) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de relações entre pessoas temporariamente indisponível"
+        );
+    }
+
+    private Optional<PessoaRelacaoResponse> fallbackAdminOptional(Long id, Throwable ex) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de relações entre pessoas temporariamente indisponível"
+        );
+    }
+
+    private List<PessoaRelacaoListDTO> fallbackAdminList(Throwable ex) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de relações entre pessoas temporariamente indisponível"
+        );
+    }
+
+    private List<PessoaRelacaoListDTO> fallbackAdminListPessoa(Long pessoaId, Throwable ex) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de relações entre pessoas temporariamente indisponível"
+        );
+    }
+
+    private List<PessoaRelacaoListDTO> fallbackAdminListRelacionado(Long relacionadoId, Throwable ex) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de relações entre pessoas temporariamente indisponível"
+        );
+    }
+
+    private List<PessoaRelacaoListDTO> fallbackAdminListTipo(Long tipoRelacaoPessoaId, Throwable ex) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de relações entre pessoas temporariamente indisponível"
+        );
+    }
+
+    private List<PessoaRelacaoListDTO> fallbackAdminListPessoaNome(String nome, Throwable ex) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de relações entre pessoas temporariamente indisponível"
+        );
+    }
+
+    private List<PessoaRelacaoListDTO> fallbackAdminListRelacionadoNome(String nome, Throwable ex) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de relações entre pessoas temporariamente indisponível"
+        );
+    }
+
+    private List<PessoaRelacaoListDTO> fallbackAdminListPessoaRelacionado(
+            Long pessoaId,
+            Long relacionadoId,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de relações entre pessoas temporariamente indisponível"
+        );
     }
 }

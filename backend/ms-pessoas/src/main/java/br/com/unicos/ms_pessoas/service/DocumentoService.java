@@ -9,11 +9,14 @@ import br.com.unicos.ms_pessoas.model.Documento;
 import br.com.unicos.ms_pessoas.model.Pessoa;
 import br.com.unicos.ms_pessoas.repository.DocumentoRepository;
 import br.com.unicos.ms_pessoas.repository.PessoaRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,19 +35,19 @@ public class DocumentoService {
     private final ModelMapper modelMapper;
 
     // ============================================================
-    // Criar
+    // CREATE
     // ============================================================
+
     @Transactional
+    @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdmin")
     public DocumentoResponse criar(DocumentoRequest request) {
         Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
 
-        // Impede duplicação de número de documento
         repository.findByNumero(request.numero()).ifPresent(doc -> {
             throw new IllegalArgumentException("Já existe um documento com este número.");
         });
 
-        // Impede duplicação de tipo para a mesma pessoa (ex.: dois CPFs)
         repository.findByPessoaAndTipo(pessoa, request.tipo()).ifPresent(doc -> {
             throw new IllegalArgumentException("A pessoa já possui um documento do tipo informado.");
         });
@@ -58,9 +61,11 @@ public class DocumentoService {
     }
 
     // ============================================================
-    // Atualizar
+    // UPDATE
     // ============================================================
+
     @Transactional
+    @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdmin")
     public DocumentoResponse atualizar(Long id, DocumentoRequest request) {
         Documento documento = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Documento não encontrado"));
@@ -68,13 +73,11 @@ public class DocumentoService {
         Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
 
-        // Valida duplicação de número para outro registro
         repository.findByNumero(request.numero()).ifPresent(existing -> {
             if (!existing.getId().equals(id))
                 throw new IllegalArgumentException("Já existe outro documento com este número.");
         });
 
-        // Valida duplicação de tipo para a mesma pessoa
         repository.findByPessoaAndTipo(pessoa, request.tipo()).ifPresent(existing -> {
             if (!existing.getId().equals(id))
                 throw new IllegalArgumentException("A pessoa já possui outro documento deste tipo.");
@@ -89,9 +92,11 @@ public class DocumentoService {
     }
 
     // ============================================================
-    // Excluir
+    // DELETE
     // ============================================================
+
     @Transactional
+    @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminVoid")
     public void excluir(Long id) {
         if (!repository.existsById(id))
             throw new EntityNotFoundException("Documento não encontrado");
@@ -99,20 +104,22 @@ public class DocumentoService {
     }
 
     // ============================================================
-    // Buscar por ID
+    // GET
     // ============================================================
 
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminOptional")
     public Optional<DocumentoResponse> buscarPorId(Long id) {
         return repository.findById(id)
                 .map(mapper::toResponse);
     }
 
     // ============================================================
-    // Listar Todos
+    // LIST
     // ============================================================
 
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminList")
     public List<DocumentoListDTO> listarTodos() {
         return repository.findAll()
                 .stream()
@@ -120,11 +127,8 @@ public class DocumentoService {
                 .toList();
     }
 
-    // ============================================================
-    // Listar por Pessoa
-    // ============================================================
-
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminListPessoa")
     public List<DocumentoListDTO> listarPorPessoa(Long pessoaId) {
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
@@ -135,11 +139,8 @@ public class DocumentoService {
                 .toList();
     }
 
-    // ============================================================
-    // Listar por Tipo
-    // ============================================================
-
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminListTipo")
     public List<DocumentoListDTO> listarPorTipo(String tipo) {
         TipoDocumento tipoEnum;
         try {
@@ -152,5 +153,33 @@ public class DocumentoService {
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
+    }
+
+    // ============================================================
+    // FALLBACKS
+    // ============================================================
+
+    private DocumentoResponse fallbackAdmin(Object req, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de documentos da pessoa temporariamente indisponível");
+    }
+
+    private void fallbackAdminVoid(Long id, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de documentos da pessoa temporariamente indisponível");
+    }
+
+    private Optional<DocumentoResponse> fallbackAdminOptional(Long id, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de documentos da pessoa temporariamente indisponível");
+    }
+
+    private List<DocumentoListDTO> fallbackAdminList(Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de documentos da pessoa temporariamente indisponível");
+    }
+
+    private List<DocumentoListDTO> fallbackAdminListPessoa(Long pessoaId, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de documentos da pessoa temporariamente indisponível");
+    }
+
+    private List<DocumentoListDTO> fallbackAdminListTipo(String tipo, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de documentos da pessoa temporariamente indisponível");
     }
 }

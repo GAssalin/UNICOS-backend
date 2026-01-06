@@ -6,11 +6,14 @@ import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaResponse;
 import br.com.unicos.ms_pessoas.mapper.PessoaJuridicaMapper;
 import br.com.unicos.ms_pessoas.model.PessoaJuridica;
 import br.com.unicos.ms_pessoas.repository.PessoaJuridicaRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,11 +31,12 @@ public class PessoaJuridicaService {
     private final ModelMapper modelMapper;
 
     // ============================================================
-    // Criar
+    // CREATE
     // ============================================================
+
     @Transactional
+    @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdmin")
     public PessoaJuridicaResponse criar(PessoaJuridicaRequest request) {
-        // Validação: CNPJ deve ser único
         repository.findByCnpj(request.cnpj()).ifPresent(existing -> {
             throw new IllegalArgumentException("Já existe uma pessoa jurídica cadastrada com este CNPJ.");
         });
@@ -44,14 +48,15 @@ public class PessoaJuridicaService {
     }
 
     // ============================================================
-    // Atualizar
+    // UPDATE
     // ============================================================
+
     @Transactional
+    @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdmin")
     public PessoaJuridicaResponse atualizar(Long id, PessoaJuridicaRequest request) {
         PessoaJuridica pessoa = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa Jurídica não encontrada."));
 
-        // Validação: CNPJ único para outra pessoa jurídica
         repository.findByCnpj(request.cnpj()).ifPresent(existing -> {
             if (!existing.getId().equals(id))
                 throw new IllegalArgumentException("Já existe outra pessoa jurídica com este CNPJ.");
@@ -64,9 +69,11 @@ public class PessoaJuridicaService {
     }
 
     // ============================================================
-    // Excluir
+    // DELETE
     // ============================================================
+
     @Transactional
+    @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdminVoid")
     public void excluir(Long id) {
         if (!repository.existsById(id))
             throw new EntityNotFoundException("Pessoa Jurídica não encontrada.");
@@ -74,30 +81,29 @@ public class PessoaJuridicaService {
     }
 
     // ============================================================
-    // Buscar por ID
+    // GET
     // ============================================================
 
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdminOptional")
     public Optional<PessoaJuridicaResponse> buscarPorId(Long id) {
         return repository.findById(id)
                 .map(mapper::toResponse);
     }
 
-    // ============================================================
-    // Buscar por CNPJ
-    // ============================================================
-
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdminOptionalCnpj")
     public Optional<PessoaJuridicaResponse> buscarPorCnpj(String cnpj) {
         return repository.findByCnpj(cnpj)
                 .map(mapper::toResponse);
     }
 
     // ============================================================
-    // Listar todas
+    // LIST
     // ============================================================
 
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdminList")
     public List<PessoaJuridicaListDTO> listarTodas() {
         return repository.findAll()
                 .stream()
@@ -105,11 +111,8 @@ public class PessoaJuridicaService {
                 .toList();
     }
 
-    // ============================================================
-    // Listar por Nome Fantasia
-    // ============================================================
-
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdminListNomeFantasia")
     public List<PessoaJuridicaListDTO> listarPorNomeFantasia(String nomeFantasia) {
         return repository.findByNomeFantasia(nomeFantasia)
                 .stream()
@@ -117,15 +120,47 @@ public class PessoaJuridicaService {
                 .toList();
     }
 
-    // ============================================================
-    // Listar por Nome (contains)
-    // ============================================================
-
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdminListNome")
     public List<PessoaJuridicaListDTO> listarPorNome(String nome) {
         return repository.findByNomeContainingIgnoreCase(nome)
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
+    }
+
+    // ============================================================
+    // FALLBACKS
+    // ============================================================
+
+    private PessoaJuridicaResponse fallbackAdmin(Object req, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de pessoa jurídica temporariamente indisponível");
+    }
+
+    private void fallbackAdminVoid(Long id, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de pessoa jurídica temporariamente indisponível");
+    }
+
+    private Optional<PessoaJuridicaResponse> fallbackAdminOptional(Long id, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de pessoa jurídica temporariamente indisponível");
+    }
+
+    private Optional<PessoaJuridicaResponse> fallbackAdminOptionalCnpj(String cnpj, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de pessoa jurídica temporariamente indisponível");
+    }
+
+    private List<PessoaJuridicaListDTO> fallbackAdminList(Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de pessoa jurídica temporariamente indisponível");
+    }
+
+    private List<PessoaJuridicaListDTO> fallbackAdminListNomeFantasia(
+            String nomeFantasia,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de pessoa jurídica temporariamente indisponível");
+    }
+
+    private List<PessoaJuridicaListDTO> fallbackAdminListNome(String nome, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de pessoa jurídica temporariamente indisponível");
     }
 }

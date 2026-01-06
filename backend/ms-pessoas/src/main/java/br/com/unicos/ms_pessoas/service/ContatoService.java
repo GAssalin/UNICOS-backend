@@ -11,28 +11,16 @@ import br.com.unicos.ms_pessoas.model.Contato;
 import br.com.unicos.ms_pessoas.model.Pessoa;
 import br.com.unicos.ms_pessoas.repository.ContatoRepository;
 import br.com.unicos.ms_pessoas.repository.PessoaRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
-
-/**
- * Implementação das regras de negócio relacionadas aos contatos de pessoas.
- *
- * <p>
- * Responsável por garantir:
- * <ul>
- *     <li>Isolamento multi-tenant</li>
- *     <li>Validação de duplicidade</li>
- *     <li>Gerenciamento de contato principal</li>
- *     <li>Controle de permissões</li>
- * </ul>
- * </p>
- */
 @Service
 @Transactional
 public class ContatoService extends BaseTenantService<Contato, Long> {
@@ -56,18 +44,15 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     }
 
     // ============================================================
-    // CRUD
+    // CREATE
     // ============================================================
 
-    /**
-     * Cadastra um novo contato para uma pessoa.
-     */
+    @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdmin")
     public ContatoResponse salvar(ContatoRequest request) {
         if (!permissionCheckService.hasPermission("CONTATO_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para criar contatos.");
 
         Pessoa pessoa = buscarPessoa(request.pessoaId());
-
         validarContatoDuplicado(pessoa, request.valor());
 
         if (request.principal())
@@ -84,10 +69,11 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
         return contatoMapper.toResponse(contatoRepository.save(contato));
     }
 
-    /**
-     * Atualiza um contato existente.
-     */
-    @Transactional
+    // ============================================================
+    // UPDATE
+    // ============================================================
+
+    @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdmin")
     public ContatoResponse atualizar(Long id, ContatoRequest request) {
         if (!permissionCheckService.hasPermission("CONTATO_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para editar contatos.");
@@ -112,38 +98,38 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
         return contatoMapper.toResponse(contatoRepository.save(contato));
     }
 
-    /**
-     * Busca um contato pelo identificador.
-     */
+    // ============================================================
+    // GET
+    // ============================================================
+
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdmin")
     public ContatoResponse buscarPorId(Long id) {
         if (!permissionCheckService.hasPermission("CONTATO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar contatos.");
+
         return contatoMapper.toResponse(buscarContato(id));
     }
 
     // ============================================================
-    // LISTAGENS
+    // LIST
     // ============================================================
 
-    /**
-     * Lista contatos de uma pessoa de forma paginada.
-     */
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ContatoListDTO> listarPorPessoa(Long pessoaId, Pageable pageable) {
         if (!permissionCheckService.hasPermission("CONTATO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar contatos.");
 
         Pessoa pessoa = buscarPessoa(pessoaId);
+
         return contatoRepository
                 .findByPessoaAndEmpresaId(pessoa, TenantContext.getEmpresaId(), pageable)
                 .map(contatoMapper::toListDTO);
     }
 
-    /**
-     * Lista contatos de uma pessoa filtrando pelo tipo.
-     */
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdminPageTipo")
     public Page<ContatoListDTO> listarPorPessoaETipo(
             Long pessoaId,
             TipoContato tipo,
@@ -153,6 +139,7 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
             throw new AccessDeniedException("Usuário não possui permissão para listar contatos.");
 
         Pessoa pessoa = buscarPessoa(pessoaId);
+
         return contatoRepository
                 .findByPessoaAndTipoAndEmpresaId(
                         pessoa,
@@ -164,13 +151,10 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     }
 
     // ============================================================
-    // EXCLUSÃO
+    // DELETE
     // ============================================================
 
-    /**
-     * Remove um contato.
-     */
-    @Transactional
+    @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         if (!permissionCheckService.hasPermission("CONTATO_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para excluir contatos.");
@@ -178,7 +162,36 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     }
 
     // ============================================================
-    // MÉTODOS AUXILIARES
+    // FALLBACKS
+    // ============================================================
+
+    private ContatoResponse fallbackAdmin(Object req, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de contatos de pessoa temporariamente indisponível");
+    }
+
+    private Page<ContatoListDTO> fallbackAdminPage(
+            Long pessoaId,
+            Pageable pageable,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de contatos de pessoa temporariamente indisponível");
+    }
+
+    private Page<ContatoListDTO> fallbackAdminPageTipo(
+            Long pessoaId,
+            TipoContato tipo,
+            Pageable pageable,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de contatos de pessoa temporariamente indisponível");
+    }
+
+    private void fallbackAdminVoid(Long id, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de contatos de pessoa temporariamente indisponível");
+    }
+
+    // ============================================================
+    // AUXILIARES
     // ============================================================
 
     private Contato buscarContato(Long id) {
@@ -201,9 +214,6 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
         }
     }
 
-    /**
-     * Garante que exista apenas um contato principal por pessoa.
-     */
     private void removerContatoPrincipalAtual(Pessoa pessoa) {
         contatoRepository
                 .findByPessoaAndPrincipalTrueAndEmpresaId(pessoa, TenantContext.getEmpresaId())

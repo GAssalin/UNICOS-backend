@@ -6,9 +6,12 @@ import br.com.unicos.ms_pessoas.enums.TipoPessoa;
 import br.com.unicos.ms_pessoas.mapper.PessoaMapper;
 import br.com.unicos.ms_pessoas.model.Pessoa;
 import br.com.unicos.ms_pessoas.repository.PessoaRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,20 +28,22 @@ public class PessoaService {
     private final PessoaMapper mapper;
 
     // ============================================================
-    // Buscar por ID
+    // GET
     // ============================================================
 
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-admin", fallbackMethod = "fallbackAdminOptional")
     public Optional<PessoaResponse> buscarPorId(Long id) {
         return repository.findById(id)
                 .map(mapper::toResponse);
     }
 
     // ============================================================
-    // Listar todas
+    // LIST
     // ============================================================
 
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-admin", fallbackMethod = "fallbackAdminList")
     public List<PessoaListDTO> listarTodas() {
         return repository.findAll()
                 .stream()
@@ -46,11 +51,8 @@ public class PessoaService {
                 .toList();
     }
 
-    // ============================================================
-    // Listar por nome parcial
-    // ============================================================
-
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-admin", fallbackMethod = "fallbackAdminListNome")
     public List<PessoaListDTO> listarPorNome(String nome) {
         return repository.findByNomeContainingIgnoreCase(nome)
                 .stream()
@@ -58,11 +60,8 @@ public class PessoaService {
                 .toList();
     }
 
-    // ============================================================
-    // Listar por nome exato
-    // ============================================================
-
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-admin", fallbackMethod = "fallbackAdminListNomeExato")
     public List<PessoaListDTO> listarPorNomeExato(String nome) {
         return repository.findByNome(nome)
                 .stream()
@@ -70,11 +69,8 @@ public class PessoaService {
                 .toList();
     }
 
-    // ============================================================
-    // Listar por tipo (FÍSICA/JURÍDICA)
-    // ============================================================
-
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "pessoa-admin", fallbackMethod = "fallbackAdminListTipo")
     public List<PessoaListDTO> listarPorTipo(String tipoPessoa) {
         TipoPessoa tipoEnum;
         try {
@@ -87,5 +83,29 @@ public class PessoaService {
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
+    }
+
+    // ============================================================
+    // FALLBACKS
+    // ============================================================
+
+    private Optional<PessoaResponse> fallbackAdminOptional(Long id, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de pessoas temporariamente indisponível");
+    }
+
+    private List<PessoaListDTO> fallbackAdminList(Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de pessoas temporariamente indisponível");
+    }
+
+    private List<PessoaListDTO> fallbackAdminListNome(String nome, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de pessoas temporariamente indisponível");
+    }
+
+    private List<PessoaListDTO> fallbackAdminListNomeExato(String nome, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de pessoas temporariamente indisponível");
+    }
+
+    private List<PessoaListDTO> fallbackAdminListTipo(String tipoPessoa, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de pessoas temporariamente indisponível");
     }
 }

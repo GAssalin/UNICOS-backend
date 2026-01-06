@@ -7,13 +7,16 @@ import br.com.unicos.ms_usuario.model.Usuario;
 import br.com.unicos.ms_usuario.model.UsuarioEmailVerificacao;
 import br.com.unicos.ms_usuario.repository.UsuarioEmailVerificacaoRepository;
 import br.com.unicos.ms_usuario.repository.UsuarioRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -24,20 +27,6 @@ import java.util.UUID;
 
 /**
  * Serviço responsável pelo fluxo de verificação de e-mail do usuário.
- *
- * <p>
- * Fluxos suportados:
- * <ul>
- *   <li>Geração de token</li>
- *   <li>Confirmação de e-mail</li>
- *   <li>Reenvio de token</li>
- *   <li>Limpeza de tokens expirados</li>
- * </ul>
- *
- * <p>
- * Tokens são armazenados apenas como hash por segurança.
- * Todos os fluxos são isolados por empresa (tenant).
- * </p>
  */
 @Service
 @RequiredArgsConstructor
@@ -50,10 +39,12 @@ public class UsuarioEmailVerificacaoService {
     private final UsuarioEmailVerificacaoRepository verificacaoRepository;
     private final UsuarioEmailVerificacaoMapper usuarioEmailVerificacaoMapper;
 
-    /**
-     * Gera um novo token de verificação para um usuário.
-     */
+    // ============================================================
+    // TOKEN
+    // ============================================================
+
     @Transactional
+    @CircuitBreaker(name = "usuario-email-verificacao", fallbackMethod = "fallbackAdmin")
     public String gerarTokenParaUsuario(Long usuarioId) {
 
         Usuario usuario = buscarUsuario(usuarioId);
@@ -61,7 +52,6 @@ public class UsuarioEmailVerificacaoService {
         if (usuario.isEmailVerificado())
             throw new IllegalStateException("O e-mail deste usuário já está verificado.");
 
-        // Invalida token anterior pendente (se existir)
         verificacaoRepository
                 .findByUsuarioIdAndUtilizadoFalseAndEmpresaId(usuarioId, TenantContext.getEmpresaId())
                 .ifPresent(token -> {
@@ -91,12 +81,13 @@ public class UsuarioEmailVerificacaoService {
         return token;
     }
 
-    /**
-     * Confirma o e-mail do usuário a partir do token recebido.
-     */
-    @Transactional
-    public Usuario confirmarEmail(String token) {
+    // ============================================================
+    // CONFIRMAÇÃO
+    // ============================================================
 
+    @Transactional
+    @CircuitBreaker(name = "usuario-email-verificacao", fallbackMethod = "fallbackAdmin")
+    public Usuario confirmarEmail(String token) {
         String tokenHash = gerarHash(token);
         LocalDateTime agora = LocalDateTime.now();
 
@@ -128,17 +119,21 @@ public class UsuarioEmailVerificacaoService {
         return usuario;
     }
 
-    /**
-     * Reenvia um novo token de verificação para o usuário.
-     */
+    // ============================================================
+    // REENVIO
+    // ============================================================
+
+    @CircuitBreaker(name = "usuario-email-verificacao", fallbackMethod = "fallbackAdmin")
     public String reenviarToken(Long usuarioId) {
         return gerarTokenParaUsuario(usuarioId);
     }
 
-    /**
-     * Marca tokens expirados como utilizados (rotina de limpeza).
-     */
+    // ============================================================
+    // LIMPEZA
+    // ============================================================
+
     @Transactional
+    @CircuitBreaker(name = "usuario-email-verificacao", fallbackMethod = "fallbackAdminVoid")
     public void limparTokensExpirados() {
 
         LocalDateTime agora = LocalDateTime.now();
@@ -148,7 +143,6 @@ public class UsuarioEmailVerificacaoService {
                 .getContent();
 
         expirados.forEach(token -> token.setUtilizado(true));
-
         verificacaoRepository.saveAll(expirados);
 
         log.info(
@@ -158,7 +152,12 @@ public class UsuarioEmailVerificacaoService {
         );
     }
 
+    // ============================================================
+    // LISTAGENS
+    // ============================================================
+
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "usuario-email-verificacao", fallbackMethod = "fallbackAdminPage")
     public Page<UsuarioEmailVerificacaoListDTO> listarPendentes(Long empresaId, Pageable pageable) {
         return verificacaoRepository
                 .findByUtilizadoFalseAndEmpresaId(empresaId, pageable)
@@ -166,6 +165,7 @@ public class UsuarioEmailVerificacaoService {
     }
 
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "usuario-email-verificacao", fallbackMethod = "fallbackAdminPage")
     public Page<UsuarioEmailVerificacaoListDTO> listarExpirados(Long empresaId, Pageable pageable) {
         return verificacaoRepository
                 .findByExpiracaoBeforeAndEmpresaId(
@@ -177,27 +177,53 @@ public class UsuarioEmailVerificacaoService {
     }
 
     // ============================================================
-    // Métodos auxiliares
+    // FALLBACKS
+    // ============================================================
+
+    private String fallbackAdmin(Long usuarioId, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de verificação de e-mail temporariamente indisponível");
+    }
+
+    private Usuario fallbackAdmin(String token, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de verificação de e-mail temporariamente indisponível");
+    }
+
+    private void fallbackAdminVoid(Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de verificação de e-mail temporariamente indisponível");
+    }
+
+    private Page<UsuarioEmailVerificacaoListDTO> fallbackAdminPage(
+            Long empresaId,
+            Pageable pageable,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de verificação de e-mail temporariamente indisponível");
+    }
+
+    // ============================================================
+    // AUXILIARES
     // ============================================================
 
     @Transactional(readOnly = true)
     private Usuario buscarUsuario(Long usuarioId) {
         return usuarioRepository.findById(usuarioId)
                 .filter(u -> TenantContext.getEmpresaId().equals(u.getEmpresaId()))
-                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado no tenant informado: " + usuarioId));
+                .orElseThrow(() ->
+                        new EntityNotFoundException(
+                                "Usuário não encontrado no tenant informado: " + usuarioId
+                        )
+                );
     }
 
     private String gerarHash(String rawToken) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = digest.digest(
-                    rawToken.getBytes(StandardCharsets.UTF_8)
-            );
+            byte[] hashedBytes = digest.digest(rawToken.getBytes(StandardCharsets.UTF_8));
 
             StringBuilder sb = new StringBuilder();
-            for (byte b : hashedBytes) {
+            for (byte b : hashedBytes)
                 sb.append(String.format("%02x", b));
-            }
+
             return sb.toString();
 
         } catch (NoSuchAlgorithmException e) {
