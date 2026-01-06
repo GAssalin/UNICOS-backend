@@ -4,27 +4,27 @@ import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaListDTO;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaRequest;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaResponse;
 import br.com.unicos.ms_pessoas.service.PessoaJuridicaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Controlador REST responsável pelo gerenciamento de Pessoas Jurídicas.
- *
- * <p>
- * Disponibiliza endpoints para criação, atualização, consulta,
- * listagem e exclusão de pessoas jurídicas no sistema.
- * </p>
- */
 @RestController
 @RequestMapping("/v1/pessoas-juridicas")
 @RequiredArgsConstructor
+@Validated
 @Tag(
         name = "Pessoas Jurídicas",
         description = "Endpoints para criação, atualização, consulta, listagem e remoção de pessoas jurídicas."
@@ -37,8 +37,27 @@ public class PessoaJuridicaController {
     // CREATE
     // =============================================================
 
+    @Operation(
+            summary = "Cadastrar pessoa jurídica",
+            description = "Cria uma nova pessoa jurídica no sistema.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Pessoa jurídica criada com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = PessoaJuridicaResponse.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_CRIAR')")
     @PostMapping
-    public ResponseEntity<PessoaJuridicaResponse> criar(@Valid @RequestBody PessoaJuridicaRequest request) {
+    public ResponseEntity<PessoaJuridicaResponse> criar(
+            @Valid @RequestBody PessoaJuridicaRequest request
+    ) {
         PessoaJuridicaResponse response = pessoaJuridicaService.criar(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -49,8 +68,28 @@ public class PessoaJuridicaController {
     // UPDATE
     // =============================================================
 
+    @Operation(
+            summary = "Atualizar pessoa jurídica",
+            description = "Atualiza os dados de uma pessoa jurídica existente.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Pessoa jurídica atualizada com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = PessoaJuridicaResponse.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Pessoa jurídica não encontrada"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_ATUALIZAR')")
     @PutMapping("/{id}")
-    public ResponseEntity<PessoaJuridicaResponse> atualizar(@PathVariable Long id, @Valid @RequestBody PessoaJuridicaRequest request) {
+    public ResponseEntity<PessoaJuridicaResponse> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody PessoaJuridicaRequest request
+    ) {
         return ResponseEntity.ok(pessoaJuridicaService.atualizar(id, request));
     }
 
@@ -58,6 +97,23 @@ public class PessoaJuridicaController {
     // GET BY ID
     // =============================================================
 
+    @Operation(
+            summary = "Buscar pessoa jurídica por ID",
+            description = "Retorna os dados de uma pessoa jurídica pelo identificador.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = PessoaJuridicaResponse.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Pessoa jurídica não encontrada"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_VISUALIZAR')")
     @GetMapping("/{id}")
     public ResponseEntity<PessoaJuridicaResponse> buscarPorId(@PathVariable Long id) {
         Optional<PessoaJuridicaResponse> response =
@@ -71,6 +127,23 @@ public class PessoaJuridicaController {
     // GET BY CNPJ
     // =============================================================
 
+    @Operation(
+            summary = "Buscar pessoa jurídica por CNPJ",
+            description = "Retorna os dados de uma pessoa jurídica pelo CNPJ.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = PessoaJuridicaResponse.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Pessoa jurídica não encontrada"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_VISUALIZAR')")
     @GetMapping("/cnpj/{cnpj}")
     public ResponseEntity<PessoaJuridicaResponse> buscarPorCnpj(@PathVariable String cnpj) {
         Optional<PessoaJuridicaResponse> response =
@@ -84,27 +157,76 @@ public class PessoaJuridicaController {
     // LISTAGENS
     // =============================================================
 
-    /**
-     * Lista todas as pessoas jurídicas cadastradas.
-     */
+    @Operation(
+            summary = "Listar todas as pessoas jurídicas",
+            description = "Retorna todas as pessoas jurídicas cadastradas.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = PessoaJuridicaListDTO.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_LISTAR')")
     @GetMapping
     public ResponseEntity<List<PessoaJuridicaListDTO>> listarTodas() {
         return ResponseEntity.ok(pessoaJuridicaService.listarTodas());
     }
 
-    /**
-     * Lista pessoas jurídicas pelo nome fantasia.
-     */
+    @Operation(
+            summary = "Listar pessoas jurídicas por nome fantasia",
+            description = "Retorna pessoas jurídicas filtrando pelo nome fantasia.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = PessoaJuridicaListDTO.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_LISTAR')")
     @GetMapping("/nome-fantasia/{nomeFantasia}")
-    public ResponseEntity<List<PessoaJuridicaListDTO>> listarPorNomeFantasia(@PathVariable String nomeFantasia) {
+    public ResponseEntity<List<PessoaJuridicaListDTO>> listarPorNomeFantasia(
+            @PathVariable String nomeFantasia
+    ) {
         return ResponseEntity.ok(pessoaJuridicaService.listarPorNomeFantasia(nomeFantasia));
     }
 
-    /**
-     * Lista pessoas jurídicas filtrando por nome (contains ignore case).
-     */
+    @Operation(
+            summary = "Listar pessoas jurídicas por nome",
+            description = "Retorna pessoas jurídicas cujo nome contenha o valor informado (ignore case).",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = PessoaJuridicaListDTO.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_LISTAR')")
     @GetMapping("/nome/{nome}")
-    public ResponseEntity<List<PessoaJuridicaListDTO>> listarPorNome(@PathVariable String nome) {
+    public ResponseEntity<List<PessoaJuridicaListDTO>> listarPorNome(
+            @PathVariable String nome
+    ) {
         return ResponseEntity.ok(pessoaJuridicaService.listarPorNome(nome));
     }
 
@@ -112,6 +234,17 @@ public class PessoaJuridicaController {
     // DELETE
     // =============================================================
 
+    @Operation(
+            summary = "Remover pessoa jurídica",
+            description = "Remove uma pessoa jurídica pelo identificador.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Pessoa jurídica removida com sucesso"),
+                    @ApiResponse(responseCode = "404", description = "Pessoa jurídica não encontrada"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_REMOVER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         pessoaJuridicaService.excluir(id);

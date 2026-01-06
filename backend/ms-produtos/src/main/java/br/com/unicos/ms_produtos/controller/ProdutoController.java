@@ -15,354 +15,434 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Controlador REST responsável pelo gerenciamento de produtos.
- */
 @RestController
 @RequestMapping("/v1/produtos")
 @RequiredArgsConstructor
+@Validated
 @SecurityRequirement(name = "bearer-key")
 @Tag(
         name = "Produtos",
-        description = "Gerencia o cadastro, atualização, filtro, ativação, inativação e alteração de preço de produtos."
+        description = "Gerencia o cadastro, atualização, filtros, ativação, inativação e alteração de preço de produtos."
 )
 public class ProdutoController {
 
     private final ProdutoService produtoService;
 
-    // ============================================================
-    // CRUD PRINCIPAL
-    // ============================================================
+    // =============================================================
+    // CREATE
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('PRODUTO_CRIAR')")
     @Operation(
-            summary = "Criar produto",
+            summary = "Cadastrar produto",
             description = "Cadastra um novo produto com informações completas.",
             responses = {
                     @ApiResponse(
                             responseCode = "201",
                             description = "Produto criado com sucesso",
-                            content = @Content(schema = @Schema(implementation = ProdutoResponse.class))
+                            content = @Content(
+                                    schema = @Schema(implementation = ProdutoResponse.class)
+                            )
                     ),
-                    @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos")
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_CRIAR')")
     @PostMapping
     public ResponseEntity<ProdutoResponse> salvar(
-            @Valid @RequestBody ProdutoRequest request) {
-
+            @Valid @RequestBody ProdutoRequest request
+    ) {
         ProdutoResponse response = produtoService.salvar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
-    @PreAuthorize("hasAuthority('PRODUTO_ATUALIZAR')")
+    // =============================================================
+    // UPDATE
+    // =============================================================
+
     @Operation(
             summary = "Atualizar produto",
             description = "Atualiza completamente os dados de um produto existente.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Produto atualizado",
-                            content = @Content(schema = @Schema(implementation = ProdutoResponse.class))
+                            description = "Produto atualizado com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = ProdutoResponse.class)
+                            )
                     ),
-                    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+                    @ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_ATUALIZAR')")
     @PutMapping("/{id}")
     public ResponseEntity<ProdutoResponse> atualizar(
             @PathVariable Long id,
-            @Valid @RequestBody ProdutoRequest request) {
-
-        ProdutoResponse response = produtoService.atualizar(id, request);
-        return ResponseEntity.ok(response);
+            @Valid @RequestBody ProdutoRequest request
+    ) {
+        return ResponseEntity.ok(produtoService.atualizar(id, request));
     }
 
-    @PreAuthorize("hasAuthority('PRODUTO_EXCLUIR')")
+    // =============================================================
+    // DELETE
+    // =============================================================
+
     @Operation(
             summary = "Remover produto",
-            description = "Exclui um produto pelo ID.",
+            description = "Remove um produto pelo identificador.",
             responses = {
-                    @ApiResponse(responseCode = "204", description = "Produto removido"),
-                    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+                    @ApiResponse(responseCode = "204", description = "Produto removido com sucesso"),
+                    @ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_REMOVER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         produtoService.deletar(id);
         return ResponseEntity.noContent().build();
     }
 
-    // ============================================================
-    // CONSULTAS GERAIS
-    // ============================================================
+    // =============================================================
+    // GET BY ID
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Buscar produto por ID",
             description = "Retorna os dados de um produto específico.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Produto encontrado",
-                            content = @Content(schema = @Schema(implementation = ProdutoResponse.class))
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = ProdutoResponse.class)
+                            )
                     ),
-                    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+                    @ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_VISUALIZAR')")
     @GetMapping("/{id}")
     public ResponseEntity<ProdutoResponse> buscarPorId(@PathVariable Long id) {
-
         Optional<ProdutoResponse> resultado = produtoService.buscarPorId(id);
-
         return resultado
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
+    // =============================================================
+    // LISTAGENS
+    // =============================================================
+
     @Operation(
             summary = "Listar todos os produtos",
-            description = "Retorna uma lista contendo todos os produtos cadastrados.",
+            description = "Retorna todos os produtos cadastrados.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Lista retornada",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProdutoResponse.class)))
-                    )
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = ProdutoResponse.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_LISTAR')")
     @GetMapping
     public ResponseEntity<List<ProdutoResponse>> listarTodos() {
         return ResponseEntity.ok(produtoService.listarTodos());
     }
 
-    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Buscar produtos por nome",
             description = "Busca produtos cujo nome contenha o termo informado.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Lista retornada",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProdutoResponse.class)))
-                    )
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = ProdutoResponse.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_LISTAR')")
     @GetMapping("/buscar")
-    public ResponseEntity<List<ProdutoResponse>> buscarPorNome(@RequestParam String nome) {
+    public ResponseEntity<List<ProdutoResponse>> buscarPorNome(
+            @RequestParam String nome
+    ) {
         return ResponseEntity.ok(produtoService.buscarPorNome(nome));
     }
 
-    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Buscar produto por SKU",
             description = "Retorna um produto a partir do seu código SKU.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Produto encontrado",
-                            content = @Content(schema = @Schema(implementation = ProdutoResponse.class))
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = ProdutoResponse.class)
+                            )
                     ),
-                    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+                    @ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_VISUALIZAR')")
     @GetMapping("/sku/{sku}")
     public ResponseEntity<ProdutoResponse> buscarPorSku(@PathVariable String sku) {
-
         Optional<ProdutoResponse> resultado = produtoService.buscarPorSku(sku);
-
         return resultado
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // ============================================================
-    // CONSULTAS POR FILTROS
-    // ============================================================
-
-    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Listar produtos por categoria",
             description = "Retorna produtos associados à categoria informada.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Lista retornada",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProdutoResponse.class)))
-                    )
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = ProdutoResponse.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_LISTAR')")
     @GetMapping("/categoria/{categoriaId}")
     public ResponseEntity<List<ProdutoResponse>> listarPorCategoria(
-            @PathVariable Long categoriaId) {
-
+            @PathVariable Long categoriaId
+    ) {
         return ResponseEntity.ok(produtoService.listarPorCategoria(categoriaId));
     }
 
-    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Listar produtos por marca",
             description = "Retorna produtos associados à marca informada.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Lista retornada",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProdutoResponse.class)))
-                    )
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = ProdutoResponse.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_LISTAR')")
     @GetMapping("/marca/{marcaId}")
-    public ResponseEntity<List<ProdutoResponse>> listarPorMarca(@PathVariable Long marcaId) {
-
+    public ResponseEntity<List<ProdutoResponse>> listarPorMarca(
+            @PathVariable Long marcaId
+    ) {
         return ResponseEntity.ok(produtoService.listarPorMarca(marcaId));
     }
 
-    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Listar produtos ativos",
-            description = "Retorna apenas os produtos com status ativo.",
+            description = "Retorna apenas produtos ativos.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Lista retornada",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProdutoResponse.class)))
-                    )
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = ProdutoResponse.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_LISTAR')")
     @GetMapping("/ativos")
     public ResponseEntity<List<ProdutoResponse>> listarAtivos() {
         return ResponseEntity.ok(produtoService.listarAtivos());
     }
 
-    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Listar produtos inativos",
-            description = "Retorna apenas os produtos com status inativo.",
+            description = "Retorna apenas produtos inativos.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Lista retornada",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProdutoResponse.class)))
-                    )
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = ProdutoResponse.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_LISTAR')")
     @GetMapping("/inativos")
     public ResponseEntity<List<ProdutoResponse>> listarInativos() {
         return ResponseEntity.ok(produtoService.listarInativos());
     }
 
-    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Listar produtos por faixa de preço",
-            description = "Retorna todos os produtos dentro da faixa de preço mínima e máxima informada.",
+            description = "Retorna produtos dentro da faixa de preço informada.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Lista retornada",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProdutoResponse.class)))
-                    )
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = ProdutoResponse.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_LISTAR')")
     @GetMapping("/preco")
     public ResponseEntity<List<ProdutoResponse>> listarPorFaixaPreco(
             @RequestParam BigDecimal minimo,
-            @RequestParam BigDecimal maximo) {
-
+            @RequestParam BigDecimal maximo
+    ) {
         return ResponseEntity.ok(produtoService.listarPorFaixaDePreco(minimo, maximo));
     }
 
-    // ============================================================
-    // ALTERAÇÃO DE ESTADO
-    // ============================================================
+    // =============================================================
+    // STATUS
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('PRODUTO_ATUALIZAR')")
     @Operation(
             summary = "Ativar produto",
-            description = "Ativa um produto que esteja inativo.",
+            description = "Ativa um produto inativo.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Produto ativado",
-                            content = @Content(schema = @Schema(implementation = ProdutoResponse.class))
+                            description = "Produto ativado com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = ProdutoResponse.class)
+                            )
                     ),
-                    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+                    @ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_ATUALIZAR')")
     @PatchMapping("/{id}/ativar")
     public ResponseEntity<ProdutoResponse> ativarProduto(@PathVariable Long id) {
         return ResponseEntity.ok(produtoService.ativarProduto(id));
     }
 
-    @PreAuthorize("hasAuthority('PRODUTO_ATUALIZAR')")
     @Operation(
             summary = "Inativar produto",
             description = "Inativa um produto ativo.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Produto inativado",
-                            content = @Content(schema = @Schema(implementation = ProdutoResponse.class))
+                            description = "Produto inativado com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = ProdutoResponse.class)
+                            )
                     ),
-                    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+                    @ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_ATUALIZAR')")
     @PatchMapping("/{id}/inativar")
     public ResponseEntity<ProdutoResponse> inativarProduto(@PathVariable Long id) {
         return ResponseEntity.ok(produtoService.inativarProduto(id));
     }
 
-    // ============================================================
+    // =============================================================
     // PREÇO
-    // ============================================================
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('PRODUTO_ATUALIZAR_PRECO')")
     @Operation(
             summary = "Atualizar preço de venda",
-            description = "Altera apenas o preço de venda do produto, sem afetar outros dados.",
+            description = "Atualiza apenas o preço de venda do produto.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Preço atualizado",
-                            content = @Content(schema = @Schema(implementation = ProdutoResponse.class))
+                            description = "Preço atualizado com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = ProdutoResponse.class)
+                            )
                     ),
-                    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+                    @ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_ATUALIZAR_PRECO')")
     @PatchMapping("/{id}/preco")
     public ResponseEntity<ProdutoResponse> atualizarPreco(
             @PathVariable Long id,
-            @RequestParam BigDecimal novoPreco) {
-
-        ProdutoResponse response = produtoService.atualizarPreco(id, novoPreco);
-        return ResponseEntity.ok(response);
+            @RequestParam BigDecimal novoPreco
+    ) {
+        return ResponseEntity.ok(produtoService.atualizarPreco(id, novoPreco));
     }
 
-    // ============================================================
-    // SKU — Validação
-    // ============================================================
+    // =============================================================
+    // SKU
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('PRODUTO_LISTAR')")
     @Operation(
             summary = "Verificar disponibilidade de SKU",
-            description = "Retorna true se o SKU estiver disponível para uso; false se já estiver em uso.",
+            description = "Retorna true se o SKU estiver disponível para uso.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Resultado retornado",
-                            content = @Content(schema = @Schema(implementation = Boolean.class))
-                    )
+                            description = "Resultado retornado com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = Boolean.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'PRODUTO_LISTAR')")
     @GetMapping("/sku/{sku}/disponivel")
     public ResponseEntity<Boolean> verificarDisponibilidadeSku(@PathVariable String sku) {
-
-        Boolean disponivel = produtoService.verificarDisponibilidadeSku(sku);
-        return ResponseEntity.ok(disponivel);
+        return ResponseEntity.ok(produtoService.verificarDisponibilidadeSku(sku));
     }
 }

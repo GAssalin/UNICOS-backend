@@ -6,26 +6,29 @@ import br.com.unicos.ms_usuario.dto.verificacao.ConfirmarEmailVerificacaoRespons
 import br.com.unicos.ms_usuario.dto.verificacao.UsuarioEmailVerificacaoListDTO;
 import br.com.unicos.ms_usuario.model.Usuario;
 import br.com.unicos.ms_usuario.service.UsuarioEmailVerificacaoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
  * Controlador REST responsável pelo fluxo de verificação de e-mail dos usuários.
- * <p>
- * Endpoints:
- * - Confirmar e-mail através do token
- * - Reenviar token de verificação
- * - Listar tokens pendentes
- * - Listar tokens expirados
  */
 @RestController
 @RequestMapping("/v1/auth/verificacao-email")
 @RequiredArgsConstructor
+@Validated
 @Tag(
         name = "Verificação de E-mail",
         description = "Endpoints responsáveis pela confirmação de e-mail, reenvio de tokens e listagens administrativas."
@@ -34,12 +37,29 @@ public class UsuarioEmailVerificacaoController {
 
     private final UsuarioEmailVerificacaoService service;
 
-    // ============================================================
+    // =============================================================
     // PÚBLICO — CONFIRMAR E-MAIL
-    // ============================================================
+    // =============================================================
 
+    @Operation(
+            summary = "Confirmar e-mail do usuário",
+            description = "Confirma o e-mail do usuário a partir do token de verificação.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "E-mail confirmado com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = ConfirmarEmailVerificacaoResponse.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Token inválido ou expirado"),
+                    @ApiResponse(responseCode = "404", description = "Token não encontrado")
+            }
+    )
     @PostMapping("/confirmar")
-    public ResponseEntity<ConfirmarEmailVerificacaoResponse> confirmar(@Valid @RequestBody ConfirmarEmailVerificacaoRequest request) {
+    public ResponseEntity<ConfirmarEmailVerificacaoResponse> confirmar(
+            @Valid @RequestBody ConfirmarEmailVerificacaoRequest request
+    ) {
         Usuario usuario = service.confirmarEmail(request.token());
 
         return ResponseEntity.ok(
@@ -52,21 +72,45 @@ public class UsuarioEmailVerificacaoController {
         );
     }
 
-    // ============================================================
+    // =============================================================
     // ADMIN — LISTAR TOKENS PENDENTES (PAGINADO)
-    // ============================================================
+    // =============================================================
 
+    @Operation(
+            summary = "Listar tokens de verificação pendentes",
+            description = "Retorna tokens de verificação de e-mail ainda não confirmados, filtrados por empresa.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Consulta realizada com sucesso"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão")
+            }
+    )
+    @SecurityRequirement(name = "bearer-key")
+    @PreAuthorize("hasPermission(null, 'USUARIO_EMAIL_VERIFICACAO_LISTAR')")
     @GetMapping("/pendentes")
-    public ResponseEntity<Page<UsuarioEmailVerificacaoListDTO>> listarPendentes(Pageable pageable) {
+    public ResponseEntity<Page<UsuarioEmailVerificacaoListDTO>> listarPendentes(
+            @ParameterObject Pageable pageable
+    ) {
         return ResponseEntity.ok(service.listarPendentes(TenantContext.getEmpresaId(), pageable));
     }
 
-    // ============================================================
+    // =============================================================
     // ADMIN — LISTAR TOKENS EXPIRADOS (PAGINADO)
-    // ============================================================
+    // =============================================================
 
+    @Operation(
+            summary = "Listar tokens de verificação expirados",
+            description = "Retorna tokens de verificação expirados, filtrados por empresa.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Consulta realizada com sucesso"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão")
+            }
+    )
+    @SecurityRequirement(name = "bearer-key")
+    @PreAuthorize("hasPermission(null, 'USUARIO_EMAIL_VERIFICACAO_LISTAR')")
     @GetMapping("/expirados")
-    public ResponseEntity<Page<UsuarioEmailVerificacaoListDTO>> listarExpirados(Pageable pageable) {
+    public ResponseEntity<Page<UsuarioEmailVerificacaoListDTO>> listarExpirados(
+            @ParameterObject Pageable pageable
+    ) {
         return ResponseEntity.ok(service.listarExpirados(TenantContext.getEmpresaId(), pageable));
     }
 }

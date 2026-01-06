@@ -16,17 +16,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Controlador REST responsável pelo gerenciamento das categorias de produtos.
- */
 @RestController
 @RequestMapping("/v1/categorias")
 @RequiredArgsConstructor
+@Validated
 @SecurityRequirement(name = "bearer-key")
 @Tag(
         name = "Categorias de Produto",
@@ -36,36 +35,41 @@ public class CategoriaController {
 
     private final CategoriaService categoriaService;
 
-    // ============================================================
-    // Criar categoria
-    // ============================================================
+    // =============================================================
+    // CREATE
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('CATEGORIA_CRIAR')")
     @Operation(
-            summary = "Criar nova categoria",
-            description = "Registra uma nova categoria, com possibilidade de atribuir uma categoria pai.",
+            summary = "Cadastrar categoria",
+            description = "Cria uma nova categoria, com possibilidade de vincular uma categoria pai.",
             responses = {
                     @ApiResponse(
                             responseCode = "201",
                             description = "Categoria criada com sucesso",
-                            content = @Content(schema = @Schema(implementation = CategoriaResponse.class))
+                            content = @Content(
+                                    schema = @Schema(implementation = CategoriaResponse.class)
+                            )
                     ),
-                    @ApiResponse(responseCode = "400", description = "Dados inválidos enviados")
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'CATEGORIA_CRIAR')")
     @PostMapping
     public ResponseEntity<CategoriaResponse> salvar(
-            @Valid @RequestBody CategoriaRequest request) {
-
+            @Valid @RequestBody CategoriaRequest request
+    ) {
         CategoriaResponse response = categoriaService.salvar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
-    // ============================================================
-    // Atualizar categoria
-    // ============================================================
+    // =============================================================
+    // UPDATE
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('CATEGORIA_EDITAR')")
     @Operation(
             summary = "Atualizar categoria",
             description = "Atualiza os dados de uma categoria existente.",
@@ -73,146 +77,128 @@ public class CategoriaController {
                     @ApiResponse(
                             responseCode = "200",
                             description = "Categoria atualizada com sucesso",
-                            content = @Content(schema = @Schema(implementation = CategoriaResponse.class))
+                            content = @Content(
+                                    schema = @Schema(implementation = CategoriaResponse.class)
+                            )
                     ),
-                    @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
+                    @ApiResponse(responseCode = "404", description = "Categoria não encontrada"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'CATEGORIA_ATUALIZAR')")
     @PutMapping("/{id}")
     public ResponseEntity<CategoriaResponse> atualizar(
             @PathVariable Long id,
-            @Valid @RequestBody CategoriaRequest request) {
-
-        CategoriaResponse response = categoriaService.atualizar(id, request);
-        return ResponseEntity.ok(response);
+            @Valid @RequestBody CategoriaRequest request
+    ) {
+        return ResponseEntity.ok(categoriaService.atualizar(id, request));
     }
 
-    // ============================================================
-    // Buscar por ID
-    // ============================================================
+    // =============================================================
+    // GET BY ID
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('CATEGORIA_LISTAR')")
     @Operation(
             summary = "Buscar categoria por ID",
-            description = "Retorna as informações completas de uma categoria específica.",
+            description = "Retorna as informações completas de uma categoria.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Categoria encontrada",
-                            content = @Content(schema = @Schema(implementation = CategoriaResponse.class))
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = CategoriaResponse.class)
+                            )
                     ),
-                    @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
+                    @ApiResponse(responseCode = "404", description = "Categoria não encontrada"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'CATEGORIA_VISUALIZAR')")
     @GetMapping("/{id}")
     public ResponseEntity<CategoriaResponse> buscarPorId(@PathVariable Long id) {
-
         Optional<CategoriaResponse> categoria = categoriaService.buscarPorId(id);
-
         return categoria
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // ============================================================
-    // Listagem detalhada
-    // ============================================================
+    // =============================================================
+    // LISTAGENS
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('CATEGORIA_LISTAR')")
     @Operation(
-            summary = "Listar todas as categorias (detalhadas)",
+            summary = "Listar todas as categorias (detalhado)",
             description = "Retorna todas as categorias com informações completas.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Lista retornada com sucesso",
+                            description = "Consulta realizada com sucesso",
                             content = @Content(
                                     array = @ArraySchema(
                                             schema = @Schema(implementation = CategoriaResponse.class)
                                     )
                             )
-                    )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'CATEGORIA_LISTAR')")
     @GetMapping
     public ResponseEntity<List<CategoriaResponse>> listarTodas() {
         return ResponseEntity.ok(categoriaService.listarTodas());
     }
 
-    // ============================================================
-    // Listagem simplificada
-    // ============================================================
-
-    @PreAuthorize("hasAuthority('CATEGORIA_LISTAR')")
     @Operation(
-            summary = "Listar categorias (modo simplificado)",
-            description = "Retorna categorias com apenas informações resumidas como ID e nome.",
+            summary = "Listar categorias (modo simples)",
+            description = "Retorna categorias com informações resumidas (ID e nome).",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Lista retornada com sucesso",
+                            description = "Consulta realizada com sucesso",
                             content = @Content(
                                     array = @ArraySchema(
                                             schema = @Schema(implementation = CategoriaListDTO.class)
                                     )
                             )
-                    )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'CATEGORIA_LISTAR')")
     @GetMapping("/simples")
     public ResponseEntity<List<CategoriaListDTO>> listarSimples() {
         return ResponseEntity.ok(categoriaService.listarSimples());
     }
 
-    // ============================================================
-    // Buscar por nome
-    // ============================================================
-
-    @PreAuthorize("hasAuthority('CATEGORIA_LISTAR')")
     @Operation(
             summary = "Buscar categorias por nome",
-            description = "Pesquisa categorias cujo nome contenha o texto informado (case-insensitive).",
+            description = "Pesquisa categorias cujo nome contenha o texto informado (ignore case).",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Categorias encontradas",
+                            description = "Consulta realizada com sucesso",
                             content = @Content(
-                                    array = @ArraySchema(schema = @Schema(implementation = CategoriaResponse.class))
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = CategoriaResponse.class)
+                                    )
                             )
-                    )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'CATEGORIA_LISTAR')")
     @GetMapping("/buscar")
     public ResponseEntity<List<CategoriaResponse>> buscarPorNome(
-            @RequestParam String nome) {
-
+            @RequestParam String nome
+    ) {
         return ResponseEntity.ok(categoriaService.buscarPorNome(nome));
     }
 
-    // ============================================================
-    // Deletar categoria
-    // ============================================================
-
-    @PreAuthorize("hasAuthority('CATEGORIA_EXCLUIR')")
-    @Operation(
-            summary = "Excluir categoria",
-            description = "Remove uma categoria pelo ID informado.",
-            responses = {
-                    @ApiResponse(responseCode = "204", description = "Categoria removida"),
-                    @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
-            }
-    )
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        categoriaService.deletar(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ============================================================
-    // Verificar existência por nome
-    // ============================================================
-
-    @PreAuthorize("hasAuthority('CATEGORIA_LISTAR')")
     @Operation(
             summary = "Verificar existência de categoria por nome",
             description = "Retorna true se existir uma categoria com o nome informado.",
@@ -220,12 +206,38 @@ public class CategoriaController {
                     @ApiResponse(
                             responseCode = "200",
                             description = "Resultado retornado com sucesso",
-                            content = @Content(schema = @Schema(implementation = Boolean.class))
-                    )
+                            content = @Content(
+                                    schema = @Schema(implementation = Boolean.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'CATEGORIA_LISTAR')")
     @GetMapping("/existe")
     public ResponseEntity<Boolean> existePorNome(@RequestParam String nome) {
         return ResponseEntity.ok(categoriaService.existePorNome(nome));
+    }
+
+    // =============================================================
+    // DELETE
+    // =============================================================
+
+    @Operation(
+            summary = "Remover categoria",
+            description = "Remove uma categoria pelo identificador.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Categoria removida com sucesso"),
+                    @ApiResponse(responseCode = "404", description = "Categoria não encontrada"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'CATEGORIA_REMOVER')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        categoriaService.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }

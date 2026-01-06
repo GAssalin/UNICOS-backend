@@ -4,28 +4,27 @@ import br.com.unicos.ms_pessoas.dto.relacao.TipoRelacaoPessoaListDTO;
 import br.com.unicos.ms_pessoas.dto.relacao.TipoRelacaoPessoaRequest;
 import br.com.unicos.ms_pessoas.dto.relacao.TipoRelacaoPessoaResponse;
 import br.com.unicos.ms_pessoas.service.TipoRelacaoPessoaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Controlador REST responsável pelo gerenciamento dos tipos
- * de relação entre pessoas.
- *
- * <p>
- * Disponibiliza endpoints para criação, atualização, consulta,
- * listagem e exclusão de tipos de relação.
- * </p>
- */
 @RestController
 @RequestMapping("/v1/tipos-relacao-pessoa")
 @RequiredArgsConstructor
+@Validated
 @Tag(
         name = "Tipos de Relação entre Pessoas",
         description = "Endpoints para criação, atualização, consulta, listagem e remoção dos tipos de relação entre pessoas."
@@ -38,8 +37,27 @@ public class TipoRelacaoPessoaController {
     // CREATE
     // =============================================================
 
+    @Operation(
+            summary = "Cadastrar tipo de relação",
+            description = "Cria um novo tipo de relação entre pessoas.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Tipo de relação criado com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = TipoRelacaoPessoaResponse.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'TIPO_RELACAO_PESSOA_CRIAR')")
     @PostMapping
-    public ResponseEntity<TipoRelacaoPessoaResponse> criar(@Valid @RequestBody TipoRelacaoPessoaRequest request) {
+    public ResponseEntity<TipoRelacaoPessoaResponse> criar(
+            @Valid @RequestBody TipoRelacaoPessoaRequest request
+    ) {
         TipoRelacaoPessoaResponse response =
                 tipoRelacaoPessoaService.criar(request);
         return ResponseEntity
@@ -51,8 +69,28 @@ public class TipoRelacaoPessoaController {
     // UPDATE
     // =============================================================
 
+    @Operation(
+            summary = "Atualizar tipo de relação",
+            description = "Atualiza os dados de um tipo de relação existente.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Tipo de relação atualizado com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = TipoRelacaoPessoaResponse.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Tipo de relação não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'TIPO_RELACAO_PESSOA_ATUALIZAR')")
     @PutMapping("/{id}")
-    public ResponseEntity<TipoRelacaoPessoaResponse> atualizar(@PathVariable Long id, @Valid @RequestBody TipoRelacaoPessoaRequest request) {
+    public ResponseEntity<TipoRelacaoPessoaResponse> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody TipoRelacaoPessoaRequest request
+    ) {
         return ResponseEntity.ok(tipoRelacaoPessoaService.atualizar(id, request));
     }
 
@@ -60,8 +98,27 @@ public class TipoRelacaoPessoaController {
     // GET BY ID
     // =============================================================
 
+    @Operation(
+            summary = "Buscar tipo de relação por ID",
+            description = "Retorna os dados de um tipo de relação pelo identificador.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = TipoRelacaoPessoaResponse.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Tipo de relação não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'TIPO_RELACAO_PESSOA_VISUALIZAR')")
     @GetMapping("/{id}")
-    public ResponseEntity<TipoRelacaoPessoaResponse> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<TipoRelacaoPessoaResponse> buscarPorId(
+            @PathVariable Long id
+    ) {
         Optional<TipoRelacaoPessoaResponse> response =
                 tipoRelacaoPessoaService.buscarPorId(id);
         return response
@@ -73,19 +130,51 @@ public class TipoRelacaoPessoaController {
     // LISTAGENS
     // =============================================================
 
-    /**
-     * Lista todos os tipos de relação cadastrados.
-     */
+    @Operation(
+            summary = "Listar todos os tipos de relação",
+            description = "Retorna todos os tipos de relação cadastrados.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = TipoRelacaoPessoaListDTO.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'TIPO_RELACAO_PESSOA_LISTAR')")
     @GetMapping
     public ResponseEntity<List<TipoRelacaoPessoaListDTO>> listarTodos() {
         return ResponseEntity.ok(tipoRelacaoPessoaService.listarTodos());
     }
 
-    /**
-     * Lista tipos de relação filtrando por nome (contains ignore case).
-     */
+    @Operation(
+            summary = "Listar tipos de relação por nome",
+            description = "Retorna tipos de relação cujo nome contenha o valor informado (ignore case).",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = TipoRelacaoPessoaListDTO.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'TIPO_RELACAO_PESSOA_LISTAR')")
     @GetMapping("/nome/{nome}")
-    public ResponseEntity<List<TipoRelacaoPessoaListDTO>> listarPorNome(@PathVariable String nome) {
+    public ResponseEntity<List<TipoRelacaoPessoaListDTO>> listarPorNome(
+            @PathVariable String nome
+    ) {
         return ResponseEntity.ok(tipoRelacaoPessoaService.listarPorNome(nome));
     }
 
@@ -93,8 +182,27 @@ public class TipoRelacaoPessoaController {
     // GET BY NOME EXATO
     // =============================================================
 
+    @Operation(
+            summary = "Buscar tipo de relação por nome exato",
+            description = "Retorna um tipo de relação cujo nome seja exatamente igual ao informado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = TipoRelacaoPessoaResponse.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Tipo de relação não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'TIPO_RELACAO_PESSOA_VISUALIZAR')")
     @GetMapping("/nome-exato/{nome}")
-    public ResponseEntity<TipoRelacaoPessoaResponse> buscarPorNomeExato(@PathVariable String nome) {
+    public ResponseEntity<TipoRelacaoPessoaResponse> buscarPorNomeExato(
+            @PathVariable String nome
+    ) {
         Optional<TipoRelacaoPessoaResponse> response =
                 tipoRelacaoPessoaService.buscarPorNomeExato(nome);
         return response
@@ -106,6 +214,17 @@ public class TipoRelacaoPessoaController {
     // DELETE
     // =============================================================
 
+    @Operation(
+            summary = "Remover tipo de relação",
+            description = "Remove um tipo de relação pelo identificador.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Tipo de relação removido com sucesso"),
+                    @ApiResponse(responseCode = "404", description = "Tipo de relação não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
+            }
+    )
+    @PreAuthorize("hasPermission(null, 'TIPO_RELACAO_PESSOA_REMOVER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         tipoRelacaoPessoaService.excluir(id);

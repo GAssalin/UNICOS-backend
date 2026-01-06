@@ -16,18 +16,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Controlador REST responsável pelo gerenciamento
- * do histórico de alterações de preços dos produtos.
- */
 @RestController
 @RequestMapping("/v1/historico-precos")
 @RequiredArgsConstructor
+@Validated
 @SecurityRequirement(name = "bearer-key")
 @Tag(
         name = "Histórico de Preços",
@@ -37,11 +35,10 @@ public class HistoricoPrecoController {
 
     private final HistoricoPrecoService historicoPrecoService;
 
-    // ============================================================
-    // Criar registro
-    // ============================================================
+    // =============================================================
+    // CREATE
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('HISTORICO_PRECO_CRIAR')")
     @Operation(
             summary = "Registrar alteração de preço",
             description = "Cria um novo registro de histórico de alteração de preço para um produto.",
@@ -49,130 +46,155 @@ public class HistoricoPrecoController {
                     @ApiResponse(
                             responseCode = "201",
                             description = "Registro criado com sucesso",
-                            content = @Content(schema = @Schema(implementation = HistoricoPrecoResponse.class))
+                            content = @Content(
+                                    schema = @Schema(implementation = HistoricoPrecoResponse.class)
+                            )
                     ),
-                    @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos"),
-                    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'HISTORICO_PRECO_CRIAR')")
     @PostMapping("/produto/{produtoId}")
     public ResponseEntity<HistoricoPrecoResponse> salvar(
             @PathVariable Long produtoId,
-            @Valid @RequestBody HistoricoPrecoRequest request) {
-
-        HistoricoPrecoResponse response = historicoPrecoService.salvar(produtoId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            @Valid @RequestBody HistoricoPrecoRequest request
+    ) {
+        HistoricoPrecoResponse response =
+                historicoPrecoService.salvar(produtoId, request);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
-    // ============================================================
-    // Buscar por ID
-    // ============================================================
+    // =============================================================
+    // GET BY ID
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('HISTORICO_PRECO_LISTAR')")
     @Operation(
-            summary = "Buscar registro de histórico",
-            description = "Retorna os dados de um registro específico de histórico de preço pelo ID.",
+            summary = "Buscar registro de histórico por ID",
+            description = "Retorna os dados de um registro específico de histórico de preço.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Registro encontrado",
-                            content = @Content(schema = @Schema(implementation = HistoricoPrecoResponse.class))
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    schema = @Schema(implementation = HistoricoPrecoResponse.class)
+                            )
                     ),
-                    @ApiResponse(responseCode = "404", description = "Registro não encontrado")
+                    @ApiResponse(responseCode = "404", description = "Registro não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'HISTORICO_PRECO_VISUALIZAR')")
     @GetMapping("/{id}")
-    public ResponseEntity<HistoricoPrecoResponse> buscarPorId(@PathVariable Long id) {
-
-        Optional<HistoricoPrecoResponse> resultado = historicoPrecoService.buscarPorId(id);
-
+    public ResponseEntity<HistoricoPrecoResponse> buscarPorId(
+            @PathVariable Long id
+    ) {
+        Optional<HistoricoPrecoResponse> resultado =
+                historicoPrecoService.buscarPorId(id);
         return resultado
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // ============================================================
-    // Listar todos
-    // ============================================================
+    // =============================================================
+    // LISTAGENS
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('HISTORICO_PRECO_LISTAR')")
     @Operation(
-            summary = "Listar todo o histórico",
-            description = "Retorna todos os registros de histórico de preço, ordenados por data DESC.",
+            summary = "Listar todo o histórico de preços",
+            description = "Retorna todos os registros de histórico de preço, ordenados por data decrescente.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Lista retornada",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = HistoricoPrecoResponse.class)))
-                    )
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = HistoricoPrecoResponse.class)
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'HISTORICO_PRECO_LISTAR')")
     @GetMapping
     public ResponseEntity<List<HistoricoPrecoResponse>> listarTodos() {
         return ResponseEntity.ok(historicoPrecoService.listarTodos());
     }
 
-    // ============================================================
-    // Listar por produto
-    // ============================================================
-
-    @PreAuthorize("hasAuthority('HISTORICO_PRECO_LISTAR')")
     @Operation(
             summary = "Listar histórico por produto",
-            description = "Retorna o histórico completo de alterações de preço para um produto específico.",
+            description = "Retorna o histórico completo de alterações de preço de um produto.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Lista retornada",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = HistoricoPrecoResponse.class)))
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = HistoricoPrecoResponse.class)
+                                    )
+                            )
                     ),
-                    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+                    @ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'HISTORICO_PRECO_LISTAR')")
     @GetMapping("/produto/{produtoId}")
     public ResponseEntity<List<HistoricoPrecoResponse>> listarPorProduto(
-            @PathVariable Long produtoId) {
-
+            @PathVariable Long produtoId
+    ) {
         return ResponseEntity.ok(historicoPrecoService.listarPorProduto(produtoId));
     }
 
-    // ============================================================
-    // Listar últimos registros (listagem reduzida)
-    // ============================================================
-
-    @PreAuthorize("hasAuthority('HISTORICO_PRECO_LISTAR')")
     @Operation(
             summary = "Listar últimos registros de histórico por produto",
-            description = "Retorna os últimos 10 registros de histórico de preço do produto, em formato simplificado.",
+            description = "Retorna os últimos registros de histórico de preço do produto, em formato simplificado.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Lista retornada",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = HistoricoPrecoListDTO.class)))
+                            description = "Consulta realizada com sucesso",
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = HistoricoPrecoListDTO.class)
+                                    )
+                            )
                     ),
-                    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+                    @ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'HISTORICO_PRECO_LISTAR')")
     @GetMapping("/produto/{produtoId}/ultimos")
     public ResponseEntity<List<HistoricoPrecoListDTO>> listarUltimosPorProduto(
-            @PathVariable Long produtoId) {
-
+            @PathVariable Long produtoId
+    ) {
         return ResponseEntity.ok(historicoPrecoService.listarUltimosPorProduto(produtoId));
     }
 
-    // ============================================================
-    // Deletar registro
-    // ============================================================
+    // =============================================================
+    // DELETE
+    // =============================================================
 
-    @PreAuthorize("hasAuthority('HISTORICO_PRECO_EXCLUIR')")
     @Operation(
-            summary = "Excluir registro de histórico",
-            description = "Remove um registro de histórico de preço pelo ID.",
+            summary = "Remover registro de histórico de preço",
+            description = "Remove um registro de histórico de preço pelo identificador.",
             responses = {
-                    @ApiResponse(responseCode = "204", description = "Registro removido"),
-                    @ApiResponse(responseCode = "404", description = "Registro não encontrado")
+                    @ApiResponse(responseCode = "204", description = "Registro removido com sucesso"),
+                    @ApiResponse(responseCode = "404", description = "Registro não encontrado"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
+    @PreAuthorize("hasPermission(null, 'HISTORICO_PRECO_REMOVER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         historicoPrecoService.deletar(id);
