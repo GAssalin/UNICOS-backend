@@ -17,7 +17,6 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
         </processorPath>
-        <module name="ms-produtos" />
         <module name="ms-pessoas" />
         <module name="config-server" />
         <module name="ms-auth" />
@@ -39,6 +38,7 @@
       <module name="core-security-contract" target="21" />
       <module name="core-tesouraria" target="21" />
       <module name="ms-notificacao" target="21" />
+      <module name="ms-produtos" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

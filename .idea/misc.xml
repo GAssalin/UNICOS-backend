@@ -17,6 +17,7 @@
     </option>
     <option name="ignoredFiles">
       <set>
+        <option value="$PROJECT_DIR$/backend/ms-produtos/pom.xml" />
         <option value="$PROJECT_DIR$/backend/unicos-core/core-categoria/pom.xml" />
         <option value="$PROJECT_DIR$/backend/unicos-core/core-contas/pom.xml" />
         <option value="$PROJECT_DIR$/backend/unicos-core/core-financeiro/pom.xml" />
