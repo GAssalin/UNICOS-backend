@@ -10,7 +10,7 @@
         <module name="service-registry" />
         <module name="gateway" />
       </profile>
-      <profile name="Annotation profile for UNICOS :: MS-Usuario" enabled="true">
+      <profile name="Annotation profile for UNICOS :: MS-Notificacao" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -25,6 +25,7 @@
         <module name="core-produto" />
         <module name="core-usuario" />
         <module name="ms-usuario" />
+        <module name="ms-notificacao" />
         <module name="core-base" />
         <module name="core-tenant" />
         <module name="ms-empresa" />
@@ -37,7 +38,6 @@
       <module name="core-pedido" target="21" />
       <module name="core-security-contract" target="21" />
       <module name="core-tesouraria" target="21" />
-      <module name="ms-notificacao" target="21" />
       <module name="ms-produtos" target="21" />
     </bytecodeTargetLevel>
   </component>
@@ -47,6 +47,7 @@
       <module name="gateway" options="-parameters" />
       <module name="ms-auth" options="-parameters" />
       <module name="ms-empresa" options="-parameters" />
+      <module name="ms-notificacao" options="-parameters" />
       <module name="ms-pessoas" options="-parameters" />
       <module name="ms-produtos" options="-parameters" />
       <module name="ms-usuario" options="-parameters" />
