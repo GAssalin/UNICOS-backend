@@ -17,26 +17,30 @@ O UniCoS oferece flexibilidade para evolução contínua de cada domínio, garan
 A estrutura geral do UniCoS segue este modelo:
 
 ```
-                     ┌────────────────────────┐
-                     │     Service Registry   │
-                     │        (Eureka)        │
-                     └────────────┬───────────┘
-                                  │
-                        ┌─────────┴─────────┐
-                        │     API Gateway   │
-                        │  (Spring Gateway) │
-                        └─────────┬─────────┘
-                 ┌────────────────┼──────────────────┐
-                 │                │                  │
-         ┌────────────┐   ┌──────────────┐   ┌──────────────┐
-         │  MS-Auth   │   │  MS-Pessoas  │   │ MS-Produtos  │
-         └────────────┘   └──────────────┘   └──────────────┘
-                 │                │                  │
-                 └────────────────┴──────────────────┘
-                     ┌────────────────────────┐
-                     │        CORE (DDD)      │
-                     │  Publicado no GitHub   │
-                     └────────────────────────┘
+                                         ┌────────────────────────┐
+                                         │      Config Server     │
+                                         └────────────┬───────────┘
+                                                      │
+                                         ┌────────────┴───────────┐
+                                         │     Service Registry   │
+                                         │        (Eureka)        │
+                                         └────────────┬───────────┘
+                                                      │
+                                            ┌─────────┴─────────┐
+                                            │     API Gateway   │
+                                            │  (Spring Gateway) │
+                                            └─────────┬─────────┘
+                 ┌────────────────┌───────────────────┼───────────────────┐──────────────────┐
+                 │                │                   │                   │                  │
+          ┌────────────┐   ┌──────────────┐   ┌──────────────┐   ┌────────────────┐   ┌──────────────┐
+          │  MS-Auth   │   │  MS-Usuario  │   │  MS-Pessoas  │   │ MS-Notificacao │   │  MS-Empresa  │
+          └────────────┘   └──────────────┘   └──────────────┘   └────────────────┘   └──────────────┘
+                 │                │                  │                    │                  │
+                 └────────────────└──────────────────┼────────────────────┘──────────────────┘
+                                         ┌────────────────────────┐
+                                         │        CORE (DDD)      │
+                                         │  Publicado no GitHub   │
+                                         └────────────────────────┘
 ```
 
 ---
@@ -52,12 +56,15 @@ A estrutura geral do UniCoS segue este modelo:
 
 | Serviço | Responsabilidade |
 |--------|------------------|
-| **service-registry** | Registro e descoberta via Eureka |
-| **gateway** | Roteamento global e autenticação |
-| **ms-auth** | Gerencia usuários, perfis e permissões |
-| **unicos-core** | Enums, modelos e contratos padrão |
-| **ms-produtos** | Gerencia os produtos da empresa |
-| **ms-pessoas** | Gerencia dados de pessoas físicas e jurídicas |
+| **Config Server** | Spring Cloud Config Server do UniCoS para centralização e distribuição de configurações dos microserviços. |
+| **service-registry** | Eureka Server para registro e descoberta de microserviços. |
+| **gateway** | Gateway reativo do UNICOS com roteamento dinâmico via Spring Cloud Gateway e integração ao Eureka Server. |
+| **ms-auth** | Microserviço responsável pela autenticação, autorização e emissão de tokens JWT. |
+| **ms-usuario** | Microserviço responsável pela gerenciamento de usuários. |
+| **ms-empresa** | Microserviço de gerenciamento de empresas (tenants) do UniCoS. |
+| **ms-pessoas** | Microserviço responsável pela gerenciamento de dados de pessoas físicas e jurídicas. |
+| **ms-notificacao** | Microserviço responsável pelo envio e gerenciamento de notificações da plataforma. |
+| **unicos-core** | Módulo principal de domínios e componentes centrais do ecossistema UniCoS (Unique Control System). |
 
 ---
 
@@ -99,18 +106,20 @@ Repositório usado pelos microserviços:
 
 ```
 backend/
+├── config-server/
 ├── service-registry/
 ├── gateway/
 ├── unicos-core/
 │   ├── core-base/
-│   ├── core-categoria/
-│   ├── core-contas/
-│   ├── core-financeiro/
-│   ├── core-pedido/
 │   ├── core-produto/
-│   ├── core-tesouraria/
-├── ms-produtos/
+│   ├── core-request/
+│   ├── core-tenant/
+│   ├── core-usuario/
+├── ms-auth/
+├── ms-empresa/
+├── ms-notificacao/
 ├── ms-pessoas/
+├── ms-usuario/
 ```
 
 ---
@@ -143,6 +152,11 @@ make down
 ---
 
 ### ⚙️ Rodando localmente sem Docker
+OBS.: Deve-se respeitar a ordem de execução para os 3 primeiros abaixo
+```bash
+cd config-server
+mvn spring-boot:run
+```
 ```bash
 cd service-registry
 mvn spring-boot:run
@@ -151,16 +165,26 @@ mvn spring-boot:run
 cd gateway
 mvn spring-boot:run
 ```
+OBS.: MS-Auth e MS-Usuario devem estar rodando em conjunto para que a autenticação e geração do token ocorra.
 ```bash
 cd ms-auth
 mvn spring-boot:run
 ```
 ```bash
-cd ms-produtos
+cd ms-usuario
+mvn spring-boot:run
+```
+
+```bash
+cd ms-empresa
 mvn spring-boot:run
 ```
 ```bash
 cd ms-pessoas
+mvn spring-boot:run
+```
+```bash
+cd ms-notificacao
 mvn spring-boot:run
 ```
 
@@ -197,4 +221,5 @@ A definir
 # 📬 Contato  
 Gustavo Soares Assalin  
 GitHub: https://github.com/GAssalin
+
 LinkedIn: https://www.linkedin.com/in/gustavo-assalin/
