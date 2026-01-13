@@ -21,7 +21,7 @@
 	<artifactId>ms-pessoas</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>UNICOS :: MS-Pessoas</name>
-	<description>Gerencia dados de pessoas físicas e jurídicas</description>
+	<description>Microserviço responsável pela gerenciamento de dados de pessoas físicas e jurídicas.</description>
 
     <!-- =============================================== -->
     <!-- 🔹 PROPRIEDADES GLOBAIS -->

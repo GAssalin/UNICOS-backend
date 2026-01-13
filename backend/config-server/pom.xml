@@ -22,7 +22,7 @@
 	<artifactId>config-server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>config-server</name>
-	<description>Demo project for Spring Boot</description>
+    <description>Spring Cloud Config Server do UniCoS para centralização e distribuição de configurações dos microserviços.</description>
     <!-- =============================================== -->
     <!-- 🔹 PROPRIEDADES GLOBAIS -->
     <!-- =============================================== -->
