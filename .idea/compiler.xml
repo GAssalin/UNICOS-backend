@@ -10,25 +10,26 @@
         <module name="service-registry" />
         <module name="gateway" />
       </profile>
-      <profile name="Annotation profile for UNICOS :: MS-Notificacao" enabled="true">
+      <profile name="Annotation profile for ms-filial" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
         </processorPath>
+        <module name="ms-auth" />
+        <module name="ms-usuario" />
+        <module name="ms-empresa" />
         <module name="ms-pessoas" />
         <module name="config-server" />
-        <module name="ms-auth" />
         <module name="core-request" />
         <module name="core-auth" />
         <module name="core-produto" />
+        <module name="ms-filial" />
         <module name="core-usuario" />
-        <module name="ms-usuario" />
         <module name="ms-notificacao" />
         <module name="core-base" />
         <module name="core-tenant" />
-        <module name="ms-empresa" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -47,6 +48,7 @@
       <module name="gateway" options="-parameters" />
       <module name="ms-auth" options="-parameters" />
       <module name="ms-empresa" options="-parameters" />
+      <module name="ms-filial" options="-parameters" />
       <module name="ms-notificacao" options="-parameters" />
       <module name="ms-pessoas" options="-parameters" />
       <module name="ms-produtos" options="-parameters" />
