@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -47,11 +46,8 @@ public class RolePermissaoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_ROLE_PERMISSAO_CRIAR')")
     @PostMapping
-    public ResponseEntity<RolePermissaoResponse> criar(
-            @Valid @RequestBody RolePermissaoRequest request
-    ) {
+    public ResponseEntity<RolePermissaoResponse> criar(@Valid @RequestBody RolePermissaoRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(service.criar(request));
@@ -74,7 +70,6 @@ public class RolePermissaoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_ROLE_PERMISSAO_EDITAR')")
     @PutMapping("/{id}/status")
     public ResponseEntity<RolePermissaoResponse> alterarStatus(
             @PathVariable Long id,
@@ -96,7 +91,6 @@ public class RolePermissaoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_ROLE_PERMISSAO_EXCLUIR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
         service.remover(id);
@@ -118,7 +112,6 @@ public class RolePermissaoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_ROLE_PERMISSAO_LISTAR')")
     @GetMapping("/empresa/{empresaId}")
     public ResponseEntity<Page<RolePermissaoListDTO>> listarAtivosPorEmpresa(
             @PathVariable Long empresaId,
@@ -142,7 +135,6 @@ public class RolePermissaoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_ROLE_PERMISSAO_LISTAR')")
     @GetMapping("/empresa/{empresaId}/todos")
     public ResponseEntity<Page<RolePermissaoListDTO>> listarPorEmpresa(
             @PathVariable Long empresaId,

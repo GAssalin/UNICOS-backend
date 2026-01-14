@@ -56,11 +56,8 @@ public class UsuarioController {
                     @ApiResponse(responseCode = "403", description = "Sem permissão")
             }
     )
-    @PreAuthorize("hasPermission(null, 'USUARIO_CRIAR')")
     @PostMapping
-    public ResponseEntity<UsuarioResponse> salvar(
-            @Valid @RequestBody UsuarioRequest request
-    ) {
+    public ResponseEntity<UsuarioResponse> salvar(@Valid @RequestBody UsuarioRequest request) {
         UsuarioResponse response = usuarioService.salvar(request);
         verificacaoService.gerarTokenParaUsuario(response.id());
 
@@ -86,7 +83,6 @@ public class UsuarioController {
                     @ApiResponse(responseCode = "403", description = "Sem permissão")
             }
     )
-    @PreAuthorize("hasPermission(null, 'USUARIO_ATUALIZAR')")
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResponse> atualizar(
             @PathVariable Long id,
@@ -112,7 +108,6 @@ public class UsuarioController {
                     @ApiResponse(responseCode = "403", description = "Sem permissão")
             }
     )
-    @PreAuthorize("hasPermission(null, 'USUARIO_VISUALIZAR')")
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.buscarPorId(id));
@@ -135,7 +130,6 @@ public class UsuarioController {
                     @ApiResponse(responseCode = "403", description = "Sem permissão")
             }
     )
-    @PreAuthorize("hasPermission(null, 'USUARIO_VISUALIZAR')")
     @GetMapping("/login/{login}")
     public ResponseEntity<UsuarioResponse> buscarPorLogin(@PathVariable String login) {
         return ResponseEntity.ok(usuarioService.buscarPorLogin(login));
@@ -153,11 +147,8 @@ public class UsuarioController {
                     @ApiResponse(responseCode = "403", description = "Sem permissão")
             }
     )
-    @PreAuthorize("hasPermission(null, 'USUARIO_LISTAR')")
     @GetMapping
-    public ResponseEntity<Page<UsuarioResponse>> listarTodos(
-            @ParameterObject Pageable pageable
-    ) {
+    public ResponseEntity<Page<UsuarioResponse>> listarTodos(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(usuarioService.listarTodos(pageable));
     }
 
@@ -169,11 +160,8 @@ public class UsuarioController {
                     @ApiResponse(responseCode = "403", description = "Sem permissão")
             }
     )
-    @PreAuthorize("hasPermission(null, 'USUARIO_LISTAR')")
     @GetMapping("/ativos")
-    public ResponseEntity<Page<UsuarioResponse>> listarAtivos(
-            @ParameterObject Pageable pageable
-    ) {
+    public ResponseEntity<Page<UsuarioResponse>> listarAtivos(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(usuarioService.listarAtivos(pageable));
     }
 
@@ -185,11 +173,8 @@ public class UsuarioController {
                     @ApiResponse(responseCode = "403", description = "Sem permissão")
             }
     )
-    @PreAuthorize("hasPermission(null, 'USUARIO_LISTAR')")
     @GetMapping("/inativos")
-    public ResponseEntity<Page<UsuarioResponse>> listarInativos(
-            @ParameterObject Pageable pageable
-    ) {
+    public ResponseEntity<Page<UsuarioResponse>> listarInativos(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(usuarioService.listarInativos(pageable));
     }
 
@@ -207,7 +192,6 @@ public class UsuarioController {
                     @ApiResponse(responseCode = "403", description = "Sem permissão")
             }
     )
-    @PreAuthorize("hasPermission(null, 'USUARIO_DESATIVAR')")
     @PatchMapping("/{id}/desativar")
     public ResponseEntity<Void> desativar(@PathVariable Long id) {
         Usuario usuario = usuarioService.desativar(id);
@@ -231,7 +215,6 @@ public class UsuarioController {
                     @ApiResponse(responseCode = "403", description = "Sem permissão")
             }
     )
-    @PreAuthorize("hasPermission(null, 'USUARIO_EXCLUIR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         Usuario usuario = usuarioService.deletar(id);

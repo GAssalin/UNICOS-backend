@@ -53,11 +53,8 @@ public class TipoRelacaoPessoaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'TIPO_RELACAO_PESSOA_CRIAR')")
     @PostMapping
-    public ResponseEntity<TipoRelacaoPessoaResponse> criar(
-            @Valid @RequestBody TipoRelacaoPessoaRequest request
-    ) {
+    public ResponseEntity<TipoRelacaoPessoaResponse> criar(@Valid @RequestBody TipoRelacaoPessoaRequest request) {
         TipoRelacaoPessoaResponse response =
                 tipoRelacaoPessoaService.criar(request);
         return ResponseEntity
@@ -85,7 +82,6 @@ public class TipoRelacaoPessoaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'TIPO_RELACAO_PESSOA_ATUALIZAR')")
     @PutMapping("/{id}")
     public ResponseEntity<TipoRelacaoPessoaResponse> atualizar(
             @PathVariable Long id,
@@ -114,11 +110,8 @@ public class TipoRelacaoPessoaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'TIPO_RELACAO_PESSOA_VISUALIZAR')")
     @GetMapping("/{id}")
-    public ResponseEntity<TipoRelacaoPessoaResponse> buscarPorId(
-            @PathVariable Long id
-    ) {
+    public ResponseEntity<TipoRelacaoPessoaResponse> buscarPorId(@PathVariable Long id) {
         Optional<TipoRelacaoPessoaResponse> response =
                 tipoRelacaoPessoaService.buscarPorId(id);
         return response
@@ -147,7 +140,6 @@ public class TipoRelacaoPessoaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'TIPO_RELACAO_PESSOA_LISTAR')")
     @GetMapping
     public ResponseEntity<List<TipoRelacaoPessoaListDTO>> listarTodos() {
         return ResponseEntity.ok(tipoRelacaoPessoaService.listarTodos());
@@ -170,11 +162,8 @@ public class TipoRelacaoPessoaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'TIPO_RELACAO_PESSOA_LISTAR')")
     @GetMapping("/nome/{nome}")
-    public ResponseEntity<List<TipoRelacaoPessoaListDTO>> listarPorNome(
-            @PathVariable String nome
-    ) {
+    public ResponseEntity<List<TipoRelacaoPessoaListDTO>> listarPorNome(@PathVariable String nome) {
         return ResponseEntity.ok(tipoRelacaoPessoaService.listarPorNome(nome));
     }
 
@@ -198,11 +187,8 @@ public class TipoRelacaoPessoaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'TIPO_RELACAO_PESSOA_VISUALIZAR')")
     @GetMapping("/nome-exato/{nome}")
-    public ResponseEntity<TipoRelacaoPessoaResponse> buscarPorNomeExato(
-            @PathVariable String nome
-    ) {
+    public ResponseEntity<TipoRelacaoPessoaResponse> buscarPorNomeExato(@PathVariable String nome) {
         Optional<TipoRelacaoPessoaResponse> response =
                 tipoRelacaoPessoaService.buscarPorNomeExato(nome);
         return response
@@ -224,7 +210,6 @@ public class TipoRelacaoPessoaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'TIPO_RELACAO_PESSOA_REMOVER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         tipoRelacaoPessoaService.excluir(id);

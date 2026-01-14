@@ -18,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,7 +50,6 @@ public class EmpresaContatoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_CONTATO_CRIAR')")
     @PostMapping
     public ResponseEntity<EmpresaContatoResponse> criar(
             @PathVariable Long empresaRefId,
@@ -88,7 +86,6 @@ public class EmpresaContatoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_CONTATO_EDITAR')")
     @PutMapping("/{id}")
     public ResponseEntity<EmpresaContatoResponse> atualizar(
             @PathVariable Long empresaRefId,
@@ -115,7 +112,6 @@ public class EmpresaContatoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_CONTATO_LISTAR')")
     @GetMapping("/{id}")
     public ResponseEntity<EmpresaContatoResponse> buscarPorId(
             @PathVariable Long empresaRefId,
@@ -146,7 +142,6 @@ public class EmpresaContatoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_CONTATO_LISTAR')")
     @GetMapping
     public ResponseEntity<Page<EmpresaContatoResumoResponse>> listar(
             @PathVariable Long empresaRefId,
@@ -167,7 +162,6 @@ public class EmpresaContatoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_CONTATO_LISTAR')")
     @GetMapping("/tipo/{tipo}")
     public ResponseEntity<Page<EmpresaContatoResumoResponse>> listarPorTipo(
             @PathVariable Long empresaRefId,
@@ -190,7 +184,6 @@ public class EmpresaContatoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_CONTATO_EXCLUIR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(
             @PathVariable Long empresaRefId,

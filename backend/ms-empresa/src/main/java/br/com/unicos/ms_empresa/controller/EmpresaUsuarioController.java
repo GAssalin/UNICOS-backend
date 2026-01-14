@@ -18,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,7 +59,6 @@ public class EmpresaUsuarioController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_USUARIO_CRIAR')")
     @PostMapping
     public ResponseEntity<EmpresaUsuarioResponse> criar(
             @PathVariable Long empresaRefId,
@@ -93,7 +91,6 @@ public class EmpresaUsuarioController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_USUARIO_EDITAR')")
     @PutMapping("/{usuarioId}/perfil")
     public ResponseEntity<EmpresaUsuarioResponse> atualizarPerfil(
             @PathVariable Long empresaRefId,
@@ -126,7 +123,6 @@ public class EmpresaUsuarioController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_USUARIO_LISTAR')")
     @GetMapping("/{usuarioId}")
     public ResponseEntity<EmpresaUsuarioResponse> buscar(
             @PathVariable Long empresaRefId,
@@ -155,7 +151,6 @@ public class EmpresaUsuarioController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_USUARIO_LISTAR')")
     @GetMapping
     public ResponseEntity<Page<EmpresaUsuarioResumoResponse>> listar(
             @PathVariable Long empresaRefId,
@@ -176,7 +171,6 @@ public class EmpresaUsuarioController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_USUARIO_LISTAR')")
     @GetMapping("/perfil/{perfil}")
     public ResponseEntity<Page<EmpresaUsuarioResumoResponse>> listarPorPerfil(
             @PathVariable Long empresaRefId,
@@ -205,7 +199,6 @@ public class EmpresaUsuarioController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_USUARIO_EXCLUIR')")
     @DeleteMapping("/{usuarioId}")
     public ResponseEntity<Void> remover(
             @PathVariable Long empresaRefId,

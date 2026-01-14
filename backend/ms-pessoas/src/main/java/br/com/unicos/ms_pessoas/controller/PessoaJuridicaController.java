@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,11 +52,8 @@ public class PessoaJuridicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_CRIAR')")
     @PostMapping
-    public ResponseEntity<PessoaJuridicaResponse> criar(
-            @Valid @RequestBody PessoaJuridicaRequest request
-    ) {
+    public ResponseEntity<PessoaJuridicaResponse> criar(@Valid @RequestBody PessoaJuridicaRequest request) {
         PessoaJuridicaResponse response = pessoaJuridicaService.criar(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -84,7 +80,6 @@ public class PessoaJuridicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_ATUALIZAR')")
     @PutMapping("/{id}")
     public ResponseEntity<PessoaJuridicaResponse> atualizar(
             @PathVariable Long id,
@@ -113,7 +108,6 @@ public class PessoaJuridicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_VISUALIZAR')")
     @GetMapping("/{id}")
     public ResponseEntity<PessoaJuridicaResponse> buscarPorId(@PathVariable Long id) {
         Optional<PessoaJuridicaResponse> response =
@@ -143,7 +137,6 @@ public class PessoaJuridicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_VISUALIZAR')")
     @GetMapping("/cnpj/{cnpj}")
     public ResponseEntity<PessoaJuridicaResponse> buscarPorCnpj(@PathVariable String cnpj) {
         Optional<PessoaJuridicaResponse> response =
@@ -174,7 +167,6 @@ public class PessoaJuridicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_LISTAR')")
     @GetMapping
     public ResponseEntity<List<PessoaJuridicaListDTO>> listarTodas() {
         return ResponseEntity.ok(pessoaJuridicaService.listarTodas());
@@ -197,11 +189,8 @@ public class PessoaJuridicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_LISTAR')")
     @GetMapping("/nome-fantasia/{nomeFantasia}")
-    public ResponseEntity<List<PessoaJuridicaListDTO>> listarPorNomeFantasia(
-            @PathVariable String nomeFantasia
-    ) {
+    public ResponseEntity<List<PessoaJuridicaListDTO>> listarPorNomeFantasia(@PathVariable String nomeFantasia) {
         return ResponseEntity.ok(pessoaJuridicaService.listarPorNomeFantasia(nomeFantasia));
     }
 
@@ -222,11 +211,8 @@ public class PessoaJuridicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_LISTAR')")
     @GetMapping("/nome/{nome}")
-    public ResponseEntity<List<PessoaJuridicaListDTO>> listarPorNome(
-            @PathVariable String nome
-    ) {
+    public ResponseEntity<List<PessoaJuridicaListDTO>> listarPorNome(@PathVariable String nome) {
         return ResponseEntity.ok(pessoaJuridicaService.listarPorNome(nome));
     }
 
@@ -244,7 +230,6 @@ public class PessoaJuridicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_JURIDICA_REMOVER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         pessoaJuridicaService.excluir(id);

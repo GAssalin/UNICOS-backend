@@ -17,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,7 +58,6 @@ public class EmpresaParametroController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_PARAMETRO_CRIAR')")
     @PostMapping
     public ResponseEntity<EmpresaParametroResponse> criar(
             @PathVariable Long empresaRefId,
@@ -91,7 +89,6 @@ public class EmpresaParametroController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_PARAMETRO_EDITAR')")
     @PutMapping("/{chave}")
     public ResponseEntity<EmpresaParametroResponse> atualizar(
             @PathVariable Long empresaRefId,
@@ -118,7 +115,6 @@ public class EmpresaParametroController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_PARAMETRO_LISTAR')")
     @GetMapping("/{chave}")
     public ResponseEntity<EmpresaParametroResponse> buscarPorChave(
             @PathVariable Long empresaRefId,
@@ -147,7 +143,6 @@ public class EmpresaParametroController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_PARAMETRO_LISTAR')")
     @GetMapping
     public ResponseEntity<Page<EmpresaParametroResumoResponse>> listar(
             @PathVariable Long empresaRefId,
@@ -169,7 +164,6 @@ public class EmpresaParametroController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_PARAMETRO_EXCLUIR')")
     @DeleteMapping("/{chave}")
     public ResponseEntity<Void> remover(
             @PathVariable Long empresaRefId,

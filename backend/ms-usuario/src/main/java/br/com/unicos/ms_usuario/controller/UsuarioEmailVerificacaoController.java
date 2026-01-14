@@ -57,9 +57,7 @@ public class UsuarioEmailVerificacaoController {
             }
     )
     @PostMapping("/confirmar")
-    public ResponseEntity<ConfirmarEmailVerificacaoResponse> confirmar(
-            @Valid @RequestBody ConfirmarEmailVerificacaoRequest request
-    ) {
+    public ResponseEntity<ConfirmarEmailVerificacaoResponse> confirmar(@Valid @RequestBody ConfirmarEmailVerificacaoRequest request) {
         Usuario usuario = service.confirmarEmail(request.token());
 
         return ResponseEntity.ok(
@@ -84,12 +82,8 @@ public class UsuarioEmailVerificacaoController {
                     @ApiResponse(responseCode = "403", description = "Sem permissão")
             }
     )
-    @SecurityRequirement(name = "bearer-key")
-    @PreAuthorize("hasPermission(null, 'USUARIO_EMAIL_VERIFICACAO_LISTAR')")
     @GetMapping("/pendentes")
-    public ResponseEntity<Page<UsuarioEmailVerificacaoListDTO>> listarPendentes(
-            @ParameterObject Pageable pageable
-    ) {
+    public ResponseEntity<Page<UsuarioEmailVerificacaoListDTO>> listarPendentes(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(service.listarPendentes(TenantContext.getEmpresaId(), pageable));
     }
 
@@ -105,12 +99,8 @@ public class UsuarioEmailVerificacaoController {
                     @ApiResponse(responseCode = "403", description = "Sem permissão")
             }
     )
-    @SecurityRequirement(name = "bearer-key")
-    @PreAuthorize("hasPermission(null, 'USUARIO_EMAIL_VERIFICACAO_LISTAR')")
     @GetMapping("/expirados")
-    public ResponseEntity<Page<UsuarioEmailVerificacaoListDTO>> listarExpirados(
-            @ParameterObject Pageable pageable
-    ) {
+    public ResponseEntity<Page<UsuarioEmailVerificacaoListDTO>> listarExpirados(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(service.listarExpirados(TenantContext.getEmpresaId(), pageable));
     }
 }

@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,11 +52,8 @@ public class PessoaFisicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_FISICA_CRIAR')")
     @PostMapping
-    public ResponseEntity<PessoaFisicaResponse> criar(
-            @Valid @RequestBody PessoaFisicaRequest request
-    ) {
+    public ResponseEntity<PessoaFisicaResponse> criar(@Valid @RequestBody PessoaFisicaRequest request) {
         PessoaFisicaResponse response = pessoaFisicaService.criar(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -84,7 +80,6 @@ public class PessoaFisicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_FISICA_ATUALIZAR')")
     @PutMapping("/{id}")
     public ResponseEntity<PessoaFisicaResponse> atualizar(
             @PathVariable Long id,
@@ -113,7 +108,6 @@ public class PessoaFisicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_FISICA_VISUALIZAR')")
     @GetMapping("/{id}")
     public ResponseEntity<PessoaFisicaResponse> buscarPorId(@PathVariable Long id) {
         Optional<PessoaFisicaResponse> response =
@@ -143,7 +137,6 @@ public class PessoaFisicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_FISICA_VISUALIZAR')")
     @GetMapping("/cpf/{cpf}")
     public ResponseEntity<PessoaFisicaResponse> buscarPorCpf(@PathVariable String cpf) {
         Optional<PessoaFisicaResponse> response =
@@ -174,7 +167,6 @@ public class PessoaFisicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_FISICA_LISTAR')")
     @GetMapping
     public ResponseEntity<List<PessoaFisicaListDTO>> listarTodas() {
         return ResponseEntity.ok(pessoaFisicaService.listarTodas());
@@ -197,11 +189,8 @@ public class PessoaFisicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_FISICA_LISTAR')")
     @GetMapping("/nome-social/{nomeSocial}")
-    public ResponseEntity<List<PessoaFisicaListDTO>> listarPorNomeSocial(
-            @PathVariable String nomeSocial
-    ) {
+    public ResponseEntity<List<PessoaFisicaListDTO>> listarPorNomeSocial(@PathVariable String nomeSocial) {
         return ResponseEntity.ok(pessoaFisicaService.listarPorNomeSocial(nomeSocial));
     }
 
@@ -222,11 +211,8 @@ public class PessoaFisicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_FISICA_LISTAR')")
     @GetMapping("/nome/{nome}")
-    public ResponseEntity<List<PessoaFisicaListDTO>> listarPorNome(
-            @PathVariable String nome
-    ) {
+    public ResponseEntity<List<PessoaFisicaListDTO>> listarPorNome(@PathVariable String nome) {
         return ResponseEntity.ok(pessoaFisicaService.listarPorNome(nome));
     }
 
@@ -244,7 +230,6 @@ public class PessoaFisicaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_FISICA_REMOVER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         pessoaFisicaService.excluir(id);

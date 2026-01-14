@@ -16,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -56,7 +55,6 @@ public class AuditoriaAcessoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'AUDITORIA_LISTAR')")
     @GetMapping("/usuario/{username}")
     public ResponseEntity<Page<AuditoriaAcessoResponse>> listarPorUsuario(
             @PathVariable String username,
@@ -77,7 +75,6 @@ public class AuditoriaAcessoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'AUDITORIA_LISTAR')")
     @GetMapping("/acao/{acao}")
     public ResponseEntity<Page<AuditoriaAcessoResponse>> listarPorAcao(
             @PathVariable TipoAcaoAcesso acao,
@@ -100,7 +97,6 @@ public class AuditoriaAcessoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'AUDITORIA_LISTAR')")
     @GetMapping("/periodo")
     public ResponseEntity<Page<AuditoriaAcessoResponse>> listarPorPeriodo(
             @RequestParam("inicio")

@@ -18,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,7 +50,6 @@ public class EmpresaEnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_ENDERECO_CRIAR')")
     @PostMapping
     public ResponseEntity<EmpresaEnderecoResponse> criar(
             @PathVariable Long empresaRefId,
@@ -94,7 +92,6 @@ public class EmpresaEnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_ENDERECO_EDITAR')")
     @PutMapping("/{id}")
     public ResponseEntity<EmpresaEnderecoResponse> atualizar(
             @PathVariable Long empresaRefId,
@@ -121,7 +118,6 @@ public class EmpresaEnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_ENDERECO_LISTAR')")
     @GetMapping("/{id}")
     public ResponseEntity<EmpresaEnderecoResponse> buscarPorId(
             @PathVariable Long empresaRefId,
@@ -150,7 +146,6 @@ public class EmpresaEnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_ENDERECO_LISTAR')")
     @GetMapping
     public ResponseEntity<Page<EmpresaEnderecoResumoResponse>> listar(
             @PathVariable Long empresaRefId,
@@ -171,7 +166,6 @@ public class EmpresaEnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_ENDERECO_LISTAR')")
     @GetMapping("/tipo/{tipo}")
     public ResponseEntity<Page<EmpresaEnderecoResumoResponse>> listarPorTipo(
             @PathVariable Long empresaRefId,
@@ -194,7 +188,6 @@ public class EmpresaEnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'EMPRESA_ENDERECO_EXCLUIR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(
             @PathVariable Long empresaRefId,

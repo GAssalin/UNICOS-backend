@@ -13,7 +13,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -51,7 +50,6 @@ public class RoleController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'ROLE_CRIAR')")
     @PostMapping
     public ResponseEntity<RoleResponse> criar(@Valid @RequestBody RoleRequest request) {
         return ResponseEntity
@@ -77,7 +75,6 @@ public class RoleController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'ROLE_EDITAR')")
     @PutMapping("/{id}")
     public ResponseEntity<RoleResponse> atualizar(
             @PathVariable Long id,
@@ -103,7 +100,6 @@ public class RoleController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'ROLE_LISTAR')")
     @GetMapping("/{id}")
     public ResponseEntity<RoleResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(roleService.buscarPorId(id));
@@ -129,7 +125,6 @@ public class RoleController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'ROLE_LISTAR')")
     @GetMapping
     public ResponseEntity<List<RoleResponse>> listarTodos() {
         return ResponseEntity.ok(roleService.listarTodos());
@@ -148,7 +143,6 @@ public class RoleController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'ROLE_EXCLUIR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         roleService.deletar(id);

@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,11 +52,8 @@ public class MunicipioController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'MUNICIPIO_CRIAR')")
     @PostMapping
-    public ResponseEntity<MunicipioResponse> criar(
-            @Valid @RequestBody MunicipioRequest request
-    ) {
+    public ResponseEntity<MunicipioResponse> criar(@Valid @RequestBody MunicipioRequest request) {
         MunicipioResponse response = municipioService.criar(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -84,7 +80,6 @@ public class MunicipioController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'MUNICIPIO_ATUALIZAR')")
     @PutMapping("/{id}")
     public ResponseEntity<MunicipioResponse> atualizar(
             @PathVariable Long id,
@@ -113,7 +108,6 @@ public class MunicipioController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'MUNICIPIO_VISUALIZAR')")
     @GetMapping("/{id}")
     public ResponseEntity<MunicipioResponse> buscarPorId(@PathVariable Long id) {
         Optional<MunicipioResponse> response = municipioService.buscarPorId(id);
@@ -143,7 +137,6 @@ public class MunicipioController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'MUNICIPIO_LISTAR')")
     @GetMapping
     public ResponseEntity<List<MunicipioListDTO>> listarTodos() {
         return ResponseEntity.ok(municipioService.listarTodos());
@@ -166,11 +159,8 @@ public class MunicipioController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'MUNICIPIO_LISTAR')")
     @GetMapping("/nome/{nome}")
-    public ResponseEntity<List<MunicipioListDTO>> listarPorNome(
-            @PathVariable String nome
-    ) {
+    public ResponseEntity<List<MunicipioListDTO>> listarPorNome(@PathVariable String nome) {
         return ResponseEntity.ok(municipioService.listarPorNome(nome));
     }
 
@@ -191,11 +181,8 @@ public class MunicipioController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'MUNICIPIO_LISTAR')")
     @GetMapping("/uf/{uf}")
-    public ResponseEntity<List<MunicipioListDTO>> listarPorUf(
-            @PathVariable String uf
-    ) {
+    public ResponseEntity<List<MunicipioListDTO>> listarPorUf(@PathVariable String uf) {
         return ResponseEntity.ok(municipioService.listarPorUf(uf));
     }
 
@@ -219,11 +206,8 @@ public class MunicipioController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'MUNICIPIO_VISUALIZAR')")
     @GetMapping("/ibge/{codigoIbge}")
-    public ResponseEntity<MunicipioResponse> buscarPorCodigoIbge(
-            @PathVariable String codigoIbge
-    ) {
+    public ResponseEntity<MunicipioResponse> buscarPorCodigoIbge(@PathVariable String codigoIbge) {
         Optional<MunicipioResponse> response =
                 municipioService.buscarPorCodigoIbge(codigoIbge);
         return response
@@ -245,7 +229,6 @@ public class MunicipioController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'MUNICIPIO_REMOVER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         municipioService.excluir(id);

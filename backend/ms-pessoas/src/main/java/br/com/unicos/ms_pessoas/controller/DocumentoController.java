@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,11 +52,8 @@ public class DocumentoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'DOCUMENTO_CRIAR')")
     @PostMapping
-    public ResponseEntity<DocumentoResponse> criar(
-            @Valid @RequestBody DocumentoRequest request
-    ) {
+    public ResponseEntity<DocumentoResponse> criar(@Valid @RequestBody DocumentoRequest request) {
         DocumentoResponse response = documentoService.criar(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -84,7 +80,6 @@ public class DocumentoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'DOCUMENTO_ATUALIZAR')")
     @PutMapping("/{id}")
     public ResponseEntity<DocumentoResponse> atualizar(
             @PathVariable Long id,
@@ -113,7 +108,6 @@ public class DocumentoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'DOCUMENTO_VISUALIZAR')")
     @GetMapping("/{id}")
     public ResponseEntity<DocumentoResponse> buscarPorId(@PathVariable Long id) {
         Optional<DocumentoResponse> response = documentoService.buscarPorId(id);
@@ -143,7 +137,6 @@ public class DocumentoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'DOCUMENTO_LISTAR')")
     @GetMapping
     public ResponseEntity<List<DocumentoListDTO>> listarTodos() {
         return ResponseEntity.ok(documentoService.listarTodos());
@@ -166,11 +159,8 @@ public class DocumentoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'DOCUMENTO_LISTAR')")
     @GetMapping("/pessoa/{pessoaId}")
-    public ResponseEntity<List<DocumentoListDTO>> listarPorPessoa(
-            @PathVariable Long pessoaId
-    ) {
+    public ResponseEntity<List<DocumentoListDTO>> listarPorPessoa(@PathVariable Long pessoaId) {
         return ResponseEntity.ok(documentoService.listarPorPessoa(pessoaId));
     }
 
@@ -191,11 +181,8 @@ public class DocumentoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'DOCUMENTO_LISTAR')")
     @GetMapping("/tipo/{tipo}")
-    public ResponseEntity<List<DocumentoListDTO>> listarPorTipo(
-            @PathVariable String tipo
-    ) {
+    public ResponseEntity<List<DocumentoListDTO>> listarPorTipo(@PathVariable String tipo) {
         return ResponseEntity.ok(documentoService.listarPorTipo(tipo));
     }
 
@@ -213,7 +200,6 @@ public class DocumentoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'DOCUMENTO_REMOVER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         documentoService.excluir(id);

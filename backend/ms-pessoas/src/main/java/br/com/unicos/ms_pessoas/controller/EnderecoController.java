@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,11 +52,8 @@ public class EnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'ENDERECO_CRIAR')")
     @PostMapping
-    public ResponseEntity<EnderecoResponse> criar(
-            @Valid @RequestBody EnderecoRequest request
-    ) {
+    public ResponseEntity<EnderecoResponse> criar(@Valid @RequestBody EnderecoRequest request) {
         EnderecoResponse response = enderecoService.criar(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -84,7 +80,6 @@ public class EnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'ENDERECO_ATUALIZAR')")
     @PutMapping("/{id}")
     public ResponseEntity<EnderecoResponse> atualizar(
             @PathVariable Long id,
@@ -113,7 +108,6 @@ public class EnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'ENDERECO_VISUALIZAR')")
     @GetMapping("/{id}")
     public ResponseEntity<EnderecoResponse> buscarPorId(@PathVariable Long id) {
         Optional<EnderecoResponse> response = enderecoService.buscarPorId(id);
@@ -143,7 +137,6 @@ public class EnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'ENDERECO_LISTAR')")
     @GetMapping
     public ResponseEntity<List<EnderecoListDTO>> listarTodos() {
         return ResponseEntity.ok(enderecoService.listarTodos());
@@ -166,11 +159,8 @@ public class EnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'ENDERECO_LISTAR')")
     @GetMapping("/pessoa/{pessoaId}")
-    public ResponseEntity<List<EnderecoListDTO>> listarPorPessoa(
-            @PathVariable Long pessoaId
-    ) {
+    public ResponseEntity<List<EnderecoListDTO>> listarPorPessoa(@PathVariable Long pessoaId) {
         return ResponseEntity.ok(enderecoService.listarPorPessoa(pessoaId));
     }
 
@@ -191,7 +181,6 @@ public class EnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'ENDERECO_LISTAR')")
     @GetMapping("/pessoa/{pessoaId}/tipo/{tipo}")
     public ResponseEntity<List<EnderecoListDTO>> listarPorPessoaETipo(
             @PathVariable Long pessoaId,
@@ -217,11 +206,8 @@ public class EnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'ENDERECO_LISTAR')")
     @GetMapping("/municipio/{municipioId}")
-    public ResponseEntity<List<EnderecoListDTO>> listarPorMunicipio(
-            @PathVariable Long municipioId
-    ) {
+    public ResponseEntity<List<EnderecoListDTO>> listarPorMunicipio(@PathVariable Long municipioId) {
         return ResponseEntity.ok(enderecoService.listarPorMunicipio(municipioId));
     }
 
@@ -242,11 +228,8 @@ public class EnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'ENDERECO_LISTAR')")
     @GetMapping("/cep/{cep}")
-    public ResponseEntity<List<EnderecoListDTO>> listarPorCep(
-            @PathVariable String cep
-    ) {
+    public ResponseEntity<List<EnderecoListDTO>> listarPorCep(@PathVariable String cep) {
         return ResponseEntity.ok(enderecoService.listarPorCep(cep));
     }
 
@@ -266,11 +249,8 @@ public class EnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'ENDERECO_VISUALIZAR')")
     @GetMapping("/pessoa/{pessoaId}/principal")
-    public ResponseEntity<EnderecoResponse> buscarPrincipal(
-            @PathVariable Long pessoaId
-    ) {
+    public ResponseEntity<EnderecoResponse> buscarPrincipal(@PathVariable Long pessoaId) {
         Optional<EnderecoResponse> response = enderecoService.buscarPrincipal(pessoaId);
         return response
                 .map(ResponseEntity::ok)
@@ -291,7 +271,6 @@ public class EnderecoController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'ENDERECO_REMOVER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         enderecoService.excluir(id);

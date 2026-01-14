@@ -11,9 +11,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +52,6 @@ public class PessoaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_VISUALIZAR')")
     @GetMapping("/{id}")
     public ResponseEntity<PessoaResponse> buscarPorId(@PathVariable Long id) {
         Optional<PessoaResponse> response = pessoaService.buscarPorId(id);
@@ -80,7 +81,6 @@ public class PessoaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_LISTAR')")
     @GetMapping
     public ResponseEntity<List<PessoaListDTO>> listarTodas() {
         return ResponseEntity.ok(pessoaService.listarTodas());
@@ -103,11 +103,8 @@ public class PessoaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_LISTAR')")
     @GetMapping("/nome/{nome}")
-    public ResponseEntity<List<PessoaListDTO>> listarPorNome(
-            @PathVariable String nome
-    ) {
+    public ResponseEntity<List<PessoaListDTO>> listarPorNome(@PathVariable String nome) {
         return ResponseEntity.ok(pessoaService.listarPorNome(nome));
     }
 
@@ -128,11 +125,8 @@ public class PessoaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_LISTAR')")
     @GetMapping("/nome-exato/{nome}")
-    public ResponseEntity<List<PessoaListDTO>> listarPorNomeExato(
-            @PathVariable String nome
-    ) {
+    public ResponseEntity<List<PessoaListDTO>> listarPorNomeExato(@PathVariable String nome) {
         return ResponseEntity.ok(pessoaService.listarPorNomeExato(nome));
     }
 
@@ -153,11 +147,8 @@ public class PessoaController {
                     @ApiResponse(responseCode = "503", description = "Serviço indisponível")
             }
     )
-    @PreAuthorize("hasPermission(null, 'PESSOA_LISTAR')")
     @GetMapping("/tipo/{tipoPessoa}")
-    public ResponseEntity<List<PessoaListDTO>> listarPorTipo(
-            @PathVariable String tipoPessoa
-    ) {
+    public ResponseEntity<List<PessoaListDTO>> listarPorTipo(@PathVariable String tipoPessoa) {
         return ResponseEntity.ok(pessoaService.listarPorTipo(tipoPessoa));
     }
 }
