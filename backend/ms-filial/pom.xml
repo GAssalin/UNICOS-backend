@@ -21,7 +21,7 @@
 	<groupId>br.com.unicos</groupId>
 	<artifactId>ms-filial</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>ms-filial</name>
+	<name>UNICOS :: MS-Filial</name>
 	<description>
         Microserviço responsável pela gestão de filiais das empresas,
         representando unidades organizacionais e operacionais.
