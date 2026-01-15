@@ -4,8 +4,10 @@
 O **UniCoS (Unique Control System)** é um ERP moderno, modular e escalável, desenvolvido para atender empresas de pequeno e médio porte.  
 Sua arquitetura é baseada em **microserviços independentes**, que se comunicam via REST e são integrados por:
 
+- **Config Server**
 - **Service Registry (Eureka)**  
-- **API Gateway (Spring Cloud Gateway)**  
+- **API Gateway (Spring Cloud Gateway)**
+- **Micro Serviços**
 - **Módulo CORE** publicado como pacote Maven (GitHub Packages)  
 
 O UniCoS oferece flexibilidade para evolução contínua de cada domínio, garantindo desacoplamento, alta disponibilidade e facilidade de manutenção.
@@ -17,30 +19,44 @@ O UniCoS oferece flexibilidade para evolução contínua de cada domínio, garan
 A estrutura geral do UniCoS segue este modelo:
 
 ```
-                                         ┌────────────────────────┐
-                                         │      Config Server     │
-                                         └────────────┬───────────┘
-                                                      │
-                                         ┌────────────┴───────────┐
-                                         │     Service Registry   │
-                                         │        (Eureka)        │
-                                         └────────────┬───────────┘
-                                                      │
-                                            ┌─────────┴─────────┐
-                                            │     API Gateway   │
-                                            │  (Spring Gateway) │
-                                            └─────────┬─────────┘
-                 ┌────────────────┌───────────────────┼───────────────────┐──────────────────┐
-                 │                │                   │                   │                  │
-          ┌────────────┐   ┌──────────────┐   ┌──────────────┐   ┌────────────────┐   ┌──────────────┐
-          │  MS-Auth   │   │  MS-Usuario  │   │  MS-Pessoas  │   │ MS-Notificacao │   │  MS-Empresa  │
-          └────────────┘   └──────────────┘   └──────────────┘   └────────────────┘   └──────────────┘
-                 │                │                  │                    │                  │
-                 └────────────────└──────────────────┼────────────────────┘──────────────────┘
-                                         ┌────────────────────────┐
-                                         │        CORE (DDD)      │
-                                         │  Publicado no GitHub   │
-                                         └────────────────────────┘
+    ┌────────────────────────┐
+    │      Config Server     │
+    └────────────┬───────────┘
+                 │
+    ┌────────────┴───────────┐
+    │     Service Registry   │
+    │        (Eureka)        │
+    └────────────┬───────────┘
+                 │
+       ┌─────────┴─────────┐
+       │     API Gateway   │
+       │  (Spring Gateway) │
+       └─────────┬─────────┘
+                 |                ┌────────────┐
+                 └────────────────│  MS-Auth   │
+                 |                └────────────┘
+                 |                ┌───────────────┐
+                 └────────────────│  MS-Usuario   │
+                 |                └───────────────┘
+                 |                ┌───────────────┐
+                 └────────────────│  MS-Pessoas   │
+                 |                └───────────────┘
+                 |                ┌──────────────────┐
+                 └────────────────│  MS-Notificacao  │
+                 |                └──────────────────┘
+                 |                ┌───────────────┐
+                 └────────────────│  MS-Empresa   │
+                 |                └───────────────┘
+                 |                ┌─────────────┐
+                 └────────────────│  MS-Filial  │
+                 |                └─────────────┘
+                 |                ┌───────────────────┐
+                 └────────────────│  MS-Departamento  │
+                 |                └───────────────────┘
+    ┌────────────────────────┐
+    │        CORE (DDD)      │
+    │  Publicado no GitHub   │
+    └────────────────────────┘
 ```
 
 ---
@@ -61,9 +77,11 @@ A estrutura geral do UniCoS segue este modelo:
 | **gateway** | Gateway reativo do UNICOS com roteamento dinâmico via Spring Cloud Gateway e integração ao Eureka Server. |
 | **ms-auth** | Microserviço responsável pela autenticação, autorização e emissão de tokens JWT. |
 | **ms-usuario** | Microserviço responsável pela gerenciamento de usuários. |
-| **ms-empresa** | Microserviço de gerenciamento de empresas (tenants) do UniCoS. |
 | **ms-pessoas** | Microserviço responsável pela gerenciamento de dados de pessoas físicas e jurídicas. |
 | **ms-notificacao** | Microserviço responsável pelo envio e gerenciamento de notificações da plataforma. |
+| **ms-empresa** | Microserviço de gerenciamento de empresas (tenants) do UniCoS. |
+| **ms-filial** | Microserviço responsável pela gestão de filiais das empresas, representando unidades organizacionais e operacionais. |
+| **ms-departamento** | Microserviço responsável pela gestão de departamentos organizacionais das filiais. |
 | **unicos-core** | Módulo principal de domínios e componentes centrais do ecossistema UniCoS (Unique Control System). |
 
 ---
@@ -116,10 +134,12 @@ backend/
 │   ├── core-tenant/
 │   ├── core-usuario/
 ├── ms-auth/
-├── ms-empresa/
-├── ms-notificacao/
-├── ms-pessoas/
 ├── ms-usuario/
+├── ms-pessoas/
+├── ms-notificacao/
+├── ms-empresa/
+├── ms-filial/
+├── ms-departamento/
 ```
 
 ---
@@ -176,15 +196,23 @@ mvn spring-boot:run
 ```
 
 ```bash
-cd ms-empresa
-mvn spring-boot:run
-```
-```bash
 cd ms-pessoas
 mvn spring-boot:run
 ```
 ```bash
 cd ms-notificacao
+mvn spring-boot:run
+```
+```bash
+cd ms-empresa
+mvn spring-boot:run
+```
+```bash
+cd ms-filial
+mvn spring-boot:run
+```
+```bash
+cd ms-departamento
 mvn spring-boot:run
 ```
 
