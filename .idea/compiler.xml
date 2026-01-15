@@ -10,7 +10,7 @@
         <module name="service-registry" />
         <module name="gateway" />
       </profile>
-      <profile name="Annotation profile for UNICOS :: MS-Filial" enabled="true">
+      <profile name="Annotation profile for UNICOS :: MS-Departamento" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -24,6 +24,7 @@
         <module name="config-server" />
         <module name="core-request" />
         <module name="core-auth" />
+        <module name="ms-departamento" />
         <module name="core-produto" />
         <module name="ms-filial" />
         <module name="core-usuario" />
@@ -47,6 +48,7 @@
       <module name="config-server" options="-parameters" />
       <module name="gateway" options="-parameters" />
       <module name="ms-auth" options="-parameters" />
+      <module name="ms-departamento" options="-parameters" />
       <module name="ms-empresa" options="-parameters" />
       <module name="ms-filial" options="-parameters" />
       <module name="ms-notificacao" options="-parameters" />

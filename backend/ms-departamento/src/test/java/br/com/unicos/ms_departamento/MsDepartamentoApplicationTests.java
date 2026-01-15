@@ -1,0 +1,13 @@
+package br.com.unicos.ms_departamento;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class MsDepartamentoApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
