@@ -1,5 +1,6 @@
 package br.com.unicos.ms_pessoas.service;
 
+import br.com.unicos.ms_pessoas.client.AuthClient;
 import br.com.unicos.ms_pessoas.dto.endereco.EnderecoListDTO;
 import br.com.unicos.ms_pessoas.dto.endereco.EnderecoRequest;
 import br.com.unicos.ms_pessoas.dto.endereco.EnderecoResponse;
@@ -16,6 +17,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,6 +34,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class EnderecoService {
 
+    private final AuthClient authClient;
     private final EnderecoRepository repository;
     private final PessoaRepository pessoaRepository;
     private final MunicipioRepository municipioRepository;
@@ -45,6 +48,9 @@ public class EnderecoService {
     @Transactional
     @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdmin")
     public EnderecoResponse criar(EnderecoRequest request) {
+        if (!authClient.usuarioPossuiPermissao("PESSOA_ENDERECO_CRIAR"))
+            throw new AccessDeniedException("Usuário não possui permissão para criar endereços.");
+
         Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
 
@@ -70,6 +76,9 @@ public class EnderecoService {
     @Transactional
     @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdmin")
     public EnderecoResponse atualizar(Long id, EnderecoRequest request) {
+        if (!authClient.usuarioPossuiPermissao("PESSOA_ENDERECO_EDITAR"))
+            throw new AccessDeniedException("Usuário não possui permissão para editar endereços.");
+
         Endereco endereco = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Endereço não encontrado"));
 
@@ -106,8 +115,12 @@ public class EnderecoService {
     @Transactional
     @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminVoid")
     public void excluir(Long id) {
+        if (!authClient.usuarioPossuiPermissao("PESSOA_ENDERECO_EXCLUIR"))
+            throw new AccessDeniedException("Usuário não possui permissão para excluir endereços.");
+
         if (!repository.existsById(id))
             throw new EntityNotFoundException("Endereço não encontrado.");
+
         repository.deleteById(id);
     }
 
@@ -118,6 +131,8 @@ public class EnderecoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminOptional")
     public Optional<EnderecoResponse> buscarPorId(Long id) {
+        if (!authClient.usuarioPossuiPermissao("PESSOA_ENDERECO_LISTAR"))
+            throw new AccessDeniedException("Usuário não possui permissão para visualizar endereços.");
         return repository.findById(id)
                 .map(mapper::toResponse);
     }
@@ -129,6 +144,8 @@ public class EnderecoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminList")
     public List<EnderecoListDTO> listarTodos() {
+        if (!authClient.usuarioPossuiPermissao("PESSOA_ENDERECO_LISTAR"))
+            throw new AccessDeniedException("Usuário não possui permissão para listar endereços.");
         return repository.findAll()
                 .stream()
                 .map(mapper::toListDTO)
@@ -138,6 +155,9 @@ public class EnderecoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminListPessoa")
     public List<EnderecoListDTO> listarPorPessoa(Long pessoaId) {
+        if (!authClient.usuarioPossuiPermissao("PESSOA_ENDERECO_LISTAR"))
+            throw new AccessDeniedException("Usuário não possui permissão para listar endereços.");
+
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
 
@@ -150,6 +170,9 @@ public class EnderecoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminListPessoaTipo")
     public List<EnderecoListDTO> listarPorPessoaETipo(Long pessoaId, String tipo) {
+        if (!authClient.usuarioPossuiPermissao("PESSOA_ENDERECO_LISTAR"))
+            throw new AccessDeniedException("Usuário não possui permissão para listar endereços.");
+
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
 
@@ -169,6 +192,9 @@ public class EnderecoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminListMunicipio")
     public List<EnderecoListDTO> listarPorMunicipio(Long municipioId) {
+        if (!authClient.usuarioPossuiPermissao("PESSOA_ENDERECO_LISTAR"))
+            throw new AccessDeniedException("Usuário não possui permissão para listar endereços.");
+
         Municipio municipio = municipioRepository.findById(municipioId)
                 .orElseThrow(() -> new EntityNotFoundException("Município não encontrado"));
 
@@ -181,6 +207,8 @@ public class EnderecoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminListCep")
     public List<EnderecoListDTO> listarPorCep(String cep) {
+        if (!authClient.usuarioPossuiPermissao("PESSOA_ENDERECO_LISTAR"))
+            throw new AccessDeniedException("Usuário não possui permissão para listar endereços.");
         return repository.findByCep(cep)
                 .stream()
                 .map(mapper::toListDTO)
@@ -194,6 +222,9 @@ public class EnderecoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminOptionalPessoa")
     public Optional<EnderecoResponse> buscarPrincipal(Long pessoaId) {
+        if (!authClient.usuarioPossuiPermissao("PESSOA_ENDERECO_LISTAR"))
+            throw new AccessDeniedException("Usuário não possui permissão para visualizar endereços.");
+
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
 
@@ -229,11 +260,7 @@ public class EnderecoService {
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de endereços da pessoa temporariamente indisponível");
     }
 
-    private List<EnderecoListDTO> fallbackAdminListPessoaTipo(
-            Long pessoaId,
-            String tipo,
-            Throwable ex
-    ) {
+    private List<EnderecoListDTO> fallbackAdminListPessoaTipo(Long pessoaId, String tipo, Throwable ex) {
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de endereços da pessoa temporariamente indisponível");
     }
 

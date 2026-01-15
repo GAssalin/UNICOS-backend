@@ -2,6 +2,7 @@ package br.com.unicos.ms_empresa.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
+import br.com.unicos.ms_empresa.client.AuthClient;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioResponse;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioResumoResponse;
@@ -41,17 +42,17 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
 
     private final EmpresaUsuarioRepository repository;
     private final EmpresaUsuarioMapper mapper;
-    private final PermissionCheckService permissionCheckService;
+    private final AuthClient authClient;
 
     public EmpresaUsuarioService(
             EmpresaUsuarioRepository repository,
             EmpresaUsuarioMapper mapper,
-            PermissionCheckService permissionCheckService
+            AuthClient authClient
     ) {
         super(repository);
         this.repository = repository;
         this.mapper = mapper;
-        this.permissionCheckService = permissionCheckService;
+        this.authClient = authClient;
     }
 
     // ============================================================
@@ -60,7 +61,7 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
 
     @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaUsuarioResponse criar(EmpresaUsuarioCreateRequest request) {
-        if (!permissionCheckService.hasPermission("EMPRESA_USUARIO_CRIAR"))
+        if (!authClient.usuarioPossuiPermissao("EMPRESA_USUARIO_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para vincular usuários à empresa.");
 
         Empresa empresa = empresaRef(request.empresaRefId());
@@ -83,7 +84,7 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
             Long usuarioId,
             EmpresaUsuarioUpdateRequest request
     ) {
-        if (!permissionCheckService.hasPermission("EMPRESA_USUARIO_EDITAR"))
+        if (!authClient.usuarioPossuiPermissao("EMPRESA_USUARIO_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para alterar perfis.");
 
         EmpresaUsuario vinculo = buscarVinculo(empresaRefId, usuarioId);
@@ -102,7 +103,7 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaUsuarioResponse buscar(Long empresaRefId, Long usuarioId) {
-        if (!permissionCheckService.hasPermission("EMPRESA_USUARIO_LISTAR"))
+        if (!authClient.usuarioPossuiPermissao("EMPRESA_USUARIO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar vínculos.");
         return mapper.toResponse(buscarVinculo(empresaRefId, usuarioId));
     }
@@ -114,7 +115,7 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdminPage")
     public Page<EmpresaUsuarioResumoResponse> listar(Long empresaRefId, Pageable pageable) {
-        if (!permissionCheckService.hasPermission("EMPRESA_USUARIO_LISTAR"))
+        if (!authClient.usuarioPossuiPermissao("EMPRESA_USUARIO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar usuários.");
 
         Empresa empresa = empresaRef(empresaRefId);
@@ -135,7 +136,7 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
             PerfilEmpresaUsuario perfil,
             Pageable pageable
     ) {
-        if (!permissionCheckService.hasPermission("EMPRESA_USUARIO_LISTAR"))
+        if (!authClient.usuarioPossuiPermissao("EMPRESA_USUARIO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar usuários.");
 
         Empresa empresa = empresaRef(empresaRefId);
@@ -156,7 +157,7 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
 
     @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long empresaRefId, Long usuarioId) {
-        if (!permissionCheckService.hasPermission("EMPRESA_USUARIO_EXCLUIR"))
+        if (!authClient.usuarioPossuiPermissao("EMPRESA_USUARIO_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para remover usuários da empresa.");
 
         EmpresaUsuario vinculo = buscarVinculo(empresaRefId, usuarioId);

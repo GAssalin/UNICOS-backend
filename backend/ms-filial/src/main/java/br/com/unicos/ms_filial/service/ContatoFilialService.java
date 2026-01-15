@@ -2,6 +2,7 @@ package br.com.unicos.ms_filial.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
+import br.com.unicos.ms_filial.client.AuthClient;
 import br.com.unicos.ms_filial.dto.contato.ContatoFilialCreateRequest;
 import br.com.unicos.ms_filial.dto.contato.ContatoFilialResponse;
 import br.com.unicos.ms_filial.dto.contato.ContatoFilialUpdateRequest;
@@ -24,22 +25,22 @@ public class ContatoFilialService extends BaseTenantService<ContatoFilial, Long>
 
     private final ContatoFilialRepository contatoRepository;
     private final ContatoFilialMapper contatoMapper;
-    private final PermissionCheckService permissionCheckService;
+    private final AuthClient authClient;
 
     public ContatoFilialService(
             ContatoFilialRepository contatoRepository,
             ContatoFilialMapper contatoMapper,
-            PermissionCheckService permissionCheckService
+            AuthClient authClient
     ) {
         super(contatoRepository);
         this.contatoRepository = contatoRepository;
         this.contatoMapper = contatoMapper;
-        this.permissionCheckService = permissionCheckService;
+        this.authClient = authClient;
     }
 
     @CircuitBreaker(name = "filial-contato-admin", fallbackMethod = "fallbackAdmin")
     public ContatoFilialResponse salvar(ContatoFilialCreateRequest request) {
-        if (!permissionCheckService.hasPermission("FILIAL_CONTATO_CRIAR"))
+        if (!authClient.usuarioPossuiPermissao("FILIAL_CONTATO_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para criar contatos de filial.");
 
         validarEmailDuplicado(request.filialId(), request.emailPrincipal());
@@ -52,7 +53,7 @@ public class ContatoFilialService extends BaseTenantService<ContatoFilial, Long>
 
     @CircuitBreaker(name = "filial-contato-admin", fallbackMethod = "fallbackAdmin")
     public ContatoFilialResponse atualizar(Long id, ContatoFilialUpdateRequest request) {
-        if (!permissionCheckService.hasPermission("FILIAL_CONTATO_EDITAR"))
+        if (!authClient.usuarioPossuiPermissao("FILIAL_CONTATO_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para editar contatos de filial.");
 
         ContatoFilial entity = buscarContato(id);
@@ -68,7 +69,7 @@ public class ContatoFilialService extends BaseTenantService<ContatoFilial, Long>
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "filial-contato-admin", fallbackMethod = "fallbackAdminId")
     public ContatoFilialResponse buscarPorId(Long id) {
-        if (!permissionCheckService.hasPermission("FILIAL_CONTATO_LISTAR"))
+        if (!authClient.usuarioPossuiPermissao("FILIAL_CONTATO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar contatos de filial.");
         return contatoMapper.toResponse(buscarContato(id));
     }
@@ -76,7 +77,7 @@ public class ContatoFilialService extends BaseTenantService<ContatoFilial, Long>
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "filial-contato-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ContatoFilialResponse> listarPorFilial(Long filialId, Pageable pageable) {
-        if (!permissionCheckService.hasPermission("FILIAL_CONTATO_LISTAR"))
+        if (!authClient.usuarioPossuiPermissao("FILIAL_CONTATO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar contatos de filial.");
         return contatoRepository
                 .findByFilialIdAndEmpresaId(filialId, TenantContext.getEmpresaId(), pageable)
@@ -85,7 +86,7 @@ public class ContatoFilialService extends BaseTenantService<ContatoFilial, Long>
 
     @CircuitBreaker(name = "filial-contato-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
-        if (!permissionCheckService.hasPermission("FILIAL_CONTATO_EXCLUIR"))
+        if (!authClient.usuarioPossuiPermissao("FILIAL_CONTATO_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para excluir contatos de filial.");
         contatoRepository.delete(buscarContato(id));
     }
