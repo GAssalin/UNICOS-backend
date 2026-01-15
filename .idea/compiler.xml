@@ -24,8 +24,8 @@
         <module name="config-server" />
         <module name="core-request" />
         <module name="core-auth" />
-        <module name="ms-departamento" />
         <module name="core-produto" />
+        <module name="ms-departamento" />
         <module name="ms-filial" />
         <module name="core-usuario" />
         <module name="ms-notificacao" />

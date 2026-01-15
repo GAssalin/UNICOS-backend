@@ -15,10 +15,11 @@ public class DocumentationController {
     public String documentationPortal() {
 
         String authUrl = resolveServiceUrl("ms-auth");
-        String produtosUrl = resolveServiceUrl("ms-produtos");
+        String usuarioUrl = resolveServiceUrl("ms-usuario");
         String pessoasUrl = resolveServiceUrl("ms-pessoas");
         String empresaUrl = resolveServiceUrl("ms-empresa");
-        String usuarioUrl = resolveServiceUrl("ms-usuario");
+        String filialUrl = resolveServiceUrl("ms-filial");
+        String departamentoUrl = resolveServiceUrl("ms-departamento");
 
         return """
                 <html>
@@ -59,26 +60,38 @@ public class DocumentationController {
                     </div>
                     
                     <div class="card">
+                      <strong>MS-PESSOAS</strong><br/>
+                      <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
+                      <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
+                    </div>
+                    
+                    <div class="card">
                       <strong>MS-EMPRESA</strong><br/>
                       <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
                       <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
                     </div>
 
                     <div class="card">
-                      <strong>MS-PRODUTOS</strong><br/>
+                      <strong>MS-FILIAL</strong><br/>
                       <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
                       <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
                     </div>
 
                     <div class="card">
-                      <strong>MS-PESSOAS</strong><br/>
+                      <strong>MS-DEPARTAMENTO</strong><br/>
                       <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
                       <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
                     </div>
 
                   </body>
                 </html>
-                """.formatted(authUrl, authUrl, usuarioUrl, usuarioUrl, empresaUrl, empresaUrl, produtosUrl, produtosUrl, pessoasUrl, pessoasUrl);
+                """.formatted(
+                        authUrl, authUrl,
+                        usuarioUrl, usuarioUrl,
+                        pessoasUrl, pessoasUrl,
+                        empresaUrl, empresaUrl,
+                        filialUrl, filialUrl,
+                        departamentoUrl, departamentoUrl);
     }
 
     private String resolveServiceUrl(String serviceId) {
