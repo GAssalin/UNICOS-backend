@@ -1,4 +1,4 @@
-package br.com.unicos.ms_departamento.dto;
+package br.com.unicos.ms_departamento.dto.responsavel;
 
 import br.com.unicos.ms_departamento.enums.PapelResponsavelDepartamento;
 import br.com.unicos.ms_departamento.enums.StatusResponsavelDepartamento;

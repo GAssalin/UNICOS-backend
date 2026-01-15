@@ -1,7 +1,7 @@
 package br.com.unicos.ms_departamento.mapper;
 
-import br.com.unicos.ms_departamento.dto.ResponsavelDepartamentoCreateRequestDto;
-import br.com.unicos.ms_departamento.dto.ResponsavelDepartamentoUpdateRequestDto;
+import br.com.unicos.ms_departamento.dto.responsavel.ResponsavelDepartamentoCreateRequestDto;
+import br.com.unicos.ms_departamento.dto.responsavel.ResponsavelDepartamentoUpdateRequestDto;
 import br.com.unicos.ms_departamento.dto.responsavel.ResponsavelDepartamentoResponseDto;
 import br.com.unicos.ms_departamento.model.ResponsavelDepartamento;
 import lombok.RequiredArgsConstructor;
