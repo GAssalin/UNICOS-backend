@@ -2,6 +2,7 @@ package br.com.unicos.ms_empresa.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
+import br.com.unicos.ms_empresa.client.AuthClient;
 import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoResponse;
 import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoResumoResponse;
@@ -27,17 +28,17 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
 
     private final EmpresaContatoRepository repository;
     private final EmpresaContatoMapper mapper;
-    private final PermissionCheckService permissionCheckService;
+    private final AuthClient authClient;
 
     public EmpresaContatoService(
             EmpresaContatoRepository repository,
             EmpresaContatoMapper mapper,
-            PermissionCheckService permissionCheckService
+            AuthClient authClient
     ) {
         super(repository);
         this.repository = repository;
         this.mapper = mapper;
-        this.permissionCheckService = permissionCheckService;
+        this.authClient = authClient;
     }
 
     // ============================================================
@@ -46,7 +47,7 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
 
     @CircuitBreaker(name = "empresa-contato-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaContatoResponse criar(EmpresaContatoCreateRequest request) {
-        if (!permissionCheckService.hasPermission("EMPRESA_CONTATO_CRIAR"))
+        if (!authClient.usuarioPossuiPermissao("EMPRESA_CONTATO_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para criar contatos da empresa.");
 
         Empresa empresa = empresaRef(request.empresaRefId());
@@ -67,7 +68,7 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
 
     @CircuitBreaker(name = "empresa-contato-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaContatoResponse atualizar(Long id, EmpresaContatoUpdateRequest request) {
-        if (!permissionCheckService.hasPermission("EMPRESA_CONTATO_EDITAR"))
+        if (!authClient.usuarioPossuiPermissao("EMPRESA_CONTATO_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para editar contatos da empresa.");
 
         EmpresaContato contato = buscarContato(id);
@@ -94,7 +95,7 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "empresa-contato-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaContatoResponse buscarPorId(Long id) {
-        if (!permissionCheckService.hasPermission("EMPRESA_CONTATO_LISTAR"))
+        if (!authClient.usuarioPossuiPermissao("EMPRESA_CONTATO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar contatos da empresa.");
         return mapper.toResponse(buscarContato(id));
     }
@@ -106,7 +107,7 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "empresa-contato-admin", fallbackMethod = "fallbackAdminPage")
     public Page<EmpresaContatoResumoResponse> listar(Long empresaRefId, Pageable pageable) {
-        if (!permissionCheckService.hasPermission("EMPRESA_CONTATO_LISTAR"))
+        if (!authClient.usuarioPossuiPermissao("EMPRESA_CONTATO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar contatos da empresa.");
 
         Empresa empresa = empresaRef(empresaRefId);
@@ -127,7 +128,7 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
             TipoContatoEmpresa tipo,
             Pageable pageable
     ) {
-        if (!permissionCheckService.hasPermission("EMPRESA_CONTATO_LISTAR"))
+        if (!authClient.usuarioPossuiPermissao("EMPRESA_CONTATO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar contatos da empresa.");
 
         Empresa empresa = empresaRef(empresaRefId);
@@ -148,7 +149,7 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
 
     @CircuitBreaker(name = "empresa-contato-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
-        if (!permissionCheckService.hasPermission("EMPRESA_CONTATO_EXCLUIR"))
+        if (!authClient.usuarioPossuiPermissao("EMPRESA_CONTATO_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para excluir contatos da empresa.");
 
         repository.delete(buscarContato(id));
