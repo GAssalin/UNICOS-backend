@@ -57,6 +57,8 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAuth")
     public UsuarioAuthResponse buscarParaAutenticacao(String email) {
+        if (!authClient.usuarioPossuiPermissao("USUARIO_LISTAR"))
+            throw new AccessDeniedException("Usuário não possui permissão para esta operação");
         Usuario usuario = usuarioRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
         return new UsuarioAuthResponse(
