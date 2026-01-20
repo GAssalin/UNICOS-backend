@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
-        name = "ms-auth",
+        name = "ms-autenticacao",
         contextId = "AuthClient"
 )
 public interface AuthClient {
 
-    @PostMapping("/internal/auth/validate-token")
+    @PostMapping("/internal/autenticacao/validate-token")
     TokenValidationResponse validateToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization);
 
 }

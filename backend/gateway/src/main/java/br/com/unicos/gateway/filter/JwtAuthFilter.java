@@ -36,7 +36,7 @@ public class JwtAuthFilter implements GatewayFilter {
         if (
                 path.equals("/v1/autenticacao/login") ||
                         path.startsWith("/ms-usuario/internal/") ||
-                        path.startsWith("/ms-auth/internal/")
+                        path.startsWith("/ms-autenticacao/internal/")
         ) {
             return chain.filter(exchange);
         }

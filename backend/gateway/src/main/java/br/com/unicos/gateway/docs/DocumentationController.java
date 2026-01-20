@@ -14,7 +14,8 @@ public class DocumentationController {
     @GetMapping("/docs")
     public String documentationPortal() {
 
-        String authUrl = resolveServiceUrl("ms-auth");
+        String autenticacaoUrl = resolveServiceUrl("ms-autenticacao");
+        String permissaoUrl = resolveServiceUrl("ms-permissao");
         String usuarioUrl = resolveServiceUrl("ms-usuario");
         String pessoasUrl = resolveServiceUrl("ms-pessoas");
         String empresaUrl = resolveServiceUrl("ms-empresa");
@@ -48,7 +49,13 @@ public class DocumentationController {
                     <p>Acesse abaixo a documentação dos microserviços:</p>
 
                     <div class="card">
-                      <strong>MS-AUTH</strong><br/>
+                      <strong>MS-AUTENTICACAO</strong><br/>
+                      <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
+                      <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
+                    </div>
+                    
+                    <div class="card">
+                      <strong>MS-PERMISSAO</strong><br/>
                       <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
                       <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
                     </div>
@@ -86,7 +93,8 @@ public class DocumentationController {
                   </body>
                 </html>
                 """.formatted(
-                        authUrl, authUrl,
+                        autenticacaoUrl, autenticacaoUrl,
+                        permissaoUrl, permissaoUrl,
                         usuarioUrl, usuarioUrl,
                         pessoasUrl, pessoasUrl,
                         empresaUrl, empresaUrl,

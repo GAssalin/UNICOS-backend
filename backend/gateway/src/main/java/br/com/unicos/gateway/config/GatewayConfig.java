@@ -23,15 +23,27 @@ public class GatewayConfig {
                 )
 
                 // ===============================
-                // ROTA: MS-AUTH (sem JWT)
+                // ROTA: MS-AUTENTICACAO (sem JWT)
                 // ===============================
-                .route("ms-auth", r -> r
-                        .path("/ms-auth/**")
+                .route("ms-autenticacao", r -> r
+                        .path("/ms-autenticacao/**")
                         .filters(f -> f
                                 .stripPrefix(1)
                                 .filter(jwtAuthFilter)
                         )
-                        .uri("lb://ms-auth")
+                        .uri("lb://ms-autenticacao")
+                )
+
+                // ===============================
+                // ROTA: MS-PERMISSAO (COM JWT)
+                // ===============================
+                .route("ms-permissao", r -> r
+                        .path("/ms-permissao/**")
+                        .filters(f -> f
+                                .stripPrefix(1)
+                                .filter(jwtAuthFilter)
+                        )
+                        .uri("lb://ms-permissao")
                 )
 
                 // ===============================
@@ -47,18 +59,6 @@ public class GatewayConfig {
                 )
 
                 // ===============================
-                // ROTA: MS-PRODUTOS (COM JWT)
-                // ===============================
-                .route("ms-produtos", r -> r
-                        .path("/ms-produtos/**")
-                        .filters(f -> f
-                                .stripPrefix(1)
-                                .filter(jwtAuthFilter)
-                        )
-                        .uri("lb://ms-produtos")
-                )
-
-                // ===============================
                 // ROTA: MS-PESSOAS (COM JWT)
                 // ===============================
                 .route("ms-pessoas", r -> r
@@ -68,6 +68,42 @@ public class GatewayConfig {
                                 .filter(jwtAuthFilter)
                         )
                         .uri("lb://ms-pessoas")
+                )
+
+                // ===============================
+                // ROTA: MS-EMPRESA (COM JWT)
+                // ===============================
+                .route("ms-empresa", r -> r
+                        .path("/ms-empresa/**")
+                        .filters(f -> f
+                                .stripPrefix(1)
+                                .filter(jwtAuthFilter)
+                        )
+                        .uri("lb://ms-empresa")
+                )
+
+                // ===============================
+                // ROTA: MS-FILIAL (COM JWT)
+                // ===============================
+                .route("ms-filial", r -> r
+                        .path("/ms-filial/**")
+                        .filters(f -> f
+                                .stripPrefix(1)
+                                .filter(jwtAuthFilter)
+                        )
+                        .uri("lb://ms-filial")
+                )
+
+                // ===============================
+                // ROTA: MS-DEPARTAMENTO (COM JWT)
+                // ===============================
+                .route("ms-departamento", r -> r
+                        .path("/ms-departamento/**")
+                        .filters(f -> f
+                                .stripPrefix(1)
+                                .filter(jwtAuthFilter)
+                        )
+                        .uri("lb://ms-departamento")
                 )
 
                 .build();
