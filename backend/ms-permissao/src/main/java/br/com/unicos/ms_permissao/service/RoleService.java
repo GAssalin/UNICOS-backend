@@ -37,7 +37,7 @@ public class RoleService extends BaseTenantService<Role, Long> {
     // ============================================================
 
     @Transactional
-    @CircuitBreaker(name = "auth-role-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "role-admin", fallbackMethod = "fallbackAdmin")
     public RoleResponse salvar(RoleRequest request) {
         validarNomeDuplicado(request.nome());
 
@@ -54,7 +54,7 @@ public class RoleService extends BaseTenantService<Role, Long> {
     // ============================================================
 
     @Transactional
-    @CircuitBreaker(name = "auth-role-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "role-admin", fallbackMethod = "fallbackAdmin")
     public RoleResponse atualizar(Long id, RoleRequest request) {
 
         Role entity = buscarEntidadePorId(id);
@@ -74,7 +74,7 @@ public class RoleService extends BaseTenantService<Role, Long> {
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "auth-role-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "role-admin", fallbackMethod = "fallbackAdmin")
     public RoleResponse buscarPorId(Long id) {
         return roleMapper.toResponse(buscarEntidadePorId(id));
     }
@@ -84,7 +84,7 @@ public class RoleService extends BaseTenantService<Role, Long> {
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "auth-role-admin", fallbackMethod = "fallbackAdminList")
+    @CircuitBreaker(name = "role-admin", fallbackMethod = "fallbackAdminList")
     public List<RoleResponse> listarTodos() {
         return roleRepository.findAll()
                 .stream()
@@ -96,7 +96,7 @@ public class RoleService extends BaseTenantService<Role, Long> {
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "auth-role-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "role-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         if (!roleRepository.existsById(id))
             throw new EntityNotFoundException("Role não encontrada: " + id);

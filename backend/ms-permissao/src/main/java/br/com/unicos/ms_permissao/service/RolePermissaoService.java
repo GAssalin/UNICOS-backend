@@ -50,7 +50,7 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
     // ============================================================
 
     @Transactional
-    @CircuitBreaker(name = "auth-role-permissao-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "role-permissao-admin", fallbackMethod = "fallbackAdmin")
     public RolePermissaoResponse criar(RolePermissaoRequest request) {
         if (rolePermissaoRepository.existsByRoleIdAndPermissaoIdAndEmpresaId(
                 request.roleId(),
@@ -81,7 +81,7 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
     // ============================================================
 
     @Transactional
-    @CircuitBreaker(name = "auth-role-permissao-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "role-permissao-admin", fallbackMethod = "fallbackAdmin")
     public RolePermissaoResponse alterarStatus(Long id, boolean ativo) {
         RolePermissao entity = findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Vínculo Empresa-Role-Permissão não encontrado"));
@@ -94,7 +94,7 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "auth-role-permissao-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "role-permissao-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
         if (!rolePermissaoRepository.existsById(id))
             throw new EntityNotFoundException("Vínculo Empresa-Role-Permissão não encontrado");
@@ -106,7 +106,7 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "auth-role-permissao-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "role-permissao-admin", fallbackMethod = "fallbackAdminPage")
     public Page<RolePermissaoListDTO> listarPorEmpresa(Long empresaId, Pageable pageable) {
         Page<RolePermissao> entidades =
                 rolePermissaoRepository.findAllByEmpresaId(
@@ -122,7 +122,7 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "auth-role-permissao-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "role-permissao-admin", fallbackMethod = "fallbackAdminPage")
     public Page<RolePermissaoListDTO> listarAtivosPorEmpresa(Long empresaId, Pageable pageable) {
         List<RolePermissao> ativos =
                 rolePermissaoRepository.findByAtivoTrueAndEmpresaId(empresaId);
