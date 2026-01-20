@@ -1,6 +1,6 @@
 package br.com.unicos.ms_pessoas.service;
 
-import br.com.unicos.ms_pessoas.client.AuthClient;
+import br.com.unicos.ms_pessoas.client.PermissaoClient;
 import br.com.unicos.ms_pessoas.dto.municipio.MunicipioListDTO;
 import br.com.unicos.ms_pessoas.dto.municipio.MunicipioRequest;
 import br.com.unicos.ms_pessoas.dto.municipio.MunicipioResponse;
@@ -25,7 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MunicipioService {
 
-    private final AuthClient authClient;
+    private final PermissaoClient permissaoClient;
     private final MunicipioRepository repository;
     private final MunicipioMapper mapper;
     private final ModelMapper modelMapper;
@@ -37,7 +37,7 @@ public class MunicipioService {
     @Transactional
     @CircuitBreaker(name = "pessoa-municipio-admin", fallbackMethod = "fallbackAdmin")
     public MunicipioResponse criar(MunicipioRequest request) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_CRIAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para criar municípios.");
 
         repository.findByNome(request.nome()).ifPresent(existing -> {
@@ -63,7 +63,7 @@ public class MunicipioService {
     @Transactional
     @CircuitBreaker(name = "pessoa-municipio-admin", fallbackMethod = "fallbackAdmin")
     public MunicipioResponse atualizar(Long id, MunicipioRequest request) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_EDITAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para editar municípios.");
 
         Municipio municipio = repository.findById(id)
@@ -94,7 +94,7 @@ public class MunicipioService {
     @Transactional
     @CircuitBreaker(name = "pessoa-municipio-admin", fallbackMethod = "fallbackAdminVoid")
     public void excluir(Long id) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_EXCLUIR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para excluir municípios.");
 
         if (!repository.existsById(id))
@@ -110,7 +110,7 @@ public class MunicipioService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-municipio-admin", fallbackMethod = "fallbackAdminOptional")
     public Optional<MunicipioResponse> buscarPorId(Long id) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar municípios.");
         return repository.findById(id)
                 .map(mapper::toResponse);
@@ -123,7 +123,7 @@ public class MunicipioService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-municipio-admin", fallbackMethod = "fallbackAdminList")
     public List<MunicipioListDTO> listarTodos() {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar municípios.");
         return repository.findAll()
                 .stream()
@@ -134,7 +134,7 @@ public class MunicipioService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-municipio-admin", fallbackMethod = "fallbackAdminListNome")
     public List<MunicipioListDTO> listarPorNome(String nome) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar municípios.");
         return repository.findByNomeContainingIgnoreCase(nome)
                 .stream()
@@ -145,7 +145,7 @@ public class MunicipioService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-municipio-admin", fallbackMethod = "fallbackAdminListUf")
     public List<MunicipioListDTO> listarPorUf(String uf) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar municípios.");
 
         Uf ufEnum;
@@ -168,7 +168,7 @@ public class MunicipioService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-municipio-admin", fallbackMethod = "fallbackAdminOptionalIbge")
     public Optional<MunicipioResponse> buscarPorCodigoIbge(String codigoIbge) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_MUNICIPIO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar municípios.");
         return repository.findByCodigoIbge(codigoIbge)
                 .map(mapper::toResponse);

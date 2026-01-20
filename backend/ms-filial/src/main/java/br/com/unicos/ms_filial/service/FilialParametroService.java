@@ -2,7 +2,7 @@ package br.com.unicos.ms_filial.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
-import br.com.unicos.ms_filial.client.AuthClient;
+import br.com.unicos.ms_filial.client.PermissaoClient;
 import br.com.unicos.ms_filial.dto.parametro.FilialParametroCreateRequest;
 import br.com.unicos.ms_filial.dto.parametro.FilialParametroResponse;
 import br.com.unicos.ms_filial.dto.parametro.FilialParametroUpdateRequest;
@@ -25,22 +25,22 @@ public class FilialParametroService extends BaseTenantService<FilialParametro, L
 
     private final FilialParametroRepository parametroRepository;
     private final FilialParametroMapper parametroMapper;
-    private final AuthClient authClient;
+    private final PermissaoClient permissaoClient;
 
     public FilialParametroService(
             FilialParametroRepository parametroRepository,
             FilialParametroMapper parametroMapper,
-            AuthClient authClient
+            PermissaoClient permissaoClient
     ) {
         super(parametroRepository);
         this.parametroRepository = parametroRepository;
         this.parametroMapper = parametroMapper;
-        this.authClient = authClient;
+        this.permissaoClient = permissaoClient;
     }
 
     @CircuitBreaker(name = "filial-parametro-admin", fallbackMethod = "fallbackAdmin")
     public FilialParametroResponse salvar(FilialParametroCreateRequest request) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_PARAMETRO_CRIAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_PARAMETRO_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para criar parâmetros de filial.");
 
         validarChaveDuplicada(request.filialId(), request.chave());
@@ -53,7 +53,7 @@ public class FilialParametroService extends BaseTenantService<FilialParametro, L
 
     @CircuitBreaker(name = "filial-parametro-admin", fallbackMethod = "fallbackAdmin")
     public FilialParametroResponse atualizar(Long id, FilialParametroUpdateRequest request) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_PARAMETRO_EDITAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_PARAMETRO_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para editar parâmetros de filial.");
 
         FilialParametro entity = buscarParametro(id);
@@ -69,7 +69,7 @@ public class FilialParametroService extends BaseTenantService<FilialParametro, L
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "filial-parametro-admin", fallbackMethod = "fallbackAdminId")
     public FilialParametroResponse buscarPorId(Long id) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_PARAMETRO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_PARAMETRO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar parâmetros de filial.");
         return parametroMapper.toResponse(buscarParametro(id));
     }
@@ -77,7 +77,7 @@ public class FilialParametroService extends BaseTenantService<FilialParametro, L
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "filial-parametro-admin", fallbackMethod = "fallbackAdminPage")
     public Page<FilialParametroResponse> listarPorFilial(Long filialId, Pageable pageable) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_PARAMETRO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_PARAMETRO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar parâmetros de filial.");
         return parametroRepository
                 .findByFilialIdAndEmpresaId(filialId, TenantContext.getEmpresaId(), pageable)
@@ -86,7 +86,7 @@ public class FilialParametroService extends BaseTenantService<FilialParametro, L
 
     @CircuitBreaker(name = "filial-parametro-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_PARAMETRO_EXCLUIR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_PARAMETRO_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para excluir parâmetros de filial.");
         parametroRepository.delete(buscarParametro(id));
     }

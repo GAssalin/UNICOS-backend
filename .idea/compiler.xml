@@ -10,7 +10,7 @@
         <module name="service-registry" />
         <module name="gateway" />
       </profile>
-      <profile name="Annotation profile for UNICOS :: MS-Departamento" enabled="true">
+      <profile name="Annotation profile for UNICOS :: MS-Auth" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -18,14 +18,16 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
         </processorPath>
         <module name="ms-auth" />
+        <module name="ms-autenticacao" />
         <module name="ms-usuario" />
         <module name="ms-empresa" />
         <module name="ms-pessoas" />
         <module name="config-server" />
+        <module name="ms-permissao" />
         <module name="core-request" />
         <module name="core-auth" />
-        <module name="core-produto" />
         <module name="ms-departamento" />
+        <module name="core-produto" />
         <module name="ms-filial" />
         <module name="core-usuario" />
         <module name="ms-notificacao" />
@@ -47,11 +49,13 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="config-server" options="-parameters" />
       <module name="gateway" options="-parameters" />
+      <module name="ms-autenticacao" options="-parameters" />
       <module name="ms-auth" options="-parameters" />
       <module name="ms-departamento" options="-parameters" />
       <module name="ms-empresa" options="-parameters" />
       <module name="ms-filial" options="-parameters" />
       <module name="ms-notificacao" options="-parameters" />
+      <module name="ms-permissao" options="-parameters" />
       <module name="ms-pessoas" options="-parameters" />
       <module name="ms-produtos" options="-parameters" />
       <module name="ms-usuario" options="-parameters" />

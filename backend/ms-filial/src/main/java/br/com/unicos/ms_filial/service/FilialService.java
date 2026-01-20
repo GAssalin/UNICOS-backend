@@ -2,7 +2,7 @@ package br.com.unicos.ms_filial.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
-import br.com.unicos.ms_filial.client.AuthClient;
+import br.com.unicos.ms_filial.client.PermissaoClient;
 import br.com.unicos.ms_filial.dto.filial.FilialCreateRequest;
 import br.com.unicos.ms_filial.dto.filial.FilialResponse;
 import br.com.unicos.ms_filial.dto.filial.FilialUpdateRequest;
@@ -26,17 +26,17 @@ public class FilialService extends BaseTenantService<Filial, Long> {
 
     private final FilialRepository filialRepository;
     private final FilialMapper filialMapper;
-    private final AuthClient authClient;
+    private final PermissaoClient permissaoClient;
 
     public FilialService(
             FilialRepository filialRepository,
             FilialMapper filialMapper,
-            AuthClient authClient
+            PermissaoClient permissaoClient
     ) {
         super(filialRepository);
         this.filialRepository = filialRepository;
         this.filialMapper = filialMapper;
-        this.authClient = authClient;
+        this.permissaoClient = permissaoClient;
     }
 
     // ============================================================
@@ -45,7 +45,7 @@ public class FilialService extends BaseTenantService<Filial, Long> {
 
     @CircuitBreaker(name = "filial-admin", fallbackMethod = "fallbackAdmin")
     public FilialResponse salvar(FilialCreateRequest request) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_CRIAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para criar filiais.");
 
         validarCodigoDuplicado(request.codigo());
@@ -68,7 +68,7 @@ public class FilialService extends BaseTenantService<Filial, Long> {
 
     @CircuitBreaker(name = "filial-admin", fallbackMethod = "fallbackAdmin")
     public FilialResponse atualizar(Long id, FilialUpdateRequest request) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_EDITAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para editar filiais.");
 
         Filial filial = buscarFilial(id);
@@ -91,7 +91,7 @@ public class FilialService extends BaseTenantService<Filial, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "filial-admin", fallbackMethod = "fallbackAdminId")
     public FilialResponse buscarPorId(Long id) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar filiais.");
         return filialMapper.toResponse(buscarFilial(id));
     }
@@ -103,7 +103,7 @@ public class FilialService extends BaseTenantService<Filial, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "filial-admin", fallbackMethod = "fallbackAdminPage")
     public Page<FilialResponse> listarPorEmpresa(Long empresaId, Pageable pageable) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar filiais.");
         return filialRepository
                 .findByEmpresaIdAndEmpresaId(empresaId, TenantContext.getEmpresaId(), pageable)
@@ -117,7 +117,7 @@ public class FilialService extends BaseTenantService<Filial, Long> {
             StatusFilial status,
             Pageable pageable
     ) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar filiais.");
         return filialRepository
                 .findByEmpresaIdAndStatusFilialAndEmpresaId(
@@ -135,7 +135,7 @@ public class FilialService extends BaseTenantService<Filial, Long> {
 
     @CircuitBreaker(name = "filial-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_EXCLUIR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para excluir filiais.");
         filialRepository.delete(buscarFilial(id));
     }

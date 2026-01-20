@@ -1,6 +1,6 @@
 package br.com.unicos.ms_pessoas.service;
 
-import br.com.unicos.ms_pessoas.client.AuthClient;
+import br.com.unicos.ms_pessoas.client.PermissaoClient;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoListDTO;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoRequest;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoResponse;
@@ -31,7 +31,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DocumentoService {
 
-    private final AuthClient authClient;
+    private final PermissaoClient permissaoClient;
     private final DocumentoRepository repository;
     private final PessoaRepository pessoaRepository;
     private final DocumentoMapper mapper;
@@ -44,7 +44,7 @@ public class DocumentoService {
     @Transactional
     @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdmin")
     public DocumentoResponse criar(DocumentoRequest request) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_CRIAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para criar documentos.");
 
         Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
@@ -73,7 +73,7 @@ public class DocumentoService {
     @Transactional
     @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdmin")
     public DocumentoResponse atualizar(Long id, DocumentoRequest request) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_EDITAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para editar documentos.");
 
         Documento documento = repository.findById(id)
@@ -107,7 +107,7 @@ public class DocumentoService {
     @Transactional
     @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminVoid")
     public void excluir(Long id) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_EXCLUIR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para excluir documentos.");
 
         if (!repository.existsById(id))
@@ -123,7 +123,7 @@ public class DocumentoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminOptional")
     public Optional<DocumentoResponse> buscarPorId(Long id) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar documentos.");
         return repository.findById(id)
                 .map(mapper::toResponse);
@@ -136,7 +136,7 @@ public class DocumentoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminList")
     public List<DocumentoListDTO> listarTodos() {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar documentos.");
         return repository.findAll()
                 .stream()
@@ -147,7 +147,7 @@ public class DocumentoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminListPessoa")
     public List<DocumentoListDTO> listarPorPessoa(Long pessoaId) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar documentos.");
 
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
@@ -162,7 +162,7 @@ public class DocumentoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminListTipo")
     public List<DocumentoListDTO> listarPorTipo(String tipo) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar documentos.");
 
         TipoDocumento tipoEnum;

@@ -2,7 +2,7 @@ package br.com.unicos.ms_empresa.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
-import br.com.unicos.ms_empresa.client.AuthClient;
+import br.com.unicos.ms_empresa.client.PermissaoClient;
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoResponse;
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoResumoResponse;
@@ -28,17 +28,17 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
 
     private final EmpresaEnderecoRepository repository;
     private final EmpresaEnderecoMapper mapper;
-    private final AuthClient authClient;
+    private final PermissaoClient permissaoClient;
 
     public EmpresaEnderecoService(
             EmpresaEnderecoRepository repository,
             EmpresaEnderecoMapper mapper,
-            AuthClient authClient
+            PermissaoClient permissaoClient
     ) {
         super(repository);
         this.repository = repository;
         this.mapper = mapper;
-        this.authClient = authClient;
+        this.permissaoClient = permissaoClient;
     }
 
     // ============================================================
@@ -47,7 +47,7 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
 
     @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaEnderecoResponse criar(EmpresaEnderecoCreateRequest request) {
-        if (!authClient.usuarioPossuiPermissao("EMPRESA_ENDERECO_CRIAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_ENDERECO_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para criar endereços da empresa.");
 
         Empresa empresa = empresaRef(request.empresaRefId());
@@ -74,7 +74,7 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
 
     @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaEnderecoResponse atualizar(Long id, EmpresaEnderecoUpdateRequest request) {
-        if (!authClient.usuarioPossuiPermissao("EMPRESA_ENDERECO_EDITAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_ENDERECO_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para editar endereços da empresa.");
 
         EmpresaEndereco endereco = buscarEndereco(id);
@@ -112,7 +112,7 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaEnderecoResponse buscarPorId(Long id) {
-        if (!authClient.usuarioPossuiPermissao("EMPRESA_ENDERECO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_ENDERECO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar endereços da empresa.");
         return mapper.toResponse(buscarEndereco(id));
     }
@@ -124,7 +124,7 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdminPage")
     public Page<EmpresaEnderecoResumoResponse> listar(Long empresaRefId, Pageable pageable) {
-        if (!authClient.usuarioPossuiPermissao("EMPRESA_ENDERECO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_ENDERECO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar endereços da empresa.");
 
         Empresa empresa = empresaRef(empresaRefId);
@@ -145,7 +145,7 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
             TipoEnderecoEmpresa tipo,
             Pageable pageable
     ) {
-        if (!authClient.usuarioPossuiPermissao("EMPRESA_ENDERECO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_ENDERECO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar endereços da empresa.");
 
         Empresa empresa = empresaRef(empresaRefId);
@@ -166,7 +166,7 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
 
     @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
-        if (!authClient.usuarioPossuiPermissao("EMPRESA_ENDERECO_EXCLUIR"))
+        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_ENDERECO_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para excluir endereços da empresa.");
         repository.delete(buscarEndereco(id));
     }

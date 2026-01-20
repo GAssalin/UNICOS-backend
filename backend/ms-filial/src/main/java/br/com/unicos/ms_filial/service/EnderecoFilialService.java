@@ -2,7 +2,7 @@ package br.com.unicos.ms_filial.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
-import br.com.unicos.ms_filial.client.AuthClient;
+import br.com.unicos.ms_filial.client.PermissaoClient;
 import br.com.unicos.ms_filial.dto.endereco.EnderecoFilialCreateRequest;
 import br.com.unicos.ms_filial.dto.endereco.EnderecoFilialResponse;
 import br.com.unicos.ms_filial.dto.endereco.EnderecoFilialUpdateRequest;
@@ -25,22 +25,22 @@ public class EnderecoFilialService extends BaseTenantService<EnderecoFilial, Lon
 
     private final EnderecoFilialRepository enderecoRepository;
     private final EnderecoFilialMapper enderecoMapper;
-    private final AuthClient authClient;
+    private final PermissaoClient permissaoClient;
 
     public EnderecoFilialService(
             EnderecoFilialRepository enderecoRepository,
             EnderecoFilialMapper enderecoMapper,
-            AuthClient authClient
+            PermissaoClient permissaoClient
     ) {
         super(enderecoRepository);
         this.enderecoRepository = enderecoRepository;
         this.enderecoMapper = enderecoMapper;
-        this.authClient = authClient;
+        this.permissaoClient = permissaoClient;
     }
 
     @CircuitBreaker(name = "filial-endereco-admin", fallbackMethod = "fallbackAdmin")
     public EnderecoFilialResponse salvar(EnderecoFilialCreateRequest request) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_ENDERECO_CRIAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_ENDERECO_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para criar endereços de filial.");
 
         validarDuplicidade(request);
@@ -53,7 +53,7 @@ public class EnderecoFilialService extends BaseTenantService<EnderecoFilial, Lon
 
     @CircuitBreaker(name = "filial-endereco-admin", fallbackMethod = "fallbackAdmin")
     public EnderecoFilialResponse atualizar(Long id, EnderecoFilialUpdateRequest request) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_ENDERECO_EDITAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_ENDERECO_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para editar endereços de filial.");
 
         EnderecoFilial entity = buscarEndereco(id);
@@ -74,7 +74,7 @@ public class EnderecoFilialService extends BaseTenantService<EnderecoFilial, Lon
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "filial-endereco-admin", fallbackMethod = "fallbackAdminId")
     public EnderecoFilialResponse buscarPorId(Long id) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_ENDERECO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_ENDERECO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar endereços de filial.");
         return enderecoMapper.toResponse(buscarEndereco(id));
     }
@@ -82,7 +82,7 @@ public class EnderecoFilialService extends BaseTenantService<EnderecoFilial, Lon
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "filial-endereco-admin", fallbackMethod = "fallbackAdminPage")
     public Page<EnderecoFilialResponse> listarPorFilial(Long filialId, Pageable pageable) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_ENDERECO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_ENDERECO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar endereços de filial.");
         return enderecoRepository
                 .findByFilialIdAndEmpresaId(filialId, TenantContext.getEmpresaId(), pageable)
@@ -91,7 +91,7 @@ public class EnderecoFilialService extends BaseTenantService<EnderecoFilial, Lon
 
     @CircuitBreaker(name = "filial-endereco-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
-        if (!authClient.usuarioPossuiPermissao("FILIAL_ENDERECO_EXCLUIR"))
+        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_ENDERECO_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para excluir endereços de filial.");
         enderecoRepository.delete(buscarEndereco(id));
     }

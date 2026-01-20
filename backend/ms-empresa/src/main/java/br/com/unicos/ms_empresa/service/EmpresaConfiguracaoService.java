@@ -2,7 +2,7 @@ package br.com.unicos.ms_empresa.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
-import br.com.unicos.ms_empresa.client.AuthClient;
+import br.com.unicos.ms_empresa.client.PermissaoClient;
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoResponse;
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoResumoResponse;
@@ -27,17 +27,17 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
 
     private final EmpresaConfiguracaoRepository repository;
     private final EmpresaConfiguracaoMapper mapper;
-    private final AuthClient authClient;
+    private final PermissaoClient permissaoClient;
 
     public EmpresaConfiguracaoService(
             EmpresaConfiguracaoRepository repository,
             EmpresaConfiguracaoMapper mapper,
-            AuthClient authClient
+            PermissaoClient permissaoClient
     ) {
         super(repository);
         this.repository = repository;
         this.mapper = mapper;
-        this.authClient = authClient;
+        this.permissaoClient = permissaoClient;
     }
 
     // ============================================================
@@ -46,7 +46,7 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
 
     @CircuitBreaker(name = "empresa-configuracao-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaConfiguracaoResponse criar(EmpresaConfiguracaoCreateRequest request) {
-        if (!authClient.usuarioPossuiPermissao("EMPRESA_CONFIGURACAO_CRIAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONFIGURACAO_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para criar configurações.");
 
         Empresa empresaRef = empresaRef(request.empresaRefId());
@@ -68,7 +68,7 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
             String chave,
             EmpresaConfiguracaoUpdateRequest request
     ) {
-        if (!authClient.usuarioPossuiPermissao("EMPRESA_CONFIGURACAO_EDITAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONFIGURACAO_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para editar configurações.");
 
         EmpresaConfiguracao configuracao =
@@ -89,7 +89,7 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
             Long empresaRefId,
             String chave
     ) {
-        if (!authClient.usuarioPossuiPermissao("EMPRESA_CONFIGURACAO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONFIGURACAO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar configurações.");
         return mapper.toResponse(buscarPorChaveEntidade(empresaRefId, chave));
     }
@@ -104,7 +104,7 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
             Long empresaRefId,
             Pageable pageable
     ) {
-        if (!authClient.usuarioPossuiPermissao("EMPRESA_CONFIGURACAO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONFIGURACAO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar configurações.");
 
         Empresa empresaRef = empresaRef(empresaRefId);
@@ -124,7 +124,7 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
 
     @CircuitBreaker(name = "empresa-configuracao-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long empresaRefId, String chave) {
-        if (!authClient.usuarioPossuiPermissao("EMPRESA_CONFIGURACAO_EXCLUIR"))
+        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONFIGURACAO_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para excluir configurações.");
 
         EmpresaConfiguracao configuracao =

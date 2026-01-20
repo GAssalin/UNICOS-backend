@@ -2,7 +2,7 @@ package br.com.unicos.ms_pessoas.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
-import br.com.unicos.ms_pessoas.client.AuthClient;
+import br.com.unicos.ms_pessoas.client.PermissaoClient;
 import br.com.unicos.ms_pessoas.dto.contato.ContatoListDTO;
 import br.com.unicos.ms_pessoas.dto.contato.ContatoRequest;
 import br.com.unicos.ms_pessoas.dto.contato.ContatoResponse;
@@ -28,19 +28,19 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     private final ContatoRepository contatoRepository;
     private final PessoaRepository pessoaRepository;
     private final ContatoMapper contatoMapper;
-    private final AuthClient authClient;
+    private final PermissaoClient permissaoClient;
 
     public ContatoService(
             ContatoRepository contatoRepository,
             PessoaRepository pessoaRepository,
             ContatoMapper contatoMapper,
-            AuthClient authClient
+            PermissaoClient permissaoClient
     ) {
         super(contatoRepository);
         this.contatoRepository = contatoRepository;
         this.pessoaRepository = pessoaRepository;
         this.contatoMapper = contatoMapper;
-        this.authClient = authClient;
+        this.permissaoClient = permissaoClient;
     }
 
     // ============================================================
@@ -50,7 +50,7 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     @Transactional
     @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdmin")
     public ContatoResponse salvar(ContatoRequest request) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_CONTATO_CRIAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_CONTATO_CRIAR"))
             throw new AccessDeniedException("Usuário não possui permissão para criar contatos.");
 
         Pessoa pessoa = buscarPessoa(request.pessoaId());
@@ -77,7 +77,7 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     @Transactional
     @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdmin")
     public ContatoResponse atualizar(Long id, ContatoRequest request) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_CONTATO_EDITAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_CONTATO_EDITAR"))
             throw new AccessDeniedException("Usuário não possui permissão para editar contatos.");
 
         Contato contato = buscarContato(id);
@@ -107,7 +107,7 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdmin")
     public ContatoResponse buscarPorId(Long id) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_CONTATO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_CONTATO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar contatos.");
 
         return contatoMapper.toResponse(buscarContato(id));
@@ -120,7 +120,7 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ContatoListDTO> listarPorPessoa(Long pessoaId, Pageable pageable) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_CONTATO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_CONTATO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar contatos.");
 
         Pessoa pessoa = buscarPessoa(pessoaId);
@@ -137,7 +137,7 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
             TipoContato tipo,
             Pageable pageable
     ) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_CONTATO_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_CONTATO_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar contatos.");
 
         Pessoa pessoa = buscarPessoa(pessoaId);
@@ -159,7 +159,7 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     @Transactional
     @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_CONTATO_EXCLUIR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_CONTATO_EXCLUIR"))
             throw new AccessDeniedException("Usuário não possui permissão para excluir contatos.");
         contatoRepository.delete(buscarContato(id));
     }

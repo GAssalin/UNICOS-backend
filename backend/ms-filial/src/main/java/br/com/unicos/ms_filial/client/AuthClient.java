@@ -16,7 +16,4 @@ public interface AuthClient {
     @PostMapping("/internal/auth/validate-token")
     TokenValidationResponse validateToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization);
 
-    @PostMapping("/internal/auth/permissions/check")
-    boolean usuarioPossuiPermissao(@RequestParam String nomePermissao);
-
 }

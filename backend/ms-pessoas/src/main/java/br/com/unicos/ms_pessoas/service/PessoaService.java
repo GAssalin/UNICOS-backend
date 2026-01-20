@@ -1,6 +1,6 @@
 package br.com.unicos.ms_pessoas.service;
 
-import br.com.unicos.ms_pessoas.client.AuthClient;
+import br.com.unicos.ms_pessoas.client.PermissaoClient;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaListDTO;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaResponse;
 import br.com.unicos.ms_pessoas.enums.TipoPessoa;
@@ -25,7 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PessoaService {
 
-    private final AuthClient authClient;
+    private final PermissaoClient permissaoClient;
     private final PessoaRepository repository;
     private final PessoaMapper mapper;
 
@@ -36,7 +36,7 @@ public class PessoaService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-admin", fallbackMethod = "fallbackAdminOptional")
     public Optional<PessoaResponse> buscarPorId(Long id) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para visualizar pessoas.");
         return repository.findById(id)
                 .map(mapper::toResponse);
@@ -49,7 +49,7 @@ public class PessoaService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-admin", fallbackMethod = "fallbackAdminList")
     public List<PessoaListDTO> listarTodas() {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar pessoas.");
         return repository.findAll()
                 .stream()
@@ -60,7 +60,7 @@ public class PessoaService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-admin", fallbackMethod = "fallbackAdminListNome")
     public List<PessoaListDTO> listarPorNome(String nome) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar pessoas.");
         return repository.findByNomeContainingIgnoreCase(nome)
                 .stream()
@@ -71,7 +71,7 @@ public class PessoaService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-admin", fallbackMethod = "fallbackAdminListNomeExato")
     public List<PessoaListDTO> listarPorNomeExato(String nome) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar pessoas.");
         return repository.findByNome(nome)
                 .stream()
@@ -82,7 +82,7 @@ public class PessoaService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-admin", fallbackMethod = "fallbackAdminListTipo")
     public List<PessoaListDTO> listarPorTipo(String tipoPessoa) {
-        if (!authClient.usuarioPossuiPermissao("PESSOA_LISTAR"))
+        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_LISTAR"))
             throw new AccessDeniedException("Usuário não possui permissão para listar pessoas.");
 
         TipoPessoa tipoEnum;

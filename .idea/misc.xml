@@ -16,6 +16,9 @@
         <option value="$PROJECT_DIR$/backend/ms-notificacao/pom.xml" />
         <option value="$PROJECT_DIR$/backend/ms-filial/pom.xml" />
         <option value="$PROJECT_DIR$/backend/ms-departamento/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/ms-autenticacao/ms-autenticacao/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/ms-autenticacao/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/ms-permissao/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
