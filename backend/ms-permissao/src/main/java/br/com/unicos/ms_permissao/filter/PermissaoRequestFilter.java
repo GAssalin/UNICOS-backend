@@ -30,8 +30,7 @@ public class PermissaoRequestFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
 
-        return path.startsWith("/internal")
-                || path.startsWith("/swagger")
+        return path.startsWith("/swagger")
                 || path.startsWith("/v3/api-docs");
     }
 
