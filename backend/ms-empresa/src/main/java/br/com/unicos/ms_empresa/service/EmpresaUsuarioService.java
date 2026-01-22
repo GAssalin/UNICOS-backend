@@ -2,7 +2,6 @@ package br.com.unicos.ms_empresa.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
-import br.com.unicos.ms_empresa.client.PermissaoClient;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioResponse;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioResumoResponse;
@@ -17,7 +16,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -42,17 +40,14 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
 
     private final EmpresaUsuarioRepository repository;
     private final EmpresaUsuarioMapper mapper;
-    private final PermissaoClient permissaoClient;
 
     public EmpresaUsuarioService(
             EmpresaUsuarioRepository repository,
-            EmpresaUsuarioMapper mapper,
-            PermissaoClient permissaoClient
+            EmpresaUsuarioMapper mapper
     ) {
         super(repository);
         this.repository = repository;
         this.mapper = mapper;
-        this.permissaoClient = permissaoClient;
     }
 
     // ============================================================
@@ -61,9 +56,6 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
 
     @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaUsuarioResponse criar(EmpresaUsuarioCreateRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_USUARIO_CRIAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para vincular usuários à empresa.");
-
         Empresa empresa = empresaRef(request.empresaRefId());
 
         validarUsuarioNaoVinculado(empresa, request.usuarioId());
@@ -84,9 +76,6 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
             Long usuarioId,
             EmpresaUsuarioUpdateRequest request
     ) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_USUARIO_EDITAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para alterar perfis.");
-
         EmpresaUsuario vinculo = buscarVinculo(empresaRefId, usuarioId);
 
         protegerUltimoAdmin(vinculo, request.perfil());
@@ -103,8 +92,6 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaUsuarioResponse buscar(Long empresaRefId, Long usuarioId) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_USUARIO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para visualizar vínculos.");
         return mapper.toResponse(buscarVinculo(empresaRefId, usuarioId));
     }
 
@@ -115,9 +102,6 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdminPage")
     public Page<EmpresaUsuarioResumoResponse> listar(Long empresaRefId, Pageable pageable) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_USUARIO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar usuários.");
-
         Empresa empresa = empresaRef(empresaRefId);
 
         return repository
@@ -136,9 +120,6 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
             PerfilEmpresaUsuario perfil,
             Pageable pageable
     ) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_USUARIO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar usuários.");
-
         Empresa empresa = empresaRef(empresaRefId);
 
         return repository
@@ -157,9 +138,6 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
 
     @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long empresaRefId, Long usuarioId) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_USUARIO_EXCLUIR"))
-            throw new AccessDeniedException("Usuário não possui permissão para remover usuários da empresa.");
-
         EmpresaUsuario vinculo = buscarVinculo(empresaRefId, usuarioId);
 
         protegerUltimoAdmin(vinculo, null);
@@ -213,7 +191,7 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
 
     private void protegerUltimoAdmin(EmpresaUsuario vinculo, PerfilEmpresaUsuario novoPerfil) {
         if (vinculo.getPerfil() == PerfilEmpresaUsuario.ADMIN &&
-                (novoPerfil == null || novoPerfil != PerfilEmpresaUsuario.ADMIN)) {
+                (novoPerfil != PerfilEmpresaUsuario.ADMIN)) {
 
             long totalAdmins = repository.findByEmpresaAndPerfilAndEmpresaId(
                     vinculo.getEmpresa(),

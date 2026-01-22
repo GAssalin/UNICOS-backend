@@ -5,6 +5,7 @@ import br.com.unicos.ms_usuario.dto.usuario.UsuarioResponse;
 import br.com.unicos.ms_usuario.model.Usuario;
 import br.com.unicos.ms_usuario.service.UsuarioEmailVerificacaoService;
 import br.com.unicos.ms_usuario.service.UsuarioService;
+import br.com.unicos.ms_usuario.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.*;
 )
 public class UsuarioController {
 
+    private final UtilsService utilsService;
     private final UsuarioService usuarioService;
     private final UsuarioEmailVerificacaoService verificacaoService;
 
@@ -57,12 +59,16 @@ public class UsuarioController {
     )
     @PostMapping
     public ResponseEntity<UsuarioResponse> salvar(@Valid @RequestBody UsuarioRequest request) {
-        UsuarioResponse response = usuarioService.salvar(request);
-        verificacaoService.gerarTokenParaUsuario(response.id());
+        if (utilsService.verificarPermissao("USUARIO_CRIAR")) {
+            UsuarioResponse response = usuarioService.salvar(request);
+            verificacaoService.gerarTokenParaUsuario(response.id());
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(response);
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 
     // =============================================================
@@ -87,7 +93,10 @@ public class UsuarioController {
             @PathVariable Long id,
             @Valid @RequestBody UsuarioRequest request
     ) {
-        return ResponseEntity.ok(usuarioService.atualizar(id, request));
+        if (utilsService.verificarPermissao("USUARIO_EDITAR"))
+            return ResponseEntity.ok(usuarioService.atualizar(id, request));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -109,7 +118,10 @@ public class UsuarioController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(usuarioService.buscarPorId(id));
+        if (utilsService.verificarPermissao("USUARIO_LISTAR"))
+            return ResponseEntity.ok(usuarioService.buscarPorId(id));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -131,7 +143,10 @@ public class UsuarioController {
     )
     @GetMapping("/login/{login}")
     public ResponseEntity<UsuarioResponse> buscarPorLogin(@PathVariable String login) {
-        return ResponseEntity.ok(usuarioService.buscarPorLogin(login));
+        if (utilsService.verificarPermissao("USUARIO_LISTAR"))
+            return ResponseEntity.ok(usuarioService.buscarPorLogin(login));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -148,7 +163,10 @@ public class UsuarioController {
     )
     @GetMapping
     public ResponseEntity<Page<UsuarioResponse>> listarTodos(@ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(usuarioService.listarTodos(pageable));
+        if (utilsService.verificarPermissao("USUARIO_LISTAR"))
+            return ResponseEntity.ok(usuarioService.listarTodos(pageable));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     @Operation(
@@ -161,7 +179,10 @@ public class UsuarioController {
     )
     @GetMapping("/ativos")
     public ResponseEntity<Page<UsuarioResponse>> listarAtivos(@ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(usuarioService.listarAtivos(pageable));
+        if (utilsService.verificarPermissao("USUARIO_LISTAR"))
+            return ResponseEntity.ok(usuarioService.listarAtivos(pageable));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     @Operation(
@@ -174,7 +195,10 @@ public class UsuarioController {
     )
     @GetMapping("/inativos")
     public ResponseEntity<Page<UsuarioResponse>> listarInativos(@ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(usuarioService.listarInativos(pageable));
+        if (utilsService.verificarPermissao("USUARIO_LISTAR"))
+            return ResponseEntity.ok(usuarioService.listarInativos(pageable));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -193,15 +217,19 @@ public class UsuarioController {
     )
     @PatchMapping("/{id}/desativar")
     public ResponseEntity<Void> desativar(@PathVariable Long id) {
-        Usuario usuario = usuarioService.desativar(id);
+        if (utilsService.verificarPermissao("USUARIO_EDITAR")) {
+            Usuario usuario = usuarioService.desativar(id);
 
-        if (usuario == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            if (usuario == null)
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        if (!usuario.getAtivo())
-            return ResponseEntity.unprocessableEntity().build();
+            if (!usuario.getAtivo())
+                return ResponseEntity.unprocessableEntity().build();
 
-        return ResponseEntity.ok().build();
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 
     @Operation(
@@ -216,14 +244,18 @@ public class UsuarioController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        Usuario usuario = usuarioService.deletar(id);
+        if (utilsService.verificarPermissao("USUARIO_EXCLUIR")) {
+            Usuario usuario = usuarioService.deletar(id);
 
-        if (usuario == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            if (usuario == null)
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        if (usuario.getId() > 0)
-            return ResponseEntity.unprocessableEntity().build();
+            if (usuario.getId() > 0)
+                return ResponseEntity.unprocessableEntity().build();
 
-        return ResponseEntity.ok().build();
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 }

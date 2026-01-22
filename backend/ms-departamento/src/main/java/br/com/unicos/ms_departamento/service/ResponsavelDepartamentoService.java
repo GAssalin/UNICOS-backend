@@ -29,7 +29,6 @@ public class ResponsavelDepartamentoService extends BaseTenantService<Responsave
 
     private final ResponsavelDepartamentoRepository responsavelRepository;
     private final ResponsavelDepartamentoMapper responsavelMapper;
-    private final PermissaoClient permissaoClient;
 
     public ResponsavelDepartamentoService(
             ResponsavelDepartamentoRepository responsavelRepository,
@@ -39,7 +38,6 @@ public class ResponsavelDepartamentoService extends BaseTenantService<Responsave
         super(responsavelRepository);
         this.responsavelRepository = responsavelRepository;
         this.responsavelMapper = responsavelMapper;
-        this.permissaoClient = permissaoClient;
     }
 
     // ============================================================
@@ -48,9 +46,6 @@ public class ResponsavelDepartamentoService extends BaseTenantService<Responsave
 
     @CircuitBreaker(name = "responsavel-departamento-admin", fallbackMethod = "fallbackAdmin")
     public ResponsavelDepartamentoResponseDto salvar(ResponsavelDepartamentoCreateRequestDto request) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_RESPONSAVEL_CRIAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para cadastrar responsáveis.");
-
         validarPrincipalUnicoAtivo(request.departamentoId(), request.principal(), request.statusResponsavelDepartamento());
 
         ResponsavelDepartamento entity = responsavelMapper.toEntity(request);
@@ -65,9 +60,6 @@ public class ResponsavelDepartamentoService extends BaseTenantService<Responsave
 
     @CircuitBreaker(name = "responsavel-departamento-admin", fallbackMethod = "fallbackAdminIdReq")
     public ResponsavelDepartamentoResponseDto atualizar(Long id, ResponsavelDepartamentoUpdateRequestDto request) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_RESPONSAVEL_EDITAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para editar responsáveis.");
-
         ResponsavelDepartamento entity = buscarResponsavel(id);
 
         // regra: se estiver marcando como principal+ativo, garantir unicidade
@@ -85,8 +77,6 @@ public class ResponsavelDepartamentoService extends BaseTenantService<Responsave
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "responsavel-departamento-admin", fallbackMethod = "fallbackAdminId")
     public ResponsavelDepartamentoResponseDto buscarPorId(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_RESPONSAVEL_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para visualizar responsáveis.");
         return responsavelMapper.toResponse(buscarResponsavel(id));
     }
 
@@ -97,8 +87,6 @@ public class ResponsavelDepartamentoService extends BaseTenantService<Responsave
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "responsavel-departamento-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ResponsavelDepartamentoResponseDto> listarPorDepartamento(Long departamentoId, Pageable pageable) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_RESPONSAVEL_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar responsáveis.");
         return responsavelRepository
                 .findByDepartamentoIdAndEmpresaId(departamentoId, TenantContext.getEmpresaId(), pageable)
                 .map(responsavelMapper::toResponse);
@@ -111,8 +99,6 @@ public class ResponsavelDepartamentoService extends BaseTenantService<Responsave
             StatusResponsavelDepartamento status,
             Pageable pageable
     ) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_RESPONSAVEL_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar responsáveis.");
         return responsavelRepository
                 .findByDepartamentoIdAndStatusResponsavelDepartamentoAndEmpresaId(
                         departamentoId,
@@ -129,8 +115,6 @@ public class ResponsavelDepartamentoService extends BaseTenantService<Responsave
 
     @CircuitBreaker(name = "responsavel-departamento-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_RESPONSAVEL_EXCLUIR"))
-            throw new AccessDeniedException("Usuário não possui permissão para excluir responsáveis.");
         responsavelRepository.delete(buscarResponsavel(id));
     }
 

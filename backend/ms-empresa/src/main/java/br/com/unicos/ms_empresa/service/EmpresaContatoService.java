@@ -17,7 +17,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -28,7 +27,6 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
 
     private final EmpresaContatoRepository repository;
     private final EmpresaContatoMapper mapper;
-    private final PermissaoClient permissaoClient;
 
     public EmpresaContatoService(
             EmpresaContatoRepository repository,
@@ -38,7 +36,6 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
         super(repository);
         this.repository = repository;
         this.mapper = mapper;
-        this.permissaoClient = permissaoClient;
     }
 
     // ============================================================
@@ -47,9 +44,6 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
 
     @CircuitBreaker(name = "empresa-contato-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaContatoResponse criar(EmpresaContatoCreateRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONTATO_CRIAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para criar contatos da empresa.");
-
         Empresa empresa = empresaRef(request.empresaRefId());
         validarContatoDuplicado(empresa, request.valor());
 
@@ -68,9 +62,6 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
 
     @CircuitBreaker(name = "empresa-contato-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaContatoResponse atualizar(Long id, EmpresaContatoUpdateRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONTATO_EDITAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para editar contatos da empresa.");
-
         EmpresaContato contato = buscarContato(id);
 
         if (!contato.getValor().equalsIgnoreCase(request.valor())) {
@@ -95,8 +86,6 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "empresa-contato-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaContatoResponse buscarPorId(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONTATO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para visualizar contatos da empresa.");
         return mapper.toResponse(buscarContato(id));
     }
 
@@ -107,9 +96,6 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "empresa-contato-admin", fallbackMethod = "fallbackAdminPage")
     public Page<EmpresaContatoResumoResponse> listar(Long empresaRefId, Pageable pageable) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONTATO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar contatos da empresa.");
-
         Empresa empresa = empresaRef(empresaRefId);
 
         return repository
@@ -128,9 +114,6 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
             TipoContatoEmpresa tipo,
             Pageable pageable
     ) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONTATO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar contatos da empresa.");
-
         Empresa empresa = empresaRef(empresaRefId);
 
         return repository
@@ -149,9 +132,6 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
 
     @CircuitBreaker(name = "empresa-contato-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONTATO_EXCLUIR"))
-            throw new AccessDeniedException("Usuário não possui permissão para excluir contatos da empresa.");
-
         repository.delete(buscarContato(id));
     }
 

@@ -48,9 +48,6 @@ public class VinculoDepartamentoFilialService extends BaseTenantService<VinculoD
 
     @CircuitBreaker(name = "vinculo-departamento-admin", fallbackMethod = "fallbackAdmin")
     public VinculoDepartamentoFilialResponseDto salvar(VinculoDepartamentoFilialCreateRequestDto request) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_VINCULO_FILIAL_CRIAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para criar vínculos departamento x filial.");
-
         validarDuplicidadeParDepartamentoFilial(request.departamentoId(), request.filialId());
 
         VinculoDepartamentoFilial entity = vinculoMapper.toEntity(request);
@@ -65,9 +62,6 @@ public class VinculoDepartamentoFilialService extends BaseTenantService<VinculoD
 
     @CircuitBreaker(name = "vinculo-departamento-admin", fallbackMethod = "fallbackAdminIdReq")
     public VinculoDepartamentoFilialResponseDto atualizar(Long id, VinculoDepartamentoFilialUpdateRequestDto request) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_VINCULO_FILIAL_EDITAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para editar vínculos departamento x filial.");
-
         VinculoDepartamentoFilial entity = buscarVinculo(id);
 
         // se mudou o par, revalidar duplicidade
@@ -86,8 +80,6 @@ public class VinculoDepartamentoFilialService extends BaseTenantService<VinculoD
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "vinculo-departamento-admin", fallbackMethod = "fallbackAdminId")
     public VinculoDepartamentoFilialResponseDto buscarPorId(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_VINCULO_FILIAL_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para visualizar vínculos departamento x filial.");
         return vinculoMapper.toResponse(buscarVinculo(id));
     }
 
@@ -98,8 +90,6 @@ public class VinculoDepartamentoFilialService extends BaseTenantService<VinculoD
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "vinculo-departamento-admin", fallbackMethod = "fallbackAdminPageFilial")
     public Page<VinculoDepartamentoFilialResponseDto> listarPorFilial(Long filialId, Pageable pageable) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_VINCULO_FILIAL_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar vínculos departamento x filial.");
         return vinculoRepository
                 .findByFilialIdAndEmpresaId(filialId, TenantContext.getEmpresaId(), pageable)
                 .map(vinculoMapper::toResponse);
@@ -112,8 +102,6 @@ public class VinculoDepartamentoFilialService extends BaseTenantService<VinculoD
             StatusVinculoDepartamentoFilial status,
             Pageable pageable
     ) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_VINCULO_FILIAL_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar vínculos departamento x filial.");
         return vinculoRepository
                 .findByFilialIdAndStatusVinculoDepartamentoFilialAndEmpresaId(
                         filialId,
@@ -130,8 +118,6 @@ public class VinculoDepartamentoFilialService extends BaseTenantService<VinculoD
 
     @CircuitBreaker(name = "vinculo-departamento-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_VINCULO_FILIAL_EXCLUIR"))
-            throw new AccessDeniedException("Usuário não possui permissão para excluir vínculos departamento x filial.");
         vinculoRepository.delete(buscarVinculo(id));
     }
 

@@ -4,6 +4,7 @@ import br.com.unicos.ms_filial.dto.horario.HorarioFuncionamentoFilialCreateReque
 import br.com.unicos.ms_filial.dto.horario.HorarioFuncionamentoFilialResponse;
 import br.com.unicos.ms_filial.dto.horario.HorarioFuncionamentoFilialUpdateRequest;
 import br.com.unicos.ms_filial.service.HorarioFuncionamentoFilialService;
+import br.com.unicos.ms_filial.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 )
 public class HorarioFuncionamentoFilialController {
 
+    private final UtilsService utilsService;
     private final HorarioFuncionamentoFilialService horarioService;
 
     // =============================================================
@@ -54,8 +56,12 @@ public class HorarioFuncionamentoFilialController {
     public ResponseEntity<HorarioFuncionamentoFilialResponse> salvar(
             @Valid @RequestBody HorarioFuncionamentoFilialCreateRequest request
     ) {
-        HorarioFuncionamentoFilialResponse response = horarioService.salvar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        if (utilsService.verificarPermissao("FILIAL_HORARIO_CRIAR")) {
+            HorarioFuncionamentoFilialResponse response = horarioService.salvar(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 
     // =============================================================
@@ -81,7 +87,10 @@ public class HorarioFuncionamentoFilialController {
             @PathVariable Long id,
             @Valid @RequestBody HorarioFuncionamentoFilialUpdateRequest request
     ) {
-        return ResponseEntity.ok(horarioService.atualizar(id, request));
+        if (utilsService.verificarPermissao("FILIAL_HORARIO_EDITAR"))
+            return ResponseEntity.ok(horarioService.atualizar(id, request));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -104,7 +113,10 @@ public class HorarioFuncionamentoFilialController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<HorarioFuncionamentoFilialResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(horarioService.buscarPorId(id));
+        if (utilsService.verificarPermissao("FILIAL_HORARIO_LISTAR"))
+            return ResponseEntity.ok(horarioService.buscarPorId(id));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -131,7 +143,10 @@ public class HorarioFuncionamentoFilialController {
             @PathVariable Long filialId,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(horarioService.listarPorFilial(filialId, pageable));
+        if (utilsService.verificarPermissao("FILIAL_HORARIO_LISTAR"))
+            return ResponseEntity.ok(horarioService.listarPorFilial(filialId, pageable));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -150,7 +165,11 @@ public class HorarioFuncionamentoFilialController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        horarioService.deletar(id);
-        return ResponseEntity.ok().build();
+        if (utilsService.verificarPermissao("FILIAL_HORARIO_EXCLUIR")) {
+            horarioService.deletar(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 }

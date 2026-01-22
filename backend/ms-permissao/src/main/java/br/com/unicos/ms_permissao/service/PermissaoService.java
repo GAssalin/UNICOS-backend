@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -108,6 +109,12 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
         }
 
         return page.map(mapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
+    @CircuitBreaker(name = "permissao-admin", fallbackMethod = "fallbackAdmin")
+    public boolean usuarioPossuiPermissao(String nomePermissao) {
+        return rolePermissaoRepository.rolePossuiPermissao(TenantContext.getEmpresaId(), AuthContext.getRoles().stream().toList(), nomePermissao);
     }
 
     // ============================================================

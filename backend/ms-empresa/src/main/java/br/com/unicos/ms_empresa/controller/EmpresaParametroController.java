@@ -5,6 +5,7 @@ import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroResponse;
 import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroResumoResponse;
 import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroUpdateRequest;
 import br.com.unicos.ms_empresa.service.EmpresaParametroService;
+import br.com.unicos.ms_empresa.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,6 +40,7 @@ import org.springframework.web.bind.annotation.*;
 )
 public class EmpresaParametroController {
 
+    private final UtilsService utilsService;
     private final EmpresaParametroService empresaParametroService;
 
     // ============================================================
@@ -63,17 +65,21 @@ public class EmpresaParametroController {
             @PathVariable Long empresaRefId,
             @RequestBody @Validated EmpresaParametroCreateRequest request
     ) {
-        EmpresaParametroCreateRequest normalized =
-                new EmpresaParametroCreateRequest(
-                        request.empresaId(),
-                        empresaRefId,
-                        request.chave(),
-                        request.valor()
-                );
+        if (utilsService.verificarPermissao("EMPRESA_PARAMETRO_CRIAR")) {
+            EmpresaParametroCreateRequest normalized =
+                    new EmpresaParametroCreateRequest(
+                            request.empresaId(),
+                            empresaRefId,
+                            request.chave(),
+                            request.valor()
+                    );
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(empresaParametroService.criar(normalized));
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(empresaParametroService.criar(normalized));
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 
     // ============================================================
@@ -95,7 +101,10 @@ public class EmpresaParametroController {
             @PathVariable String chave,
             @RequestBody @Validated EmpresaParametroUpdateRequest request
     ) {
-        return ResponseEntity.ok(empresaParametroService.atualizar(empresaRefId, chave, request));
+        if (utilsService.verificarPermissao("EMPRESA_PARAMETRO_EDITAR"))
+            return ResponseEntity.ok(empresaParametroService.atualizar(empresaRefId, chave, request));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // ============================================================
@@ -120,7 +129,10 @@ public class EmpresaParametroController {
             @PathVariable Long empresaRefId,
             @PathVariable String chave
     ) {
-        return ResponseEntity.ok(empresaParametroService.buscarPorChave(empresaRefId, chave));
+        if (utilsService.verificarPermissao("EMPRESA_PARAMETRO_LISTAR"))
+            return ResponseEntity.ok(empresaParametroService.buscarPorChave(empresaRefId, chave));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // ============================================================
@@ -148,7 +160,10 @@ public class EmpresaParametroController {
             @PathVariable Long empresaRefId,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(empresaParametroService.listar(empresaRefId, pageable));
+        if (utilsService.verificarPermissao("EMPRESA_PARAMETRO_LISTAR"))
+            return ResponseEntity.ok(empresaParametroService.listar(empresaRefId, pageable));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // ============================================================
@@ -169,7 +184,11 @@ public class EmpresaParametroController {
             @PathVariable Long empresaRefId,
             @PathVariable String chave
     ) {
-        empresaParametroService.remover(empresaRefId, chave);
-        return ResponseEntity.noContent().build();
+        if (utilsService.verificarPermissao("EMPRESA_PARAMETRO_EXCLUIR")) {
+            empresaParametroService.remover(empresaRefId, chave);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 }

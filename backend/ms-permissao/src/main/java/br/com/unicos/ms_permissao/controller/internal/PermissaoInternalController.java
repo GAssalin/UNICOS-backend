@@ -4,6 +4,7 @@ import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.ms_permissao.repository.RolePermissaoRepository;
 import br.com.unicos.ms_permissao.repository.RoleUsuarioRepository;
+import br.com.unicos.ms_permissao.service.PermissaoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,12 +15,12 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class PermissaoInternalController {
 
-    private final RolePermissaoRepository rolePermissaoRepository;
+    private final PermissaoService permissaoService;
     private final RoleUsuarioRepository roleUsuarioRepository;
 
     @PostMapping("/check")
     public boolean usuarioPossuiPermissao(@RequestParam String nomePermissao) {
-        return rolePermissaoRepository.rolePossuiPermissao(TenantContext.getEmpresaId(), AuthContext.getRoles().stream().toList(), nomePermissao);
+        return permissaoService.usuarioPossuiPermissao(nomePermissao);
     }
 
     @GetMapping("/find-roles-by-user-id")

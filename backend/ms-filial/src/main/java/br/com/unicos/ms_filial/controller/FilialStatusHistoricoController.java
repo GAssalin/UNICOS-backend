@@ -3,6 +3,7 @@ package br.com.unicos.ms_filial.controller;
 import br.com.unicos.ms_filial.dto.status.FilialStatusHistoricoCreateRequest;
 import br.com.unicos.ms_filial.dto.status.FilialStatusHistoricoResponse;
 import br.com.unicos.ms_filial.service.FilialStatusHistoricoService;
+import br.com.unicos.ms_filial.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 )
 public class FilialStatusHistoricoController {
 
+    private final UtilsService utilsService;
     private final FilialStatusHistoricoService historicoService;
 
     // =============================================================
@@ -53,8 +55,12 @@ public class FilialStatusHistoricoController {
     public ResponseEntity<FilialStatusHistoricoResponse> salvar(
             @Valid @RequestBody FilialStatusHistoricoCreateRequest request
     ) {
-        FilialStatusHistoricoResponse response = historicoService.salvar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        if (utilsService.verificarPermissao("FILIAL_STATUS_HISTORICO_CRIAR")) {
+            FilialStatusHistoricoResponse response = historicoService.salvar(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 
     // =============================================================
@@ -77,7 +83,10 @@ public class FilialStatusHistoricoController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<FilialStatusHistoricoResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(historicoService.buscarPorId(id));
+        if (utilsService.verificarPermissao("FILIAL_STATUS_HISTORICO_LISTAR"))
+            return ResponseEntity.ok(historicoService.buscarPorId(id));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -104,6 +113,10 @@ public class FilialStatusHistoricoController {
             @PathVariable Long filialId,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(historicoService.listarPorFilial(filialId, pageable));
+        if (utilsService.verificarPermissao("FILIAL_STATUS_HISTORICO_LISTAR"))
+            return ResponseEntity.ok(historicoService.listarPorFilial(filialId, pageable));
+        else
+            return ResponseEntity.status(403).build();
+
     }
 }

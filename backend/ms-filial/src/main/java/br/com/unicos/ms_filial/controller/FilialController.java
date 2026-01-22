@@ -5,6 +5,7 @@ import br.com.unicos.ms_filial.dto.filial.FilialResponse;
 import br.com.unicos.ms_filial.dto.filial.FilialUpdateRequest;
 import br.com.unicos.ms_filial.enums.StatusFilial;
 import br.com.unicos.ms_filial.service.FilialService;
+import br.com.unicos.ms_filial.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 )
 public class FilialController {
 
+    private final UtilsService utilsService;
     private final FilialService filialService;
 
     // =============================================================
@@ -53,8 +55,12 @@ public class FilialController {
     )
     @PostMapping
     public ResponseEntity<FilialResponse> salvar(@Valid @RequestBody FilialCreateRequest request) {
-        FilialResponse response = filialService.salvar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        if (utilsService.verificarPermissao("FILIAL_CRIAR")) {
+            FilialResponse response = filialService.salvar(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 
     // =============================================================
@@ -80,7 +86,10 @@ public class FilialController {
             @PathVariable Long id,
             @Valid @RequestBody FilialUpdateRequest request
     ) {
-        return ResponseEntity.ok(filialService.atualizar(id, request));
+        if (utilsService.verificarPermissao("FILIAL_EDITAR"))
+            return ResponseEntity.ok(filialService.atualizar(id, request));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -103,7 +112,10 @@ public class FilialController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<FilialResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(filialService.buscarPorId(id));
+        if (utilsService.verificarPermissao("FILIAL_LISTAR"))
+            return ResponseEntity.ok(filialService.buscarPorId(id));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -130,7 +142,10 @@ public class FilialController {
             @PathVariable Long empresaId,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(filialService.listarPorEmpresa(empresaId, pageable));
+        if (utilsService.verificarPermissao("FILIAL_LISTAR"))
+            return ResponseEntity.ok(filialService.listarPorEmpresa(empresaId, pageable));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     @Operation(
@@ -154,7 +169,10 @@ public class FilialController {
             @PathVariable StatusFilial status,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(filialService.listarPorEmpresaEStatus(empresaId, status, pageable));
+        if (utilsService.verificarPermissao("FILIAL_LISTAR"))
+            return ResponseEntity.ok(filialService.listarPorEmpresaEStatus(empresaId, status, pageable));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -173,7 +191,11 @@ public class FilialController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        filialService.deletar(id);
-        return ResponseEntity.ok().build();
+        if (utilsService.verificarPermissao("FILIAL_EXCLUIR")) {
+            filialService.deletar(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 }

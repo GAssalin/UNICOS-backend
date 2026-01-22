@@ -2,6 +2,7 @@ package br.com.unicos.ms_permissao.controller;
 
 import br.com.unicos.ms_permissao.dto.role.RoleRequest;
 import br.com.unicos.ms_permissao.dto.role.RoleResponse;
+import br.com.unicos.ms_permissao.service.PermissaoService;
 import br.com.unicos.ms_permissao.service.RoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -30,6 +31,7 @@ import java.util.List;
 )
 public class RoleController {
 
+    private final PermissaoService permissaoService;
     private final RoleService roleService;
 
     // ============================================================
@@ -52,9 +54,13 @@ public class RoleController {
     )
     @PostMapping
     public ResponseEntity<RoleResponse> criar(@Valid @RequestBody RoleRequest request) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(roleService.salvar(request));
+        if (permissaoService.usuarioPossuiPermissao("ROLE_CRIAR")) {
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(roleService.salvar(request));
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 
     // ============================================================
@@ -80,7 +86,10 @@ public class RoleController {
             @PathVariable Long id,
             @Valid @RequestBody RoleRequest request
     ) {
-        return ResponseEntity.ok(roleService.atualizar(id, request));
+        if (permissaoService.usuarioPossuiPermissao("ROLE_EDITAR"))
+            return ResponseEntity.ok(roleService.atualizar(id, request));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // ============================================================
@@ -102,7 +111,10 @@ public class RoleController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<RoleResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(roleService.buscarPorId(id));
+        if (permissaoService.usuarioPossuiPermissao("ROLE_LISTAR"))
+            return ResponseEntity.ok(roleService.buscarPorId(id));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // ============================================================
@@ -127,7 +139,10 @@ public class RoleController {
     )
     @GetMapping
     public ResponseEntity<List<RoleResponse>> listarTodos() {
-        return ResponseEntity.ok(roleService.listarTodos());
+        if (permissaoService.usuarioPossuiPermissao("ROLE_LISTAR"))
+            return ResponseEntity.ok(roleService.listarTodos());
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // ============================================================
@@ -145,7 +160,11 @@ public class RoleController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        roleService.deletar(id);
-        return ResponseEntity.noContent().build();
+        if (permissaoService.usuarioPossuiPermissao("ROLE_EXCLUIR")) {
+            roleService.deletar(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 }

@@ -12,7 +12,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -40,9 +39,6 @@ public class PessoaFisicaService {
     @Transactional
     @CircuitBreaker(name = "pessoa-fisica-admin", fallbackMethod = "fallbackAdmin")
     public PessoaFisicaResponse criar(PessoaFisicaRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_FISICA_CRIAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para criar pessoa física.");
-
         repository.findByCpf(request.cpf()).ifPresent(existing -> {
             throw new IllegalArgumentException("Já existe uma pessoa física cadastrada com este CPF.");
         });
@@ -60,9 +56,6 @@ public class PessoaFisicaService {
     @Transactional
     @CircuitBreaker(name = "pessoa-fisica-admin", fallbackMethod = "fallbackAdmin")
     public PessoaFisicaResponse atualizar(Long id, PessoaFisicaRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_FISICA_EDITAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para editar pessoa física.");
-
         PessoaFisica pessoa = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa Física não encontrada."));
 
@@ -84,9 +77,6 @@ public class PessoaFisicaService {
     @Transactional
     @CircuitBreaker(name = "pessoa-fisica-admin", fallbackMethod = "fallbackAdminVoid")
     public void excluir(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_FISICA_EXCLUIR"))
-            throw new AccessDeniedException("Usuário não possui permissão para excluir pessoa física.");
-
         if (!repository.existsById(id))
             throw new EntityNotFoundException("Pessoa Física não encontrada.");
 
@@ -100,8 +90,6 @@ public class PessoaFisicaService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-fisica-admin", fallbackMethod = "fallbackAdminOptional")
     public Optional<PessoaFisicaResponse> buscarPorId(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_FISICA_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para visualizar pessoa física.");
         return repository.findById(id)
                 .map(mapper::toResponse);
     }
@@ -109,8 +97,6 @@ public class PessoaFisicaService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-fisica-admin", fallbackMethod = "fallbackAdminOptionalCpf")
     public Optional<PessoaFisicaResponse> buscarPorCpf(String cpf) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_FISICA_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para visualizar pessoa física.");
         return repository.findByCpf(cpf)
                 .map(mapper::toResponse);
     }
@@ -122,8 +108,6 @@ public class PessoaFisicaService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-fisica-admin", fallbackMethod = "fallbackAdminList")
     public List<PessoaFisicaListDTO> listarTodas() {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_FISICA_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar pessoas físicas.");
         return repository.findAll()
                 .stream()
                 .map(mapper::toListDTO)
@@ -133,8 +117,6 @@ public class PessoaFisicaService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-fisica-admin", fallbackMethod = "fallbackAdminListNomeSocial")
     public List<PessoaFisicaListDTO> listarPorNomeSocial(String nomeSocial) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_FISICA_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar pessoas físicas.");
         return repository.findByNomeSocial(nomeSocial)
                 .stream()
                 .map(mapper::toListDTO)
@@ -144,8 +126,6 @@ public class PessoaFisicaService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-fisica-admin", fallbackMethod = "fallbackAdminListNome")
     public List<PessoaFisicaListDTO> listarPorNome(String nome) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_FISICA_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar pessoas físicas.");
         return repository.findByNomeContainingIgnoreCase(nome)
                 .stream()
                 .map(mapper::toListDTO)

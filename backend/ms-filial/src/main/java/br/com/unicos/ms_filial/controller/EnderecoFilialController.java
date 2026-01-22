@@ -4,6 +4,7 @@ import br.com.unicos.ms_filial.dto.endereco.EnderecoFilialCreateRequest;
 import br.com.unicos.ms_filial.dto.endereco.EnderecoFilialResponse;
 import br.com.unicos.ms_filial.dto.endereco.EnderecoFilialUpdateRequest;
 import br.com.unicos.ms_filial.service.EnderecoFilialService;
+import br.com.unicos.ms_filial.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 )
 public class EnderecoFilialController {
 
+    private final UtilsService utilsService;
     private final EnderecoFilialService enderecoService;
 
     // =============================================================
@@ -52,8 +54,12 @@ public class EnderecoFilialController {
     )
     @PostMapping
     public ResponseEntity<EnderecoFilialResponse> salvar(@Valid @RequestBody EnderecoFilialCreateRequest request) {
-        EnderecoFilialResponse response = enderecoService.salvar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        if (utilsService.verificarPermissao("FILIAL_ENDERECO_CRIAR")) {
+            EnderecoFilialResponse response = enderecoService.salvar(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 
     // =============================================================
@@ -79,7 +85,10 @@ public class EnderecoFilialController {
             @PathVariable Long id,
             @Valid @RequestBody EnderecoFilialUpdateRequest request
     ) {
-        return ResponseEntity.ok(enderecoService.atualizar(id, request));
+        if (utilsService.verificarPermissao("FILIAL_ENDERECO_EDITAR"))
+            return ResponseEntity.ok(enderecoService.atualizar(id, request));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -102,7 +111,10 @@ public class EnderecoFilialController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<EnderecoFilialResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(enderecoService.buscarPorId(id));
+        if (utilsService.verificarPermissao("FILIAL_ENDERECO_LISTAR"))
+            return ResponseEntity.ok(enderecoService.buscarPorId(id));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -129,7 +141,10 @@ public class EnderecoFilialController {
             @PathVariable Long filialId,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(enderecoService.listarPorFilial(filialId, pageable));
+        if (utilsService.verificarPermissao("FILIAL_ENDERECO_LISTAR"))
+            return ResponseEntity.ok(enderecoService.listarPorFilial(filialId, pageable));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -148,7 +163,11 @@ public class EnderecoFilialController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        enderecoService.deletar(id);
-        return ResponseEntity.ok().build();
+        if (utilsService.verificarPermissao("FILIAL_ENDERECO_EXCLUIR")) {
+            enderecoService.deletar(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 }

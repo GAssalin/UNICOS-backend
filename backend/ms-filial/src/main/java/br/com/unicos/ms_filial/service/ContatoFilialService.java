@@ -2,7 +2,6 @@ package br.com.unicos.ms_filial.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
-import br.com.unicos.ms_filial.client.PermissaoClient;
 import br.com.unicos.ms_filial.dto.contato.ContatoFilialCreateRequest;
 import br.com.unicos.ms_filial.dto.contato.ContatoFilialResponse;
 import br.com.unicos.ms_filial.dto.contato.ContatoFilialUpdateRequest;
@@ -14,7 +13,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,24 +23,18 @@ public class ContatoFilialService extends BaseTenantService<ContatoFilial, Long>
 
     private final ContatoFilialRepository contatoRepository;
     private final ContatoFilialMapper contatoMapper;
-    private final PermissaoClient permissaoClient;
 
     public ContatoFilialService(
             ContatoFilialRepository contatoRepository,
-            ContatoFilialMapper contatoMapper,
-            PermissaoClient permissaoClient
+            ContatoFilialMapper contatoMapper
     ) {
         super(contatoRepository);
         this.contatoRepository = contatoRepository;
         this.contatoMapper = contatoMapper;
-        this.permissaoClient = permissaoClient;
     }
 
     @CircuitBreaker(name = "filial-contato-admin", fallbackMethod = "fallbackAdmin")
     public ContatoFilialResponse salvar(ContatoFilialCreateRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_CONTATO_CRIAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para criar contatos de filial.");
-
         validarEmailDuplicado(request.filialId(), request.emailPrincipal());
 
         ContatoFilial entity = contatoMapper.toEntity(request);
@@ -53,9 +45,6 @@ public class ContatoFilialService extends BaseTenantService<ContatoFilial, Long>
 
     @CircuitBreaker(name = "filial-contato-admin", fallbackMethod = "fallbackAdmin")
     public ContatoFilialResponse atualizar(Long id, ContatoFilialUpdateRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_CONTATO_EDITAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para editar contatos de filial.");
-
         ContatoFilial entity = buscarContato(id);
 
         if (!entity.getEmailPrincipal().equalsIgnoreCase(request.emailPrincipal()))
@@ -69,16 +58,12 @@ public class ContatoFilialService extends BaseTenantService<ContatoFilial, Long>
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "filial-contato-admin", fallbackMethod = "fallbackAdminId")
     public ContatoFilialResponse buscarPorId(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_CONTATO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para visualizar contatos de filial.");
         return contatoMapper.toResponse(buscarContato(id));
     }
 
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "filial-contato-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ContatoFilialResponse> listarPorFilial(Long filialId, Pageable pageable) {
-        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_CONTATO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar contatos de filial.");
         return contatoRepository
                 .findByFilialIdAndEmpresaId(filialId, TenantContext.getEmpresaId(), pageable)
                 .map(contatoMapper::toResponse);
@@ -86,8 +71,6 @@ public class ContatoFilialService extends BaseTenantService<ContatoFilial, Long>
 
     @CircuitBreaker(name = "filial-contato-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_CONTATO_EXCLUIR"))
-            throw new AccessDeniedException("Usuário não possui permissão para excluir contatos de filial.");
         contatoRepository.delete(buscarContato(id));
     }
 

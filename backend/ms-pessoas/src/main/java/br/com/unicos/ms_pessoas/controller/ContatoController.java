@@ -5,6 +5,7 @@ import br.com.unicos.ms_pessoas.dto.contato.ContatoRequest;
 import br.com.unicos.ms_pessoas.dto.contato.ContatoResponse;
 import br.com.unicos.ms_pessoas.enums.TipoContato;
 import br.com.unicos.ms_pessoas.service.ContatoService;
+import br.com.unicos.ms_pessoas.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 )
 public class ContatoController {
 
+    private final UtilsService utilsService;
     private final ContatoService contatoService;
 
     // =============================================================
@@ -55,10 +57,12 @@ public class ContatoController {
     )
     @PostMapping
     public ResponseEntity<ContatoResponse> salvar(@Valid @RequestBody ContatoRequest request) {
-        ContatoResponse response = contatoService.salvar(request);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+        if (utilsService.verificarPermissao("PESSOA_CONTATO_CRIAR"))
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(contatoService.salvar(request));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -86,7 +90,10 @@ public class ContatoController {
             @PathVariable Long id,
             @Valid @RequestBody ContatoRequest request
     ) {
-        return ResponseEntity.ok(contatoService.atualizar(id, request));
+        if (utilsService.verificarPermissao("PESSOA_CONTATO_EDITAR"))
+            return ResponseEntity.ok(contatoService.atualizar(id, request));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -111,7 +118,10 @@ public class ContatoController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<ContatoResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(contatoService.buscarPorId(id));
+        if (utilsService.verificarPermissao("PESSOA_CONTATO_LISTAR"))
+            return ResponseEntity.ok(contatoService.buscarPorId(id));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -140,7 +150,10 @@ public class ContatoController {
             @PathVariable Long pessoaId,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(contatoService.listarPorPessoa(pessoaId, pageable));
+        if (utilsService.verificarPermissao("PESSOA_CONTATO_LISTAR"))
+            return ResponseEntity.ok(contatoService.listarPorPessoa(pessoaId, pageable));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     @Operation(
@@ -166,7 +179,10 @@ public class ContatoController {
             @PathVariable TipoContato tipo,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(contatoService.listarPorPessoaETipo(pessoaId, tipo, pageable));
+        if (utilsService.verificarPermissao("PESSOA_CONTATO_LISTAR"))
+            return ResponseEntity.ok(contatoService.listarPorPessoaETipo(pessoaId, tipo, pageable));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -185,7 +201,11 @@ public class ContatoController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        contatoService.deletar(id);
-        return ResponseEntity.ok().build();
+        if (utilsService.verificarPermissao("PESSOA_CONTATO_EXCLUIR")) {
+            contatoService.deletar(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 }

@@ -4,6 +4,7 @@ import br.com.unicos.ms_pessoas.dto.relacao.TipoRelacaoPessoaListDTO;
 import br.com.unicos.ms_pessoas.dto.relacao.TipoRelacaoPessoaRequest;
 import br.com.unicos.ms_pessoas.dto.relacao.TipoRelacaoPessoaResponse;
 import br.com.unicos.ms_pessoas.service.TipoRelacaoPessoaService;
+import br.com.unicos.ms_pessoas.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,6 +31,7 @@ import java.util.Optional;
 )
 public class TipoRelacaoPessoaController {
 
+    private final UtilsService utilsService;
     private final TipoRelacaoPessoaService tipoRelacaoPessoaService;
 
     // =============================================================
@@ -54,11 +56,15 @@ public class TipoRelacaoPessoaController {
     )
     @PostMapping
     public ResponseEntity<TipoRelacaoPessoaResponse> criar(@Valid @RequestBody TipoRelacaoPessoaRequest request) {
-        TipoRelacaoPessoaResponse response =
-                tipoRelacaoPessoaService.criar(request);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+        if (utilsService.verificarPermissao("PESSOA_TIPO_RELACAO_PESSOA_CRIAR")) {
+            TipoRelacaoPessoaResponse response =
+                    tipoRelacaoPessoaService.criar(request);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(response);
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 
     // =============================================================
@@ -86,7 +92,10 @@ public class TipoRelacaoPessoaController {
             @PathVariable Long id,
             @Valid @RequestBody TipoRelacaoPessoaRequest request
     ) {
-        return ResponseEntity.ok(tipoRelacaoPessoaService.atualizar(id, request));
+        if (utilsService.verificarPermissao("PESSOA_TIPO_RELACAO_PESSOA_EDITAR"))
+            return ResponseEntity.ok(tipoRelacaoPessoaService.atualizar(id, request));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -111,11 +120,15 @@ public class TipoRelacaoPessoaController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<TipoRelacaoPessoaResponse> buscarPorId(@PathVariable Long id) {
-        Optional<TipoRelacaoPessoaResponse> response =
-                tipoRelacaoPessoaService.buscarPorId(id);
-        return response
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        if (utilsService.verificarPermissao("PESSOA_TIPO_RELACAO_PESSOA_LISTAR")) {
+            Optional<TipoRelacaoPessoaResponse> response =
+                    tipoRelacaoPessoaService.buscarPorId(id);
+            return response
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 
     // =============================================================
@@ -141,7 +154,10 @@ public class TipoRelacaoPessoaController {
     )
     @GetMapping
     public ResponseEntity<List<TipoRelacaoPessoaListDTO>> listarTodos() {
-        return ResponseEntity.ok(tipoRelacaoPessoaService.listarTodos());
+        if (utilsService.verificarPermissao("PESSOA_TIPO_RELACAO_PESSOA_LISTAR"))
+            return ResponseEntity.ok(tipoRelacaoPessoaService.listarTodos());
+        else
+            return ResponseEntity.status(403).build();
     }
 
     @Operation(
@@ -163,7 +179,10 @@ public class TipoRelacaoPessoaController {
     )
     @GetMapping("/nome/{nome}")
     public ResponseEntity<List<TipoRelacaoPessoaListDTO>> listarPorNome(@PathVariable String nome) {
-        return ResponseEntity.ok(tipoRelacaoPessoaService.listarPorNome(nome));
+        if (utilsService.verificarPermissao("PESSOA_TIPO_RELACAO_PESSOA_LISTAR"))
+            return ResponseEntity.ok(tipoRelacaoPessoaService.listarPorNome(nome));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -188,11 +207,15 @@ public class TipoRelacaoPessoaController {
     )
     @GetMapping("/nome-exato/{nome}")
     public ResponseEntity<TipoRelacaoPessoaResponse> buscarPorNomeExato(@PathVariable String nome) {
-        Optional<TipoRelacaoPessoaResponse> response =
-                tipoRelacaoPessoaService.buscarPorNomeExato(nome);
-        return response
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        if (utilsService.verificarPermissao("PESSOA_TIPO_RELACAO_PESSOA_LISTAR")) {
+            Optional<TipoRelacaoPessoaResponse> response =
+                    tipoRelacaoPessoaService.buscarPorNomeExato(nome);
+            return response
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 
     // =============================================================
@@ -211,7 +234,11 @@ public class TipoRelacaoPessoaController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        tipoRelacaoPessoaService.excluir(id);
-        return ResponseEntity.ok().build();
+        if (utilsService.verificarPermissao("PESSOA_TIPO_RELACAO_PESSOA_EXCLUIR")) {
+            tipoRelacaoPessoaService.excluir(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 }

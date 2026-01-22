@@ -35,19 +35,16 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioMapper usuarioMapper;
-    private final PermissaoClient permissaoClient;
 
     public UsuarioService(
             UsuarioRepository usuarioRepository,
             PasswordEncoder passwordEncoder,
-            UsuarioMapper usuarioMapper,
-            PermissaoClient permissaoClient
+            UsuarioMapper usuarioMapper
     ) {
         super(usuarioRepository);
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.usuarioMapper = usuarioMapper;
-        this.permissaoClient = permissaoClient;
     }
 
     // ============================================================
@@ -74,9 +71,6 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     @Transactional
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdmin")
     public UsuarioResponse salvar(UsuarioRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("USUARIO_CRIAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para esta operação");
-
         validarLoginDuplicado(request.login());
         validarEmailDuplicado(request.email());
 
@@ -100,9 +94,6 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     @Transactional
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdmin")
     public UsuarioResponse atualizar(Long id, UsuarioRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("USUARIO_EDITAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para esta operação");
-
         Usuario usuario = buscarUsuario(id);
 
         if (!usuario.getLogin().equalsIgnoreCase(request.login())) {
@@ -128,17 +119,12 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminById")
     public UsuarioResponse buscarPorId(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("USUARIO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para esta operação");
         return usuarioMapper.toResponse(buscarUsuario(id));
     }
 
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminByLogin")
     public UsuarioResponse buscarPorLogin(String login) {
-        if (!permissaoClient.usuarioPossuiPermissao("USUARIO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para esta operação");
-
         Usuario usuario = usuarioRepository
                 .findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(
                         login,
@@ -158,8 +144,6 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminPage")
     public Page<UsuarioResponse> listarTodos(Pageable pageable) {
-        if (!permissaoClient.usuarioPossuiPermissao("USUARIO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para esta operação");
         return usuarioRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
                 .map(usuarioMapper::toResponse);
@@ -168,8 +152,6 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminPage")
     public Page<UsuarioResponse> listarAtivos(Pageable pageable) {
-        if (!permissaoClient.usuarioPossuiPermissao("USUARIO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para esta operação");
         return usuarioRepository
                 .findByAtivoTrueAndEmailVerificadoTrueAndEmpresaId(
                         TenantContext.getEmpresaId(),
@@ -181,8 +163,6 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminPage")
     public Page<UsuarioResponse> listarInativos(Pageable pageable) {
-        if (!permissaoClient.usuarioPossuiPermissao("USUARIO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para esta operação");
         return usuarioRepository
                 .findByAtivoFalseAndEmailVerificadoTrueAndEmpresaId(
                         TenantContext.getEmpresaId(),
@@ -198,8 +178,6 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     @Transactional
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminEntity")
     public Usuario desativar(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("USUARIO_EDITAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para esta operação");
         Usuario usuario = buscarUsuario(id);
         usuario.setAtivo(false);
         return usuarioRepository.save(usuario);
@@ -208,8 +186,6 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     @Transactional
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminEntity")
     public Usuario deletar(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("USUARIO_EXCLUIR"))
-            throw new AccessDeniedException("Usuário não possui permissão para esta operação");
         usuarioRepository.delete(buscarUsuario(id));
         return usuarioRepository.findById(id).orElseGet(Usuario::new);
     }

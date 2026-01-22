@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 )
 public class PermissaoController {
 
-    private final PermissaoService service;
+    private final PermissaoService permissaoService;
 
     // ============================================================
     // CREATE
@@ -47,9 +47,12 @@ public class PermissaoController {
     )
     @PostMapping
     public ResponseEntity<PermissaoResponse> criar(@Valid @RequestBody PermissaoRequest request) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(service.salvar(request));
+        if (permissaoService.usuarioPossuiPermissao("PERMISSAO_CRIAR"))
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(permissaoService.salvar(request));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // ============================================================
@@ -72,7 +75,10 @@ public class PermissaoController {
     )
     @PutMapping("/{id}")
     public ResponseEntity<PermissaoResponse> atualizar(@PathVariable Long id, @Valid @RequestBody PermissaoRequest request) {
-        return ResponseEntity.ok(service.atualizar(id, request));
+        if (permissaoService.usuarioPossuiPermissao("PERMISSAO_EDITAR"))
+            return ResponseEntity.ok(permissaoService.atualizar(id, request));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // ============================================================
@@ -94,7 +100,10 @@ public class PermissaoController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<PermissaoResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscarPorId(id));
+        if (permissaoService.usuarioPossuiPermissao("PERMISSAO_LISTAR"))
+            return ResponseEntity.ok(permissaoService.buscarPorId(id));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // ============================================================
@@ -115,7 +124,10 @@ public class PermissaoController {
     )
     @GetMapping
     public ResponseEntity<Page<PermissaoResponse>> listar(@RequestParam(required = false) String nome, Pageable pageable) {
-        return ResponseEntity.ok(service.listar(nome, pageable));
+        if (permissaoService.usuarioPossuiPermissao("PERMISSAO_LISTAR"))
+            return ResponseEntity.ok(permissaoService.listar(nome, pageable));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // ============================================================
@@ -133,7 +145,11 @@ public class PermissaoController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        service.deletar(id);
-        return ResponseEntity.noContent().build();
+        if (permissaoService.usuarioPossuiPermissao("PERMISSAO_EXCLUIR")) {
+            permissaoService.deletar(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 }

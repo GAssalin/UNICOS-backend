@@ -16,7 +16,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -27,7 +26,6 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
 
     private final EmpresaConfiguracaoRepository repository;
     private final EmpresaConfiguracaoMapper mapper;
-    private final PermissaoClient permissaoClient;
 
     public EmpresaConfiguracaoService(
             EmpresaConfiguracaoRepository repository,
@@ -37,7 +35,6 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
         super(repository);
         this.repository = repository;
         this.mapper = mapper;
-        this.permissaoClient = permissaoClient;
     }
 
     // ============================================================
@@ -46,9 +43,6 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
 
     @CircuitBreaker(name = "empresa-configuracao-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaConfiguracaoResponse criar(EmpresaConfiguracaoCreateRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONFIGURACAO_CRIAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para criar configurações.");
-
         Empresa empresaRef = empresaRef(request.empresaRefId());
         validarChaveDuplicada(empresaRef, request.chave());
 
@@ -68,9 +62,6 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
             String chave,
             EmpresaConfiguracaoUpdateRequest request
     ) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONFIGURACAO_EDITAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para editar configurações.");
-
         EmpresaConfiguracao configuracao =
                 buscarPorChaveEntidade(empresaRefId, chave);
 
@@ -89,8 +80,6 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
             Long empresaRefId,
             String chave
     ) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONFIGURACAO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para visualizar configurações.");
         return mapper.toResponse(buscarPorChaveEntidade(empresaRefId, chave));
     }
 
@@ -104,9 +93,6 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
             Long empresaRefId,
             Pageable pageable
     ) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONFIGURACAO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar configurações.");
-
         Empresa empresaRef = empresaRef(empresaRefId);
 
         return repository
@@ -124,9 +110,6 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
 
     @CircuitBreaker(name = "empresa-configuracao-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long empresaRefId, String chave) {
-        if (!permissaoClient.usuarioPossuiPermissao("EMPRESA_CONFIGURACAO_EXCLUIR"))
-            throw new AccessDeniedException("Usuário não possui permissão para excluir configurações.");
-
         EmpresaConfiguracao configuracao =
                 buscarPorChaveEntidade(empresaRefId, chave);
 

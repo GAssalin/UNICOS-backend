@@ -48,9 +48,6 @@ public class DepartamentoService extends BaseTenantService<Departamento, Long> {
 
     @CircuitBreaker(name = "departamento-admin", fallbackMethod = "fallbackAdmin")
     public DepartamentoResponseDto salvar(DepartamentoCreateRequestDto request) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_CRIAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para criar departamentos.");
-
         validarCodigoDuplicado(request.codigo());
 
         if (request.departamentoPaiId() != null)
@@ -69,9 +66,6 @@ public class DepartamentoService extends BaseTenantService<Departamento, Long> {
 
     @CircuitBreaker(name = "departamento-admin", fallbackMethod = "fallbackAdminIdReq")
     public DepartamentoResponseDto atualizar(Long id, DepartamentoUpdateRequestDto request) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_EDITAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para editar departamentos.");
-
         Departamento entity = buscarDepartamento(id);
 
         if (!entity.getCodigo().equalsIgnoreCase(request.codigo()))
@@ -96,8 +90,6 @@ public class DepartamentoService extends BaseTenantService<Departamento, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "departamento-admin", fallbackMethod = "fallbackAdminId")
     public DepartamentoResponseDto buscarPorId(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para visualizar departamentos.");
         return departamentoMapper.toResponse(buscarDepartamento(id));
     }
 
@@ -108,8 +100,6 @@ public class DepartamentoService extends BaseTenantService<Departamento, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "departamento-admin", fallbackMethod = "fallbackAdminPage")
     public Page<DepartamentoResponseDto> listar(Pageable pageable) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar departamentos.");
         return departamentoRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
                 .map(departamentoMapper::toResponse);
@@ -118,8 +108,6 @@ public class DepartamentoService extends BaseTenantService<Departamento, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "departamento-admin", fallbackMethod = "fallbackAdminPageStatus")
     public Page<DepartamentoResponseDto> listarPorStatus(StatusDepartamento status, Pageable pageable) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar departamentos.");
         return departamentoRepository
                 .findByStatusDepartamentoAndEmpresaId(status, TenantContext.getEmpresaId(), pageable)
                 .map(departamentoMapper::toResponse);
@@ -128,9 +116,6 @@ public class DepartamentoService extends BaseTenantService<Departamento, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "departamento-admin", fallbackMethod = "fallbackAdminPagePai")
     public Page<DepartamentoResponseDto> listarFilhos(Long departamentoPaiId, Pageable pageable) {
-        if (!permissaoClient.usuarioPossuiPermissao("DEPARTAMENTO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar departamentos.");
-
         // garante que o pai exista no tenant
         buscarDepartamento(departamentoPaiId);
 

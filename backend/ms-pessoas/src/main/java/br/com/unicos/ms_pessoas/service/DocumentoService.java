@@ -1,6 +1,5 @@
 package br.com.unicos.ms_pessoas.service;
 
-import br.com.unicos.ms_pessoas.client.PermissaoClient;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoListDTO;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoRequest;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoResponse;
@@ -15,7 +14,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -31,7 +29,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DocumentoService {
 
-    private final PermissaoClient permissaoClient;
     private final DocumentoRepository repository;
     private final PessoaRepository pessoaRepository;
     private final DocumentoMapper mapper;
@@ -44,9 +41,6 @@ public class DocumentoService {
     @Transactional
     @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdmin")
     public DocumentoResponse criar(DocumentoRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_CRIAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para criar documentos.");
-
         Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
 
@@ -73,9 +67,6 @@ public class DocumentoService {
     @Transactional
     @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdmin")
     public DocumentoResponse atualizar(Long id, DocumentoRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_EDITAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para editar documentos.");
-
         Documento documento = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Documento não encontrado"));
 
@@ -107,12 +98,8 @@ public class DocumentoService {
     @Transactional
     @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminVoid")
     public void excluir(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_EXCLUIR"))
-            throw new AccessDeniedException("Usuário não possui permissão para excluir documentos.");
-
         if (!repository.existsById(id))
             throw new EntityNotFoundException("Documento não encontrado");
-
         repository.deleteById(id);
     }
 
@@ -123,8 +110,6 @@ public class DocumentoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminOptional")
     public Optional<DocumentoResponse> buscarPorId(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para visualizar documentos.");
         return repository.findById(id)
                 .map(mapper::toResponse);
     }
@@ -136,8 +121,6 @@ public class DocumentoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminList")
     public List<DocumentoListDTO> listarTodos() {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar documentos.");
         return repository.findAll()
                 .stream()
                 .map(mapper::toListDTO)
@@ -147,9 +130,6 @@ public class DocumentoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminListPessoa")
     public List<DocumentoListDTO> listarPorPessoa(Long pessoaId) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar documentos.");
-
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
 
@@ -162,9 +142,6 @@ public class DocumentoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminListTipo")
     public List<DocumentoListDTO> listarPorTipo(String tipo) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_DOCUMENTO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar documentos.");
-
         TipoDocumento tipoEnum;
         try {
             tipoEnum = TipoDocumento.valueOf(tipo.toUpperCase());

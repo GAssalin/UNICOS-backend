@@ -4,6 +4,7 @@ import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaListDTO;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaRequest;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaResponse;
 import br.com.unicos.ms_pessoas.service.PessoaJuridicaService;
+import br.com.unicos.ms_pessoas.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,7 +19,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/v1/pessoas-juridicas")
@@ -30,6 +30,7 @@ import java.util.Optional;
 )
 public class PessoaJuridicaController {
 
+    private final UtilsService utilsService;
     private final PessoaJuridicaService pessoaJuridicaService;
 
     // =============================================================
@@ -54,10 +55,12 @@ public class PessoaJuridicaController {
     )
     @PostMapping
     public ResponseEntity<PessoaJuridicaResponse> criar(@Valid @RequestBody PessoaJuridicaRequest request) {
-        PessoaJuridicaResponse response = pessoaJuridicaService.criar(request);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+        if (utilsService.verificarPermissao("PESSOA_JURIDICA_CRIAR"))
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(pessoaJuridicaService.criar(request));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -85,7 +88,10 @@ public class PessoaJuridicaController {
             @PathVariable Long id,
             @Valid @RequestBody PessoaJuridicaRequest request
     ) {
-        return ResponseEntity.ok(pessoaJuridicaService.atualizar(id, request));
+        if (utilsService.verificarPermissao("PESSOA_JURIDICA_EDITAR"))
+            return ResponseEntity.ok(pessoaJuridicaService.atualizar(id, request));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -110,11 +116,12 @@ public class PessoaJuridicaController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<PessoaJuridicaResponse> buscarPorId(@PathVariable Long id) {
-        Optional<PessoaJuridicaResponse> response =
-                pessoaJuridicaService.buscarPorId(id);
-        return response
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        if (utilsService.verificarPermissao("PESSOA_JURIDICA_LISTAR"))
+            return pessoaJuridicaService.buscarPorId(id)
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -139,11 +146,12 @@ public class PessoaJuridicaController {
     )
     @GetMapping("/cnpj/{cnpj}")
     public ResponseEntity<PessoaJuridicaResponse> buscarPorCnpj(@PathVariable String cnpj) {
-        Optional<PessoaJuridicaResponse> response =
-                pessoaJuridicaService.buscarPorCnpj(cnpj);
-        return response
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        if (utilsService.verificarPermissao("PESSOA_JURIDICA_LISTAR"))
+            return pessoaJuridicaService.buscarPorCnpj(cnpj)
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -169,7 +177,10 @@ public class PessoaJuridicaController {
     )
     @GetMapping
     public ResponseEntity<List<PessoaJuridicaListDTO>> listarTodas() {
-        return ResponseEntity.ok(pessoaJuridicaService.listarTodas());
+        if (utilsService.verificarPermissao("PESSOA_JURIDICA_LISTAR"))
+            return ResponseEntity.ok(pessoaJuridicaService.listarTodas());
+        else
+            return ResponseEntity.status(403).build();
     }
 
     @Operation(
@@ -191,7 +202,10 @@ public class PessoaJuridicaController {
     )
     @GetMapping("/nome-fantasia/{nomeFantasia}")
     public ResponseEntity<List<PessoaJuridicaListDTO>> listarPorNomeFantasia(@PathVariable String nomeFantasia) {
-        return ResponseEntity.ok(pessoaJuridicaService.listarPorNomeFantasia(nomeFantasia));
+        if (utilsService.verificarPermissao("PESSOA_JURIDICA_LISTAR"))
+            return ResponseEntity.ok(pessoaJuridicaService.listarPorNomeFantasia(nomeFantasia));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     @Operation(
@@ -213,7 +227,10 @@ public class PessoaJuridicaController {
     )
     @GetMapping("/nome/{nome}")
     public ResponseEntity<List<PessoaJuridicaListDTO>> listarPorNome(@PathVariable String nome) {
-        return ResponseEntity.ok(pessoaJuridicaService.listarPorNome(nome));
+        if (utilsService.verificarPermissao("PESSOA_JURIDICA_LISTAR"))
+            return ResponseEntity.ok(pessoaJuridicaService.listarPorNome(nome));
+        else
+            return ResponseEntity.status(403).build();
     }
 
     // =============================================================
@@ -232,7 +249,11 @@ public class PessoaJuridicaController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        pessoaJuridicaService.excluir(id);
-        return ResponseEntity.ok().build();
+        if (utilsService.verificarPermissao("PESSOA_JURIDICA_EXCLUIR")) {
+            pessoaJuridicaService.excluir(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 }

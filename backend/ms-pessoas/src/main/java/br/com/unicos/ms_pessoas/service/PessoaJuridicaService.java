@@ -1,6 +1,5 @@
 package br.com.unicos.ms_pessoas.service;
 
-import br.com.unicos.ms_pessoas.client.PermissaoClient;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaListDTO;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaRequest;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaResponse;
@@ -12,7 +11,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -28,7 +26,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PessoaJuridicaService {
 
-    private final PermissaoClient permissaoClient;
     private final PessoaJuridicaRepository repository;
     private final PessoaJuridicaMapper mapper;
     private final ModelMapper modelMapper;
@@ -40,9 +37,6 @@ public class PessoaJuridicaService {
     @Transactional
     @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdmin")
     public PessoaJuridicaResponse criar(PessoaJuridicaRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_JURIDICA_CRIAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para criar pessoa jurídica.");
-
         repository.findByCnpj(request.cnpj()).ifPresent(existing -> {
             throw new IllegalArgumentException("Já existe uma pessoa jurídica cadastrada com este CNPJ.");
         });
@@ -60,9 +54,6 @@ public class PessoaJuridicaService {
     @Transactional
     @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdmin")
     public PessoaJuridicaResponse atualizar(Long id, PessoaJuridicaRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_JURIDICA_EDITAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para editar pessoa jurídica.");
-
         PessoaJuridica pessoa = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa Jurídica não encontrada."));
 
@@ -84,12 +75,8 @@ public class PessoaJuridicaService {
     @Transactional
     @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdminVoid")
     public void excluir(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_JURIDICA_EXCLUIR"))
-            throw new AccessDeniedException("Usuário não possui permissão para excluir pessoa jurídica.");
-
         if (!repository.existsById(id))
             throw new EntityNotFoundException("Pessoa Jurídica não encontrada.");
-
         repository.deleteById(id);
     }
 
@@ -100,8 +87,6 @@ public class PessoaJuridicaService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdminOptional")
     public Optional<PessoaJuridicaResponse> buscarPorId(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_JURIDICA_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para visualizar pessoa jurídica.");
         return repository.findById(id)
                 .map(mapper::toResponse);
     }
@@ -109,8 +94,6 @@ public class PessoaJuridicaService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdminOptionalCnpj")
     public Optional<PessoaJuridicaResponse> buscarPorCnpj(String cnpj) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_JURIDICA_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para visualizar pessoa jurídica.");
         return repository.findByCnpj(cnpj)
                 .map(mapper::toResponse);
     }
@@ -122,8 +105,6 @@ public class PessoaJuridicaService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdminList")
     public List<PessoaJuridicaListDTO> listarTodas() {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_JURIDICA_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar pessoas jurídicas.");
         return repository.findAll()
                 .stream()
                 .map(mapper::toListDTO)
@@ -133,8 +114,6 @@ public class PessoaJuridicaService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdminListNomeFantasia")
     public List<PessoaJuridicaListDTO> listarPorNomeFantasia(String nomeFantasia) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_JURIDICA_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar pessoas jurídicas.");
         return repository.findByNomeFantasia(nomeFantasia)
                 .stream()
                 .map(mapper::toListDTO)
@@ -144,8 +123,6 @@ public class PessoaJuridicaService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdminListNome")
     public List<PessoaJuridicaListDTO> listarPorNome(String nome) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_JURIDICA_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar pessoas jurídicas.");
         return repository.findByNomeContainingIgnoreCase(nome)
                 .stream()
                 .map(mapper::toListDTO)

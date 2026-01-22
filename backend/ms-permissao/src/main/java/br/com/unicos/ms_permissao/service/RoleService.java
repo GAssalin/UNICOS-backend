@@ -56,7 +56,6 @@ public class RoleService extends BaseTenantService<Role, Long> {
     @Transactional
     @CircuitBreaker(name = "role-admin", fallbackMethod = "fallbackAdmin")
     public RoleResponse atualizar(Long id, RoleRequest request) {
-
         Role entity = buscarEntidadePorId(id);
 
         if (!entity.getNome().equalsIgnoreCase(request.nome())) {
@@ -112,8 +111,7 @@ public class RoleService extends BaseTenantService<Role, Long> {
     }
 
     private List<RoleResponse> fallbackAdminList(Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de roles temporariamente indisponível"
-        );
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de roles temporariamente indisponível");
     }
 
     private void fallbackAdminVoid(Long id, Throwable ex) {

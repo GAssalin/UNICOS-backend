@@ -2,7 +2,6 @@ package br.com.unicos.ms_filial.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
-import br.com.unicos.ms_filial.client.PermissaoClient;
 import br.com.unicos.ms_filial.dto.status.FilialStatusHistoricoCreateRequest;
 import br.com.unicos.ms_filial.dto.status.FilialStatusHistoricoResponse;
 import br.com.unicos.ms_filial.mapper.FilialStatusHistoricoMapper;
@@ -13,7 +12,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,24 +24,18 @@ public class FilialStatusHistoricoService extends BaseTenantService<FilialStatus
 
     private final FilialStatusHistoricoRepository historicoRepository;
     private final FilialStatusHistoricoMapper historicoMapper;
-    private final PermissaoClient permissaoClient;
 
     public FilialStatusHistoricoService(
             FilialStatusHistoricoRepository historicoRepository,
-            FilialStatusHistoricoMapper historicoMapper,
-            PermissaoClient permissaoClient
+            FilialStatusHistoricoMapper historicoMapper
     ) {
         super(historicoRepository);
         this.historicoRepository = historicoRepository;
         this.historicoMapper = historicoMapper;
-        this.permissaoClient = permissaoClient;
     }
 
     @CircuitBreaker(name = "filial-status-historico-admin", fallbackMethod = "fallbackAdmin")
     public FilialStatusHistoricoResponse salvar(FilialStatusHistoricoCreateRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_STATUS_HISTORICO_CRIAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para registrar histórico de status.");
-
         FilialStatusHistorico entity = historicoMapper.toEntity(request);
         entity.setEmpresaId(TenantContext.getEmpresaId());
 
@@ -57,16 +49,12 @@ public class FilialStatusHistoricoService extends BaseTenantService<FilialStatus
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "filial-status-historico-admin", fallbackMethod = "fallbackAdminId")
     public FilialStatusHistoricoResponse buscarPorId(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_STATUS_HISTORICO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para visualizar histórico de status.");
         return historicoMapper.toResponse(buscarHistorico(id));
     }
 
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "filial-status-historico-admin", fallbackMethod = "fallbackAdminPage")
     public Page<FilialStatusHistoricoResponse> listarPorFilial(Long filialId, Pageable pageable) {
-        if (!permissaoClient.usuarioPossuiPermissao("FILIAL_STATUS_HISTORICO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar histórico de status.");
         return historicoRepository
                 .findByFilialIdAndEmpresaId(filialId, TenantContext.getEmpresaId(), pageable)
                 .map(historicoMapper::toResponse);

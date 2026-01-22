@@ -1,6 +1,5 @@
 package br.com.unicos.ms_pessoas.service;
 
-import br.com.unicos.ms_pessoas.client.PermissaoClient;
 import br.com.unicos.ms_pessoas.dto.relacao.PessoaRelacaoListDTO;
 import br.com.unicos.ms_pessoas.dto.relacao.PessoaRelacaoRequest;
 import br.com.unicos.ms_pessoas.dto.relacao.PessoaRelacaoResponse;
@@ -16,7 +15,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -31,7 +29,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PessoaRelacaoService {
 
-    private final PermissaoClient permissaoClient;
     private final PessoaRelacaoRepository repository;
     private final PessoaRepository pessoaRepository;
     private final TipoRelacaoPessoaRepository tipoRelacaoPessoaRepository;
@@ -45,9 +42,6 @@ public class PessoaRelacaoService {
     @Transactional
     @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdmin")
     public PessoaRelacaoResponse criar(PessoaRelacaoRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_RELACAO_CRIAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para criar relações entre pessoas.");
-
         Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa principal não encontrada."));
 
@@ -84,9 +78,6 @@ public class PessoaRelacaoService {
     @Transactional
     @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdmin")
     public PessoaRelacaoResponse atualizar(Long id, PessoaRelacaoRequest request) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_RELACAO_EDITAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para editar relações entre pessoas.");
-
         PessoaRelacao relacao = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Relação não encontrada."));
 
@@ -127,9 +118,6 @@ public class PessoaRelacaoService {
     @Transactional
     @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminVoid")
     public void excluir(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_RELACAO_EXCLUIR"))
-            throw new AccessDeniedException("Usuário não possui permissão para excluir relações entre pessoas.");
-
         if (!repository.existsById(id))
             throw new EntityNotFoundException("Relação não encontrada.");
 
@@ -143,8 +131,6 @@ public class PessoaRelacaoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminOptional")
     public Optional<PessoaRelacaoResponse> buscarPorId(Long id) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_RELACAO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para visualizar relações entre pessoas.");
         return repository.findById(id)
                 .map(mapper::toResponse);
     }
@@ -156,8 +142,6 @@ public class PessoaRelacaoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminList")
     public List<PessoaRelacaoListDTO> listarTodas() {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_RELACAO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar relações entre pessoas.");
         return repository.findAll()
                 .stream()
                 .map(mapper::toListDTO)
@@ -167,9 +151,6 @@ public class PessoaRelacaoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminListPessoa")
     public List<PessoaRelacaoListDTO> listarPorPessoa(Long pessoaId) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_RELACAO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar relações entre pessoas.");
-
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada."));
 
@@ -182,9 +163,6 @@ public class PessoaRelacaoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminListRelacionado")
     public List<PessoaRelacaoListDTO> listarPorRelacionado(Long relacionadoId) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_RELACAO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar relações entre pessoas.");
-
         Pessoa relacionado = pessoaRepository.findById(relacionadoId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa relacionada não encontrada."));
 
@@ -197,9 +175,6 @@ public class PessoaRelacaoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminListTipo")
     public List<PessoaRelacaoListDTO> listarPorTipo(Long tipoRelacaoPessoaId) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_RELACAO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar relações entre pessoas.");
-
         TipoRelacaoPessoa tipoRelacao = tipoRelacaoPessoaRepository.findById(tipoRelacaoPessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Tipo de relação não encontrado."));
 
@@ -212,9 +187,6 @@ public class PessoaRelacaoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminListPessoaNome")
     public List<PessoaRelacaoListDTO> listarPorPessoaENome(String nome) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_RELACAO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar relações entre pessoas.");
-
         return repository.findByPessoa_NomeContainingIgnoreCase(nome)
                 .stream()
                 .map(mapper::toListDTO)
@@ -224,9 +196,6 @@ public class PessoaRelacaoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminListRelacionadoNome")
     public List<PessoaRelacaoListDTO> listarPorRelacionadoENome(String nome) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_RELACAO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar relações entre pessoas.");
-
         return repository.findByRelacionado_NomeContainingIgnoreCase(nome)
                 .stream()
                 .map(mapper::toListDTO)
@@ -236,9 +205,6 @@ public class PessoaRelacaoService {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminListPessoaRelacionado")
     public List<PessoaRelacaoListDTO> listarPorPessoaERelacionado(Long pessoaId, Long relacionadoId) {
-        if (!permissaoClient.usuarioPossuiPermissao("PESSOA_RELACAO_LISTAR"))
-            throw new AccessDeniedException("Usuário não possui permissão para listar relações entre pessoas.");
-
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa principal não encontrada."));
 
