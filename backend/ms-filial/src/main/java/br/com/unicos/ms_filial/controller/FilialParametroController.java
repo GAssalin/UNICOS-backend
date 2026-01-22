@@ -4,7 +4,6 @@ import br.com.unicos.ms_filial.dto.parametro.FilialParametroCreateRequest;
 import br.com.unicos.ms_filial.dto.parametro.FilialParametroResponse;
 import br.com.unicos.ms_filial.dto.parametro.FilialParametroUpdateRequest;
 import br.com.unicos.ms_filial.service.FilialParametroService;
-import br.com.unicos.ms_filial.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,7 +30,6 @@ import org.springframework.web.bind.annotation.*;
 )
 public class FilialParametroController {
 
-    private final UtilsService utilsService;
     private final FilialParametroService parametroService;
 
     // =============================================================
@@ -54,12 +52,7 @@ public class FilialParametroController {
     )
     @PostMapping
     public ResponseEntity<FilialParametroResponse> salvar(@Valid @RequestBody FilialParametroCreateRequest request) {
-        if (utilsService.verificarPermissao("FILIAL_PARAMETRO_CRIAR")) {
-            FilialParametroResponse response = parametroService.salvar(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(parametroService.salvar(request));
     }
 
     // =============================================================
@@ -85,10 +78,7 @@ public class FilialParametroController {
             @PathVariable Long id,
             @Valid @RequestBody FilialParametroUpdateRequest request
     ) {
-        if (utilsService.verificarPermissao("FILIAL_PARAMETRO_EDITAR"))
-            return ResponseEntity.ok(parametroService.atualizar(id, request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(parametroService.atualizar(id, request));
     }
 
     // =============================================================
@@ -111,10 +101,7 @@ public class FilialParametroController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<FilialParametroResponse> buscarPorId(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("FILIAL_PARAMETRO_LISTAR"))
-            return ResponseEntity.ok(parametroService.buscarPorId(id));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(parametroService.buscarPorId(id));
     }
 
     // =============================================================
@@ -141,10 +128,7 @@ public class FilialParametroController {
             @PathVariable Long filialId,
             @ParameterObject Pageable pageable
     ) {
-        if (utilsService.verificarPermissao("FILIAL_PARAMETRO_LISTAR"))
-            return ResponseEntity.ok(parametroService.listarPorFilial(filialId, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(parametroService.listarPorFilial(filialId, pageable));
     }
 
     // =============================================================
@@ -163,11 +147,7 @@ public class FilialParametroController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("FILIAL_PARAMETRO_EXCLUIR")) {
-            parametroService.deletar(id);
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        parametroService.deletar(id);
+        return ResponseEntity.ok().build();
     }
 }

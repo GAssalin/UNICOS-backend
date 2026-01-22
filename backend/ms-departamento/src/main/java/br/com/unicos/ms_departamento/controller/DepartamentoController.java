@@ -5,7 +5,6 @@ import br.com.unicos.ms_departamento.dto.departamento.DepartamentoResponseDto;
 import br.com.unicos.ms_departamento.dto.departamento.DepartamentoUpdateRequestDto;
 import br.com.unicos.ms_departamento.enums.StatusDepartamento;
 import br.com.unicos.ms_departamento.service.DepartamentoService;
-import br.com.unicos.ms_departamento.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,7 +34,6 @@ import org.springframework.web.bind.annotation.*;
 )
 public class DepartamentoController {
 
-    private final UtilsService utilsService;
     private final DepartamentoService departamentoService;
 
     // =============================================================
@@ -58,12 +56,8 @@ public class DepartamentoController {
     )
     @PostMapping
     public ResponseEntity<DepartamentoResponseDto> salvar(@Valid @RequestBody DepartamentoCreateRequestDto request) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_CRIAR")) {
-            DepartamentoResponseDto response = departamentoService.salvar(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        DepartamentoResponseDto response = departamentoService.salvar(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // =============================================================
@@ -89,10 +83,7 @@ public class DepartamentoController {
             @PathVariable Long id,
             @Valid @RequestBody DepartamentoUpdateRequestDto request
     ) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_EDITAR"))
-            return ResponseEntity.ok(departamentoService.atualizar(id, request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(departamentoService.atualizar(id, request));
     }
 
     // =============================================================
@@ -115,10 +106,7 @@ public class DepartamentoController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<DepartamentoResponseDto> buscarPorId(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_LISTAR"))
-            return ResponseEntity.ok(departamentoService.buscarPorId(id));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(departamentoService.buscarPorId(id));
     }
 
     // =============================================================
@@ -142,10 +130,7 @@ public class DepartamentoController {
     )
     @GetMapping
     public ResponseEntity<Page<DepartamentoResponseDto>> listar(@ParameterObject Pageable pageable) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_LISTAR"))
-            return ResponseEntity.ok(departamentoService.listar(pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(departamentoService.listar(pageable));
     }
 
     @Operation(
@@ -168,10 +153,7 @@ public class DepartamentoController {
             @PathVariable StatusDepartamento status,
             @ParameterObject Pageable pageable
     ) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_LISTAR"))
-            return ResponseEntity.ok(departamentoService.listarPorStatus(status, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(departamentoService.listarPorStatus(status, pageable));
     }
 
     @Operation(
@@ -195,10 +177,7 @@ public class DepartamentoController {
             @PathVariable Long departamentoPaiId,
             @ParameterObject Pageable pageable
     ) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_LISTAR"))
-            return ResponseEntity.ok(departamentoService.listarFilhos(departamentoPaiId, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(departamentoService.listarFilhos(departamentoPaiId, pageable));
     }
 
     // =============================================================
@@ -217,11 +196,7 @@ public class DepartamentoController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_EXCLUIR")) {
-            departamentoService.deletar(id);
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        departamentoService.deletar(id);
+        return ResponseEntity.ok().build();
     }
 }

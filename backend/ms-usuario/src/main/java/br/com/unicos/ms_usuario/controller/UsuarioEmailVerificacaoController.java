@@ -6,7 +6,6 @@ import br.com.unicos.ms_usuario.dto.verificacao.ConfirmarEmailVerificacaoRespons
 import br.com.unicos.ms_usuario.dto.verificacao.UsuarioEmailVerificacaoListDTO;
 import br.com.unicos.ms_usuario.model.Usuario;
 import br.com.unicos.ms_usuario.service.UsuarioEmailVerificacaoService;
-import br.com.unicos.ms_usuario.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
  * Controlador REST responsável pelo fluxo de verificação de e-mail dos usuários.
  */
 @RestController
-@RequestMapping("/v1/auth/verificacao-email")
+@RequestMapping("/v1/verificacao-email")
 @RequiredArgsConstructor
 @Validated
 @Tag(
@@ -34,7 +33,6 @@ import org.springframework.web.bind.annotation.*;
 )
 public class UsuarioEmailVerificacaoController {
 
-    private final UtilsService utilsService;
     private final UsuarioEmailVerificacaoService usuarioEmailVerificacaoService;
 
     // =============================================================
@@ -58,9 +56,7 @@ public class UsuarioEmailVerificacaoController {
     )
     @PostMapping("/confirmar")
     public ResponseEntity<ConfirmarEmailVerificacaoResponse> confirmar(@Valid @RequestBody ConfirmarEmailVerificacaoRequest request) {
-
         Usuario usuario = usuarioEmailVerificacaoService.confirmarEmail(request.token());
-
         return ResponseEntity.ok(
                 new ConfirmarEmailVerificacaoResponse(
                         usuario.getId(),
@@ -85,10 +81,7 @@ public class UsuarioEmailVerificacaoController {
     )
     @GetMapping("/pendentes")
     public ResponseEntity<Page<UsuarioEmailVerificacaoListDTO>> listarPendentes(@ParameterObject Pageable pageable) {
-        if (utilsService.verificarPermissao("USUARIO_EMAIL_LISTAR"))
-            return ResponseEntity.ok(usuarioEmailVerificacaoService.listarPendentes(TenantContext.getEmpresaId(), pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(usuarioEmailVerificacaoService.listarPendentes(TenantContext.getEmpresaId(), pageable));
     }
 
     // =============================================================
@@ -105,9 +98,6 @@ public class UsuarioEmailVerificacaoController {
     )
     @GetMapping("/expirados")
     public ResponseEntity<Page<UsuarioEmailVerificacaoListDTO>> listarExpirados(@ParameterObject Pageable pageable) {
-        if (utilsService.verificarPermissao("USUARIO_EMAIL_LISTAR"))
-            return ResponseEntity.ok(usuarioEmailVerificacaoService.listarExpirados(TenantContext.getEmpresaId(), pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(usuarioEmailVerificacaoService.listarExpirados(TenantContext.getEmpresaId(), pageable));
     }
 }

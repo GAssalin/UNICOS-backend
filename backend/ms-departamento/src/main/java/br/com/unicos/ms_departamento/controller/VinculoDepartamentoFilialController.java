@@ -4,7 +4,6 @@ import br.com.unicos.ms_departamento.dto.vinculo.VinculoDepartamentoFilialCreate
 import br.com.unicos.ms_departamento.dto.vinculo.VinculoDepartamentoFilialResponseDto;
 import br.com.unicos.ms_departamento.dto.vinculo.VinculoDepartamentoFilialUpdateRequestDto;
 import br.com.unicos.ms_departamento.enums.StatusVinculoDepartamentoFilial;
-import br.com.unicos.ms_departamento.service.UtilsService;
 import br.com.unicos.ms_departamento.service.VinculoDepartamentoFilialService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -35,7 +34,6 @@ import org.springframework.web.bind.annotation.*;
 )
 public class VinculoDepartamentoFilialController {
 
-    private final UtilsService utilsService;
     private final VinculoDepartamentoFilialService vinculoService;
 
     // =============================================================
@@ -60,12 +58,8 @@ public class VinculoDepartamentoFilialController {
     public ResponseEntity<VinculoDepartamentoFilialResponseDto> salvar(
             @Valid @RequestBody VinculoDepartamentoFilialCreateRequestDto request
     ) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_VINCULO_FILIAL_CRIAR")) {
-            VinculoDepartamentoFilialResponseDto response = vinculoService.salvar(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        VinculoDepartamentoFilialResponseDto response = vinculoService.salvar(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // =============================================================
@@ -91,10 +85,7 @@ public class VinculoDepartamentoFilialController {
             @PathVariable Long id,
             @Valid @RequestBody VinculoDepartamentoFilialUpdateRequestDto request
     ) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_VINCULO_FILIAL_EDITAR"))
-            return ResponseEntity.ok(vinculoService.atualizar(id, request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(vinculoService.atualizar(id, request));
     }
 
     // =============================================================
@@ -117,10 +108,7 @@ public class VinculoDepartamentoFilialController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<VinculoDepartamentoFilialResponseDto> buscarPorId(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_VINCULO_FILIAL_LISTAR"))
-            return ResponseEntity.ok(vinculoService.buscarPorId(id));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(vinculoService.buscarPorId(id));
     }
 
     // =============================================================
@@ -147,10 +135,7 @@ public class VinculoDepartamentoFilialController {
             @PathVariable Long filialId,
             @ParameterObject Pageable pageable
     ) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_VINCULO_FILIAL_LISTAR"))
-            return ResponseEntity.ok(vinculoService.listarPorFilial(filialId, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(vinculoService.listarPorFilial(filialId, pageable));
     }
 
     @Operation(
@@ -174,10 +159,7 @@ public class VinculoDepartamentoFilialController {
             @PathVariable StatusVinculoDepartamentoFilial status,
             @ParameterObject Pageable pageable
     ) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_VINCULO_FILIAL_LISTAR"))
-            return ResponseEntity.ok(vinculoService.listarPorFilialEStatus(filialId, status, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(vinculoService.listarPorFilialEStatus(filialId, status, pageable));
     }
 
     // =============================================================
@@ -196,11 +178,7 @@ public class VinculoDepartamentoFilialController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_VINCULO_FILIAL_EXCLUIR")) {
-            vinculoService.deletar(id);
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        vinculoService.deletar(id);
+        return ResponseEntity.ok().build();
     }
 }

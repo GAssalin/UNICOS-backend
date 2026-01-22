@@ -5,7 +5,6 @@ import br.com.unicos.ms_departamento.dto.responsavel.ResponsavelDepartamentoResp
 import br.com.unicos.ms_departamento.dto.responsavel.ResponsavelDepartamentoUpdateRequestDto;
 import br.com.unicos.ms_departamento.enums.StatusResponsavelDepartamento;
 import br.com.unicos.ms_departamento.service.ResponsavelDepartamentoService;
-import br.com.unicos.ms_departamento.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,7 +34,6 @@ import org.springframework.web.bind.annotation.*;
 )
 public class ResponsavelDepartamentoController {
 
-    private final UtilsService utilsService;
     private final ResponsavelDepartamentoService responsavelService;
 
     // =============================================================
@@ -60,12 +58,8 @@ public class ResponsavelDepartamentoController {
     public ResponseEntity<ResponsavelDepartamentoResponseDto> salvar(
             @Valid @RequestBody ResponsavelDepartamentoCreateRequestDto request
     ) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_RESPONSAVEL_CRIAR")) {
-            ResponsavelDepartamentoResponseDto response = responsavelService.salvar(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        ResponsavelDepartamentoResponseDto response = responsavelService.salvar(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // =============================================================
@@ -91,10 +85,7 @@ public class ResponsavelDepartamentoController {
             @PathVariable Long id,
             @Valid @RequestBody ResponsavelDepartamentoUpdateRequestDto request
     ) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_RESPONSAVEL_EDITAR"))
-            return ResponseEntity.ok(responsavelService.atualizar(id, request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(responsavelService.atualizar(id, request));
     }
 
     // =============================================================
@@ -117,10 +108,7 @@ public class ResponsavelDepartamentoController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<ResponsavelDepartamentoResponseDto> buscarPorId(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_RESPONSAVEL_LISTAR"))
-            return ResponseEntity.ok(responsavelService.buscarPorId(id));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(responsavelService.buscarPorId(id));
     }
 
     // =============================================================
@@ -147,10 +135,7 @@ public class ResponsavelDepartamentoController {
             @PathVariable Long departamentoId,
             @ParameterObject Pageable pageable
     ) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_RESPONSAVEL_LISTAR"))
-            return ResponseEntity.ok(responsavelService.listarPorDepartamento(departamentoId, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(responsavelService.listarPorDepartamento(departamentoId, pageable));
     }
 
     @Operation(
@@ -174,10 +159,7 @@ public class ResponsavelDepartamentoController {
             @PathVariable StatusResponsavelDepartamento status,
             @ParameterObject Pageable pageable
     ) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_RESPONSAVEL_LISTAR"))
-            return ResponseEntity.ok(responsavelService.listarPorDepartamentoEStatus(departamentoId, status, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(responsavelService.listarPorDepartamentoEStatus(departamentoId, status, pageable));
     }
 
     // =============================================================
@@ -196,11 +178,7 @@ public class ResponsavelDepartamentoController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("DEPARTAMENTO_RESPONSAVEL_EXCLUIR")) {
-            responsavelService.deletar(id);
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        responsavelService.deletar(id);
+        return ResponseEntity.ok().build();
     }
 }

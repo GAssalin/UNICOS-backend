@@ -4,7 +4,6 @@ import br.com.unicos.ms_pessoas.dto.endereco.EnderecoListDTO;
 import br.com.unicos.ms_pessoas.dto.endereco.EnderecoRequest;
 import br.com.unicos.ms_pessoas.dto.endereco.EnderecoResponse;
 import br.com.unicos.ms_pessoas.service.EnderecoService;
-import br.com.unicos.ms_pessoas.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,7 +29,6 @@ import java.util.List;
 )
 public class EnderecoController {
 
-    private final UtilsService utilsService;
     private final EnderecoService enderecoService;
 
     // =============================================================
@@ -55,12 +53,9 @@ public class EnderecoController {
     )
     @PostMapping
     public ResponseEntity<EnderecoResponse> criar(@Valid @RequestBody EnderecoRequest request) {
-        if (utilsService.verificarPermissao("PESSOA_ENDERECO_CRIAR"))
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(enderecoService.criar(request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(enderecoService.criar(request));
     }
 
     // =============================================================
@@ -88,10 +83,7 @@ public class EnderecoController {
             @PathVariable Long id,
             @Valid @RequestBody EnderecoRequest request
     ) {
-        if (utilsService.verificarPermissao("PESSOA_ENDERECO_EDITAR"))
-            return ResponseEntity.ok(enderecoService.atualizar(id, request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(enderecoService.atualizar(id, request));
     }
 
     // =============================================================
@@ -116,12 +108,9 @@ public class EnderecoController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<EnderecoResponse> buscarPorId(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("PESSOA_ENDERECO_LISTAR"))
-            return enderecoService.buscarPorId(id)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
-        else
-            return ResponseEntity.status(403).build();
+        return enderecoService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // =============================================================
@@ -147,10 +136,7 @@ public class EnderecoController {
     )
     @GetMapping
     public ResponseEntity<List<EnderecoListDTO>> listarTodos() {
-        if (utilsService.verificarPermissao("PESSOA_ENDERECO_LISTAR"))
-            return ResponseEntity.ok(enderecoService.listarTodos());
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(enderecoService.listarTodos());
     }
 
     @Operation(
@@ -172,10 +158,7 @@ public class EnderecoController {
     )
     @GetMapping("/pessoa/{pessoaId}")
     public ResponseEntity<List<EnderecoListDTO>> listarPorPessoa(@PathVariable Long pessoaId) {
-        if (utilsService.verificarPermissao("PESSOA_ENDERECO_LISTAR"))
-            return ResponseEntity.ok(enderecoService.listarPorPessoa(pessoaId));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(enderecoService.listarPorPessoa(pessoaId));
     }
 
     @Operation(
@@ -200,10 +183,7 @@ public class EnderecoController {
             @PathVariable Long pessoaId,
             @PathVariable String tipo
     ) {
-        if (utilsService.verificarPermissao("PESSOA_ENDERECO_LISTAR"))
-            return ResponseEntity.ok(enderecoService.listarPorPessoaETipo(pessoaId, tipo));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(enderecoService.listarPorPessoaETipo(pessoaId, tipo));
     }
 
     @Operation(
@@ -225,10 +205,7 @@ public class EnderecoController {
     )
     @GetMapping("/municipio/{municipioId}")
     public ResponseEntity<List<EnderecoListDTO>> listarPorMunicipio(@PathVariable Long municipioId) {
-        if (utilsService.verificarPermissao("PESSOA_ENDERECO_LISTAR"))
-            return ResponseEntity.ok(enderecoService.listarPorMunicipio(municipioId));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(enderecoService.listarPorMunicipio(municipioId));
     }
 
     @Operation(
@@ -250,10 +227,7 @@ public class EnderecoController {
     )
     @GetMapping("/cep/{cep}")
     public ResponseEntity<List<EnderecoListDTO>> listarPorCep(@PathVariable String cep) {
-        if (utilsService.verificarPermissao("PESSOA_ENDERECO_LISTAR"))
-            return ResponseEntity.ok(enderecoService.listarPorCep(cep));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(enderecoService.listarPorCep(cep));
     }
 
     @Operation(
@@ -274,12 +248,9 @@ public class EnderecoController {
     )
     @GetMapping("/pessoa/{pessoaId}/principal")
     public ResponseEntity<EnderecoResponse> buscarPrincipal(@PathVariable Long pessoaId) {
-        if (utilsService.verificarPermissao("PESSOA_ENDERECO_LISTAR"))
-            return enderecoService.buscarPrincipal(pessoaId)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
-        else
-            return ResponseEntity.status(403).build();
+        return enderecoService.buscarPrincipal(pessoaId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // =============================================================
@@ -298,11 +269,7 @@ public class EnderecoController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("PESSOA_ENDERECO_EXCLUIR")) {
-            enderecoService.excluir(id);
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        enderecoService.excluir(id);
+        return ResponseEntity.ok().build();
     }
 }

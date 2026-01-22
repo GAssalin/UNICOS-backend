@@ -6,7 +6,6 @@ import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoResumoRespon
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoUpdateRequest;
 import br.com.unicos.ms_empresa.enums.TipoEnderecoEmpresa;
 import br.com.unicos.ms_empresa.service.EmpresaEnderecoService;
-import br.com.unicos.ms_empresa.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,7 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/empresas/{empresaRefId}/enderecos")
+@RequestMapping("/v1/empresas/enderecos/{empresaRefId}")
 @RequiredArgsConstructor
 @Validated
 @Tag(
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 )
 public class EmpresaEnderecoController {
 
-    private final UtilsService utilsService;
     private final EmpresaEnderecoService empresaEnderecoService;
 
     // ============================================================
@@ -57,28 +55,24 @@ public class EmpresaEnderecoController {
             @PathVariable Long empresaRefId,
             @RequestBody @Validated EmpresaEnderecoCreateRequest request
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_ENDERECO_CRIAR")) {
-            EmpresaEnderecoCreateRequest normalized =
-                    new EmpresaEnderecoCreateRequest(
-                            request.empresaId(),
-                            empresaRefId,
-                            request.tipoEndereco(),
-                            request.logradouro(),
-                            request.numero(),
-                            request.complemento(),
-                            request.bairro(),
-                            request.municipio(),
-                            request.uf(),
-                            request.cep(),
-                            request.principal()
-                    );
+        EmpresaEnderecoCreateRequest normalized =
+                new EmpresaEnderecoCreateRequest(
+                        request.empresaId(),
+                        empresaRefId,
+                        request.tipoEndereco(),
+                        request.logradouro(),
+                        request.numero(),
+                        request.complemento(),
+                        request.bairro(),
+                        request.municipio(),
+                        request.uf(),
+                        request.cep(),
+                        request.principal()
+                );
 
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(empresaEnderecoService.criar(normalized));
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(empresaEnderecoService.criar(normalized));
     }
 
     // ============================================================
@@ -104,10 +98,7 @@ public class EmpresaEnderecoController {
             @PathVariable Long id,
             @RequestBody @Validated EmpresaEnderecoUpdateRequest request
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_ENDERECO_EDITAR"))
-            return ResponseEntity.ok(empresaEnderecoService.atualizar(id, request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(empresaEnderecoService.atualizar(id, request));
     }
 
     // ============================================================
@@ -132,10 +123,7 @@ public class EmpresaEnderecoController {
             @PathVariable Long empresaRefId,
             @PathVariable Long id
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_ENDERECO_LISTAR"))
-            return ResponseEntity.ok(empresaEnderecoService.buscarPorId(id));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(empresaEnderecoService.buscarPorId(id));
     }
 
     // ============================================================
@@ -163,10 +151,7 @@ public class EmpresaEnderecoController {
             @PathVariable Long empresaRefId,
             @ParameterObject Pageable pageable
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_ENDERECO_LISTAR"))
-            return ResponseEntity.ok(empresaEnderecoService.listar(empresaRefId, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(empresaEnderecoService.listar(empresaRefId, pageable));
     }
 
     // ============================================================
@@ -187,10 +172,7 @@ public class EmpresaEnderecoController {
             @PathVariable TipoEnderecoEmpresa tipo,
             @ParameterObject Pageable pageable
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_ENDERECO_LISTAR"))
-            return ResponseEntity.ok(empresaEnderecoService.listarPorTipo(empresaRefId, tipo, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(empresaEnderecoService.listarPorTipo(empresaRefId, tipo, pageable));
     }
 
     // ============================================================
@@ -211,11 +193,7 @@ public class EmpresaEnderecoController {
             @PathVariable Long empresaRefId,
             @PathVariable Long id
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_ENDERECO_EXCLUIR")) {
-            empresaEnderecoService.remover(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        empresaEnderecoService.remover(id);
+        return ResponseEntity.noContent().build();
     }
 }

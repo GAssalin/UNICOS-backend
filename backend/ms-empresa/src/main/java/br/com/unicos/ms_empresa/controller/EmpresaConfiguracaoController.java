@@ -5,7 +5,6 @@ import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoResp
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoResumoResponse;
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoUpdateRequest;
 import br.com.unicos.ms_empresa.service.EmpresaConfiguracaoService;
-import br.com.unicos.ms_empresa.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,7 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/empresas/{empresaRefId}/configuracoes")
+@RequestMapping("/v1/empresas/configuracoes/{empresaRefId}")
 @RequiredArgsConstructor
 @Validated
 @Tag(
@@ -31,7 +30,6 @@ import org.springframework.web.bind.annotation.*;
 )
 public class EmpresaConfiguracaoController {
 
-    private final UtilsService utilsService;
     private final EmpresaConfiguracaoService empresaConfiguracaoService;
 
     // ============================================================
@@ -57,21 +55,17 @@ public class EmpresaConfiguracaoController {
             @PathVariable Long empresaRefId,
             @RequestBody @Validated EmpresaConfiguracaoCreateRequest request
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_CONFIGURACAO_CRIAR")) {
-            EmpresaConfiguracaoCreateRequest normalized =
-                    new EmpresaConfiguracaoCreateRequest(
-                            request.empresaId(),
-                            empresaRefId,
-                            request.chave(),
-                            request.valor()
-                    );
+        EmpresaConfiguracaoCreateRequest normalized =
+                new EmpresaConfiguracaoCreateRequest(
+                        request.empresaId(),
+                        empresaRefId,
+                        request.chave(),
+                        request.valor()
+                );
 
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(empresaConfiguracaoService.criar(normalized));
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(empresaConfiguracaoService.criar(normalized));
     }
 
     // ============================================================
@@ -97,10 +91,7 @@ public class EmpresaConfiguracaoController {
             @PathVariable String chave,
             @RequestBody @Validated EmpresaConfiguracaoUpdateRequest request
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_CONFIGURACAO_EDITAR"))
-            return ResponseEntity.ok(empresaConfiguracaoService.atualizar(empresaRefId, chave, request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(empresaConfiguracaoService.atualizar(empresaRefId, chave, request));
     }
 
     // ============================================================
@@ -125,10 +116,7 @@ public class EmpresaConfiguracaoController {
             @PathVariable Long empresaRefId,
             @PathVariable String chave
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_CONFIGURACAO_LISTAR"))
-            return ResponseEntity.ok(empresaConfiguracaoService.buscarPorChave(empresaRefId, chave));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(empresaConfiguracaoService.buscarPorChave(empresaRefId, chave));
     }
 
     // ============================================================
@@ -159,10 +147,7 @@ public class EmpresaConfiguracaoController {
             @PathVariable Long empresaRefId,
             @ParameterObject Pageable pageable
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_CONFIGURACAO_LISTAR"))
-            return ResponseEntity.ok(empresaConfiguracaoService.listar(empresaRefId, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(empresaConfiguracaoService.listar(empresaRefId, pageable));
     }
 
     // ============================================================
@@ -183,11 +168,7 @@ public class EmpresaConfiguracaoController {
             @PathVariable Long empresaRefId,
             @PathVariable String chave
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_CONFIGURACAO_EXCLUIR")) {
-            empresaConfiguracaoService.remover(empresaRefId, chave);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        empresaConfiguracaoService.remover(empresaRefId, chave);
+        return ResponseEntity.noContent().build();
     }
 }

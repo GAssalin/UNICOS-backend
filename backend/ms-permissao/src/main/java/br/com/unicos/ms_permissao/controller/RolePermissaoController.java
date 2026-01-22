@@ -3,7 +3,6 @@ package br.com.unicos.ms_permissao.controller;
 import br.com.unicos.ms_permissao.dto.role_permissao.RolePermissaoListDTO;
 import br.com.unicos.ms_permissao.dto.role_permissao.RolePermissaoRequest;
 import br.com.unicos.ms_permissao.dto.role_permissao.RolePermissaoResponse;
-import br.com.unicos.ms_permissao.service.PermissaoService;
 import br.com.unicos.ms_permissao.service.RolePermissaoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 )
 public class RolePermissaoController {
 
-    private final PermissaoService permissaoService;
     private final RolePermissaoService service;
 
     // ============================================================
@@ -50,12 +48,9 @@ public class RolePermissaoController {
     )
     @PostMapping
     public ResponseEntity<RolePermissaoResponse> criar(@Valid @RequestBody RolePermissaoRequest request) {
-        if (permissaoService.usuarioPossuiPermissao("ROLE_PERMISSAO_CRIAR"))
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(service.criar(request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(service.criar(request));
     }
 
     // ============================================================
@@ -80,10 +75,7 @@ public class RolePermissaoController {
             @PathVariable Long id,
             @RequestParam boolean ativo
     ) {
-        if (permissaoService.usuarioPossuiPermissao("ROLE_PERMISSAO_EDITAR"))
-            return ResponseEntity.ok(service.alterarStatus(id, ativo));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(service.alterarStatus(id, ativo));
     }
 
     // ============================================================
@@ -101,12 +93,8 @@ public class RolePermissaoController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (permissaoService.usuarioPossuiPermissao("ROLE_PERMISSAO_EXCLUIR")) {
-            service.remover(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        service.remover(id);
+        return ResponseEntity.noContent().build();
     }
 
     // ============================================================
@@ -129,10 +117,7 @@ public class RolePermissaoController {
             @PathVariable Long empresaId,
             Pageable pageable
     ) {
-        if (permissaoService.usuarioPossuiPermissao("ROLE_PERMISSAO_LISTAR"))
-            return ResponseEntity.ok(service.listarAtivosPorEmpresa(empresaId, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(service.listarAtivosPorEmpresa(empresaId, pageable));
     }
 
     // ============================================================
@@ -155,9 +140,6 @@ public class RolePermissaoController {
             @PathVariable Long empresaId,
             Pageable pageable
     ) {
-        if (permissaoService.usuarioPossuiPermissao("ROLE_PERMISSAO_LISTAR"))
-            return ResponseEntity.ok(service.listarPorEmpresa(empresaId, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(service.listarPorEmpresa(empresaId, pageable));
     }
 }

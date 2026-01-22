@@ -6,7 +6,6 @@ import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoResumoResponse
 import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoUpdateRequest;
 import br.com.unicos.ms_empresa.enums.TipoContatoEmpresa;
 import br.com.unicos.ms_empresa.service.EmpresaContatoService;
-import br.com.unicos.ms_empresa.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,7 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/empresas/{empresaRefId}/contatos")
+@RequestMapping("/v1/empresas/contatos/{empresaRefId}")
 @RequiredArgsConstructor
 @Validated
 @Tag(
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 )
 public class EmpresaContatoController {
 
-    private final UtilsService utilsService;
     private final EmpresaContatoService empresaContatoService;
 
     // ============================================================
@@ -57,22 +55,18 @@ public class EmpresaContatoController {
             @PathVariable Long empresaRefId,
             @RequestBody @Validated EmpresaContatoCreateRequest request
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_CONTATO_CRIAR")) {
-            EmpresaContatoCreateRequest normalized =
-                    new EmpresaContatoCreateRequest(
-                            request.empresaId(),
-                            empresaRefId,
-                            request.tipoContato(),
-                            request.valor(),
-                            request.principal()
-                    );
+        EmpresaContatoCreateRequest normalized =
+                new EmpresaContatoCreateRequest(
+                        request.empresaId(),
+                        empresaRefId,
+                        request.tipoContato(),
+                        request.valor(),
+                        request.principal()
+                );
 
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(empresaContatoService.criar(normalized));
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(empresaContatoService.criar(normalized));
     }
 
     // ============================================================
@@ -98,10 +92,7 @@ public class EmpresaContatoController {
             @PathVariable Long id,
             @RequestBody @Validated EmpresaContatoUpdateRequest request
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_CONTATO_EDITAR"))
-            return ResponseEntity.ok(empresaContatoService.atualizar(id, request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(empresaContatoService.atualizar(id, request));
     }
 
     // ============================================================
@@ -126,10 +117,7 @@ public class EmpresaContatoController {
             @PathVariable Long empresaRefId,
             @PathVariable Long id
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_CONTATO_LISTAR"))
-            return ResponseEntity.ok(empresaContatoService.buscarPorId(id));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(empresaContatoService.buscarPorId(id));
     }
 
     // ============================================================
@@ -159,10 +147,7 @@ public class EmpresaContatoController {
             @PathVariable Long empresaRefId,
             @ParameterObject Pageable pageable
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_CONTATO_LISTAR"))
-            return ResponseEntity.ok(empresaContatoService.listar(empresaRefId, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(empresaContatoService.listar(empresaRefId, pageable));
     }
 
     // ============================================================
@@ -183,10 +168,7 @@ public class EmpresaContatoController {
             @PathVariable TipoContatoEmpresa tipo,
             @ParameterObject Pageable pageable
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_CONTATO_LISTAR"))
-            return ResponseEntity.ok(empresaContatoService.listarPorTipo(empresaRefId, tipo, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(empresaContatoService.listarPorTipo(empresaRefId, tipo, pageable));
     }
 
     // ============================================================
@@ -207,11 +189,7 @@ public class EmpresaContatoController {
             @PathVariable Long empresaRefId,
             @PathVariable Long id
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_CONTATO_EXCLUIR")) {
-            empresaContatoService.remover(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        empresaContatoService.remover(id);
+        return ResponseEntity.noContent().build();
     }
 }

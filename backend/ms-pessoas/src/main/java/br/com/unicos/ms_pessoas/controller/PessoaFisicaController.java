@@ -4,7 +4,6 @@ import br.com.unicos.ms_pessoas.dto.pessoa.PessoaFisicaListDTO;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaFisicaRequest;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaFisicaResponse;
 import br.com.unicos.ms_pessoas.service.PessoaFisicaService;
-import br.com.unicos.ms_pessoas.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,7 +29,6 @@ import java.util.List;
 )
 public class PessoaFisicaController {
 
-    private final UtilsService utilsService;
     private final PessoaFisicaService pessoaFisicaService;
 
     // =============================================================
@@ -55,12 +53,9 @@ public class PessoaFisicaController {
     )
     @PostMapping
     public ResponseEntity<PessoaFisicaResponse> criar(@Valid @RequestBody PessoaFisicaRequest request) {
-        if (utilsService.verificarPermissao("PESSOA_FISICA_CRIAR"))
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(pessoaFisicaService.criar(request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(pessoaFisicaService.criar(request));
     }
 
     // =============================================================
@@ -88,10 +83,7 @@ public class PessoaFisicaController {
             @PathVariable Long id,
             @Valid @RequestBody PessoaFisicaRequest request
     ) {
-        if (utilsService.verificarPermissao("PESSOA_LISTAR"))
-            return ResponseEntity.ok(pessoaFisicaService.atualizar(id, request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaFisicaService.atualizar(id, request));
     }
 
     // =============================================================
@@ -116,12 +108,9 @@ public class PessoaFisicaController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<PessoaFisicaResponse> buscarPorId(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("PESSOA_FISICA_LISTAR"))
-            return pessoaFisicaService.buscarPorId(id)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
-        else
-            return ResponseEntity.status(403).build();
+        return pessoaFisicaService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // =============================================================
@@ -146,12 +135,9 @@ public class PessoaFisicaController {
     )
     @GetMapping("/cpf/{cpf}")
     public ResponseEntity<PessoaFisicaResponse> buscarPorCpf(@PathVariable String cpf) {
-        if (utilsService.verificarPermissao("PESSOA_FISICA_LISTAR"))
-            return pessoaFisicaService.buscarPorCpf(cpf)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
-        else
-            return ResponseEntity.status(403).build();
+        return pessoaFisicaService.buscarPorCpf(cpf)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // =============================================================
@@ -177,10 +163,7 @@ public class PessoaFisicaController {
     )
     @GetMapping
     public ResponseEntity<List<PessoaFisicaListDTO>> listarTodas() {
-        if (utilsService.verificarPermissao("PESSOA_FISICA_LISTAR"))
-            return ResponseEntity.ok(pessoaFisicaService.listarTodas());
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaFisicaService.listarTodas());
     }
 
     @Operation(
@@ -202,10 +185,7 @@ public class PessoaFisicaController {
     )
     @GetMapping("/nome-social/{nomeSocial}")
     public ResponseEntity<List<PessoaFisicaListDTO>> listarPorNomeSocial(@PathVariable String nomeSocial) {
-        if (utilsService.verificarPermissao("PESSOA_FISICA_LISTAR"))
-            return ResponseEntity.ok(pessoaFisicaService.listarPorNomeSocial(nomeSocial));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaFisicaService.listarPorNomeSocial(nomeSocial));
     }
 
     @Operation(
@@ -227,10 +207,7 @@ public class PessoaFisicaController {
     )
     @GetMapping("/nome/{nome}")
     public ResponseEntity<List<PessoaFisicaListDTO>> listarPorNome(@PathVariable String nome) {
-        if (utilsService.verificarPermissao("PESSOA_FISICA_LISTAR"))
-            return ResponseEntity.ok(pessoaFisicaService.listarPorNome(nome));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaFisicaService.listarPorNome(nome));
     }
 
     // =============================================================
@@ -249,11 +226,7 @@ public class PessoaFisicaController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("PESSOA_FISICA_EXCLUIR")) {
-            pessoaFisicaService.excluir(id);
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        pessoaFisicaService.excluir(id);
+        return ResponseEntity.ok().build();
     }
 }

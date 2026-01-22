@@ -4,7 +4,6 @@ import br.com.unicos.ms_pessoas.dto.relacao.PessoaRelacaoListDTO;
 import br.com.unicos.ms_pessoas.dto.relacao.PessoaRelacaoRequest;
 import br.com.unicos.ms_pessoas.dto.relacao.PessoaRelacaoResponse;
 import br.com.unicos.ms_pessoas.service.PessoaRelacaoService;
-import br.com.unicos.ms_pessoas.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,7 +29,6 @@ import java.util.List;
 )
 public class PessoaRelacaoController {
 
-    private final UtilsService utilsService;
     private final PessoaRelacaoService pessoaRelacaoService;
 
     // =============================================================
@@ -55,12 +53,9 @@ public class PessoaRelacaoController {
     )
     @PostMapping
     public ResponseEntity<PessoaRelacaoResponse> criar(@Valid @RequestBody PessoaRelacaoRequest request) {
-        if (utilsService.verificarPermissao("PESSOA_RELACAO_CRIAR"))
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(pessoaRelacaoService.criar(request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(pessoaRelacaoService.criar(request));
     }
 
     // =============================================================
@@ -88,10 +83,7 @@ public class PessoaRelacaoController {
             @PathVariable Long id,
             @Valid @RequestBody PessoaRelacaoRequest request
     ) {
-        if (utilsService.verificarPermissao("PESSOA_RELACAO_EDITAR"))
-            return ResponseEntity.ok(pessoaRelacaoService.atualizar(id, request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaRelacaoService.atualizar(id, request));
     }
 
     // =============================================================
@@ -116,12 +108,9 @@ public class PessoaRelacaoController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<PessoaRelacaoResponse> buscarPorId(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("PESSOA_RELACAO_LISTAR"))
-            return pessoaRelacaoService.buscarPorId(id)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
-        else
-            return ResponseEntity.status(403).build();
+        return pessoaRelacaoService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // =============================================================
@@ -147,10 +136,7 @@ public class PessoaRelacaoController {
     )
     @GetMapping
     public ResponseEntity<List<PessoaRelacaoListDTO>> listarTodas() {
-        if (utilsService.verificarPermissao("PESSOA_RELACAO_LISTAR"))
-            return ResponseEntity.ok(pessoaRelacaoService.listarTodas());
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaRelacaoService.listarTodas());
     }
 
     @Operation(
@@ -172,10 +158,7 @@ public class PessoaRelacaoController {
     )
     @GetMapping("/pessoa/{pessoaId}")
     public ResponseEntity<List<PessoaRelacaoListDTO>> listarPorPessoa(@PathVariable Long pessoaId) {
-        if (utilsService.verificarPermissao("PESSOA_RELACAO_LISTAR"))
-            return ResponseEntity.ok(pessoaRelacaoService.listarPorPessoa(pessoaId));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaRelacaoService.listarPorPessoa(pessoaId));
     }
 
     @Operation(
@@ -197,10 +180,7 @@ public class PessoaRelacaoController {
     )
     @GetMapping("/relacionado/{relacionadoId}")
     public ResponseEntity<List<PessoaRelacaoListDTO>> listarPorRelacionado(@PathVariable Long relacionadoId) {
-        if (utilsService.verificarPermissao("PESSOA_RELACAO_LISTAR"))
-            return ResponseEntity.ok(pessoaRelacaoService.listarPorRelacionado(relacionadoId));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaRelacaoService.listarPorRelacionado(relacionadoId));
     }
 
     @Operation(
@@ -222,10 +202,7 @@ public class PessoaRelacaoController {
     )
     @GetMapping("/tipo/{tipoRelacaoPessoaId}")
     public ResponseEntity<List<PessoaRelacaoListDTO>> listarPorTipo(@PathVariable Long tipoRelacaoPessoaId) {
-        if (utilsService.verificarPermissao("PESSOA_RELACAO_LISTAR"))
-            return ResponseEntity.ok(pessoaRelacaoService.listarPorTipo(tipoRelacaoPessoaId));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaRelacaoService.listarPorTipo(tipoRelacaoPessoaId));
     }
 
     @Operation(
@@ -247,10 +224,7 @@ public class PessoaRelacaoController {
     )
     @GetMapping("/pessoa/nome/{nome}")
     public ResponseEntity<List<PessoaRelacaoListDTO>> listarPorPessoaENome(@PathVariable String nome) {
-        if (utilsService.verificarPermissao("PESSOA_RELACAO_LISTAR"))
-            return ResponseEntity.ok(pessoaRelacaoService.listarPorPessoaENome(nome));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaRelacaoService.listarPorPessoaENome(nome));
     }
 
     @Operation(
@@ -272,10 +246,7 @@ public class PessoaRelacaoController {
     )
     @GetMapping("/relacionado/nome/{nome}")
     public ResponseEntity<List<PessoaRelacaoListDTO>> listarPorRelacionadoENome(@PathVariable String nome) {
-        if (utilsService.verificarPermissao("PESSOA_RELACAO_LISTAR"))
-            return ResponseEntity.ok(pessoaRelacaoService.listarPorRelacionadoENome(nome));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaRelacaoService.listarPorRelacionadoENome(nome));
     }
 
     @Operation(
@@ -300,10 +271,7 @@ public class PessoaRelacaoController {
             @PathVariable Long pessoaId,
             @PathVariable Long relacionadoId
     ) {
-        if (utilsService.verificarPermissao("PESSOA_RELACAO_LISTAR"))
-            return ResponseEntity.ok(pessoaRelacaoService.listarPorPessoaERelacionado(pessoaId, relacionadoId));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaRelacaoService.listarPorPessoaERelacionado(pessoaId, relacionadoId));
     }
 
     // =============================================================
@@ -322,11 +290,7 @@ public class PessoaRelacaoController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("PESSOA_RELACAO_EXCLUIR")) {
-            pessoaRelacaoService.excluir(id);
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        pessoaRelacaoService.excluir(id);
+        return ResponseEntity.ok().build();
     }
 }

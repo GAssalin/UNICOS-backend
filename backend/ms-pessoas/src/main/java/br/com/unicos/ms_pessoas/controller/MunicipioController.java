@@ -4,7 +4,6 @@ import br.com.unicos.ms_pessoas.dto.municipio.MunicipioListDTO;
 import br.com.unicos.ms_pessoas.dto.municipio.MunicipioRequest;
 import br.com.unicos.ms_pessoas.dto.municipio.MunicipioResponse;
 import br.com.unicos.ms_pessoas.service.MunicipioService;
-import br.com.unicos.ms_pessoas.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,7 +29,6 @@ import java.util.List;
 )
 public class MunicipioController {
 
-    private final UtilsService utilsService;
     private final MunicipioService municipioService;
 
     // =============================================================
@@ -55,12 +53,9 @@ public class MunicipioController {
     )
     @PostMapping
     public ResponseEntity<MunicipioResponse> criar(@Valid @RequestBody MunicipioRequest request) {
-        if (utilsService.verificarPermissao("PESSOA_MUNICIPIO_CRIAR"))
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(municipioService.criar(request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(municipioService.criar(request));
     }
 
     // =============================================================
@@ -88,10 +83,7 @@ public class MunicipioController {
             @PathVariable Long id,
             @Valid @RequestBody MunicipioRequest request
     ) {
-        if (utilsService.verificarPermissao("PESSOA_MUNICIPIO_EDITAR"))
-            return ResponseEntity.ok(municipioService.atualizar(id, request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(municipioService.atualizar(id, request));
     }
 
     // =============================================================
@@ -116,12 +108,9 @@ public class MunicipioController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<MunicipioResponse> buscarPorId(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("PESSOA_MUNICIPIO_LISTAR"))
-            return municipioService.buscarPorId(id)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
-        else
-            return ResponseEntity.status(403).build();
+        return municipioService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // =============================================================
@@ -147,10 +136,7 @@ public class MunicipioController {
     )
     @GetMapping
     public ResponseEntity<List<MunicipioListDTO>> listarTodos() {
-        if (utilsService.verificarPermissao("PESSOA_MUNICIPIO_LISTAR"))
-            return ResponseEntity.ok(municipioService.listarTodos());
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(municipioService.listarTodos());
     }
 
     @Operation(
@@ -172,10 +158,7 @@ public class MunicipioController {
     )
     @GetMapping("/nome/{nome}")
     public ResponseEntity<List<MunicipioListDTO>> listarPorNome(@PathVariable String nome) {
-        if (utilsService.verificarPermissao("PESSOA_MUNICIPIO_LISTAR"))
-            return ResponseEntity.ok(municipioService.listarPorNome(nome));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(municipioService.listarPorNome(nome));
     }
 
     @Operation(
@@ -197,10 +180,7 @@ public class MunicipioController {
     )
     @GetMapping("/uf/{uf}")
     public ResponseEntity<List<MunicipioListDTO>> listarPorUf(@PathVariable String uf) {
-        if (utilsService.verificarPermissao("PESSOA_MUNICIPIO_LISTAR"))
-            return ResponseEntity.ok(municipioService.listarPorUf(uf));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(municipioService.listarPorUf(uf));
     }
 
     // =============================================================
@@ -225,12 +205,9 @@ public class MunicipioController {
     )
     @GetMapping("/ibge/{codigoIbge}")
     public ResponseEntity<MunicipioResponse> buscarPorCodigoIbge(@PathVariable String codigoIbge) {
-        if (utilsService.verificarPermissao("PESSOA_MUNICIPIO_LISTAR"))
-            return municipioService.buscarPorCodigoIbge(codigoIbge)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
-        else
-            return ResponseEntity.status(403).build();
+        return municipioService.buscarPorCodigoIbge(codigoIbge)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // =============================================================
@@ -249,11 +226,7 @@ public class MunicipioController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("PESSOA_MUNICIPIO_EXCLUIR")) {
-            municipioService.excluir(id);
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        municipioService.excluir(id);
+        return ResponseEntity.ok().build();
     }
 }

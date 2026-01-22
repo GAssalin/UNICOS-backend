@@ -4,7 +4,6 @@ import br.com.unicos.ms_pessoas.dto.documento.DocumentoListDTO;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoRequest;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoResponse;
 import br.com.unicos.ms_pessoas.service.DocumentoService;
-import br.com.unicos.ms_pessoas.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,7 +29,6 @@ import java.util.List;
 )
 public class DocumentoController {
 
-    private final UtilsService utilsService;
     private final DocumentoService documentoService;
 
     // =============================================================
@@ -55,12 +53,9 @@ public class DocumentoController {
     )
     @PostMapping
     public ResponseEntity<DocumentoResponse> criar(@Valid @RequestBody DocumentoRequest request) {
-        if (utilsService.verificarPermissao("PESSOA_DOCUMENTO_CRIAR"))
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(documentoService.criar(request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(documentoService.criar(request));
     }
 
     // =============================================================
@@ -88,10 +83,7 @@ public class DocumentoController {
             @PathVariable Long id,
             @Valid @RequestBody DocumentoRequest request
     ) {
-        if (utilsService.verificarPermissao("PESSOA_DOCUMENTO_EDITAR"))
-            return ResponseEntity.ok(documentoService.atualizar(id, request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(documentoService.atualizar(id, request));
     }
 
     // =============================================================
@@ -116,12 +108,9 @@ public class DocumentoController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<DocumentoResponse> buscarPorId(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("PESSOA_DOCUMENTO_LISTAR"))
-            return documentoService.buscarPorId(id)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
-        else
-            return ResponseEntity.status(403).build();
+        return documentoService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // =============================================================
@@ -147,10 +136,7 @@ public class DocumentoController {
     )
     @GetMapping
     public ResponseEntity<List<DocumentoListDTO>> listarTodos() {
-        if (utilsService.verificarPermissao("PESSOA_DOCUMENTO_LISTAR"))
-            return ResponseEntity.ok(documentoService.listarTodos());
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(documentoService.listarTodos());
     }
 
     @Operation(
@@ -172,10 +158,7 @@ public class DocumentoController {
     )
     @GetMapping("/pessoa/{pessoaId}")
     public ResponseEntity<List<DocumentoListDTO>> listarPorPessoa(@PathVariable Long pessoaId) {
-        if (utilsService.verificarPermissao("PESSOA_DOCUMENTO_LISTAR"))
-            return ResponseEntity.ok(documentoService.listarPorPessoa(pessoaId));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(documentoService.listarPorPessoa(pessoaId));
 
     }
 
@@ -198,10 +181,7 @@ public class DocumentoController {
     )
     @GetMapping("/tipo/{tipo}")
     public ResponseEntity<List<DocumentoListDTO>> listarPorTipo(@PathVariable String tipo) {
-        if (utilsService.verificarPermissao("PESSOA_DOCUMENTO_LISTAR"))
-            return ResponseEntity.ok(documentoService.listarPorTipo(tipo));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(documentoService.listarPorTipo(tipo));
     }
 
     // =============================================================
@@ -220,11 +200,7 @@ public class DocumentoController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("PESSOA_DOCUMENTO_EXCLUIR")) {
-            documentoService.excluir(id);
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        documentoService.excluir(id);
+        return ResponseEntity.ok().build();
     }
 }

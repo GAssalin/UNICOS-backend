@@ -6,7 +6,6 @@ import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioResumoResponse
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioUpdateRequest;
 import br.com.unicos.ms_empresa.enums.PerfilEmpresaUsuario;
 import br.com.unicos.ms_empresa.service.EmpresaUsuarioService;
-import br.com.unicos.ms_empresa.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
  * </p>
  */
 @RestController
-@RequestMapping("/v1/empresas/{empresaRefId}/usuarios")
+@RequestMapping("/v1/empresas/usuarios/{empresaRefId}")
 @RequiredArgsConstructor
 @Validated
 @Tag(
@@ -41,7 +40,6 @@ import org.springframework.web.bind.annotation.*;
 )
 public class EmpresaUsuarioController {
 
-    private final UtilsService utilsService;
     private final EmpresaUsuarioService empresaUsuarioService;
 
     // ============================================================
@@ -66,21 +64,17 @@ public class EmpresaUsuarioController {
             @PathVariable Long empresaRefId,
             @RequestBody @Validated EmpresaUsuarioCreateRequest request
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_USUARIO_CRIAR")) {
-            EmpresaUsuarioCreateRequest normalized =
-                    new EmpresaUsuarioCreateRequest(
-                            request.empresaId(),
-                            empresaRefId,
-                            request.usuarioId(),
-                            request.perfil()
-                    );
+        EmpresaUsuarioCreateRequest normalized =
+                new EmpresaUsuarioCreateRequest(
+                        request.empresaId(),
+                        empresaRefId,
+                        request.usuarioId(),
+                        request.perfil()
+                );
 
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(empresaUsuarioService.criar(normalized));
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(empresaUsuarioService.criar(normalized));
     }
 
     // ============================================================
@@ -103,17 +97,13 @@ public class EmpresaUsuarioController {
             @PathVariable Long usuarioId,
             @RequestBody @Validated EmpresaUsuarioUpdateRequest request
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_USUARIO_EDITAR")) {
-            return ResponseEntity.ok(
-                    empresaUsuarioService.atualizarPerfil(
-                            empresaRefId,
-                            usuarioId,
-                            request
-                    )
-            );
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        return ResponseEntity.ok(
+                empresaUsuarioService.atualizarPerfil(
+                        empresaRefId,
+                        usuarioId,
+                        request
+                )
+        );
     }
 
     // ============================================================
@@ -138,10 +128,7 @@ public class EmpresaUsuarioController {
             @PathVariable Long empresaRefId,
             @PathVariable Long usuarioId
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_USUARIO_LISTAR"))
-            return ResponseEntity.ok(empresaUsuarioService.buscar(empresaRefId, usuarioId));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(empresaUsuarioService.buscar(empresaRefId, usuarioId));
     }
 
     // ============================================================
@@ -169,10 +156,7 @@ public class EmpresaUsuarioController {
             @PathVariable Long empresaRefId,
             @ParameterObject Pageable pageable
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_USUARIO_LISTAR"))
-            return ResponseEntity.ok(empresaUsuarioService.listar(empresaRefId, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(empresaUsuarioService.listar(empresaRefId, pageable));
     }
 
     // ============================================================
@@ -193,17 +177,13 @@ public class EmpresaUsuarioController {
             @PathVariable PerfilEmpresaUsuario perfil,
             @ParameterObject Pageable pageable
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_USUARIO_LISTAR")) {
-            return ResponseEntity.ok(
-                    empresaUsuarioService.listarPorPerfil(
-                            empresaRefId,
-                            perfil,
-                            pageable
-                    )
-            );
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        return ResponseEntity.ok(
+                empresaUsuarioService.listarPorPerfil(
+                        empresaRefId,
+                        perfil,
+                        pageable
+                )
+        );
     }
 
     // ============================================================
@@ -224,11 +204,7 @@ public class EmpresaUsuarioController {
             @PathVariable Long empresaRefId,
             @PathVariable Long usuarioId
     ) {
-        if (utilsService.verificarPermissao("EMPRESA_USUARIO_EXCLUIR")) {
-            empresaUsuarioService.remover(empresaRefId, usuarioId);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        empresaUsuarioService.remover(empresaRefId, usuarioId);
+        return ResponseEntity.noContent().build();
     }
 }

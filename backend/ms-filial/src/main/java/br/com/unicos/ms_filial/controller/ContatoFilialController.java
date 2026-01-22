@@ -4,7 +4,6 @@ import br.com.unicos.ms_filial.dto.contato.ContatoFilialCreateRequest;
 import br.com.unicos.ms_filial.dto.contato.ContatoFilialResponse;
 import br.com.unicos.ms_filial.dto.contato.ContatoFilialUpdateRequest;
 import br.com.unicos.ms_filial.service.ContatoFilialService;
-import br.com.unicos.ms_filial.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,7 +30,6 @@ import org.springframework.web.bind.annotation.*;
 )
 public class ContatoFilialController {
 
-    private final UtilsService utilsService;
     private final ContatoFilialService contatoService;
 
     // =============================================================
@@ -54,12 +52,7 @@ public class ContatoFilialController {
     )
     @PostMapping
     public ResponseEntity<ContatoFilialResponse> salvar(@Valid @RequestBody ContatoFilialCreateRequest request) {
-        if (utilsService.verificarPermissao("FILIAL_CONTATO_CRIAR")) {
-            ContatoFilialResponse response = contatoService.salvar(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(contatoService.salvar(request));
     }
 
     // =============================================================
@@ -85,10 +78,7 @@ public class ContatoFilialController {
             @PathVariable Long id,
             @Valid @RequestBody ContatoFilialUpdateRequest request
     ) {
-        if (utilsService.verificarPermissao("FILIAL_CONTATO_EDITAR"))
-            return ResponseEntity.ok(contatoService.atualizar(id, request));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(contatoService.atualizar(id, request));
     }
 
     // =============================================================
@@ -111,10 +101,7 @@ public class ContatoFilialController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<ContatoFilialResponse> buscarPorId(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("FILIAL_CONTATO_LISTAR"))
-            return ResponseEntity.ok(contatoService.buscarPorId(id));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(contatoService.buscarPorId(id));
     }
 
     // =============================================================
@@ -141,10 +128,7 @@ public class ContatoFilialController {
             @PathVariable Long filialId,
             @ParameterObject Pageable pageable
     ) {
-        if (utilsService.verificarPermissao("FILIAL_CONTATO_LISTAR"))
-            return ResponseEntity.ok(contatoService.listarPorFilial(filialId, pageable));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(contatoService.listarPorFilial(filialId, pageable));
     }
 
     // =============================================================
@@ -163,11 +147,7 @@ public class ContatoFilialController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("FILIAL_CONTATO_EXCLUIR")) {
-            contatoService.deletar(id);
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(403).build();
-        }
+        contatoService.deletar(id);
+        return ResponseEntity.ok().build();
     }
 }

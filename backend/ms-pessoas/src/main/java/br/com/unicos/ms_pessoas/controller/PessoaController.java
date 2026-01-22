@@ -3,7 +3,6 @@ package br.com.unicos.ms_pessoas.controller;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaListDTO;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaResponse;
 import br.com.unicos.ms_pessoas.service.PessoaService;
-import br.com.unicos.ms_pessoas.service.UtilsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,7 +29,6 @@ import java.util.List;
 )
 public class PessoaController {
 
-    private final UtilsService utilsService;
     private final PessoaService pessoaService;
 
     // =============================================================
@@ -55,12 +53,9 @@ public class PessoaController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<PessoaResponse> buscarPorId(@PathVariable Long id) {
-        if (utilsService.verificarPermissao("PESSOA_LISTAR"))
-            return pessoaService.buscarPorId(id)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
-        else
-            return ResponseEntity.status(403).build();
+        return pessoaService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // =============================================================
@@ -86,10 +81,7 @@ public class PessoaController {
     )
     @GetMapping
     public ResponseEntity<List<PessoaListDTO>> listarTodas() {
-        if (utilsService.verificarPermissao("PESSOA_LISTAR"))
-            return ResponseEntity.ok(pessoaService.listarTodas());
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaService.listarTodas());
     }
 
     @Operation(
@@ -111,10 +103,7 @@ public class PessoaController {
     )
     @GetMapping("/nome/{nome}")
     public ResponseEntity<List<PessoaListDTO>> listarPorNome(@PathVariable String nome) {
-        if (utilsService.verificarPermissao("PESSOA_LISTAR"))
-            return ResponseEntity.ok(pessoaService.listarPorNome(nome));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaService.listarPorNome(nome));
     }
 
     @Operation(
@@ -136,10 +125,7 @@ public class PessoaController {
     )
     @GetMapping("/nome-exato/{nome}")
     public ResponseEntity<List<PessoaListDTO>> listarPorNomeExato(@PathVariable String nome) {
-        if (utilsService.verificarPermissao("PESSOA_LISTAR"))
-            return ResponseEntity.ok(pessoaService.listarPorNomeExato(nome));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaService.listarPorNomeExato(nome));
     }
 
     @Operation(
@@ -161,9 +147,6 @@ public class PessoaController {
     )
     @GetMapping("/tipo/{tipoPessoa}")
     public ResponseEntity<List<PessoaListDTO>> listarPorTipo(@PathVariable String tipoPessoa) {
-        if (utilsService.verificarPermissao("PESSOA_LISTAR"))
-            return ResponseEntity.ok(pessoaService.listarPorTipo(tipoPessoa));
-        else
-            return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(pessoaService.listarPorTipo(tipoPessoa));
     }
 }
