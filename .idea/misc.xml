@@ -19,6 +19,7 @@
         <option value="$PROJECT_DIR$/backend/ms-autenticacao/ms-autenticacao/pom.xml" />
         <option value="$PROJECT_DIR$/backend/ms-autenticacao/pom.xml" />
         <option value="$PROJECT_DIR$/backend/ms-permissao/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/unicos-core/core-produto-domain/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

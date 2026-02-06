@@ -13,44 +13,41 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>core-base</artifactId>
-    <name>UNICOS :: Core Base</name>
+    <artifactId>core-produto-events</artifactId>
+    <name>UNICOS :: Core Produto Events</name>
     <packaging>jar</packaging>
 
     <description>
-        Componentes base do UniCoS: modelos e abstrações reutilizáveis (auditoria, utilitários e tipos comuns).
+        Contratos de eventos do subdomínio de Produto (mensageria): tipos imutáveis,
+        versionáveis e serializáveis (ex.: Kafka/Rabbit), sem dependência de domínio/JPA.
     </description>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-commons</artifactId>
-        </dependency>
-
-        <!-- Lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- JSON annotations -->
+        <!-- Serialização: anotações para contratos estáveis -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
 
-        <!-- JPA annotations (para EntidadeAuditavel, se ela usa @MappedSuperclass etc.) -->
+        <!-- Opcional: útil em alguns consumidores que não trazem databind diretamente -->
         <dependency>
-            <groupId>jakarta.persistence</groupId>
-            <artifactId>jakarta.persistence-api</artifactId>
-            <scope>provided</scope>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <optional>true</optional>
         </dependency>
 
-        <!-- Bean Validation (se usar anotações em modelos base) -->
+        <!-- Opcional: validação de payload (Bean Validation) -->
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Lombok (se você for usar @Builder/@Getter etc. nos contratos; senão, pode remover) -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

@@ -13,33 +13,26 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>core-request</artifactId>
-    <name>UNICOS :: Core Request</name>
+    <artifactId>core-produto-domain</artifactId>
+    <name>UNICOS :: Core Produto Domain</name>
     <packaging>jar</packaging>
 
     <description>
-        Componentes de request do UniCoS (filtros e propagação de contexto): tenant, usuário e autenticação.
+        Domínio de Produto do UniCoS: entidades, enums, value objects e exceções.
+        Reúne os tipos estáveis do subdomínio de catálogo/produtos, com suporte a auditoria e multi-tenant.
     </description>
 
     <dependencies>
+        <!-- Base auditável / utilitários comuns -->
         <dependency>
             <groupId>br.com.unicos</groupId>
             <artifactId>core-base</artifactId>
         </dependency>
 
+        <!-- Base multi-tenant (BaseTenantEntity, TenantContextInitializer etc.) -->
         <dependency>
             <groupId>br.com.unicos</groupId>
             <artifactId>core-tenant</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>br.com.unicos</groupId>
-            <artifactId>core-auth</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>br.com.unicos</groupId>
-            <artifactId>core-usuario</artifactId>
         </dependency>
 
         <!-- Lombok -->
@@ -49,18 +42,23 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Spring Web (OncePerRequestFilter) -->
+        <!-- Anotações JSON (se você serializar eventos/snapshots) -->
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+
+        <!-- JPA (somente no DOMAIN, pois há entities) -->
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- Servlet API -->
+        <!-- Bean Validation -->
         <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <scope>provided</scope>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
         </dependency>
     </dependencies>
 

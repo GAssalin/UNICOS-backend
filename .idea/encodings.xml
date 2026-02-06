@@ -27,8 +27,12 @@
     <file url="file://$PROJECT_DIR$/backend/unicos-core/core-financeiro/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/unicos-core/core-pedido/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/unicos-core/core-pedido/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto-domain/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto-domain/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto-events/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto-events/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/unicos-core/core-request/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/unicos-core/core-request/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/unicos-core/core-tenant/src/main/java" charset="UTF-8" />

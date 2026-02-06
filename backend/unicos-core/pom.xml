@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -12,26 +12,29 @@
     <packaging>pom</packaging>
 
     <name>UNICOS :: Core Modules</name>
+
     <description>
         Módulo principal de domínios e componentes centrais do ecossistema UniCoS (Unique Control System).
 
-        O projeto unicos-core reúne os módulos de negócio fundamentais utilizados pelos microserviços do UniCoS,
-        mantendo a coesão das entidades, regras de domínio e contratos de dados entre os diferentes contextos.
+        O projeto unicos-core reúne os módulos fundamentais utilizados pelos microserviços do UniCoS,
+        mantendo coesão de entidades, regras de domínio e contratos de dados entre contextos.
 
-        Cada submódulo representa um domínio específico:
-        - core-base: componentes, utilitários e entidades compartilhadas;
-        - core-produto: padronização e estruturação do domínio de produtos.
-        - core-tenant: padronização e estruturação de arquitetura multi-tenant.
-        - core-usuario: padronização e estruturação do domínio de usuários.
-        - core-auth: padronização e estruturação do domínio de autenticação.
-        - core-request: padronização e estruturação do domínio de requests.
-
-        Essa estrutura modular permite independência de evolução, reuso entre microserviços e aderência aos princípios de DDD (Domain-Driven Design).
+        Submódulos:
+        - core-base
+        - core-produto-domain
+        - core-produto-api
+        - core-produto-events
+        - core-tenant
+        - core-usuario
+        - core-auth
+        - core-request
     </description>
 
     <modules>
         <module>core-base</module>
-        <module>core-produto</module>
+        <module>core-produto-domain</module>
+        <module>core-produto-api</module>
+        <module>core-produto-events</module>
         <module>core-tenant</module>
         <module>core-usuario</module>
         <module>core-auth</module>
@@ -41,22 +44,24 @@
     <properties>
         <java.version>21</java.version>
         <spring.boot.version>3.5.7</spring.boot.version>
+        <spring.data.version>3.4.1</spring.data.version>
+
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+
+        <spring.framework.version>6.2.12</spring.framework.version>
+
         <jackson.version>2.18.5</jackson.version>
-        <lombok.version>1.18.32</lombok.version>
         <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
         <jakarta.validation.version>3.0.2</jakarta.validation.version>
+        <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
+
+        <lombok.version>1.18.32</lombok.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>br.com.unicos</groupId>
-                <artifactId>core-base</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <!-- 🔹 Spring Boot gerencia versões comuns -->
+            <!-- Importa o BOM do Spring Boot -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -65,7 +70,7 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- 🔹 BOM do Jackson (centraliza todas as libs Jackson) -->
+            <!-- BOM do Jackson -->
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
@@ -74,25 +79,85 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- 🔹 Lombok -->
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-commons</artifactId>
+                <version>${spring.data.version}</version>
+            </dependency>
+
+            <!-- Lombok -->
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
             </dependency>
 
-            <!-- 🔹 Jakarta Persistence (JPA) -->
+            <!-- Entradas explícitas (externas) -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.framework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>${jakarta.servlet.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>jakarta.persistence</groupId>
                 <artifactId>jakarta.persistence-api</artifactId>
                 <version>${jakarta.persistence.version}</version>
             </dependency>
 
-            <!-- 🔹 Jakarta Validation -->
             <dependency>
                 <groupId>jakarta.validation</groupId>
                 <artifactId>jakarta.validation-api</artifactId>
                 <version>${jakarta.validation.version}</version>
+            </dependency>
+
+            <!-- ✅ MUITO IMPORTANTE: versões dos seus módulos internos -->
+            <dependency>
+                <groupId>br.com.unicos</groupId>
+                <artifactId>core-base</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>br.com.unicos</groupId>
+                <artifactId>core-tenant</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>br.com.unicos</groupId>
+                <artifactId>core-usuario</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>br.com.unicos</groupId>
+                <artifactId>core-auth</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>br.com.unicos</groupId>
+                <artifactId>core-request</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>br.com.unicos</groupId>
+                <artifactId>core-produto-domain</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>br.com.unicos</groupId>
+                <artifactId>core-produto-api</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -106,26 +171,26 @@
     </distributionManagement>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.11.0</version>
+                    <configuration>
+                        <release>${maven.compiler.release}</release>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
 </project>

@@ -13,41 +13,37 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>core-base</artifactId>
-    <name>UNICOS :: Core Base</name>
+    <artifactId>core-produto-api</artifactId>
+    <name>UNICOS :: Core Produto API</name>
     <packaging>jar</packaging>
 
     <description>
-        Componentes base do UniCoS: modelos e abstrações reutilizáveis (auditoria, utilitários e tipos comuns).
+        Contratos do domínio de Produto do UniCoS: DTOs de consulta, eventos e interfaces de contrato
+        para comunicação entre microserviços (ex.: estoque, pedidos, compras).
+        Não contém entidades JPA nem detalhes de infraestrutura.
     </description>
 
     <dependencies>
+        <!-- Reaproveita enums/VOs/exceções do domain -->
         <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-commons</artifactId>
+            <groupId>br.com.unicos</groupId>
+            <artifactId>core-produto-domain</artifactId>
         </dependency>
 
-        <!-- Lombok -->
+        <!-- Lombok (se usar em DTOs/contratos; se usar record puro, pode remover) -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- JSON annotations -->
+        <!-- Anotações JSON -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
 
-        <!-- JPA annotations (para EntidadeAuditavel, se ela usa @MappedSuperclass etc.) -->
-        <dependency>
-            <groupId>jakarta.persistence</groupId>
-            <artifactId>jakarta.persistence-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Bean Validation (se usar anotações em modelos base) -->
+        <!-- Bean Validation (em DTOs) -->
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
