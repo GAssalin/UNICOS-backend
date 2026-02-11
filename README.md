@@ -35,6 +35,9 @@ A estrutura geral do UniCoS segue este modelo:
                  |                ┌────────────┐
                  └────────────────│  MS-Auth   │
                  |                └────────────┘
+                 |                ┌────────────────┐
+                 └────────────────│  MS-Permissao  │
+                 |                └────────────────┘
                  |                ┌───────────────┐
                  └────────────────│  MS-Usuario   │
                  |                └───────────────┘
@@ -76,6 +79,7 @@ A estrutura geral do UniCoS segue este modelo:
 | **service-registry** | Eureka Server para registro e descoberta de microserviços. |
 | **gateway** | Gateway reativo do UNICOS com roteamento dinâmico via Spring Cloud Gateway e integração ao Eureka Server. |
 | **ms-auth** | Microserviço responsável pela autenticação, autorização e emissão de tokens JWT. |
+| **ms-permissao** | Microserviço responsável pelo gerenciamento de perfis e permissões. |
 | **ms-usuario** | Microserviço responsável pela gerenciamento de usuários. |
 | **ms-pessoas** | Microserviço responsável pela gerenciamento de dados de pessoas físicas e jurídicas. |
 | **ms-notificacao** | Microserviço responsável pelo envio e gerenciamento de notificações da plataforma. |
@@ -134,6 +138,7 @@ backend/
 │   ├── core-tenant/
 │   ├── core-usuario/
 ├── ms-auth/
+├── ms-permissao/
 ├── ms-usuario/
 ├── ms-pessoas/
 ├── ms-notificacao/
@@ -185,9 +190,13 @@ mvn spring-boot:run
 cd gateway
 mvn spring-boot:run
 ```
-OBS.: MS-Auth e MS-Usuario devem estar rodando em conjunto para que a autenticação e geração do token ocorra.
+OBS.: MS-Auth, MS-Permissao e MS-Usuario devem estar rodando em conjunto para que a autenticação e geração do token ocorra.
 ```bash
 cd ms-auth
+mvn spring-boot:run
+```
+```bash
+cd ms-permissao
 mvn spring-boot:run
 ```
 ```bash
