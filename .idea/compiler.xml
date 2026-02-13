@@ -23,6 +23,7 @@
         <module name="ms-pessoas" />
         <module name="config-server" />
         <module name="ms-permissao" />
+        <module name="ms-produto" />
         <module name="ms-departamento" />
         <module name="ms-filial" />
         <module name="ms-notificacao" />
@@ -33,15 +34,13 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
         </processorPath>
-        <module name="core-produto-events" />
-        <module name="core-produto-domain" />
-        <module name="core-produto-api" />
-        <module name="core-request" />
-        <module name="core-auth" />
         <module name="core-usuario" />
+        <module name="core-request" />
         <module name="core-base" />
         <module name="core-tenant" />
+        <module name="core-auth" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -50,6 +49,9 @@
       <module name="core-financeiro" target="21" />
       <module name="core-pedido" target="21" />
       <module name="core-produto" target="21" />
+      <module name="core-produto-api" target="21" />
+      <module name="core-produto-domain" target="21" />
+      <module name="core-produto-events" target="21" />
       <module name="core-security-contract" target="21" />
       <module name="core-tesouraria" target="21" />
       <module name="ms-auth" target="21" />
@@ -68,6 +70,7 @@
       <module name="ms-notificacao" options="-parameters" />
       <module name="ms-permissao" options="-parameters" />
       <module name="ms-pessoas" options="-parameters" />
+      <module name="ms-produto" options="-parameters" />
       <module name="ms-produtos" options="-parameters" />
       <module name="ms-usuario" options="-parameters" />
       <module name="service-registry" options="-parameters" />

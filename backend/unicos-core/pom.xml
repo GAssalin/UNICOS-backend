@@ -21,9 +21,6 @@
 
         Submódulos:
         - core-base
-        - core-produto-domain
-        - core-produto-api
-        - core-produto-events
         - core-tenant
         - core-usuario
         - core-auth
@@ -32,9 +29,6 @@
 
     <modules>
         <module>core-base</module>
-        <module>core-produto-domain</module>
-        <module>core-produto-api</module>
-        <module>core-produto-events</module>
         <module>core-tenant</module>
         <module>core-usuario</module>
         <module>core-auth</module>

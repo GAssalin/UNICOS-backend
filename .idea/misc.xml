@@ -20,6 +20,7 @@
         <option value="$PROJECT_DIR$/backend/ms-autenticacao/pom.xml" />
         <option value="$PROJECT_DIR$/backend/ms-permissao/pom.xml" />
         <option value="$PROJECT_DIR$/backend/unicos-core/core-produto-domain/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/ms-produto/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
@@ -30,6 +31,9 @@
         <option value="$PROJECT_DIR$/backend/unicos-core/core-contas/pom.xml" />
         <option value="$PROJECT_DIR$/backend/unicos-core/core-financeiro/pom.xml" />
         <option value="$PROJECT_DIR$/backend/unicos-core/core-pedido/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/unicos-core/core-produto-api/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/unicos-core/core-produto-domain/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/unicos-core/core-produto-events/pom.xml" />
         <option value="$PROJECT_DIR$/backend/unicos-core/core-tesouraria/pom.xml" />
       </set>
     </option>
