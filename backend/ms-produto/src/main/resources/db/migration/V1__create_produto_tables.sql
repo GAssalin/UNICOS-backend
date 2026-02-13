@@ -1,5 +1,7 @@
 -- =========================================================
--- PADRÃO DE AUDITORIA + TENANT (copiado em todas tabelas)
+-- MS-PRODUTO | DDL UNIFICADO (MySQL/MariaDB)
+-- =========================================================
+-- Padrão de auditoria + tenant (copiado em todas tabelas)
 -- criado_por BIGINT
 -- criado_em DATETIME NOT NULL
 -- atualizado_por BIGINT
@@ -7,7 +9,6 @@
 -- ativo BOOLEAN NOT NULL
 -- empresa_id BIGINT NOT NULL
 -- =========================================================
-
 
 
 -- =========================================================
@@ -30,13 +31,9 @@ CREATE TABLE categoria_produto (
     CONSTRAINT uk_categoria_produto_empresa_nome UNIQUE (empresa_id, nome)
 );
 
--- categoria_produto: muito útil para montar hierarquia por tenant
+-- muito útil para montar hierarquia por tenant
 CREATE INDEX idx_categoria_produto_empresa_pai
     ON categoria_produto (empresa_id, categoria_pai_id);
-
--- unidade_medida: útil se existir filtro por fracionável
-CREATE INDEX idx_unidade_medida_empresa_fracionavel
-    ON unidade_medida (empresa_id, fracionavel);
 
 
 
@@ -80,6 +77,10 @@ CREATE TABLE unidade_medida (
 
     CONSTRAINT uk_unidade_medida_empresa_codigo UNIQUE (empresa_id, codigo)
 );
+
+-- útil se existir filtro por fracionável
+CREATE INDEX idx_unidade_medida_empresa_fracionavel
+    ON unidade_medida (empresa_id, fracionavel);
 
 
 
@@ -134,23 +135,19 @@ CREATE TABLE produto (
 
     CONSTRAINT uk_produto_empresa_codigo UNIQUE (empresa_id, codigo),
 
+    -- listagem / busca
     INDEX idx_produto_empresa_nome (empresa_id, nome),
+
+    -- filtros comuns
     INDEX idx_produto_categoria (empresa_id, categoria_id),
-    INDEX idx_produto_marca (empresa_id, marca_id)
+    INDEX idx_produto_marca (empresa_id, marca_id),
+
+    -- filtro por tipo (PRODUTO/SERVICO/DIGITAL/ASSINATURA)
+    INDEX idx_produto_empresa_tipo (empresa_id, tipo_produto),
+
+    -- leitura por código de barras (PDV/importação)
+    INDEX idx_produto_empresa_codigo_barras (empresa_id, codigo_barras)
 );
-
--- Busca por código (além da UK, que já ajuda, mas aqui ajuda em LIKE/starts-with)
-CREATE INDEX idx_produto_empresa_codigo ON produto (empresa_id, codigo);
-
--- Busca por tipo (listas por PRODUTO/SERVICO/DIGITAL/ASSINATURA)
-CREATE INDEX idx_produto_empresa_tipo ON produto (empresa_id, tipo_produto);
-
--- Combinações comuns de filtro
-CREATE INDEX idx_produto_empresa_categoria ON produto (empresa_id, categoria_id);
-CREATE INDEX idx_produto_empresa_marca ON produto (empresa_id, marca_id);
-
--- Busca por código de barras (muito comum em PDV/importação)
-CREATE INDEX idx_produto_empresa_codigo_barras ON produto (empresa_id, codigo_barras);
 
 
 
@@ -199,8 +196,6 @@ CREATE TABLE produto_atributo_valor (
     INDEX idx_produto_atributo_valor_empresa_atributo (empresa_id, atributo_id)
 );
 
-CREATE INDEX idx_produto_atributo_valor_empresa_produto_atributo ON produto_atributo_valor (empresa_id, produto_id, atributo_id);
-
 
 
 -- =========================================================
@@ -223,11 +218,9 @@ CREATE TABLE produto_codigo_barras (
     CONSTRAINT uk_produto_cod_barras_empresa_codigo
         UNIQUE (empresa_id, codigo_barras),
 
-    INDEX idx_produto_cod_barras_empresa_produto (empresa_id, produto_id)
+    INDEX idx_produto_cod_barras_empresa_produto (empresa_id, produto_id),
+    INDEX idx_produto_cod_barras_empresa_produto_principal (empresa_id, produto_id, principal)
 );
-
-CREATE INDEX idx_produto_cod_barras_empresa_produto_principal ON produto_codigo_barras (empresa_id, produto_id, principal);
-
 
 
 
@@ -250,13 +243,10 @@ CREATE TABLE produto_imagem (
     atualizado_em DATETIME,
     ativo BOOLEAN NOT NULL,
 
-    INDEX idx_produto_imagem_empresa_produto (empresa_id, produto_id)
+    INDEX idx_produto_imagem_empresa_produto (empresa_id, produto_id),
+    INDEX idx_produto_imagem_empresa_produto_ordem (empresa_id, produto_id, ordem),
+    INDEX idx_produto_imagem_empresa_produto_principal (empresa_id, produto_id, principal)
 );
-
-CREATE INDEX idx_produto_imagem_empresa_produto_ordem ON produto_imagem (empresa_id, produto_id, ordem);
-
--- Para pegar rapidamente a principal
-CREATE INDEX idx_produto_imagem_empresa_produto_principal ON produto_imagem (empresa_id, produto_id, principal);
 
 
 
@@ -279,7 +269,7 @@ CREATE TABLE produto_preco_base (
     ativo BOOLEAN NOT NULL,
 
     CONSTRAINT uk_produto_preco_base_empresa_produto
-        UNIQUE (empresa_id, produto_id)
-);
+        UNIQUE (empresa_id, produto_id),
 
-CREATE INDEX idx_produto_preco_base_empresa_produto ON produto_preco_base (empresa_id, produto_id);
+    INDEX idx_produto_preco_base_empresa_produto (empresa_id, produto_id)
+);
