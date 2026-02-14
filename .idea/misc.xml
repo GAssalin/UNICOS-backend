@@ -34,6 +34,7 @@
         <option value="$PROJECT_DIR$/backend/unicos-core/core-produto-api/pom.xml" />
         <option value="$PROJECT_DIR$/backend/unicos-core/core-produto-domain/pom.xml" />
         <option value="$PROJECT_DIR$/backend/unicos-core/core-produto-events/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/unicos-core/core-request/pom.xml" />
         <option value="$PROJECT_DIR$/backend/unicos-core/core-tesouraria/pom.xml" />
       </set>
     </option>

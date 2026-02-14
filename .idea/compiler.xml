@@ -37,7 +37,6 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
         </processorPath>
         <module name="core-usuario" />
-        <module name="core-request" />
         <module name="core-base" />
         <module name="core-tenant" />
         <module name="core-auth" />
@@ -52,6 +51,7 @@
       <module name="core-produto-api" target="21" />
       <module name="core-produto-domain" target="21" />
       <module name="core-produto-events" target="21" />
+      <module name="core-request" target="21" />
       <module name="core-security-contract" target="21" />
       <module name="core-tesouraria" target="21" />
       <module name="ms-auth" target="21" />

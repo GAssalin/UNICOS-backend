@@ -1,5 +1,5 @@
 -- ============================================================
--- V7 - Vincular Usuário ADMIN à ROLE UNICOS_ADMIN
+-- Vincular Usuário ADMIN à ROLE UNICOS_ADMIN
 -- ============================================================
 
 INSERT INTO role_usuario (
