@@ -38,7 +38,7 @@ public class UnidadeMedidaService extends BaseTenantService<UnidadeMedida, Long>
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "vendas-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
     public UnidadeMedidaResponse criar(UnidadeMedidaCreateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -54,7 +54,7 @@ public class UnidadeMedidaService extends BaseTenantService<UnidadeMedida, Long>
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "vendas-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
     public UnidadeMedidaResponse atualizar(Long id, UnidadeMedidaUpdateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -73,14 +73,14 @@ public class UnidadeMedidaService extends BaseTenantService<UnidadeMedida, Long>
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "vendas-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
     public UnidadeMedidaResponse buscarPorId(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
         return mapper.toResponse(buscarUnidade(id, empresaId));
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "vendas-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
     public UnidadeMedidaResponse buscarPorCodigo(String codigo) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -95,7 +95,7 @@ public class UnidadeMedidaService extends BaseTenantService<UnidadeMedida, Long>
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "vendas-unidade-medida-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-unidade-medida-admin", fallbackMethod = "fallbackAdminPage")
     public Page<UnidadeMedidaResumoResponse> listar(Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -104,7 +104,7 @@ public class UnidadeMedidaService extends BaseTenantService<UnidadeMedida, Long>
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "vendas-unidade-medida-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-unidade-medida-admin", fallbackMethod = "fallbackAdminPage")
     public Page<UnidadeMedidaResumoResponse> listarPorAtivo(Boolean ativo, Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -116,7 +116,7 @@ public class UnidadeMedidaService extends BaseTenantService<UnidadeMedida, Long>
     // STATUS
     // ============================================================
 
-    @CircuitBreaker(name = "vendas-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
     public UnidadeMedidaResponse ativar(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -126,7 +126,7 @@ public class UnidadeMedidaService extends BaseTenantService<UnidadeMedida, Long>
         return mapper.toResponse(repository.save(unidade));
     }
 
-    @CircuitBreaker(name = "vendas-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
     public UnidadeMedidaResponse inativar(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -140,7 +140,7 @@ public class UnidadeMedidaService extends BaseTenantService<UnidadeMedida, Long>
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "vendas-unidade-medida-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-unidade-medida-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
         repository.delete(buscarUnidade(id, empresaId));

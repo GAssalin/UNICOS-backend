@@ -38,7 +38,7 @@ public class ProdutoAtributoService extends BaseTenantService<ProdutoAtributo, L
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "vendas-produto-atributo-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-produto-atributo-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoAtributoResponse criar(ProdutoAtributoCreateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -54,7 +54,7 @@ public class ProdutoAtributoService extends BaseTenantService<ProdutoAtributo, L
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "vendas-produto-atributo-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-produto-atributo-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoAtributoResponse atualizar(Long id, ProdutoAtributoUpdateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -73,7 +73,7 @@ public class ProdutoAtributoService extends BaseTenantService<ProdutoAtributo, L
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "vendas-produto-atributo-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-produto-atributo-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoAtributoResponse buscarPorId(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
         return mapper.toResponse(buscarAtributo(id, empresaId));
@@ -84,7 +84,7 @@ public class ProdutoAtributoService extends BaseTenantService<ProdutoAtributo, L
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "vendas-produto-atributo-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-produto-atributo-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ProdutoAtributoResumoResponse> listar(Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -93,7 +93,7 @@ public class ProdutoAtributoService extends BaseTenantService<ProdutoAtributo, L
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "vendas-produto-atributo-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-produto-atributo-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ProdutoAtributoResumoResponse> listarPorAtivo(Boolean ativo, Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -105,7 +105,7 @@ public class ProdutoAtributoService extends BaseTenantService<ProdutoAtributo, L
     // STATUS
     // ============================================================
 
-    @CircuitBreaker(name = "vendas-produto-atributo-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-produto-atributo-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoAtributoResponse ativar(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -115,7 +115,7 @@ public class ProdutoAtributoService extends BaseTenantService<ProdutoAtributo, L
         return mapper.toResponse(repository.save(atributo));
     }
 
-    @CircuitBreaker(name = "vendas-produto-atributo-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-produto-atributo-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoAtributoResponse inativar(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -129,7 +129,7 @@ public class ProdutoAtributoService extends BaseTenantService<ProdutoAtributo, L
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "vendas-produto-atributo-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-produto-atributo-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
         repository.delete(buscarAtributo(id, empresaId));

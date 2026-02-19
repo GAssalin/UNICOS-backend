@@ -37,7 +37,7 @@ public class ProdutoImagemService extends BaseTenantService<ProdutoImagem, Long>
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "vendas-produto-imagem-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-produto-imagem-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoImagemResponse criar(ProdutoImagemCreateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -54,7 +54,7 @@ public class ProdutoImagemService extends BaseTenantService<ProdutoImagem, Long>
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "vendas-produto-imagem-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-produto-imagem-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoImagemResponse atualizar(Long id, ProdutoImagemUpdateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -73,7 +73,7 @@ public class ProdutoImagemService extends BaseTenantService<ProdutoImagem, Long>
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "vendas-produto-imagem-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-produto-imagem-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoImagemResponse buscarPorId(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
         return mapper.toResponse(buscarImagem(id, empresaId));
@@ -84,7 +84,7 @@ public class ProdutoImagemService extends BaseTenantService<ProdutoImagem, Long>
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "vendas-produto-imagem-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-produto-imagem-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ProdutoImagemResponse> listarPorProduto(Long produtoId, Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -96,13 +96,13 @@ public class ProdutoImagemService extends BaseTenantService<ProdutoImagem, Long>
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "vendas-produto-imagem-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-produto-imagem-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
         repository.delete(buscarImagem(id, empresaId));
     }
 
-    @CircuitBreaker(name = "vendas-produto-imagem-admin", fallbackMethod = "fallbackAdminVoid2")
+    @CircuitBreaker(name = "compras-produto-imagem-admin", fallbackMethod = "fallbackAdminVoid2")
     public void removerPorProduto(Long produtoId) {
         Long empresaId = TenantContext.getEmpresaId();
         repository.deleteByProdutoIdAndEmpresaId(produtoId, empresaId);
