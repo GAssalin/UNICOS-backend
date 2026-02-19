@@ -59,6 +59,9 @@ A estrutura geral do UniCoS segue este modelo:
                  |                ┌───────────────┐
                  └────────────────│  MS-Estoque   │
                  |                └───────────────┘
+                 |                ┌───────────────┐
+                 └────────────────│  MS-Compras   │
+                 |                └───────────────┘
     ┌────────────────────────┐
     │        CORE (DDD)      │
     │  Publicado no GitHub   │
@@ -91,6 +94,7 @@ A estrutura geral do UniCoS segue este modelo:
 | **ms-departamento** | Microserviço responsável pela gestão de departamentos organizacionais das filiais. |
 | **ms-estoque** | Microserviço responsável pela gestão de estoques, responsáveis e vínculos operacionais com filiais. |
 | **ms-vendas** | Microserviço responsável pela gestão de vendas, pedidos e operações comerciais da plataforma. |
+| **ms-compras** | Microserviço responsável pela gestão de compras, pedidos de aquisição e operações comerciais de suprimentos. |
 | **unicos-core** | Módulo principal de domínios e componentes centrais do ecossistema UniCoS (Unique Control System). |
 
 ---
@@ -152,6 +156,7 @@ backend/
 ├── ms-departamento/
 ├── ms-estoque/
 ├── ms-vendas/
+├── ms-compras/
 ```
 
 ---
@@ -237,6 +242,10 @@ mvn spring-boot:run
 ```
 ```bash
 cd ms-vendas
+mvn spring-boot:run
+```
+```bash
+cd ms-compras
 mvn spring-boot:run
 ```
 
