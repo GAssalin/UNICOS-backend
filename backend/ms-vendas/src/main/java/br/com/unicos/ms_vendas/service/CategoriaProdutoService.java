@@ -38,7 +38,7 @@ public class CategoriaProdutoService extends BaseTenantService<CategoriaProduto,
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "produto-categoria-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "vendas-categoria-produto-admin", fallbackMethod = "fallbackAdmin")
     public CategoriaProdutoResponse criar(CategoriaProdutoCreateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -54,7 +54,7 @@ public class CategoriaProdutoService extends BaseTenantService<CategoriaProduto,
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "produto-categoria-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "vendas-categoria-produto-admin", fallbackMethod = "fallbackAdmin")
     public CategoriaProdutoResponse atualizar(Long id, CategoriaProdutoUpdateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -73,7 +73,7 @@ public class CategoriaProdutoService extends BaseTenantService<CategoriaProduto,
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-categoria-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "vendas-categoria-produto-admin", fallbackMethod = "fallbackAdmin")
     public CategoriaProdutoResponse buscarPorId(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
         return mapper.toResponse(buscarCategoria(id, empresaId));
@@ -84,7 +84,7 @@ public class CategoriaProdutoService extends BaseTenantService<CategoriaProduto,
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-categoria-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "vendas-categoria-produto-admin", fallbackMethod = "fallbackAdminPage")
     public Page<CategoriaProdutoResumoResponse> listar(Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -93,7 +93,7 @@ public class CategoriaProdutoService extends BaseTenantService<CategoriaProduto,
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-categoria-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "vendas-categoria-produto-admin", fallbackMethod = "fallbackAdminPage")
     public Page<CategoriaProdutoResumoResponse> listarPorCategoriaPai(Long categoriaPaiId, Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -105,7 +105,7 @@ public class CategoriaProdutoService extends BaseTenantService<CategoriaProduto,
     // STATUS
     // ============================================================
 
-    @CircuitBreaker(name = "produto-categoria-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "vendas-categoria-produto-admin", fallbackMethod = "fallbackAdmin")
     public CategoriaProdutoResponse ativar(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -115,7 +115,7 @@ public class CategoriaProdutoService extends BaseTenantService<CategoriaProduto,
         return mapper.toResponse(repository.save(categoria));
     }
 
-    @CircuitBreaker(name = "produto-categoria-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "vendas-categoria-produto-admin", fallbackMethod = "fallbackAdmin")
     public CategoriaProdutoResponse inativar(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -129,7 +129,7 @@ public class CategoriaProdutoService extends BaseTenantService<CategoriaProduto,
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "produto-categoria-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "vendas-categoria-produto-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
         repository.delete(buscarCategoria(id, empresaId));

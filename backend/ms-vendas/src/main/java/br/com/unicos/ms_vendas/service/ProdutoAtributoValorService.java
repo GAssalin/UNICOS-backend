@@ -39,7 +39,7 @@ public class ProdutoAtributoValorService extends BaseTenantService<ProdutoAtribu
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "produto-atributo-valor-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "vendas-produto-atributo-valor-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoAtributoValorResponse criar(ProdutoAtributoValorCreateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -55,7 +55,7 @@ public class ProdutoAtributoValorService extends BaseTenantService<ProdutoAtribu
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "produto-atributo-valor-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "vendas-produto-atributo-valor-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoAtributoValorResponse atualizar(Long id, ProdutoAtributoValorUpdateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -71,7 +71,7 @@ public class ProdutoAtributoValorService extends BaseTenantService<ProdutoAtribu
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-atributo-valor-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "vendas-produto-atributo-valor-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoAtributoValorResponse buscarPorId(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
         return mapper.toResponse(buscarValor(id, empresaId));
@@ -82,7 +82,7 @@ public class ProdutoAtributoValorService extends BaseTenantService<ProdutoAtribu
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-atributo-valor-admin", fallbackMethod = "fallbackAdminList")
+    @CircuitBreaker(name = "vendas-produto-atributo-valor-admin", fallbackMethod = "fallbackAdminList")
     public List<ProdutoAtributoValorResponse> listarPorProduto(Long produtoId) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -93,7 +93,7 @@ public class ProdutoAtributoValorService extends BaseTenantService<ProdutoAtribu
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-atributo-valor-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "vendas-produto-atributo-valor-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ProdutoAtributoValorResponse> listar(Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -105,13 +105,13 @@ public class ProdutoAtributoValorService extends BaseTenantService<ProdutoAtribu
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "produto-atributo-valor-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "vendas-produto-atributo-valor-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
         repository.delete(buscarValor(id, empresaId));
     }
 
-    @CircuitBreaker(name = "produto-atributo-valor-admin", fallbackMethod = "fallbackAdminVoid2")
+    @CircuitBreaker(name = "vendas-produto-atributo-valor-admin", fallbackMethod = "fallbackAdminVoid2")
     public void removerPorProduto(Long produtoId) {
         Long empresaId = TenantContext.getEmpresaId();
         repository.deleteByProdutoIdAndEmpresaId(produtoId, empresaId);

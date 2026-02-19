@@ -37,7 +37,7 @@ public class ProdutoPrecoBaseService extends BaseTenantService<ProdutoPrecoBase,
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "produto-preco-base-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "vendas-produto-preco-base-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoPrecoBaseResponse criar(ProdutoPrecoBaseCreateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -53,7 +53,7 @@ public class ProdutoPrecoBaseService extends BaseTenantService<ProdutoPrecoBase,
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "produto-preco-base-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "vendas-produto-preco-base-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoPrecoBaseResponse atualizar(Long id, ProdutoPrecoBaseUpdateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -69,14 +69,14 @@ public class ProdutoPrecoBaseService extends BaseTenantService<ProdutoPrecoBase,
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-preco-base-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "vendas-produto-preco-base-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoPrecoBaseResponse buscarPorId(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
         return mapper.toResponse(buscarPreco(id, empresaId));
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-preco-base-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "vendas-produto-preco-base-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoPrecoBaseResponse buscarPorProduto(Long produtoId) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -91,7 +91,7 @@ public class ProdutoPrecoBaseService extends BaseTenantService<ProdutoPrecoBase,
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-preco-base-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "vendas-produto-preco-base-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ProdutoPrecoBaseResponse> listar(Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -100,7 +100,7 @@ public class ProdutoPrecoBaseService extends BaseTenantService<ProdutoPrecoBase,
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-preco-base-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "vendas-produto-preco-base-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ProdutoPrecoBaseResponse> listarPorAtivo(Boolean ativo, Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -112,13 +112,13 @@ public class ProdutoPrecoBaseService extends BaseTenantService<ProdutoPrecoBase,
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "produto-preco-base-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "vendas-produto-preco-base-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
         repository.delete(buscarPreco(id, empresaId));
     }
 
-    @CircuitBreaker(name = "produto-preco-base-admin", fallbackMethod = "fallbackAdminVoid2")
+    @CircuitBreaker(name = "vendas-produto-preco-base-admin", fallbackMethod = "fallbackAdminVoid2")
     public void removerPorProduto(Long produtoId) {
         Long empresaId = TenantContext.getEmpresaId();
         repository.deleteByProdutoIdAndEmpresaId(produtoId, empresaId);

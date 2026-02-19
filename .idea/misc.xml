@@ -22,6 +22,7 @@
         <option value="$PROJECT_DIR$/backend/unicos-core/core-produto-domain/pom.xml" />
         <option value="$PROJECT_DIR$/backend/ms-produto/pom.xml" />
         <option value="$PROJECT_DIR$/backend/ms-estoque/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/ms-vendas/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

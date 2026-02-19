@@ -23,7 +23,7 @@
         <module name="core-tenant" />
         <module name="core-auth" />
       </profile>
-      <profile name="Annotation profile for UNICOS :: MS-Estoque" enabled="true">
+      <profile name="Annotation profile for UNICOS :: MS-Vendas" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -40,6 +40,7 @@
         <module name="ms-filial" />
         <module name="ms-usuario" />
         <module name="ms-notificacao" />
+        <module name="ms-vendas" />
         <module name="ms-empresa" />
       </profile>
     </annotationProcessing>
@@ -75,6 +76,7 @@
       <module name="ms-produto" options="-parameters" />
       <module name="ms-produtos" options="-parameters" />
       <module name="ms-usuario" options="-parameters" />
+      <module name="ms-vendas" options="-parameters" />
       <module name="service-registry" options="-parameters" />
     </option>
   </component>
