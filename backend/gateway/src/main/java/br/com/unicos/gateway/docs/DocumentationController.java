@@ -22,6 +22,8 @@ public class DocumentationController {
         String filialUrl = resolveServiceUrl("ms-filial");
         String departamentoUrl = resolveServiceUrl("ms-departamento");
         String estoqueUrl = resolveServiceUrl("ms-estoque");
+        String vendasUrl = resolveServiceUrl("ms-vendas");
+        String comprasUrl = resolveServiceUrl("ms-compras");
 
         return """
                 <html>
@@ -96,6 +98,18 @@ public class DocumentationController {
                       <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
                       <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
                     </div>
+                    
+                    <div class="card">
+                      <strong>MS-VENDAS</strong><br/>
+                      <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
+                      <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
+                    </div>
+                    
+                    <div class="card">
+                      <strong>MS-COMPRAS</strong><br/>
+                      <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
+                      <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
+                    </div>
 
                   </body>
                 </html>
@@ -107,7 +121,9 @@ public class DocumentationController {
                         empresaUrl, empresaUrl,
                         filialUrl, filialUrl,
                         departamentoUrl, departamentoUrl,
-                        estoqueUrl, estoqueUrl);
+                        estoqueUrl, estoqueUrl,
+                        vendasUrl, vendasUrl,
+                        comprasUrl, comprasUrl);
     }
 
     private String resolveServiceUrl(String serviceId) {

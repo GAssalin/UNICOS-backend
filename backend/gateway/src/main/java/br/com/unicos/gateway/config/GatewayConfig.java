@@ -118,6 +118,30 @@ public class GatewayConfig {
                         .uri("lb://ms-estoque")
                 )
 
+                // ===============================
+                // ROTA: MS-VENDAS (COM JWT)
+                // ===============================
+                .route("ms-vendas", r -> r
+                        .path("/ms-vendas/**")
+                        .filters(f -> f
+                                .stripPrefix(1)
+                                .filter(jwtAuthFilter)
+                        )
+                        .uri("lb://ms-vendas")
+                )
+
+                // ===============================
+                // ROTA: MS-COMPRAS (COM JWT)
+                // ===============================
+                .route("ms-compras", r -> r
+                        .path("/ms-comnpras/**")
+                        .filters(f -> f
+                                .stripPrefix(1)
+                                .filter(jwtAuthFilter)
+                        )
+                        .uri("lb://ms-compras")
+                )
+
                 .build();
     }
 }
