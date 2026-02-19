@@ -56,6 +56,9 @@ A estrutura geral do UniCoS segue este modelo:
                  |                ┌───────────────────┐
                  └────────────────│  MS-Departamento  │
                  |                └───────────────────┘
+                 |                ┌───────────────┐
+                 └────────────────│  MS-Estoque   │
+                 |                └───────────────┘
     ┌────────────────────────┐
     │        CORE (DDD)      │
     │  Publicado no GitHub   │
@@ -86,6 +89,7 @@ A estrutura geral do UniCoS segue este modelo:
 | **ms-empresa** | Microserviço de gerenciamento de empresas (tenants) do UniCoS. |
 | **ms-filial** | Microserviço responsável pela gestão de filiais das empresas, representando unidades organizacionais e operacionais. |
 | **ms-departamento** | Microserviço responsável pela gestão de departamentos organizacionais das filiais. |
+| **ms-estoque** | Microserviço responsável pela gestão de estoques, responsáveis e vínculos operacionais com filiais. |
 | **ms-vendas** | Microserviço responsável pela gestão de vendas, pedidos e operações comerciais da plataforma. |
 | **unicos-core** | Módulo principal de domínios e componentes centrais do ecossistema UniCoS (Unique Control System). |
 
@@ -146,6 +150,7 @@ backend/
 ├── ms-empresa/
 ├── ms-filial/
 ├── ms-departamento/
+├── ms-estoque/
 ├── ms-vendas/
 ```
 
@@ -224,6 +229,14 @@ mvn spring-boot:run
 ```
 ```bash
 cd ms-departamento
+mvn spring-boot:run
+```
+```bash
+cd ms-estoque
+mvn spring-boot:run
+```
+```bash
+cd ms-vendas
 mvn spring-boot:run
 ```
 

@@ -106,6 +106,18 @@ public class GatewayConfig {
                         .uri("lb://ms-departamento")
                 )
 
+                // ===============================
+                // ROTA: MS-ESTOQUE (COM JWT)
+                // ===============================
+                .route("ms-estoque", r -> r
+                        .path("/ms-estoque/**")
+                        .filters(f -> f
+                                .stripPrefix(1)
+                                .filter(jwtAuthFilter)
+                        )
+                        .uri("lb://ms-estoque")
+                )
+
                 .build();
     }
 }
