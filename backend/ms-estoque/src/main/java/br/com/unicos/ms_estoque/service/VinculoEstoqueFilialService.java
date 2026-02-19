@@ -46,7 +46,7 @@ public class VinculoEstoqueFilialService extends BaseTenantService<VinculoEstoqu
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "vinculo-estoque-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "estoque-vinculo-admin", fallbackMethod = "fallbackAdmin")
     public VinculoEstoqueFilialResponseDto salvar(VinculoEstoqueFilialCreateRequestDto request) {
         validarDuplicidadeParEstoqueFilial(request.estoqueId(), request.filialId());
 
@@ -60,7 +60,7 @@ public class VinculoEstoqueFilialService extends BaseTenantService<VinculoEstoqu
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "vinculo-estoque-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "estoque-vinculo-admin", fallbackMethod = "fallbackAdminIdReq")
     public VinculoEstoqueFilialResponseDto atualizar(Long id, VinculoEstoqueFilialUpdateRequestDto request) {
         VinculoEstoqueFilial entity = buscarVinculo(id);
 
@@ -78,7 +78,7 @@ public class VinculoEstoqueFilialService extends BaseTenantService<VinculoEstoqu
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "vinculo-estoque-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "estoque-vinculo-admin", fallbackMethod = "fallbackAdminId")
     public VinculoEstoqueFilialResponseDto buscarPorId(Long id) {
         return vinculoMapper.toResponse(buscarVinculo(id));
     }
@@ -88,7 +88,7 @@ public class VinculoEstoqueFilialService extends BaseTenantService<VinculoEstoqu
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "vinculo-estoque-admin", fallbackMethod = "fallbackAdminPageFilial")
+    @CircuitBreaker(name = "estoque-vinculo-admin", fallbackMethod = "fallbackAdminPageFilial")
     public Page<VinculoEstoqueFilialResponseDto> listarPorFilial(Long filialId, Pageable pageable) {
         return vinculoRepository
                 .findByFilialIdAndEmpresaId(filialId, TenantContext.getEmpresaId(), pageable)
@@ -96,7 +96,7 @@ public class VinculoEstoqueFilialService extends BaseTenantService<VinculoEstoqu
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "vinculo-estoque-admin", fallbackMethod = "fallbackAdminPageFilialStatus")
+    @CircuitBreaker(name = "estoque-vinculo-admin", fallbackMethod = "fallbackAdminPageFilialStatus")
     public Page<VinculoEstoqueFilialResponseDto> listarPorFilialEStatus(
             Long filialId,
             StatusVinculoEstoqueFilial status,
@@ -116,7 +116,7 @@ public class VinculoEstoqueFilialService extends BaseTenantService<VinculoEstoqu
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "vinculo-estoque-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "estoque-vinculo-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         vinculoRepository.delete(buscarVinculo(id));
     }

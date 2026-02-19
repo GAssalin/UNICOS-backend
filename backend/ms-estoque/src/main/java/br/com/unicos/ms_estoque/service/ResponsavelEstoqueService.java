@@ -44,7 +44,7 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "responsavel-estoque-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "estoque-responsavel-admin", fallbackMethod = "fallbackAdmin")
     public ResponsavelEstoqueResponseDto salvar(ResponsavelEstoqueCreateRequestDto request) {
         validarPrincipalUnicoAtivo(request.estoqueId(), request.principal(), request.statusResponsavelEstoque());
 
@@ -58,7 +58,7 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "responsavel-estoque-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "estoque-responsavel-admin", fallbackMethod = "fallbackAdminIdReq")
     public ResponsavelEstoqueResponseDto atualizar(Long id, ResponsavelEstoqueUpdateRequestDto request) {
         ResponsavelEstoque entity = buscarResponsavel(id);
 
@@ -75,7 +75,7 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "responsavel-estoque-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "estoque-responsavel-admin", fallbackMethod = "fallbackAdminId")
     public ResponsavelEstoqueResponseDto buscarPorId(Long id) {
         return responsavelMapper.toResponse(buscarResponsavel(id));
     }
@@ -85,7 +85,7 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "responsavel-estoque-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "estoque-responsavel-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ResponsavelEstoqueResponseDto> listarPorEstoque(Long estoqueId, Pageable pageable) {
         return responsavelRepository
                 .findByEstoqueIdAndEmpresaId(estoqueId, TenantContext.getEmpresaId(), pageable)
@@ -93,7 +93,7 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "responsavel-estoque-admin", fallbackMethod = "fallbackAdminPageStatus")
+    @CircuitBreaker(name = "estoque-responsavel-admin", fallbackMethod = "fallbackAdminPageStatus")
     public Page<ResponsavelEstoqueResponseDto> listarPorEstoqueEStatus(
             Long estoqueId,
             StatusResponsavelEstoque status,
@@ -113,7 +113,7 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "responsavel-estoque-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "estoque-responsavel-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         responsavelRepository.delete(buscarResponsavel(id));
     }
