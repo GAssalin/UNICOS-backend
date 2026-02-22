@@ -13,5 +13,4 @@ public record ContatoFornecedorDto(
         String email,
         Boolean principal,
         String observacao
-) {
-}
+) { }

@@ -13,5 +13,4 @@ public record FornecedorDto(
         String email,
         String telefone,
         String observacao
-) {
-}
+) { }

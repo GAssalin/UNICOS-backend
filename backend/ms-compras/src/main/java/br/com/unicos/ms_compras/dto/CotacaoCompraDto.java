@@ -13,5 +13,4 @@ public record CotacaoCompraDto(
         String status,
         String observacao,
         Long pedidoCompraId
-) {
-}
+) { }

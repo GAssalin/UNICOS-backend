@@ -16,5 +16,4 @@ public record ItemPedidoCompraDto(
         BigDecimal descontoItem,
         BigDecimal totalItem,
         String observacao
-) {
-}
+) { }

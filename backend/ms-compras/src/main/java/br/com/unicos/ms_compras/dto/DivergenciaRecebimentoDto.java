@@ -11,5 +11,4 @@ public record DivergenciaRecebimentoDto(
         String tipo,
         String descricao,
         BigDecimal quantidadeDivergente
-) {
-}
+) { }

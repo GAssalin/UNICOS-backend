@@ -13,5 +13,4 @@ public record ItemRecebimentoCompraDto(
         BigDecimal quantidadeAprovada,
         BigDecimal quantidadeRecusada,
         String observacao
-) {
-}
+) { }

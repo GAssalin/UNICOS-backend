@@ -11,5 +11,4 @@ public record CondicaoPagamentoParcelaDto(
         Integer ordem,
         Integer diasAposEmissao,
         BigDecimal percentual
-) {
-}
+) { }

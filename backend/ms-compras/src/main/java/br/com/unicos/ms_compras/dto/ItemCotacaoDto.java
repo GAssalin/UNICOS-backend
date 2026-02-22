@@ -13,5 +13,4 @@ public record ItemCotacaoDto(
         String unidadeSnapshot,
         BigDecimal quantidade,
         String observacao
-) {
-}
+) { }

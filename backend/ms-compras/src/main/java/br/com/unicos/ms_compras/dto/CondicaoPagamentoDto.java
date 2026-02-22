@@ -9,5 +9,4 @@ public record CondicaoPagamentoDto(
         String nome,
         String descricao,
         Boolean parcelado
-) {
-}
+) { }

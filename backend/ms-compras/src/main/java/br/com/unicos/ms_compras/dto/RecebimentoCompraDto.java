@@ -12,5 +12,4 @@ public record RecebimentoCompraDto(
         LocalDate dataRecebimento,
         String status,
         String observacao
-) {
-}
+) { }

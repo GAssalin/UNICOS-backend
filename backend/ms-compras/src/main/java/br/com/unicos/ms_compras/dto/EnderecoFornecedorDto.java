@@ -15,5 +15,4 @@ public record EnderecoFornecedorDto(
         String cidade,
         String uf,
         String observacao
-) {
-}
+) { }

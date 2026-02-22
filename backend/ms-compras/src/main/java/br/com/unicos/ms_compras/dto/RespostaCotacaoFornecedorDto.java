@@ -16,5 +16,4 @@ public record RespostaCotacaoFornecedorDto(
         BigDecimal totalProposto,
         BigDecimal frete,
         String observacao
-) {
-}
+) { }

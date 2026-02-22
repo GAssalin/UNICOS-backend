@@ -14,5 +14,4 @@ public record ItemRespostaCotacaoFornecedorDto(
         BigDecimal totalItem,
         Integer prazoEntregaDias,
         String observacao
-) {
-}
+) { }

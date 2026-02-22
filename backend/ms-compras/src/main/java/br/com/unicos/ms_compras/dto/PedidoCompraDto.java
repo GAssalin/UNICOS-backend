@@ -29,5 +29,4 @@ public record PedidoCompraDto(
         String observacaoCancelamento,
         Long canceladoPor,
         LocalDateTime canceladoEm
-) {
-}
+) { }

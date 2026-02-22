@@ -15,5 +15,4 @@ public record DocumentoEntradaDto(
         LocalDate dataEmissao,
         String arquivoRef,
         String observacao
-) {
-}
+) { }
