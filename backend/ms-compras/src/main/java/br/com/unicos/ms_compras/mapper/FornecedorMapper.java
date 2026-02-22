@@ -18,25 +18,31 @@ public class FornecedorMapper {
     public FornecedorDto toResponse(Fornecedor entity) {
         return new FornecedorDto(
                 entity.getId(),
+                entity.getCodigo(),
                 entity.getRazaoSocial(),
                 entity.getNomeFantasia(),
                 entity.getCnpj(),
+                entity.getInscricaoEstadual(),
                 entity.getEmail(),
                 entity.getTelefone(),
-                entity.getAtivo()
+                entity.getObservacao()
         );
     }
 
     public Fornecedor toEntity(FornecedorDto dto) {
+        // Ok para create. Para update, prefira updateEntity.
         return mapper.map(dto, Fornecedor.class);
     }
 
     public void updateEntity(FornecedorDto dto, Fornecedor entity) {
+        entity.setCodigo(dto.codigo());
         entity.setRazaoSocial(dto.razaoSocial());
         entity.setNomeFantasia(dto.nomeFantasia());
         entity.setCnpj(dto.cnpj());
+        entity.setInscricaoEstadual(dto.inscricaoEstadual());
         entity.setEmail(dto.email());
         entity.setTelefone(dto.telefone());
-        entity.setAtivo(dto.ativo());
+        entity.setObservacao(dto.observacao());
+        // Não mexe em contatos/enderecos aqui sem regra explícita.
     }
 }
