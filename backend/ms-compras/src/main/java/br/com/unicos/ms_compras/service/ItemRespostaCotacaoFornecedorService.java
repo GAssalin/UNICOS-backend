@@ -59,7 +59,7 @@ public class ItemRespostaCotacaoFornecedorService extends BaseTenantService<Item
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-item-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdmin")
     public ItemRespostaCotacaoFornecedorDto salvar(ItemRespostaCotacaoFornecedorDto request) {
         if (request.respostaCotacaoFornecedorId() == null)
             throw new IllegalArgumentException("respostaCotacaoFornecedorId é obrigatório.");
@@ -85,7 +85,7 @@ public class ItemRespostaCotacaoFornecedorService extends BaseTenantService<Item
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "compras-item-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminIdReq")
     public ItemRespostaCotacaoFornecedorDto atualizar(Long id, ItemRespostaCotacaoFornecedorDto request) {
         ItemRespostaCotacaoFornecedor entity = buscarItemResposta(id);
 
@@ -115,13 +115,13 @@ public class ItemRespostaCotacaoFornecedorService extends BaseTenantService<Item
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "compras-item-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminId")
     public ItemRespostaCotacaoFornecedorDto buscarPorId(Long id) {
         return itemRespostaMapper.toResponse(buscarItemResposta(id));
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminByRespostaItem")
+    @CircuitBreaker(name = "compras-item-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminByRespostaItem")
     public ItemRespostaCotacaoFornecedorDto buscarPorRespostaEItemCotacao(Long respostaCotacaoFornecedorId, Long itemCotacaoId) {
         ItemRespostaCotacaoFornecedor entity = itemRespostaRepository
                 .findByRespostaCotacaoFornecedorIdAndItemCotacaoIdAndEmpresaId(
@@ -145,7 +145,7 @@ public class ItemRespostaCotacaoFornecedorService extends BaseTenantService<Item
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-item-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ItemRespostaCotacaoFornecedorDto> listar(Pageable pageable) {
         return itemRespostaRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -153,7 +153,7 @@ public class ItemRespostaCotacaoFornecedorService extends BaseTenantService<Item
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageResposta")
+    @CircuitBreaker(name = "compras-item-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminPageResposta")
     public Page<ItemRespostaCotacaoFornecedorDto> listarPorResposta(Long respostaCotacaoFornecedorId, Pageable pageable) {
         buscarResposta(respostaCotacaoFornecedorId);
 
@@ -166,12 +166,12 @@ public class ItemRespostaCotacaoFornecedorService extends BaseTenantService<Item
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-item-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         itemRespostaRepository.delete(buscarItemResposta(id));
     }
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoidResposta")
+    @CircuitBreaker(name = "compras-item-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminVoidResposta")
     public void deletarPorResposta(Long respostaCotacaoFornecedorId) {
         buscarResposta(respostaCotacaoFornecedorId);
 

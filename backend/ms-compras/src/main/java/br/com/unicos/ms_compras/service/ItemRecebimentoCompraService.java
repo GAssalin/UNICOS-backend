@@ -60,7 +60,7 @@ public class ItemRecebimentoCompraService extends BaseTenantService<ItemRecebime
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-item-recebimento-compra-admin", fallbackMethod = "fallbackAdmin")
     public ItemRecebimentoCompraDto salvar(ItemRecebimentoCompraDto request) {
         if (request.recebimentoCompraId() == null)
             throw new IllegalArgumentException("recebimentoCompraId é obrigatório para criar item de recebimento.");
@@ -86,7 +86,7 @@ public class ItemRecebimentoCompraService extends BaseTenantService<ItemRecebime
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "compras-item-recebimento-compra-admin", fallbackMethod = "fallbackAdminIdReq")
     public ItemRecebimentoCompraDto atualizar(Long id, ItemRecebimentoCompraDto request) {
         ItemRecebimentoCompra entity = buscarItemRecebimento(id);
 
@@ -116,13 +116,13 @@ public class ItemRecebimentoCompraService extends BaseTenantService<ItemRecebime
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "compras-item-recebimento-compra-admin", fallbackMethod = "fallbackAdminId")
     public ItemRecebimentoCompraDto buscarPorId(Long id) {
         return itemRecebimentoMapper.toResponse(buscarItemRecebimento(id));
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminItemPedido")
+    @CircuitBreaker(name = "compras-item-recebimento-compra-admin", fallbackMethod = "fallbackAdminItemPedido")
     public ItemRecebimentoCompraDto buscarPorItemPedido(Long itemPedidoCompraId) {
         ItemRecebimentoCompra entity = itemRecebimentoRepository
                 .findByItemPedidoCompraIdAndEmpresaId(itemPedidoCompraId, TenantContext.getEmpresaId())
@@ -140,7 +140,7 @@ public class ItemRecebimentoCompraService extends BaseTenantService<ItemRecebime
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-item-recebimento-compra-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ItemRecebimentoCompraDto> listar(Pageable pageable) {
         return itemRecebimentoRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -148,7 +148,7 @@ public class ItemRecebimentoCompraService extends BaseTenantService<ItemRecebime
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageRecebimento")
+    @CircuitBreaker(name = "compras-item-recebimento-compra-admin", fallbackMethod = "fallbackAdminPageRecebimento")
     public Page<ItemRecebimentoCompraDto> listarPorRecebimento(Long recebimentoCompraId, Pageable pageable) {
         buscarRecebimentoCompra(recebimentoCompraId);
 
@@ -161,12 +161,12 @@ public class ItemRecebimentoCompraService extends BaseTenantService<ItemRecebime
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-item-recebimento-compra-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         itemRecebimentoRepository.delete(buscarItemRecebimento(id));
     }
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoidRecebimento")
+    @CircuitBreaker(name = "compras-item-recebimento-compra-admin", fallbackMethod = "fallbackAdminVoidRecebimento")
     public void deletarPorRecebimento(Long recebimentoCompraId) {
         buscarRecebimentoCompra(recebimentoCompraId);
 

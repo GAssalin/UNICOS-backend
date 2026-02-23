@@ -51,7 +51,7 @@ public class ContatoFornecedorService extends BaseTenantService<ContatoFornecedo
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-contato-fornecedor-admin", fallbackMethod = "fallbackAdmin")
     public ContatoFornecedorDto salvar(ContatoFornecedorDto request) {
         if (request.fornecedorId() == null)
             throw new IllegalArgumentException("fornecedorId é obrigatório para criar um contato.");
@@ -74,7 +74,7 @@ public class ContatoFornecedorService extends BaseTenantService<ContatoFornecedo
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "compras-contato-fornecedor-admin", fallbackMethod = "fallbackAdminIdReq")
     public ContatoFornecedorDto atualizar(Long id, ContatoFornecedorDto request) {
         ContatoFornecedor entity = buscarContato(id);
 
@@ -102,7 +102,7 @@ public class ContatoFornecedorService extends BaseTenantService<ContatoFornecedo
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "compras-contato-fornecedor-admin", fallbackMethod = "fallbackAdminId")
     public ContatoFornecedorDto buscarPorId(Long id) {
         return contatoMapper.toResponse(buscarContato(id));
     }
@@ -112,7 +112,7 @@ public class ContatoFornecedorService extends BaseTenantService<ContatoFornecedo
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-contato-fornecedor-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ContatoFornecedorDto> listar(Pageable pageable) {
         return contatoRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -120,7 +120,7 @@ public class ContatoFornecedorService extends BaseTenantService<ContatoFornecedo
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageFornecedor")
+    @CircuitBreaker(name = "compras-contato-fornecedor-admin", fallbackMethod = "fallbackAdminPageFornecedor")
     public Page<ContatoFornecedorDto> listarPorFornecedor(Long fornecedorId, Pageable pageable) {
         buscarFornecedor(fornecedorId);
 
@@ -130,7 +130,7 @@ public class ContatoFornecedorService extends BaseTenantService<ContatoFornecedo
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPrincipal")
+    @CircuitBreaker(name = "compras-contato-fornecedor-admin", fallbackMethod = "fallbackAdminPrincipal")
     public ContatoFornecedorDto buscarPrincipal(Long fornecedorId) {
         buscarFornecedor(fornecedorId);
 
@@ -145,7 +145,7 @@ public class ContatoFornecedorService extends BaseTenantService<ContatoFornecedo
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-contato-fornecedor-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         contatoRepository.delete(buscarContato(id));
     }

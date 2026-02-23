@@ -64,7 +64,7 @@ public class RespostaCotacaoFornecedorService extends BaseTenantService<Resposta
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdmin")
     public RespostaCotacaoFornecedorDto salvar(RespostaCotacaoFornecedorDto request) {
         if (request.cotacaoCompraId() == null)
             throw new IllegalArgumentException("cotacaoCompraId é obrigatório.");
@@ -95,7 +95,7 @@ public class RespostaCotacaoFornecedorService extends BaseTenantService<Resposta
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "compras-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminIdReq")
     public RespostaCotacaoFornecedorDto atualizar(Long id, RespostaCotacaoFornecedorDto request) {
         RespostaCotacaoFornecedor entity = buscarResposta(id);
 
@@ -129,13 +129,13 @@ public class RespostaCotacaoFornecedorService extends BaseTenantService<Resposta
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "compras-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminId")
     public RespostaCotacaoFornecedorDto buscarPorId(Long id) {
         return respostaMapper.toResponse(buscarResposta(id));
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminByCotacaoFornecedor")
+    @CircuitBreaker(name = "compras-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminByCotacaoFornecedor")
     public RespostaCotacaoFornecedorDto buscarPorCotacaoEFornecedor(Long cotacaoCompraId, Long fornecedorId) {
         RespostaCotacaoFornecedor entity = respostaRepository
                 .findByCotacaoCompraIdAndFornecedorIdAndEmpresaId(
@@ -158,7 +158,7 @@ public class RespostaCotacaoFornecedorService extends BaseTenantService<Resposta
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminPage")
     public Page<RespostaCotacaoFornecedorDto> listar(Pageable pageable) {
         return respostaRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -166,7 +166,7 @@ public class RespostaCotacaoFornecedorService extends BaseTenantService<Resposta
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageCotacao")
+    @CircuitBreaker(name = "compras-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminPageCotacao")
     public Page<RespostaCotacaoFornecedorDto> listarPorCotacao(Long cotacaoCompraId, Pageable pageable) {
         buscarCotacao(cotacaoCompraId);
 
@@ -176,7 +176,7 @@ public class RespostaCotacaoFornecedorService extends BaseTenantService<Resposta
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageFornecedor")
+    @CircuitBreaker(name = "compras-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminPageFornecedor")
     public Page<RespostaCotacaoFornecedorDto> listarPorFornecedor(Long fornecedorId, Pageable pageable) {
         buscarFornecedor(fornecedorId);
 
@@ -186,7 +186,7 @@ public class RespostaCotacaoFornecedorService extends BaseTenantService<Resposta
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageStatus")
+    @CircuitBreaker(name = "compras-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminPageStatus")
     public Page<RespostaCotacaoFornecedorDto> listarPorStatus(String status, Pageable pageable) {
         if (status == null || status.isBlank())
             throw new IllegalArgumentException("status é obrigatório.");
@@ -197,7 +197,7 @@ public class RespostaCotacaoFornecedorService extends BaseTenantService<Resposta
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageCondicao")
+    @CircuitBreaker(name = "compras-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminPageCondicao")
     public Page<RespostaCotacaoFornecedorDto> listarPorCondicaoPagamento(Long condicaoPagamentoId, Pageable pageable) {
         buscarCondicaoPagamento(condicaoPagamentoId);
 
@@ -210,7 +210,7 @@ public class RespostaCotacaoFornecedorService extends BaseTenantService<Resposta
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-resposta-cotacao-fornecedor-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         respostaRepository.delete(buscarResposta(id));
     }

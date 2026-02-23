@@ -51,7 +51,7 @@ public class EnderecoFornecedorService extends BaseTenantService<EnderecoFornece
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-endereco-fornecedor-admin", fallbackMethod = "fallbackAdmin")
     public EnderecoFornecedorDto salvar(EnderecoFornecedorDto request) {
         if (request.fornecedorId() == null)
             throw new IllegalArgumentException("fornecedorId é obrigatório para criar um endereço.");
@@ -71,7 +71,7 @@ public class EnderecoFornecedorService extends BaseTenantService<EnderecoFornece
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "compras-endereco-fornecedor-admin", fallbackMethod = "fallbackAdminIdReq")
     public EnderecoFornecedorDto atualizar(Long id, EnderecoFornecedorDto request) {
         EnderecoFornecedor entity = buscarEndereco(id);
 
@@ -98,7 +98,7 @@ public class EnderecoFornecedorService extends BaseTenantService<EnderecoFornece
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "compras-endereco-fornecedor-admin", fallbackMethod = "fallbackAdminId")
     public EnderecoFornecedorDto buscarPorId(Long id) {
         return enderecoMapper.toResponse(buscarEndereco(id));
     }
@@ -108,7 +108,7 @@ public class EnderecoFornecedorService extends BaseTenantService<EnderecoFornece
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-endereco-fornecedor-admin", fallbackMethod = "fallbackAdminPage")
     public Page<EnderecoFornecedorDto> listar(Pageable pageable) {
         return enderecoRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -116,7 +116,7 @@ public class EnderecoFornecedorService extends BaseTenantService<EnderecoFornece
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageFornecedor")
+    @CircuitBreaker(name = "compras-endereco-fornecedor-admin", fallbackMethod = "fallbackAdminPageFornecedor")
     public Page<EnderecoFornecedorDto> listarPorFornecedor(Long fornecedorId, Pageable pageable) {
         buscarFornecedor(fornecedorId);
 
@@ -126,7 +126,7 @@ public class EnderecoFornecedorService extends BaseTenantService<EnderecoFornece
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageCep")
+    @CircuitBreaker(name = "compras-endereco-fornecedor-admin", fallbackMethod = "fallbackAdminPageCep")
     public Page<EnderecoFornecedorDto> listarPorCep(String cep, Pageable pageable) {
         if (cep == null || cep.isBlank())
             throw new IllegalArgumentException("cep é obrigatório.");
@@ -140,12 +140,12 @@ public class EnderecoFornecedorService extends BaseTenantService<EnderecoFornece
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-endereco-fornecedor-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         enderecoRepository.delete(buscarEndereco(id));
     }
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoidFornecedor")
+    @CircuitBreaker(name = "compras-endereco-fornecedor-admin", fallbackMethod = "fallbackAdminVoidFornecedor")
     public void deletarPorFornecedor(Long fornecedorId) {
         buscarFornecedor(fornecedorId);
 

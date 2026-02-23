@@ -51,7 +51,7 @@ public class DivergenciaRecebimentoService extends BaseTenantService<Divergencia
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-divergencia-recebimento-admin", fallbackMethod = "fallbackAdmin")
     public DivergenciaRecebimentoDto salvar(DivergenciaRecebimentoDto request) {
         if (request.itemRecebimentoCompraId() == null)
             throw new IllegalArgumentException("itemRecebimentoCompraId é obrigatório para criar uma divergência.");
@@ -69,7 +69,7 @@ public class DivergenciaRecebimentoService extends BaseTenantService<Divergencia
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "compras-divergencia-recebimento-admin", fallbackMethod = "fallbackAdminIdReq")
     public DivergenciaRecebimentoDto atualizar(Long id, DivergenciaRecebimentoDto request) {
         DivergenciaRecebimento entity = buscarDivergencia(id);
 
@@ -90,7 +90,7 @@ public class DivergenciaRecebimentoService extends BaseTenantService<Divergencia
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "compras-divergencia-recebimento-admin", fallbackMethod = "fallbackAdminId")
     public DivergenciaRecebimentoDto buscarPorId(Long id) {
         return divergenciaMapper.toResponse(buscarDivergencia(id));
     }
@@ -100,7 +100,7 @@ public class DivergenciaRecebimentoService extends BaseTenantService<Divergencia
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-divergencia-recebimento-admin", fallbackMethod = "fallbackAdminPage")
     public Page<DivergenciaRecebimentoDto> listar(Pageable pageable) {
         return divergenciaRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -108,7 +108,7 @@ public class DivergenciaRecebimentoService extends BaseTenantService<Divergencia
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageItem")
+    @CircuitBreaker(name = "compras-divergencia-recebimento-admin", fallbackMethod = "fallbackAdminPageItem")
     public Page<DivergenciaRecebimentoDto> listarPorItemRecebimento(Long itemRecebimentoCompraId, Pageable pageable) {
         // garante que o item exista no tenant
         buscarItemRecebimentoCompra(itemRecebimentoCompraId);
@@ -119,7 +119,7 @@ public class DivergenciaRecebimentoService extends BaseTenantService<Divergencia
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageTipo")
+    @CircuitBreaker(name = "compras-divergencia-recebimento-admin", fallbackMethod = "fallbackAdminPageTipo")
     public Page<DivergenciaRecebimentoDto> listarPorTipo(String tipo, Pageable pageable) {
         if (tipo == null || tipo.isBlank())
             throw new IllegalArgumentException("tipo é obrigatório.");
@@ -133,12 +133,12 @@ public class DivergenciaRecebimentoService extends BaseTenantService<Divergencia
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-divergencia-recebimento-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         divergenciaRepository.delete(buscarDivergencia(id));
     }
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoidItem")
+    @CircuitBreaker(name = "compras-divergencia-recebimento-admin", fallbackMethod = "fallbackAdminVoidItem")
     public void deletarPorItemRecebimento(Long itemRecebimentoCompraId) {
         // garante que o item exista no tenant
         buscarItemRecebimentoCompra(itemRecebimentoCompraId);

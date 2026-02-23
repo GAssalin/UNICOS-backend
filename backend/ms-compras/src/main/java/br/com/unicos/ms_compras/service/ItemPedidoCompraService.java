@@ -54,7 +54,7 @@ public class ItemPedidoCompraService extends BaseTenantService<ItemPedidoCompra,
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-item-pedido-compra-admin", fallbackMethod = "fallbackAdmin")
     public ItemPedidoCompraDto salvar(ItemPedidoCompraDto request) {
         if (request.pedidoCompraId() == null)
             throw new IllegalArgumentException("pedidoCompraId é obrigatório para criar um item do pedido.");
@@ -78,7 +78,7 @@ public class ItemPedidoCompraService extends BaseTenantService<ItemPedidoCompra,
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "compras-item-pedido-compra-admin", fallbackMethod = "fallbackAdminIdReq")
     public ItemPedidoCompraDto atualizar(Long id, ItemPedidoCompraDto request) {
         ItemPedidoCompra entity = buscarItem(id);
 
@@ -107,7 +107,7 @@ public class ItemPedidoCompraService extends BaseTenantService<ItemPedidoCompra,
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "compras-item-pedido-compra-admin", fallbackMethod = "fallbackAdminId")
     public ItemPedidoCompraDto buscarPorId(Long id) {
         return itemMapper.toResponse(buscarItem(id));
     }
@@ -117,7 +117,7 @@ public class ItemPedidoCompraService extends BaseTenantService<ItemPedidoCompra,
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-item-pedido-compra-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ItemPedidoCompraDto> listar(Pageable pageable) {
         return itemRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -125,7 +125,7 @@ public class ItemPedidoCompraService extends BaseTenantService<ItemPedidoCompra,
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPagePedido")
+    @CircuitBreaker(name = "compras-item-pedido-compra-admin", fallbackMethod = "fallbackAdminPagePedido")
     public Page<ItemPedidoCompraDto> listarPorPedido(Long pedidoCompraId, Pageable pageable) {
         buscarPedidoCompra(pedidoCompraId);
 
@@ -135,7 +135,7 @@ public class ItemPedidoCompraService extends BaseTenantService<ItemPedidoCompra,
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPagePedidoProduto")
+    @CircuitBreaker(name = "compras-item-pedido-compra-admin", fallbackMethod = "fallbackAdminPagePedidoProduto")
     public Page<ItemPedidoCompraDto> listarPorPedidoEProduto(Long pedidoCompraId, Long produtoId, Pageable pageable) {
         if (produtoId == null)
             throw new IllegalArgumentException("produtoId é obrigatório.");
@@ -151,12 +151,12 @@ public class ItemPedidoCompraService extends BaseTenantService<ItemPedidoCompra,
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-item-pedido-compra-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         itemRepository.delete(buscarItem(id));
     }
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoidPedido")
+    @CircuitBreaker(name = "compras-item-pedido-compra-admin", fallbackMethod = "fallbackAdminVoidPedido")
     public void deletarPorPedido(Long pedidoCompraId) {
         buscarPedidoCompra(pedidoCompraId);
 

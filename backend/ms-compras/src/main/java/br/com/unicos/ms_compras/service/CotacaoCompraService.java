@@ -54,7 +54,7 @@ public class CotacaoCompraService extends BaseTenantService<CotacaoCompra, Long>
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-cotacao-compra-admin", fallbackMethod = "fallbackAdmin")
     public CotacaoCompraDto salvar(CotacaoCompraDto request) {
         validarCodigoDuplicado(request.codigo());
         validarDatas(request.dataAbertura(), request.dataValidade());
@@ -73,7 +73,7 @@ public class CotacaoCompraService extends BaseTenantService<CotacaoCompra, Long>
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "compras-cotacao-compra-admin", fallbackMethod = "fallbackAdminIdReq")
     public CotacaoCompraDto atualizar(Long id, CotacaoCompraDto request) {
         CotacaoCompra entity = buscarCotacao(id);
 
@@ -98,13 +98,13 @@ public class CotacaoCompraService extends BaseTenantService<CotacaoCompra, Long>
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "compras-cotacao-compra-admin", fallbackMethod = "fallbackAdminId")
     public CotacaoCompraDto buscarPorId(Long id) {
         return cotacaoMapper.toResponse(buscarCotacao(id));
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminCodigo")
+    @CircuitBreaker(name = "compras-cotacao-compra-admin", fallbackMethod = "fallbackAdminCodigo")
     public CotacaoCompraDto buscarPorCodigo(String codigo) {
         CotacaoCompra entity = cotacaoRepository
                 .findByCodigoAndEmpresaId(codigo, TenantContext.getEmpresaId())
@@ -118,7 +118,7 @@ public class CotacaoCompraService extends BaseTenantService<CotacaoCompra, Long>
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-cotacao-compra-admin", fallbackMethod = "fallbackAdminPage")
     public Page<CotacaoCompraDto> listar(Pageable pageable) {
         return cotacaoRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -126,7 +126,7 @@ public class CotacaoCompraService extends BaseTenantService<CotacaoCompra, Long>
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageStatus")
+    @CircuitBreaker(name = "compras-cotacao-compra-admin", fallbackMethod = "fallbackAdminPageStatus")
     public Page<CotacaoCompraDto> listarPorStatus(String status, Pageable pageable) {
         return cotacaoRepository
                 .findByStatusAndEmpresaId(status, TenantContext.getEmpresaId(), pageable)
@@ -134,7 +134,7 @@ public class CotacaoCompraService extends BaseTenantService<CotacaoCompra, Long>
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPagePeriodo")
+    @CircuitBreaker(name = "compras-cotacao-compra-admin", fallbackMethod = "fallbackAdminPagePeriodo")
     public Page<CotacaoCompraDto> listarPorPeriodoAbertura(LocalDate dataInicial, LocalDate dataFinal, Pageable pageable) {
         validarPeriodo(dataInicial, dataFinal);
 
@@ -144,7 +144,7 @@ public class CotacaoCompraService extends BaseTenantService<CotacaoCompra, Long>
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageVencimento")
+    @CircuitBreaker(name = "compras-cotacao-compra-admin", fallbackMethod = "fallbackAdminPageVencimento")
     public Page<CotacaoCompraDto> listarProximasDoVencimento(LocalDate dataLimite, Pageable pageable) {
         if (dataLimite == null)
             throw new IllegalArgumentException("dataLimite é obrigatório.");
@@ -155,7 +155,7 @@ public class CotacaoCompraService extends BaseTenantService<CotacaoCompra, Long>
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPagePedido")
+    @CircuitBreaker(name = "compras-cotacao-compra-admin", fallbackMethod = "fallbackAdminPagePedido")
     public Page<CotacaoCompraDto> listarPorPedidoCompra(Long pedidoCompraId, Pageable pageable) {
         // garante que pedido exista no tenant
         buscarPedidoCompra(pedidoCompraId);
@@ -169,7 +169,7 @@ public class CotacaoCompraService extends BaseTenantService<CotacaoCompra, Long>
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-cotacao-compra-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         cotacaoRepository.delete(buscarCotacao(id));
     }

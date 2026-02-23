@@ -46,7 +46,7 @@ public class FornecedorService extends BaseTenantService<Fornecedor, Long> {
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-fornecedor-admin", fallbackMethod = "fallbackAdmin")
     public FornecedorDto salvar(FornecedorDto request) {
         validarCodigoDuplicado(request.codigo());
         validarCnpjDuplicado(request.cnpj());
@@ -61,7 +61,7 @@ public class FornecedorService extends BaseTenantService<Fornecedor, Long> {
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "compras-fornecedor-admin", fallbackMethod = "fallbackAdminIdReq")
     public FornecedorDto atualizar(Long id, FornecedorDto request) {
         Fornecedor entity = buscarFornecedor(id);
 
@@ -83,13 +83,13 @@ public class FornecedorService extends BaseTenantService<Fornecedor, Long> {
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "compras-fornecedor-admin", fallbackMethod = "fallbackAdminId")
     public FornecedorDto buscarPorId(Long id) {
         return fornecedorMapper.toResponse(buscarFornecedor(id));
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminCodigo")
+    @CircuitBreaker(name = "compras-fornecedor-admin", fallbackMethod = "fallbackAdminCodigo")
     public FornecedorDto buscarPorCodigo(String codigo) {
         Fornecedor entity = fornecedorRepository
                 .findByCodigoAndEmpresaId(codigo, TenantContext.getEmpresaId())
@@ -99,7 +99,7 @@ public class FornecedorService extends BaseTenantService<Fornecedor, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminCnpj")
+    @CircuitBreaker(name = "compras-fornecedor-admin", fallbackMethod = "fallbackAdminCnpj")
     public FornecedorDto buscarPorCnpj(String cnpj) {
         Fornecedor entity = fornecedorRepository
                 .findByCnpjAndEmpresaId(cnpj, TenantContext.getEmpresaId())
@@ -113,7 +113,7 @@ public class FornecedorService extends BaseTenantService<Fornecedor, Long> {
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-fornecedor-admin", fallbackMethod = "fallbackAdminPage")
     public Page<FornecedorDto> listar(Pageable pageable) {
         return fornecedorRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -121,7 +121,7 @@ public class FornecedorService extends BaseTenantService<Fornecedor, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageRazao")
+    @CircuitBreaker(name = "compras-fornecedor-admin", fallbackMethod = "fallbackAdminPageRazao")
     public Page<FornecedorDto> pesquisarPorRazaoSocial(String razaoSocial, Pageable pageable) {
         return fornecedorRepository
                 .findByRazaoSocialContainingIgnoreCaseAndEmpresaId(razaoSocial, TenantContext.getEmpresaId(), pageable)
@@ -129,7 +129,7 @@ public class FornecedorService extends BaseTenantService<Fornecedor, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageFantasia")
+    @CircuitBreaker(name = "compras-fornecedor-admin", fallbackMethod = "fallbackAdminPageFantasia")
     public Page<FornecedorDto> pesquisarPorNomeFantasia(String nomeFantasia, Pageable pageable) {
         return fornecedorRepository
                 .findByNomeFantasiaContainingIgnoreCaseAndEmpresaId(nomeFantasia, TenantContext.getEmpresaId(), pageable)
@@ -137,7 +137,7 @@ public class FornecedorService extends BaseTenantService<Fornecedor, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageCnpj")
+    @CircuitBreaker(name = "compras-fornecedor-admin", fallbackMethod = "fallbackAdminPageCnpj")
     public Page<FornecedorDto> pesquisarPorCnpj(String cnpj, Pageable pageable) {
         return fornecedorRepository
                 .findByCnpjContainingAndEmpresaId(cnpj, TenantContext.getEmpresaId(), pageable)
@@ -148,7 +148,7 @@ public class FornecedorService extends BaseTenantService<Fornecedor, Long> {
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-fornecedor-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         fornecedorRepository.delete(buscarFornecedor(id));
     }

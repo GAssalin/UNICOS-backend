@@ -52,7 +52,7 @@ public class DocumentoEntradaService extends BaseTenantService<DocumentoEntrada,
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-documento-entrada-admin", fallbackMethod = "fallbackAdmin")
     public DocumentoEntradaDto salvar(DocumentoEntradaDto request) {
         if (request.recebimentoCompraId() == null)
             throw new IllegalArgumentException("recebimentoCompraId é obrigatório para criar um documento de entrada.");
@@ -73,7 +73,7 @@ public class DocumentoEntradaService extends BaseTenantService<DocumentoEntrada,
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "compras-documento-entrada-admin", fallbackMethod = "fallbackAdminIdReq")
     public DocumentoEntradaDto atualizar(Long id, DocumentoEntradaDto request) {
         DocumentoEntrada entity = buscarDocumento(id);
 
@@ -102,7 +102,7 @@ public class DocumentoEntradaService extends BaseTenantService<DocumentoEntrada,
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "compras-documento-entrada-admin", fallbackMethod = "fallbackAdminId")
     public DocumentoEntradaDto buscarPorId(Long id) {
         return documentoMapper.toResponse(buscarDocumento(id));
     }
@@ -112,7 +112,7 @@ public class DocumentoEntradaService extends BaseTenantService<DocumentoEntrada,
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-documento-entrada-admin", fallbackMethod = "fallbackAdminPage")
     public Page<DocumentoEntradaDto> listar(Pageable pageable) {
         return documentoRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -120,7 +120,7 @@ public class DocumentoEntradaService extends BaseTenantService<DocumentoEntrada,
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageRecebimento")
+    @CircuitBreaker(name = "compras-documento-entrada-admin", fallbackMethod = "fallbackAdminPageRecebimento")
     public Page<DocumentoEntradaDto> listarPorRecebimento(Long recebimentoCompraId, Pageable pageable) {
         buscarRecebimentoCompra(recebimentoCompraId);
 
@@ -133,12 +133,12 @@ public class DocumentoEntradaService extends BaseTenantService<DocumentoEntrada,
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-documento-entrada-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         documentoRepository.delete(buscarDocumento(id));
     }
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoidRecebimento")
+    @CircuitBreaker(name = "compras-documento-entrada-admin", fallbackMethod = "fallbackAdminVoidRecebimento")
     public void deletarPorRecebimento(Long recebimentoCompraId) {
         buscarRecebimentoCompra(recebimentoCompraId);
 

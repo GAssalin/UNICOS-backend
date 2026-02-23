@@ -53,7 +53,7 @@ public class PedidoCompraService extends BaseTenantService<PedidoCompra, Long> {
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-pedido-compra-admin", fallbackMethod = "fallbackAdmin")
     public PedidoCompraDto salvar(PedidoCompraDto request) {
         validarCodigoDuplicado(request.codigo());
 
@@ -78,7 +78,7 @@ public class PedidoCompraService extends BaseTenantService<PedidoCompra, Long> {
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "compras-pedido-compra-admin", fallbackMethod = "fallbackAdminIdReq")
     public PedidoCompraDto atualizar(Long id, PedidoCompraDto request) {
         PedidoCompra entity = buscarPedido(id);
 
@@ -106,13 +106,13 @@ public class PedidoCompraService extends BaseTenantService<PedidoCompra, Long> {
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "compras-pedido-compra-admin", fallbackMethod = "fallbackAdminId")
     public PedidoCompraDto buscarPorId(Long id) {
         return pedidoMapper.toResponse(buscarPedido(id));
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminCodigo")
+    @CircuitBreaker(name = "compras-pedido-compra-admin", fallbackMethod = "fallbackAdminCodigo")
     public PedidoCompraDto buscarPorCodigo(String codigo) {
         PedidoCompra entity = pedidoRepository
                 .findByCodigoAndEmpresaId(codigo, TenantContext.getEmpresaId())
@@ -130,7 +130,7 @@ public class PedidoCompraService extends BaseTenantService<PedidoCompra, Long> {
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-pedido-compra-admin", fallbackMethod = "fallbackAdminPage")
     public Page<PedidoCompraDto> listar(Pageable pageable) {
         return pedidoRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -138,7 +138,7 @@ public class PedidoCompraService extends BaseTenantService<PedidoCompra, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageFornecedor")
+    @CircuitBreaker(name = "compras-pedido-compra-admin", fallbackMethod = "fallbackAdminPageFornecedor")
     public Page<PedidoCompraDto> listarPorFornecedor(Long fornecedorId, Pageable pageable) {
         buscarFornecedor(fornecedorId);
 
@@ -148,7 +148,7 @@ public class PedidoCompraService extends BaseTenantService<PedidoCompra, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageStatus")
+    @CircuitBreaker(name = "compras-pedido-compra-admin", fallbackMethod = "fallbackAdminPageStatus")
     public Page<PedidoCompraDto> listarPorStatus(StatusPedidoCompra status, Pageable pageable) {
         return pedidoRepository
                 .findByStatusPedidoCompraAndEmpresaId(status, TenantContext.getEmpresaId(), pageable)
@@ -156,7 +156,7 @@ public class PedidoCompraService extends BaseTenantService<PedidoCompra, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageEmissao")
+    @CircuitBreaker(name = "compras-pedido-compra-admin", fallbackMethod = "fallbackAdminPageEmissao")
     public Page<PedidoCompraDto> listarPorPeriodoEmissao(LocalDate dataInicial, LocalDate dataFinal, Pageable pageable) {
         if (dataInicial == null || dataFinal == null)
             throw new IllegalArgumentException("dataInicial e dataFinal são obrigatórias.");
@@ -167,7 +167,7 @@ public class PedidoCompraService extends BaseTenantService<PedidoCompra, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageEntrega")
+    @CircuitBreaker(name = "compras-pedido-compra-admin", fallbackMethod = "fallbackAdminPageEntrega")
     public Page<PedidoCompraDto> listarAteEntregaPrevista(LocalDate dataLimite, Pageable pageable) {
         if (dataLimite == null)
             throw new IllegalArgumentException("dataLimite é obrigatória.");
@@ -178,7 +178,7 @@ public class PedidoCompraService extends BaseTenantService<PedidoCompra, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageCondicao")
+    @CircuitBreaker(name = "compras-pedido-compra-admin", fallbackMethod = "fallbackAdminPageCondicao")
     public Page<PedidoCompraDto> listarPorCondicaoPagamento(Long condicaoPagamentoId, Pageable pageable) {
         buscarCondicaoPagamento(condicaoPagamentoId);
 
@@ -191,7 +191,7 @@ public class PedidoCompraService extends BaseTenantService<PedidoCompra, Long> {
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-pedido-compra-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         pedidoRepository.delete(buscarPedido(id));
     }

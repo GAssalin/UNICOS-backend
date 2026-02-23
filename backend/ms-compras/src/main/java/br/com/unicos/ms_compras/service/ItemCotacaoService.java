@@ -51,7 +51,7 @@ public class ItemCotacaoService extends BaseTenantService<ItemCotacao, Long> {
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-item-cotacao-admin", fallbackMethod = "fallbackAdmin")
     public ItemCotacaoDto salvar(ItemCotacaoDto request) {
         if (request.cotacaoCompraId() == null)
             throw new IllegalArgumentException("cotacaoCompraId é obrigatório para criar um item de cotação.");
@@ -73,7 +73,7 @@ public class ItemCotacaoService extends BaseTenantService<ItemCotacao, Long> {
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "compras-item-cotacao-admin", fallbackMethod = "fallbackAdminIdReq")
     public ItemCotacaoDto atualizar(Long id, ItemCotacaoDto request) {
         ItemCotacao entity = buscarItem(id);
 
@@ -100,7 +100,7 @@ public class ItemCotacaoService extends BaseTenantService<ItemCotacao, Long> {
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "compras-item-cotacao-admin", fallbackMethod = "fallbackAdminId")
     public ItemCotacaoDto buscarPorId(Long id) {
         return itemMapper.toResponse(buscarItem(id));
     }
@@ -110,7 +110,7 @@ public class ItemCotacaoService extends BaseTenantService<ItemCotacao, Long> {
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-item-cotacao-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ItemCotacaoDto> listar(Pageable pageable) {
         return itemRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -118,7 +118,7 @@ public class ItemCotacaoService extends BaseTenantService<ItemCotacao, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageCotacao")
+    @CircuitBreaker(name = "compras-item-cotacao-admin", fallbackMethod = "fallbackAdminPageCotacao")
     public Page<ItemCotacaoDto> listarPorCotacao(Long cotacaoCompraId, Pageable pageable) {
         buscarCotacaoCompra(cotacaoCompraId);
 
@@ -128,7 +128,7 @@ public class ItemCotacaoService extends BaseTenantService<ItemCotacao, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageCotacaoProduto")
+    @CircuitBreaker(name = "compras-item-cotacao-admin", fallbackMethod = "fallbackAdminPageCotacaoProduto")
     public Page<ItemCotacaoDto> listarPorCotacaoEProduto(Long cotacaoCompraId, Long produtoId, Pageable pageable) {
         if (produtoId == null)
             throw new IllegalArgumentException("produtoId é obrigatório.");
@@ -144,12 +144,12 @@ public class ItemCotacaoService extends BaseTenantService<ItemCotacao, Long> {
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-item-cotacao-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         itemRepository.delete(buscarItem(id));
     }
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoidCotacao")
+    @CircuitBreaker(name = "compras-item-cotacao-admin", fallbackMethod = "fallbackAdminVoidCotacao")
     public void deletarPorCotacao(Long cotacaoCompraId) {
         buscarCotacaoCompra(cotacaoCompraId);
 

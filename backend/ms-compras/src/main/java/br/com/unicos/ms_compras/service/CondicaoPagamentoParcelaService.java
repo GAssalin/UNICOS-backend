@@ -58,7 +58,7 @@ public class CondicaoPagamentoParcelaService extends BaseTenantService<CondicaoP
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-condicao-pagamento-parcela-admin", fallbackMethod = "fallbackAdmin")
     public CondicaoPagamentoParcelaDto salvar(CondicaoPagamentoParcelaDto request) {
         if (request.condicaoPagamentoId() == null)
             throw new IllegalArgumentException("condicaoPagamentoId é obrigatório para criar uma parcela.");
@@ -82,7 +82,7 @@ public class CondicaoPagamentoParcelaService extends BaseTenantService<CondicaoP
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "compras-condicao-pagamento-parcela-admin", fallbackMethod = "fallbackAdminIdReq")
     public CondicaoPagamentoParcelaDto atualizar(Long id, CondicaoPagamentoParcelaDto request) {
         CondicaoPagamentoParcela entity = buscarParcela(id);
 
@@ -113,7 +113,7 @@ public class CondicaoPagamentoParcelaService extends BaseTenantService<CondicaoP
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "compras-condicao-pagamento-parcela-admin", fallbackMethod = "fallbackAdminId")
     public CondicaoPagamentoParcelaDto buscarPorId(Long id) {
         return parcelaMapper.toResponse(buscarParcela(id));
     }
@@ -123,7 +123,7 @@ public class CondicaoPagamentoParcelaService extends BaseTenantService<CondicaoP
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-condicao-pagamento-parcela-admin", fallbackMethod = "fallbackAdminPage")
     public Page<CondicaoPagamentoParcelaDto> listar(Pageable pageable) {
         return parcelaRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -131,7 +131,7 @@ public class CondicaoPagamentoParcelaService extends BaseTenantService<CondicaoP
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageCondicao")
+    @CircuitBreaker(name = "compras-condicao-pagamento-parcela-admin", fallbackMethod = "fallbackAdminPageCondicao")
     public Page<CondicaoPagamentoParcelaDto> listarPorCondicaoPagamento(Long condicaoPagamentoId, Pageable pageable) {
         buscarCondicaoPagamento(condicaoPagamentoId);
 
@@ -144,7 +144,7 @@ public class CondicaoPagamentoParcelaService extends BaseTenantService<CondicaoP
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-condicao-pagamento-parcela-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         CondicaoPagamentoParcela parcela = buscarParcela(id);
         Long condicaoId = parcela.getCondicaoPagamento().getId();

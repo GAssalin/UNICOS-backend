@@ -58,7 +58,7 @@ public class RecebimentoCompraService extends BaseTenantService<RecebimentoCompr
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-recebimento-compra-admin", fallbackMethod = "fallbackAdmin")
     public RecebimentoCompraDto salvar(RecebimentoCompraDto request) {
         if (request.pedidoCompraId() == null)
             throw new IllegalArgumentException("pedidoCompraId é obrigatório.");
@@ -85,7 +85,7 @@ public class RecebimentoCompraService extends BaseTenantService<RecebimentoCompr
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "compras-recebimento-compra-admin", fallbackMethod = "fallbackAdminIdReq")
     public RecebimentoCompraDto atualizar(Long id, RecebimentoCompraDto request) {
         RecebimentoCompra entity = buscarRecebimento(id);
 
@@ -113,7 +113,7 @@ public class RecebimentoCompraService extends BaseTenantService<RecebimentoCompr
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "compras-recebimento-compra-admin", fallbackMethod = "fallbackAdminId")
     public RecebimentoCompraDto buscarPorId(Long id) {
         return recebimentoMapper.toResponse(buscarRecebimento(id));
     }
@@ -123,7 +123,7 @@ public class RecebimentoCompraService extends BaseTenantService<RecebimentoCompr
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-recebimento-compra-admin", fallbackMethod = "fallbackAdminPage")
     public Page<RecebimentoCompraDto> listar(Pageable pageable) {
         return recebimentoRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -131,7 +131,7 @@ public class RecebimentoCompraService extends BaseTenantService<RecebimentoCompr
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPagePedido")
+    @CircuitBreaker(name = "compras-recebimento-compra-admin", fallbackMethod = "fallbackAdminPagePedido")
     public Page<RecebimentoCompraDto> listarPorPedidoCompra(Long pedidoCompraId, Pageable pageable) {
         buscarPedidoCompra(pedidoCompraId);
 
@@ -141,7 +141,7 @@ public class RecebimentoCompraService extends BaseTenantService<RecebimentoCompr
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageFornecedor")
+    @CircuitBreaker(name = "compras-recebimento-compra-admin", fallbackMethod = "fallbackAdminPageFornecedor")
     public Page<RecebimentoCompraDto> listarPorFornecedor(Long fornecedorId, Pageable pageable) {
         buscarFornecedor(fornecedorId);
 
@@ -151,7 +151,7 @@ public class RecebimentoCompraService extends BaseTenantService<RecebimentoCompr
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPageStatus")
+    @CircuitBreaker(name = "compras-recebimento-compra-admin", fallbackMethod = "fallbackAdminPageStatus")
     public Page<RecebimentoCompraDto> listarPorStatus(String status, Pageable pageable) {
         if (status == null || status.isBlank())
             throw new IllegalArgumentException("status é obrigatório.");
@@ -162,7 +162,7 @@ public class RecebimentoCompraService extends BaseTenantService<RecebimentoCompr
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPagePeriodo")
+    @CircuitBreaker(name = "compras-recebimento-compra-admin", fallbackMethod = "fallbackAdminPagePeriodo")
     public Page<RecebimentoCompraDto> listarPorPeriodo(LocalDate dataInicial, LocalDate dataFinal, Pageable pageable) {
         if (dataInicial == null || dataFinal == null)
             throw new IllegalArgumentException("dataInicial e dataFinal são obrigatórias.");
@@ -176,7 +176,7 @@ public class RecebimentoCompraService extends BaseTenantService<RecebimentoCompr
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-recebimento-compra-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         recebimentoRepository.delete(buscarRecebimento(id));
     }

@@ -39,7 +39,7 @@ public class CondicaoPagamentoService extends BaseTenantService<CondicaoPagament
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "compras-condicao-pagamento-admin", fallbackMethod = "fallbackAdmin")
     public CondicaoPagamentoDto salvar(CondicaoPagamentoDto request) {
         validarCodigoDuplicado(request.codigo());
 
@@ -53,7 +53,7 @@ public class CondicaoPagamentoService extends BaseTenantService<CondicaoPagament
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminIdReq")
+    @CircuitBreaker(name = "compras-condicao-pagamento-admin", fallbackMethod = "fallbackAdminIdReq")
     public CondicaoPagamentoDto atualizar(Long id, CondicaoPagamentoDto request) {
         CondicaoPagamento entity = buscarCondicaoPagamento(id);
 
@@ -70,7 +70,7 @@ public class CondicaoPagamentoService extends BaseTenantService<CondicaoPagament
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminId")
+    @CircuitBreaker(name = "compras-condicao-pagamento-admin", fallbackMethod = "fallbackAdminId")
     public CondicaoPagamentoDto buscarPorId(Long id) {
         return condicaoPagamentoMapper.toResponse(buscarCondicaoPagamento(id));
     }
@@ -80,7 +80,7 @@ public class CondicaoPagamentoService extends BaseTenantService<CondicaoPagament
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminPage")
+    @CircuitBreaker(name = "compras-condicao-pagamento-admin", fallbackMethod = "fallbackAdminPage")
     public Page<CondicaoPagamentoDto> listar(Pageable pageable) {
         return condicaoPagamentoRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -89,7 +89,7 @@ public class CondicaoPagamentoService extends BaseTenantService<CondicaoPagament
 
     // (opcional, mas útil) buscar por código dentro do tenant
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminCodigo")
+    @CircuitBreaker(name = "compras-condicao-pagamento-admin", fallbackMethod = "fallbackAdminCodigo")
     public CondicaoPagamentoDto buscarPorCodigo(String codigo) {
         CondicaoPagamento entity = condicaoPagamentoRepository
                 .findByCodigoAndEmpresaId(codigo, TenantContext.getEmpresaId())
@@ -102,7 +102,7 @@ public class CondicaoPagamentoService extends BaseTenantService<CondicaoPagament
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "compras-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "compras-condicao-pagamento-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         // Se você tiver um PermissaoClient no ms_compras, pluga aqui (igual no EstoqueService).
         // Caso contrário, mantenho a proteção tenant + not found.
