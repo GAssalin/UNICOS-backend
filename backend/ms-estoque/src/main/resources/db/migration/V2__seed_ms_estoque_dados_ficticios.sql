@@ -39,7 +39,16 @@ INSERT INTO estoque (
     'DEP-TI', 'Tecnologia', 'Infra, sistemas e suporte técnico.', 'ATIVO', NULL
 );
 
--- filhos (estoque_pai_id via subquery por código)
+-- filhos
+-- MySQL não permite INSERT na própria tabela consultando essa mesma tabela no FROM da instrução.
+-- Por isso, primeiro carregamos os IDs pais em variáveis e depois executamos o INSERT.
+SET @ESTOQUE_PAI_FIN := (
+    SELECT id FROM estoque WHERE empresa_id = @TENANT_ID AND codigo = 'DEP-FIN' LIMIT 1
+);
+SET @ESTOQUE_PAI_TI := (
+    SELECT id FROM estoque WHERE empresa_id = @TENANT_ID AND codigo = 'DEP-TI' LIMIT 1
+);
+
 INSERT INTO estoque (
     empresa_id, criado_por, criado_em, atualizado_por, atualizado_em, ativo,
     codigo, nome, descricao, status_estoque, estoque_pai_id
@@ -47,17 +56,17 @@ INSERT INTO estoque (
 (
     @TENANT_ID, @CRIADO_POR, NOW(6), NULL, NULL, b'1',
     'DEP-FIN-AP', 'Financeiro - Contas a Pagar', 'Gestão de pagamentos e obrigações.', 'ATIVO',
-    (SELECT id FROM estoque WHERE empresa_id = @TENANT_ID AND codigo = 'DEP-FIN' LIMIT 1)
+    @ESTOQUE_PAI_FIN
 ),
 (
     @TENANT_ID, @CRIADO_POR, NOW(6), NULL, NULL, b'1',
     'DEP-FIN-AR', 'Financeiro - Contas a Receber', 'Cobrança, recebíveis e inadimplência.', 'ATIVO',
-    (SELECT id FROM estoque WHERE empresa_id = @TENANT_ID AND codigo = 'DEP-FIN' LIMIT 1)
+    @ESTOQUE_PAI_FIN
 ),
 (
     @TENANT_ID, @CRIADO_POR, NOW(6), NULL, NULL, b'1',
     'DEP-TI-SUP', 'TI - Suporte', 'Atendimento de chamados e apoio aos usuários.', 'ATIVO',
-    (SELECT id FROM estoque WHERE empresa_id = @TENANT_ID AND codigo = 'DEP-TI' LIMIT 1)
+    @ESTOQUE_PAI_TI
 );
 
 -- =========================================================
