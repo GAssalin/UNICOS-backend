@@ -5,7 +5,7 @@
 -- =========================================================
 -- TABELA: departamento
 -- =========================================================
-CREATE TABLE IF NOT EXISTS departamento (
+CREATE TABLE departamento (
     id BIGINT NOT NULL AUTO_INCREMENT,
 
     -- tenant / auditoria (BaseTenantEntity -> EntidadeAuditavel)
@@ -24,10 +24,7 @@ CREATE TABLE IF NOT EXISTS departamento (
     departamento_pai_id BIGINT NULL,
 
     CONSTRAINT pk_departamento PRIMARY KEY (id),
-    CONSTRAINT uk_departamento_codigo UNIQUE (codigo),
-
-    -- opcional (auto-relacionamento lógico). Mantido como FK física por performance/consistência.
-    -- Se você quiser "sem FK" até intra-MS, remova esta constraint.
+    CONSTRAINT uk_departamento_empresa_codigo UNIQUE (empresa_id, codigo),
     CONSTRAINT fk_departamento_pai
         FOREIGN KEY (departamento_pai_id)
         REFERENCES departamento (id)
@@ -42,7 +39,7 @@ CREATE INDEX ix_departamento_pai ON departamento (departamento_pai_id);
 -- =========================================================
 -- TABELA: responsavel_departamento
 -- =========================================================
-CREATE TABLE IF NOT EXISTS responsavel_departamento (
+CREATE TABLE responsavel_departamento (
     id BIGINT NOT NULL AUTO_INCREMENT,
 
     -- tenant / auditoria
@@ -63,8 +60,6 @@ CREATE TABLE IF NOT EXISTS responsavel_departamento (
     status_responsavel_departamento VARCHAR(20) NOT NULL,
 
     CONSTRAINT pk_responsavel_departamento PRIMARY KEY (id),
-
-    -- FK física interna do MS (recomendado). Se não quiser, remova.
     CONSTRAINT fk_resp_dep_departamento
         FOREIGN KEY (departamento_id)
         REFERENCES departamento (id)
@@ -81,7 +76,7 @@ CREATE INDEX ix_resp_dep_principal ON responsavel_departamento (departamento_id,
 -- =========================================================
 -- TABELA: vinculo_departamento_filial
 -- =========================================================
-CREATE TABLE IF NOT EXISTS vinculo_departamento_filial (
+CREATE TABLE vinculo_departamento_filial (
     id BIGINT NOT NULL AUTO_INCREMENT,
 
     -- tenant / auditoria
@@ -101,13 +96,13 @@ CREATE TABLE IF NOT EXISTS vinculo_departamento_filial (
     status_vinculo_departamento_filial VARCHAR(20) NOT NULL,
 
     CONSTRAINT pk_vinculo_departamento_filial PRIMARY KEY (id),
-
-    -- FK física interna do MS (recomendado). filial_id é externo (ms-filial), então não há FK.
     CONSTRAINT fk_vinc_dep_fil_departamento
         FOREIGN KEY (departamento_id)
         REFERENCES departamento (id)
         ON DELETE RESTRICT
-        ON UPDATE RESTRICT
+        ON UPDATE RESTRICT,
+    CONSTRAINT uk_vinc_dep_fil_tenant_departamento_filial
+        UNIQUE (empresa_id, departamento_id, filial_id)
 ) ENGINE=InnoDB;
 
 CREATE INDEX ix_vinc_dep_fil_empresa_id ON vinculo_departamento_filial (empresa_id);
@@ -115,10 +110,3 @@ CREATE INDEX ix_vinc_dep_fil_departamento_id ON vinculo_departamento_filial (dep
 CREATE INDEX ix_vinc_dep_fil_filial_id ON vinculo_departamento_filial (filial_id);
 CREATE INDEX ix_vinc_dep_fil_status ON vinculo_departamento_filial (status_vinculo_departamento_filial);
 CREATE INDEX ix_vinc_dep_fil_tipo_atuacao ON vinculo_departamento_filial (tipo_atuacao);
-
--- Evita duplicidade do par (departamento_id, filial_id) dentro do tenant.
--- Mantém 1 linha por par; histórico pode ser feito via vigência e atualização da mesma linha,
--- ou você remove a unique e passa a controlar via (vigencia_fim) e múltiplas linhas.
-ALTER TABLE vinculo_departamento_filial
-    ADD CONSTRAINT uk_vinc_dep_fil_tenant_departamento_filial
-    UNIQUE (empresa_id, departamento_id, filial_id);

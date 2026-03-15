@@ -16,7 +16,7 @@ x-common-env: &common-env
 
   # DB credenciais (para Spring)
   SPRING_DATASOURCE_USERNAME: ${DB_USER}
-  SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}cls
+  SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
 
   # Config repo (se seu config-server usa isso)
   CONFIG_REPO_URI: ${CONFIG_REPO_URI}

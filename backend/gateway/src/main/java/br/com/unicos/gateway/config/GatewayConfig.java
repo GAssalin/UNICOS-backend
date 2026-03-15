@@ -134,7 +134,7 @@ public class GatewayConfig {
                 // ROTA: MS-COMPRAS (COM JWT)
                 // ===============================
                 .route("ms-compras", r -> r
-                        .path("/ms-comnpras/**")
+                        .path("/ms-compras/**")
                         .filters(f -> f
                                 .stripPrefix(1)
                                 .filter(jwtAuthFilter)
