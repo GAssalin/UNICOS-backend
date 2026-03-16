@@ -1,121 +1,111 @@
-# 🧩 UniCoS — ERP Modular em Microserviços
+# 🧩 UniCoS — Modular ERP Platform (Microservices Architecture)
 
-## 📝 Descrição  
-O **UniCoS (Unique Control System)** é um ERP moderno, modular e escalável, desenvolvido para atender empresas de pequeno e médio porte.  
-Sua arquitetura é baseada em **microserviços independentes**, que se comunicam via REST e são integrados por:
+![Java](https://img.shields.io/badge/Java-21-red)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green)
+![Architecture](https://img.shields.io/badge/Architecture-Microservices-blue)
+![Docker](https://img.shields.io/badge/Docker-Ready-blue)
+![License](https://img.shields.io/badge/License-TBD-lightgrey)
 
-- **Config Server**
-- **Service Registry (Eureka)**  
-- **API Gateway (Spring Cloud Gateway)**
-- **Micro Serviços**
-- **Módulo CORE** publicado como pacote Maven (GitHub Packages)  
+## 📖 Overview
 
-O UniCoS oferece flexibilidade para evolução contínua de cada domínio, garantindo desacoplamento, alta disponibilidade e facilidade de manutenção.
+**UniCoS (Unique Control System)** é uma plataforma **ERP modular baseada em microserviços**, projetada para empresas de pequeno e médio porte.
+
+O sistema foi desenvolvido seguindo princípios de:
+
+- **Domain Driven Design (DDD)**
+- **Arquitetura de Microserviços**
+- **Configuração centralizada**
+- **Descoberta dinâmica de serviços**
+- **Escalabilidade horizontal**
+
+Cada domínio da aplicação é implementado como um **microserviço independente**, permitindo evolução e deploy desacoplado.
 
 ---
 
-## 🧠 Arquitetura
+# 🧠 Arquitetura
 
-A estrutura geral do UniCoS segue este modelo:
+A plataforma utiliza o ecossistema **Spring Cloud** para orquestração dos serviços.
+
+### Componentes principais
+
+| Componente | Função |
+|-------------|--------|
+| **Config Server** | Centraliza configurações dos serviços |
+| **Service Registry (Eureka)** | Registro e descoberta dinâmica |
+| **API Gateway** | Ponto único de entrada |
+| **Microservices** | Domínios independentes |
+| **UniCoS Core** | Biblioteca compartilhada entre serviços |
+
+---
+
+## 📊 Arquitetura Simplificada
 
 ```
-    ┌────────────────────────┐
-    │      Config Server     │
-    └────────────┬───────────┘
-                 │
-    ┌────────────┴───────────┐
-    │     Service Registry   │
-    │        (Eureka)        │
-    └────────────┬───────────┘
-                 │
-       ┌─────────┴─────────┐
-       │     API Gateway   │
-       │  (Spring Gateway) │
-       └─────────┬─────────┘
-                 |                ┌────────────┐
-                 └────────────────│  MS-Auth   │
-                 |                └────────────┘
-                 |                ┌────────────────┐
-                 └────────────────│  MS-Permissao  │
-                 |                └────────────────┘
-                 |                ┌───────────────┐
-                 └────────────────│  MS-Usuario   │
-                 |                └───────────────┘
-                 |                ┌───────────────┐
-                 └────────────────│  MS-Pessoas   │
-                 |                └───────────────┘
-                 |                ┌──────────────────┐
-                 └────────────────│  MS-Notificacao  │
-                 |                └──────────────────┘
-                 |                ┌───────────────┐
-                 └────────────────│  MS-Empresa   │
-                 |                └───────────────┘
-                 |                ┌─────────────┐
-                 └────────────────│  MS-Filial  │
-                 |                └─────────────┘
-                 |                ┌───────────────────┐
-                 └────────────────│  MS-Departamento  │
-                 |                └───────────────────┘
-                 |                ┌───────────────┐
-                 └────────────────│  MS-Estoque   │
-                 |                └───────────────┘
-                 |                ┌──────────────┐
-                 └────────────────│  MS-Vendas   │
-                 |                └──────────────┘
-                 |                ┌───────────────┐
-                 └────────────────│  MS-Compras   │
-                 |                └───────────────┘
-    ┌────────────────────────┐
-    │        CORE (DDD)      │
-    │  Publicado no GitHub   │
-    └────────────────────────┘
+                ┌─────────────────────┐
+                │    Config Server    │
+                └──────────┬──────────┘
+                           │
+                ┌──────────▼──────────┐
+                │  Service Registry   │
+                │      (Eureka)       │
+                └──────────┬──────────┘
+                           │
+                 ┌─────────▼─────────┐
+                 │    API Gateway    │
+                 │ Spring Cloud GW   │
+                 └─────────┬─────────┘
+                           │
+        ┌──────────────────┼──────────────────┐
+        ▼                  ▼                  ▼
+
+   MS-AUTH           MS-USUARIO          MS-PERMISSAO
+   MS-PESSOAS        MS-EMPRESA          MS-FILIAL
+   MS-DEPARTAMENTO   MS-PRODUTO          MS-ESTOQUE
+   MS-VENDAS         MS-COMPRAS          MS-NOTIFICACAO
+
+                 ┌───────────────────┐
+                 │     UniCoS CORE   │
+                 │ Shared Libraries  │
+                 └───────────────────┘
 ```
 
 ---
 
-## 🚀 Funcionalidades Principais (MVP)
-✔️ Autenticação e permissões
-✔️ Gerenciamento de dados pessoais
-✔️ Gestão de produtos
-
----
-
-## 🧩 Microserviços do UniCoS
+# 🧩 Microserviços
 
 | Serviço | Responsabilidade |
-|--------|------------------|
-| **Config Server** | Spring Cloud Config Server do UniCoS para centralização e distribuição de configurações dos microserviços. |
-| **service-registry** | Eureka Server para registro e descoberta de microserviços. |
-| **gateway** | Gateway reativo do UNICOS com roteamento dinâmico via Spring Cloud Gateway e integração ao Eureka Server. |
-| **ms-auth** | Microserviço responsável pela autenticação, autorização e emissão de tokens JWT. |
-| **ms-permissao** | Microserviço responsável pelo gerenciamento de perfis e permissões. |
-| **ms-usuario** | Microserviço responsável pela gerenciamento de usuários. |
-| **ms-pessoas** | Microserviço responsável pela gerenciamento de dados de pessoas físicas e jurídicas. |
-| **ms-notificacao** | Microserviço responsável pelo envio e gerenciamento de notificações da plataforma. |
-| **ms-empresa** | Microserviço de gerenciamento de empresas (tenants) do UniCoS. |
-| **ms-filial** | Microserviço responsável pela gestão de filiais das empresas, representando unidades organizacionais e operacionais. |
-| **ms-departamento** | Microserviço responsável pela gestão de departamentos organizacionais das filiais. |
-| **ms-estoque** | Microserviço responsável pela gestão de estoques, responsáveis e vínculos operacionais com filiais. |
-| **ms-vendas** | Microserviço responsável pela gestão de vendas, pedidos e operações comerciais da plataforma. |
-| **ms-compras** | Microserviço responsável pela gestão de compras, pedidos de aquisição e operações comerciais de suprimentos. |
-| **unicos-core** | Módulo principal de domínios e componentes centrais do ecossistema UniCoS (Unique Control System). |
+|-------|----------------|
+| **config-server** | Centralização das configurações via Spring Cloud Config |
+| **service-registry** | Descoberta de serviços usando Eureka |
+| **gateway** | API Gateway reativo baseado em Spring Cloud Gateway |
+| **ms-auth** | Autenticação e emissão de JWT |
+| **ms-permissao** | Gerenciamento de permissões e perfis |
+| **ms-usuario** | Gerenciamento de usuários |
+| **ms-pessoas** | Cadastro de pessoas físicas e jurídicas |
+| **ms-empresa** | Gestão de empresas (multi-tenant) |
+| **ms-filial** | Gestão de filiais |
+| **ms-departamento** | Gestão de departamentos |
+| **ms-produto** | Cadastro de produtos |
+| **ms-estoque** | Gestão de estoque |
+| **ms-vendas** | Gestão de vendas |
+| **ms-compras** | Gestão de compras |
+| **ms-notificacao** | Sistema de notificações |
 
 ---
 
-## 🔧 Tecnologias Utilizadas
-- **Backend:** Java 21 + Spring Boot 3
-- **Comunicação:** REST + Spring Cloud
-- **Orquestração:** Eureka + Gateway
-- **Banco de Dados:** Flyway + MySQL
-- **Build:** Maven
-- **Deploy:** Docker / Docker Compose (Em Construção)
-- **Infra futura:** Kubernetes (Em Construção)
+# 🧱 UniCoS Core
 
----
+O módulo **UniCoS Core** contém componentes reutilizáveis entre microserviços:
 
-## 📦 Módulo CORE no GitHub Packages
+- DTOs compartilhados
+- Estruturas de domínio
+- Exceptions
+- Helpers
+- Infraestrutura base
 
-O `unicos-core` é publicado como dependência Maven:
+Publicado via **GitHub Packages**.
+
+### Dependência Maven
 
 ```xml
 <dependency>
@@ -125,7 +115,7 @@ O `unicos-core` é publicado como dependência Maven:
 </dependency>
 ```
 
-Repositório usado pelos microserviços:
+### Repositório
 
 ```xml
 <repository>
@@ -136,154 +126,181 @@ Repositório usado pelos microserviços:
 
 ---
 
-## 🏗️ Estrutura do Projeto
+# 🛠️ Tecnologias
+
+| Tecnologia | Uso |
+|-------------|-----|
+| Java 21 | Linguagem |
+| Spring Boot 3 | Framework |
+| Spring Cloud | Arquitetura de microserviços |
+| Spring Cloud Gateway | API Gateway |
+| Eureka | Service Discovery |
+| MySQL | Banco de dados |
+| Flyway | Versionamento de banco |
+| Maven | Build |
+| Docker | Containerização |
+
+---
+
+# 📂 Estrutura do Projeto
 
 ```
-backend/
-├── config-server/
-├── service-registry/
-├── gateway/
-├── unicos-core/
-│   ├── core-base/
-│   ├── core-produto/
-│   ├── core-request/
-│   ├── core-tenant/
-│   ├── core-usuario/
-├── ms-auth/
-├── ms-permissao/
-├── ms-usuario/
-├── ms-pessoas/
-├── ms-notificacao/
-├── ms-empresa/
-├── ms-filial/
-├── ms-departamento/
-├── ms-estoque/
-├── ms-vendas/
-├── ms-compras/
+backend
+│
+├── config-server
+├── service-registry
+├── gateway
+│
+├── unicos-core
+│   ├── core-base
+│   ├── core-produto
+│   ├── core-request
+│   ├── core-tenant
+│   ├── core-usuario
+│
+├── ms-auth
+├── ms-permissao
+├── ms-usuario
+├── ms-pessoas
+├── ms-notificacao
+├── ms-empresa
+├── ms-filial
+├── ms-departamento
+├── ms-estoque
+├── ms-vendas
+├── ms-compras
 ```
 
 ---
 
-# ▶️ Como Executar o Projeto
+# 🚀 Executando o Projeto
 
-## Backend
+## 📦 Rodando com Docker (Recomendado)
 
-### ✅ Rodando com Docker (Em Construção)
 ```bash
 git clone https://github.com/GAssalin/ERP.git
 cd backend
-make up
+docker compose up --build
 ```
 
-Ou:
+Isso iniciará:
 
-```bash
-./run.sh        # Linux/macOS/WSL
-run.bat         # Windows
-```
-
-Comandos úteis:
-
-```bash
-make logs
-make down
-```
+- MySQL
+- Config Server
+- Service Registry
+- API Gateway
+- Todos os microserviços
 
 ---
 
-### ⚙️ Rodando localmente sem Docker
-OBS.: Deve-se respeitar a ordem de execução para os 3 primeiros abaixo
+## ⚙️ Rodando Localmente
+
+### Ordem obrigatória
+
+1️⃣ Config Server
+
 ```bash
 cd config-server
 mvn spring-boot:run
 ```
+
+2️⃣ Service Registry
+
 ```bash
 cd service-registry
 mvn spring-boot:run
 ```
+
+3️⃣ API Gateway
+
 ```bash
 cd gateway
 mvn spring-boot:run
 ```
-OBS.: MS-Auth, MS-Permissao e MS-Usuario devem estar rodando em conjunto para que a autenticação e geração do token ocorra.
-```bash
-cd ms-auth
-mvn spring-boot:run
-```
-```bash
-cd ms-permissao
-mvn spring-boot:run
-```
-```bash
-cd ms-usuario
-mvn spring-boot:run
-```
+
+Depois disso os microserviços podem ser iniciados em qualquer ordem.
+
+Exemplo:
 
 ```bash
-cd ms-pessoas
-mvn spring-boot:run
-```
-```bash
-cd ms-notificacao
-mvn spring-boot:run
-```
-```bash
-cd ms-empresa
-mvn spring-boot:run
-```
-```bash
-cd ms-filial
-mvn spring-boot:run
-```
-```bash
-cd ms-departamento
-mvn spring-boot:run
-```
-```bash
-cd ms-estoque
-mvn spring-boot:run
-```
-```bash
-cd ms-vendas
-mvn spring-boot:run
-```
-```bash
-cd ms-compras
+cd ms-auth
 mvn spring-boot:run
 ```
 
 ---
 
-# 📘 Swagger — Documentação Centralizada
+# 📘 Documentação das APIs
 
-A documentação de todos os microsserviços do UniCoS é unificada pelo API Gateway.
+A documentação é centralizada via **API Gateway**.
 
-🔗 Acesse a documentação completa aqui:
+### Acesso
 
-👉 http://localhost:8082/docs
+```
+http://localhost:8082/docs
+```
 
-Este endpoint exibe uma página com links diretos para os Swagger UI de cada microserviço, detectados automaticamente via Eureka.
+Esse endpoint lista automaticamente os Swagger de todos os microserviços registrados no Eureka.
 
-O endpoint /docs funciona como um hub centralizado, facilitando testes, inspeção e navegação entre APIs sem precisar acessar portas individuais.
+---
+
+# ❤️ Health Check
+
+Todos os serviços expõem endpoints do **Spring Boot Actuator**.
+
+Exemplo:
+
+```
+/actuator/health
+```
+
+Utilizado pelo **Docker Compose** para verificar disponibilidade dos serviços.
+
+---
+
+# 🔐 Segurança
+
+Autenticação baseada em:
+
+- **JWT**
+- **Gateway como filtro de autenticação**
+- **Microserviço de Auth dedicado**
 
 ---
 
 # 🤝 Contribuição
 
-```bash
+1️⃣ Crie uma branch
+
+```
 git checkout -b feature/nova-feature
+```
+
+2️⃣ Commit
+
+```
+git commit -m "feat: nova funcionalidade"
+```
+
+3️⃣ Push
+
+```
 git push origin feature/nova-feature
 ```
 
 ---
 
-# 📄 Licença  
-A definir
+# 📄 Licença
+
+A definir.
 
 ---
 
-# 📬 Contato  
-Gustavo Soares Assalin  
-GitHub: https://github.com/GAssalin
+# 👨‍💻 Autor
 
-LinkedIn: https://www.linkedin.com/in/gustavo-assalin/
+**Gustavo Soares Assalin**
+
+GitHub  
+https://github.com/GAssalin
+
+LinkedIn  
+https://www.linkedin.com/in/gustavo-assalin
