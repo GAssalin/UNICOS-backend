@@ -1,0 +1,32 @@
+name: unicos-autenticacao
+
+services:
+  ms-autenticacao:
+    build:
+      context: .
+      dockerfile: ./ms-autenticacao/Dockerfile
+    container_name: ms-autenticacao
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://service-registry:8081/eureka
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+      UNICOS_JWT_SECRET: ${UNICOS_JWT_SECRET}
+      UNICOS_JWT_ISSUER: ${UNICOS_JWT_ISSUER}
+      UNICOS_TEMPO_EXP_TOKEN: ${UNICOS_TEMPO_EXP_TOKEN}
+      UNICOS_TEMPO_EXP_REFRESH_TOKEN: ${UNICOS_TEMPO_EXP_REFRESH_TOKEN}
+    networks:
+      - unicos-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8083/actuator/health | grep UP || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+networks:
+  unicos-net:
+    external: true
+    name: unicos-net
