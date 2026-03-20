@@ -178,9 +178,8 @@ backend
 ## 📦 Rodando com Docker (Recomendado)
 
 ```bash
-git clone https://github.com/GAssalin/ERP.git
 cd backend
-docker compose up --build
+docker compose -f docker-compose.base.yml up --build -d
 ```
 
 Isso iniciará:
@@ -189,45 +188,39 @@ Isso iniciará:
 - Config Server
 - Service Registry
 - API Gateway
-- Todos os microserviços
 
 ---
 
-## ⚙️ Rodando Localmente
-
-### Ordem obrigatória
-
-1️⃣ Config Server
-
 ```bash
-cd config-server
-mvn spring-boot:run
+cd backend
+docker compose -f docker-compose.login.yml up --build -d
 ```
 
-2️⃣ Service Registry
+Isso iniciará:
 
-```bash
-cd service-registry
-mvn spring-boot:run
-```
-
-3️⃣ API Gateway
-
-```bash
-cd gateway
-mvn spring-boot:run
-```
-
-Depois disso os microserviços podem ser iniciados em qualquer ordem.
-
-Exemplo:
-
-```bash
-cd ms-auth
-mvn spring-boot:run
-```
+- ms-autenticacao
+- ms-permissao
+- ms-pessoas
+- ms-usuario
 
 ---
+
+```bash
+cd backend
+docker compose -f docker-compose.{X} up --build -d
+```
+
+Isso iniciará o micro serviço desejado: {X}
+Exemplo: docker compose -f docker-compose.ms-estoque up --build -d
+
+---
+
+## 📦 Parando com Docker (Recomendado)
+```bash
+docker compose -f docker-compose.base.yml down
+docker compose -f docker-compose.login.yml down
+docker compose -f docker-compose.{X}.yml down
+```
 
 # 📘 Documentação das APIs
 
@@ -263,7 +256,7 @@ Autenticação baseada em:
 
 - **JWT**
 - **Gateway como filtro de autenticação**
-- **Microserviço de Auth dedicado**
+- **Microserviços de autenticação e permissão dedicados**
 
 ---
 

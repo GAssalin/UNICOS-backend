@@ -1,0 +1,122 @@
+name: unicos-login
+
+services:
+  ms-autenticacao:
+    build:
+      context: .
+      dockerfile: ./ms-autenticacao/Dockerfile
+    container_name: ms-autenticacao
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://service-registry:8081/eureka
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+      UNICOS_JWT_SECRET: ${UNICOS_JWT_SECRET}
+      UNICOS_JWT_ISSUER: ${UNICOS_JWT_ISSUER}
+      UNICOS_TEMPO_EXP_TOKEN: ${UNICOS_TEMPO_EXP_TOKEN}
+      UNICOS_TEMPO_EXP_REFRESH_TOKEN: ${UNICOS_TEMPO_EXP_REFRESH_TOKEN}
+    networks:
+      - unicos-net
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8083/actuator/health | grep UP || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  ms-permissao:
+    build:
+      context: .
+      dockerfile: ./ms-permissao/Dockerfile
+    container_name: ms-permissao
+    restart: unless-stopped
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://service-registry:8081/eureka
+
+      UNICOS_JWT_SECRET: ${UNICOS_JWT_SECRET}
+      UNICOS_JWT_ISSUER: ${UNICOS_JWT_ISSUER}
+      UNICOS_TEMPO_EXP_TOKEN: ${UNICOS_TEMPO_EXP_TOKEN}
+      UNICOS_TEMPO_EXP_REFRESH_TOKEN: ${UNICOS_TEMPO_EXP_REFRESH_TOKEN}
+
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/unicos_ms_permissao?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+    networks:
+      - unicos-net
+
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8084/actuator/health | grep UP || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  ms-pessoas:
+    build:
+      context: .
+      dockerfile: ./ms-pessoas/Dockerfile
+    container_name: ms-pessoas
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://service-registry:8081/eureka
+
+      UNICOS_JWT_SECRET: ${UNICOS_JWT_SECRET}
+      UNICOS_JWT_ISSUER: ${UNICOS_JWT_ISSUER}
+      UNICOS_TEMPO_EXP_TOKEN: ${UNICOS_TEMPO_EXP_TOKEN}
+      UNICOS_TEMPO_EXP_REFRESH_TOKEN: ${UNICOS_TEMPO_EXP_REFRESH_TOKEN}
+
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/unicos_ms_pessoas?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    networks:
+      - unicos-net
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8085/actuator/health | grep UP || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  ms-usuario:
+    build:
+      context: .
+      dockerfile: ./ms-usuario/Dockerfile
+    container_name: ms-usuario
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://service-registry:8081/eureka
+
+      UNICOS_JWT_SECRET: ${UNICOS_JWT_SECRET}
+      UNICOS_JWT_ISSUER: ${UNICOS_JWT_ISSUER}
+      UNICOS_TEMPO_EXP_TOKEN: ${UNICOS_TEMPO_EXP_TOKEN}
+      UNICOS_TEMPO_EXP_REFRESH_TOKEN: ${UNICOS_TEMPO_EXP_REFRESH_TOKEN}
+
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/unicos_ms_usuario?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    networks:
+      - unicos-net
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8086/actuator/health | grep UP || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+networks:
+  unicos-net:
+    name: unicos-net
+    driver: bridge
+
+volumes:
+  mysql_data:
+    name: mysql_data

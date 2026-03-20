@@ -1,4 +1,4 @@
-name: unicos
+name: unicos-base
 
 services:
   mysql:
