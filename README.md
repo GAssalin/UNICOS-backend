@@ -179,7 +179,7 @@ backend
 
 ```bash
 cd backend
-docker compose -f docker-compose.base.yml up --build -d
+docker compose --env-file .env.docker -f docker-compose.base.yml up --build -d
 ```
 
 Isso iniciará:
@@ -193,7 +193,7 @@ Isso iniciará:
 
 ```bash
 cd backend
-docker compose -f docker-compose.login.yml up --build -d
+docker compose --env-file .env.docker -f docker-compose.login.yml up --build -d
 ```
 
 Isso iniciará:
@@ -207,7 +207,7 @@ Isso iniciará:
 
 ```bash
 cd backend
-docker compose -f docker-compose.{X} up --build -d
+docker compose --env-file .env.docker -f docker-compose.{X} up --build -d
 ```
 
 Isso iniciará o micro serviço desejado: {X}
@@ -217,9 +217,9 @@ Exemplo: docker compose -f docker-compose.ms-estoque up --build -d
 
 ## 📦 Parando com Docker (Recomendado)
 ```bash
-docker compose -f docker-compose.base.yml down
-docker compose -f docker-compose.login.yml down
-docker compose -f docker-compose.{X}.yml down
+docker compose --env-file .env.docker -f docker-compose.base.yml down
+docker compose --env-file .env.docker -f docker-compose.login.yml down
+docker compose --env-file .env.docker -f docker-compose.{X}.yml down
 ```
 
 # 📘 Documentação das APIs

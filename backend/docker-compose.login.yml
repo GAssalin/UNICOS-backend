@@ -10,14 +10,17 @@ services:
     ports:
       - "8083:8083"
     environment:
-      SPRING_CONFIG_SERVER_URL: http://config-server:8888
-      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://service-registry:8081/eureka
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SPRING_CONFIG_SERVER_URL: ${SPRING_CONFIG_SERVER_URL}
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: ${EUREKA_URL}
 
       UNICOS_JWT_SECRET: ${UNICOS_JWT_SECRET}
       UNICOS_JWT_ISSUER: ${UNICOS_JWT_ISSUER}
       UNICOS_TEMPO_EXP_TOKEN: ${UNICOS_TEMPO_EXP_TOKEN}
       UNICOS_TEMPO_EXP_REFRESH_TOKEN: ${UNICOS_TEMPO_EXP_REFRESH_TOKEN}
+
+      SPRING_DATASOURCE_URL: jdbc:mysql://${DB_HOST}:${DB_PORT}/unicos_ms_autenticacao?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
     networks:
       - unicos-net
     healthcheck:
@@ -35,17 +38,17 @@ services:
     ports:
       - "8084:8084"
     environment:
-      SPRING_CONFIG_SERVER_URL: http://config-server:8888
-      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://service-registry:8081/eureka
+      SPRING_CONFIG_SERVER_URL: ${SPRING_CONFIG_SERVER_URL}
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: ${EUREKA_URL}
 
       UNICOS_JWT_SECRET: ${UNICOS_JWT_SECRET}
       UNICOS_JWT_ISSUER: ${UNICOS_JWT_ISSUER}
       UNICOS_TEMPO_EXP_TOKEN: ${UNICOS_TEMPO_EXP_TOKEN}
       UNICOS_TEMPO_EXP_REFRESH_TOKEN: ${UNICOS_TEMPO_EXP_REFRESH_TOKEN}
 
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/unicos_ms_permissao?createDatabaseIfNotExist=true
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:mysql://${DB_HOST}:${DB_PORT}/unicos_ms_permissao?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
 
     networks:
       - unicos-net
@@ -65,17 +68,17 @@ services:
     ports:
       - "8085:8085"
     environment:
-      SPRING_CONFIG_SERVER_URL: http://config-server:8888
-      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://service-registry:8081/eureka
+      SPRING_CONFIG_SERVER_URL: ${SPRING_CONFIG_SERVER_URL}
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: ${EUREKA_URL}
 
       UNICOS_JWT_SECRET: ${UNICOS_JWT_SECRET}
       UNICOS_JWT_ISSUER: ${UNICOS_JWT_ISSUER}
       UNICOS_TEMPO_EXP_TOKEN: ${UNICOS_TEMPO_EXP_TOKEN}
       UNICOS_TEMPO_EXP_REFRESH_TOKEN: ${UNICOS_TEMPO_EXP_REFRESH_TOKEN}
 
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/unicos_ms_pessoas?createDatabaseIfNotExist=true
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:mysql://${DB_HOST}:${DB_PORT}/unicos_ms_pessoas?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
     networks:
       - unicos-net
     healthcheck:
@@ -93,17 +96,17 @@ services:
     ports:
       - "8086:8086"
     environment:
-      SPRING_CONFIG_SERVER_URL: http://config-server:8888
-      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://service-registry:8081/eureka
+      SPRING_CONFIG_SERVER_URL: ${SPRING_CONFIG_SERVER_URL}
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: ${EUREKA_URL}
 
       UNICOS_JWT_SECRET: ${UNICOS_JWT_SECRET}
       UNICOS_JWT_ISSUER: ${UNICOS_JWT_ISSUER}
       UNICOS_TEMPO_EXP_TOKEN: ${UNICOS_TEMPO_EXP_TOKEN}
       UNICOS_TEMPO_EXP_REFRESH_TOKEN: ${UNICOS_TEMPO_EXP_REFRESH_TOKEN}
 
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/unicos_ms_usuario?createDatabaseIfNotExist=true
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:mysql://${DB_HOST}:${DB_PORT}/unicos_ms_usuario?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
     networks:
       - unicos-net
     healthcheck:
