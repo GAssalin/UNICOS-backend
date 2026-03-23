@@ -32,17 +32,10 @@
         </processorPath>
         <module name="ms-autenticacao" />
         <module name="ms-usuario" />
-        <module name="ms-empresa" />
         <module name="ms-pessoas" />
-        <module name="ms-estoque" />
         <module name="config-server" />
-        <module name="ms-compras" />
         <module name="ms-permissao" />
         <module name="ms-produto" />
-        <module name="ms-departamento" />
-        <module name="ms-filial" />
-        <module name="ms-notificacao" />
-        <module name="ms-vendas" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -58,7 +51,14 @@
       <module name="core-security-contract" target="21" />
       <module name="core-tesouraria" target="21" />
       <module name="ms-auth" target="21" />
+      <module name="ms-compras" target="21" />
+      <module name="ms-departamento" target="21" />
+      <module name="ms-empresa" target="21" />
+      <module name="ms-estoque" target="21" />
+      <module name="ms-filial" target="21" />
+      <module name="ms-notificacao" target="21" />
       <module name="ms-produtos" target="21" />
+      <module name="ms-vendas" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

@@ -56,12 +56,12 @@ A plataforma utiliza o ecossistema **Spring Cloud** para orquestração dos serv
                  └─────────┬─────────┘
                            │
         ┌──────────────────┼──────────────────┐
-        ▼                  ▼                  ▼
-
-   MS-AUTH           MS-USUARIO          MS-PERMISSAO
-   MS-PESSOAS        MS-EMPRESA          MS-FILIAL
-   MS-DEPARTAMENTO   MS-PRODUTO          MS-ESTOQUE
-   MS-VENDAS         MS-COMPRAS          MS-NOTIFICACAO
+      LOGIN                                   MS
+        ▼                                     ▼
+   MS-AUTENTICACAO                        MS-PRODUTO
+   MS-PESSOAS
+   MS-PERMISSAO
+   MS-USUARIO
 
                  ┌───────────────────┐
                  │     UniCoS CORE   │
@@ -73,23 +73,16 @@ A plataforma utiliza o ecossistema **Spring Cloud** para orquestração dos serv
 
 # 🧩 Microserviços
 
-| Serviço | Responsabilidade |
-|-------|----------------|
-| **config-server** | Centralização das configurações via Spring Cloud Config |
+| Serviço              | Responsabilidade |
+|----------------------|----------------|
+| **config-server**    | Centralização das configurações via Spring Cloud Config |
 | **service-registry** | Descoberta de serviços usando Eureka |
-| **gateway** | API Gateway reativo baseado em Spring Cloud Gateway |
-| **ms-auth** | Autenticação e emissão de JWT |
-| **ms-permissao** | Gerenciamento de permissões e perfis |
-| **ms-usuario** | Gerenciamento de usuários |
-| **ms-pessoas** | Cadastro de pessoas físicas e jurídicas |
-| **ms-empresa** | Gestão de empresas (multi-tenant) |
-| **ms-filial** | Gestão de filiais |
-| **ms-departamento** | Gestão de departamentos |
-| **ms-produto** | Cadastro de produtos |
-| **ms-estoque** | Gestão de estoque |
-| **ms-vendas** | Gestão de vendas |
-| **ms-compras** | Gestão de compras |
-| **ms-notificacao** | Sistema de notificações |
+| **gateway**          | API Gateway reativo baseado em Spring Cloud Gateway |
+| **ms-autenticacao**  | Autenticação e emissão de JWT |
+| **ms-permissao**     | Gerenciamento de permissões e perfis |
+| **ms-usuario**       | Gerenciamento de usuários |
+| **ms-pessoas**       | Cadastro de pessoas físicas e jurídicas |
+| **ms-produto**       | Cadastro de produtos |
 
 ---
 
@@ -158,17 +151,11 @@ backend
 │   ├── core-tenant
 │   ├── core-usuario
 │
-├── ms-auth
+├── ms-autenticacao
 ├── ms-permissao
 ├── ms-usuario
 ├── ms-pessoas
-├── ms-notificacao
-├── ms-empresa
-├── ms-filial
-├── ms-departamento
-├── ms-estoque
-├── ms-vendas
-├── ms-compras
+├── ms-produto
 ```
 
 ---
