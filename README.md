@@ -41,32 +41,37 @@ A plataforma utiliza o ecossistema **Spring Cloud** para orquestração dos serv
 ## 📊 Arquitetura Simplificada
 
 ```
-                ┌─────────────────────┐
-                │    Config Server    │
-                └──────────┬──────────┘
-                           │
-                ┌──────────▼──────────┐
-                │  Service Registry   │
-                │      (Eureka)       │
-                └──────────┬──────────┘
-                           │
-                 ┌─────────▼─────────┐
-                 │    API Gateway    │
-                 │ Spring Cloud GW   │
-                 └─────────┬─────────┘
-                           │
-        ┌──────────────────┼──────────────────┐
-      LOGIN                                   MS
-        ▼                                     ▼
-   MS-AUTENTICACAO                        MS-PRODUTO
-   MS-PESSOAS
-   MS-PERMISSAO
-   MS-USUARIO
-
-                 ┌───────────────────┐
-                 │     UniCoS CORE   │
-                 │ Shared Libraries  │
-                 └───────────────────┘
+┌──────────────────────────BASE──────────────────────────────┐
+│                 ┌─────────────────────┐                    │
+│                 │    Config Server    │                    │
+│                 └──────────┬──────────┘                    │
+│                            │                               │
+│                 ┌──────────▼──────────┐                    │
+│                 │  Service Registry   │                    │
+│                 │      (Eureka)       │                    │
+│                 └──────────┬──────────┘                    │
+│                            │                               │
+│                  ┌─────────▼─────────┐                     │
+│                  │    API Gateway    │                     │
+│                  │  Spring Cloud GW  │                     │
+│                  └─────────┬─────────┘                     │
+└────────────────────────────────────────────────────────────┘
+                             │
+┌──────────────────────MICRO SERVICES────────────────────────┐
+│               ┌──────────LOGIN──────────┐                  │
+│               │     MS-AUTENTICACAO     │                  │
+│               │       MS-PESSOAS        │                  │
+│               │       MS-PERMISSAO      │                  │
+│               │       MS-USUARIO        │                  │
+│               └─────────────────────────┘                  │
+│                                                            │
+│                       MS-PRODUTO                           │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+                   ┌───────────────────┐
+                   │     UniCoS CORE   │
+                   │ Shared Libraries  │
+                   └───────────────────┘
 ```
 
 ---
