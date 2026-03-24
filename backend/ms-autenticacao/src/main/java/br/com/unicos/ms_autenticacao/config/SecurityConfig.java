@@ -43,6 +43,7 @@ public class SecurityConfig {
                     req.requestMatchers("/v1/autenticacao/login").permitAll();
                     req.requestMatchers("/internal/**").permitAll();
                     req.requestMatchers(SWAGGER_WHITELIST).permitAll();
+                    req.requestMatchers("/error").permitAll();
                     req.anyRequest().authenticated();
                 })
                 .addFilterBefore(authRequestFilter, UsernamePasswordAuthenticationFilter.class)

@@ -35,7 +35,8 @@ public class PessoaRequestFilter extends OncePerRequestFilter {
 
         return path.startsWith("/internal")
                 || path.startsWith("/swagger")
-                || path.startsWith("/v3/api-docs");
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/error");
     }
 
     @Override

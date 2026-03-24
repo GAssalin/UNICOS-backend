@@ -34,7 +34,8 @@ public class PermissaoRequestFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         return path.startsWith("/swagger")
-                || path.startsWith("/v3/api-docs");
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/error");
     }
 
     @Override
