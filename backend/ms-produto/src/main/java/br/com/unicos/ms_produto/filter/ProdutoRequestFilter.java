@@ -52,8 +52,15 @@ public class ProdutoRequestFilter extends OncePerRequestFilter {
 
     private Optional<String> resolveAuthorizationHeader(HttpServletRequest request) {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+
         if (header == null || !header.startsWith("Bearer "))
             return Optional.empty();
+
+        // 🔥 REMOVE possíveis duplicações
+        if (header.contains(",")) {
+            header = header.split(",")[0].trim();
+        }
+
         return Optional.of(header);
     }
 

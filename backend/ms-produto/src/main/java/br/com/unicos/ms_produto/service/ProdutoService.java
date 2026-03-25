@@ -159,7 +159,11 @@ public class ProdutoService extends BaseTenantService<Produto, Long> {
     }
 
     private Page<ProdutoResumoResponse> fallbackAdminPage(Pageable pageable, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de produtos temporariamente indisponível");
+        ex.printStackTrace(); // ou log.error(...)
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de produtos temporariamente indisponível"
+        );
     }
 
     private void fallbackAdminVoid(Long id, Throwable ex) {

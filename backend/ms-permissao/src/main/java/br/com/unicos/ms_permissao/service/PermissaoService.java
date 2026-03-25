@@ -112,7 +112,7 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "permissao-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "permissao-admin", fallbackMethod = "fallbackAdminPermissao")
     public boolean usuarioPossuiPermissao(String nomePermissao) {
         return rolePermissaoRepository.rolePossuiPermissao(TenantContext.getEmpresaId(), AuthContext.getRoles().stream().toList(), nomePermissao);
     }
@@ -138,6 +138,10 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
 
     private void fallbackAdminVoid(Long id, Throwable ex) {
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de permissões temporariamente indisponível");
+    }
+
+    private boolean fallbackAdminPermissao(String nomePermissao, Throwable ex) {
+        return false;
     }
 
     // ============================================================

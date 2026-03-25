@@ -27,7 +27,7 @@ public class AuthInternalController {
         if (authorization == null || !authorization.startsWith("Bearer "))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        String token = authorization.substring(7);
+        String token = authorization.substring(7).trim();
 
         DecodedJWT decodedJWT;
         try {

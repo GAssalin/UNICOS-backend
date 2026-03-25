@@ -44,7 +44,7 @@ public class ProdutoMapper {
     }
 
     public ProdutoResponse toResponse(Produto entity, Long empresaId) {
-        ProdutoResponse base = modelMapper.map(entity, ProdutoResponse.class);
+//        ProdutoResponse base = modelMapper.map(entity, ProdutoResponse.class);
 
         Long unidadeMedidaId = unidadeMedidaRepository.findByCodigoAndEmpresaId(entity.getUnidadeMedida(), empresaId)
                 .map(UnidadeMedida::getId)
@@ -72,6 +72,15 @@ public class ProdutoMapper {
     }
 
     public ProdutoResumoResponse toResumoResponse(Produto entity) {
-        return modelMapper.map(entity, ProdutoResumoResponse.class);
+        if (entity == null) return null;
+
+        return new ProdutoResumoResponse(
+                entity.getId(),
+                entity.getCodigo(),
+                entity.getNome(),
+                entity.getTipoProduto(),
+                entity.getPrecoBase(),
+                entity.getAtivo()
+        );
     }
 }
