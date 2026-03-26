@@ -4,29 +4,46 @@ import br.com.unicos.ms_produto.dto.produtocodigobarras.ProdutoCodigoBarrasCreat
 import br.com.unicos.ms_produto.dto.produtocodigobarras.ProdutoCodigoBarrasResponse;
 import br.com.unicos.ms_produto.dto.produtocodigobarras.ProdutoCodigoBarrasUpdateRequest;
 import br.com.unicos.ms_produto.model.ProdutoCodigoBarras;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ProdutoCodigoBarrasMapper {
 
-    private final ModelMapper modelMapper;
-
-    public ProdutoCodigoBarrasMapper(ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
-    }
-
     public ProdutoCodigoBarras toEntity(ProdutoCodigoBarrasCreateRequest request, Long empresaId) {
-        ProdutoCodigoBarras entity = modelMapper.map(request, ProdutoCodigoBarras.class);
+        if (request == null)
+            return null;
+
+        ProdutoCodigoBarras entity = new ProdutoCodigoBarras();
+        entity.setProdutoId(request.produtoId());
+        entity.setCodigoBarras(request.codigoBarras());
+        entity.setPrincipal(request.principal());
         entity.setEmpresaId(empresaId);
+
         return entity;
     }
 
     public void updateEntity(ProdutoCodigoBarrasUpdateRequest request, ProdutoCodigoBarras entity) {
-        modelMapper.map(request, entity);
+        if (request == null || entity == null)
+            return;
+
+        entity.setCodigoBarras(request.codigoBarras());
+        entity.setPrincipal(request.principal());
     }
 
     public ProdutoCodigoBarrasResponse toResponse(ProdutoCodigoBarras entity) {
-        return modelMapper.map(entity, ProdutoCodigoBarrasResponse.class);
+        if (entity == null)
+            return null;
+
+        return new ProdutoCodigoBarrasResponse(
+                entity.getId(),
+                entity.getProdutoId(),
+                entity.getCodigoBarras(),
+                entity.getPrincipal(),
+                entity.getAtivo(),
+                entity.getCriadoPor(),
+                entity.getCriadoEm(),
+                entity.getAtualizadoPor(),
+                entity.getAtualizadoEm()
+        );
     }
 }

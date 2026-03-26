@@ -5,33 +5,55 @@ import br.com.unicos.ms_produto.dto.produtotipo.ProdutoTipoResponse;
 import br.com.unicos.ms_produto.dto.produtotipo.ProdutoTipoResumoResponse;
 import br.com.unicos.ms_produto.dto.produtotipo.ProdutoTipoUpdateRequest;
 import br.com.unicos.ms_produto.model.ProdutoTipo;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ProdutoTipoMapper {
 
-    private final ModelMapper modelMapper;
-
-    public ProdutoTipoMapper(ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
-    }
-
     public ProdutoTipo toEntity(ProdutoTipoCreateRequest request, Long empresaId) {
-        ProdutoTipo entity = modelMapper.map(request, ProdutoTipo.class);
+        if (request == null)
+            return null;
+
+        ProdutoTipo entity = new ProdutoTipo();
+        entity.setNome(request.nome());
+        entity.setDescricao(request.descricao());
         entity.setEmpresaId(empresaId);
+
         return entity;
     }
 
     public void updateEntity(ProdutoTipoUpdateRequest request, ProdutoTipo entity) {
-        modelMapper.map(request, entity);
+        if (request == null || entity == null)
+            return;
+
+        entity.setNome(request.nome());
+        entity.setDescricao(request.descricao());
     }
 
     public ProdutoTipoResponse toResponse(ProdutoTipo entity) {
-        return modelMapper.map(entity, ProdutoTipoResponse.class);
+        if (entity == null)
+            return null;
+
+        return new ProdutoTipoResponse(
+                entity.getId(),
+                entity.getNome(),
+                entity.getDescricao(),
+                entity.getAtivo(),
+                entity.getCriadoPor(),
+                entity.getCriadoEm(),
+                entity.getAtualizadoPor(),
+                entity.getAtualizadoEm()
+        );
     }
 
     public ProdutoTipoResumoResponse toResumoResponse(ProdutoTipo entity) {
-        return modelMapper.map(entity, ProdutoTipoResumoResponse.class);
+        if (entity == null)
+            return null;
+
+        return new ProdutoTipoResumoResponse(
+                entity.getId(),
+                entity.getNome(),
+                entity.getAtivo()
+        );
     }
 }

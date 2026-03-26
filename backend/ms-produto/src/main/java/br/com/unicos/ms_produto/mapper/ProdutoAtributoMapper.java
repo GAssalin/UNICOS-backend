@@ -5,33 +5,55 @@ import br.com.unicos.ms_produto.dto.produtoatributo.ProdutoAtributoResponse;
 import br.com.unicos.ms_produto.dto.produtoatributo.ProdutoAtributoResumoResponse;
 import br.com.unicos.ms_produto.dto.produtoatributo.ProdutoAtributoUpdateRequest;
 import br.com.unicos.ms_produto.model.ProdutoAtributo;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ProdutoAtributoMapper {
 
-    private final ModelMapper modelMapper;
-
-    public ProdutoAtributoMapper(ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
-    }
-
     public ProdutoAtributo toEntity(ProdutoAtributoCreateRequest request, Long empresaId) {
-        ProdutoAtributo entity = modelMapper.map(request, ProdutoAtributo.class);
+        if (request == null)
+            return null;
+
+        ProdutoAtributo entity = new ProdutoAtributo();
+        entity.setNome(request.nome());
+        entity.setDescricao(request.descricao());
         entity.setEmpresaId(empresaId);
+
         return entity;
     }
 
     public void updateEntity(ProdutoAtributoUpdateRequest request, ProdutoAtributo entity) {
-        modelMapper.map(request, entity);
+        if (request == null || entity == null)
+            return;
+
+        entity.setNome(request.nome());
+        entity.setDescricao(request.descricao());
     }
 
     public ProdutoAtributoResponse toResponse(ProdutoAtributo entity) {
-        return modelMapper.map(entity, ProdutoAtributoResponse.class);
+        if (entity == null)
+            return null;
+
+        return new ProdutoAtributoResponse(
+                entity.getId(),
+                entity.getNome(),
+                entity.getDescricao(),
+                entity.getAtivo(),
+                entity.getCriadoPor(),
+                entity.getCriadoEm(),
+                entity.getAtualizadoPor(),
+                entity.getAtualizadoEm()
+        );
     }
 
     public ProdutoAtributoResumoResponse toResumoResponse(ProdutoAtributo entity) {
-        return modelMapper.map(entity, ProdutoAtributoResumoResponse.class);
+        if (entity == null)
+            return null;
+
+        return new ProdutoAtributoResumoResponse(
+                entity.getId(),
+                entity.getNome(),
+                entity.getAtivo()
+        );
     }
 }
