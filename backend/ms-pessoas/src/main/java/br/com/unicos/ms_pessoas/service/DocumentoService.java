@@ -12,7 +12,6 @@ import br.com.unicos.ms_pessoas.repository.PessoaRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +31,6 @@ public class DocumentoService {
     private final DocumentoRepository repository;
     private final PessoaRepository pessoaRepository;
     private final DocumentoMapper mapper;
-    private final ModelMapper modelMapper;
 
     // ============================================================
     // CREATE
@@ -52,7 +50,7 @@ public class DocumentoService {
             throw new IllegalArgumentException("A pessoa já possui um documento do tipo informado.");
         });
 
-        Documento documento = mapper.toEntity(request);
+        Documento documento = mapper.toEntity(request, pessoa);
         documento.setPessoa(pessoa);
 
         repository.save(documento);
@@ -83,7 +81,7 @@ public class DocumentoService {
                 throw new IllegalArgumentException("A pessoa já possui outro documento deste tipo.");
         });
 
-        modelMapper.map(request, documento);
+        mapper.toEntity(request, pessoa);
         documento.setPessoa(pessoa);
 
         repository.save(documento);

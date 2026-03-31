@@ -1,6 +1,5 @@
 package br.com.unicos.ms_pessoas.service;
 
-import br.com.unicos.ms_pessoas.client.PermissaoClient;
 import br.com.unicos.ms_pessoas.dto.municipio.MunicipioListDTO;
 import br.com.unicos.ms_pessoas.dto.municipio.MunicipioRequest;
 import br.com.unicos.ms_pessoas.dto.municipio.MunicipioResponse;
@@ -11,7 +10,6 @@ import br.com.unicos.ms_pessoas.repository.MunicipioRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,10 +22,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MunicipioService {
 
-    private final PermissaoClient permissaoClient;
     private final MunicipioRepository repository;
     private final MunicipioMapper mapper;
-    private final ModelMapper modelMapper;
 
     // ============================================================
     // CREATE
@@ -74,7 +70,7 @@ public class MunicipioService {
             });
         }
 
-        modelMapper.map(request, municipio);
+        mapper.toEntity(request);
         repository.save(municipio);
 
         return mapper.toResponse(municipio);

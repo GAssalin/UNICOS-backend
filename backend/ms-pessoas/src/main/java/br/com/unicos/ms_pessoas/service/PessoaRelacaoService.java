@@ -13,7 +13,6 @@ import br.com.unicos.ms_pessoas.repository.TipoRelacaoPessoaRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +32,6 @@ public class PessoaRelacaoService {
     private final PessoaRepository pessoaRepository;
     private final TipoRelacaoPessoaRepository tipoRelacaoPessoaRepository;
     private final PessoaRelacaoMapper mapper;
-    private final ModelMapper modelMapper;
 
     // ============================================================
     // CREATE
@@ -61,7 +59,7 @@ public class PessoaRelacaoService {
                     throw new IllegalArgumentException("A relação entre essas pessoas já está cadastrada.");
                 });
 
-        PessoaRelacao relacao = mapper.toEntity(request);
+        PessoaRelacao relacao = mapper.toEntity(request, pessoa, relacionado, tipoRelacao);
         relacao.setPessoa(pessoa);
         relacao.setRelacionado(relacionado);
         relacao.setTipoRelacao(tipoRelacao);
@@ -101,7 +99,7 @@ public class PessoaRelacaoService {
                     throw new IllegalArgumentException("Já existe outra relação igual cadastrada.");
                 });
 
-        modelMapper.map(request, relacao);
+        mapper.toEntity(request, pessoa, relacionado, tipoRelacao);
         relacao.setPessoa(pessoa);
         relacao.setRelacionado(relacionado);
         relacao.setTipoRelacao(tipoRelacao);

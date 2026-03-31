@@ -23,7 +23,7 @@
         <module name="core-tenant" />
         <module name="core-auth" />
       </profile>
-      <profile name="Annotation profile for UNICOS :: MS-Produto" enabled="true">
+      <profile name="Annotation profile for UNICOS :: MS-Permissao" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />

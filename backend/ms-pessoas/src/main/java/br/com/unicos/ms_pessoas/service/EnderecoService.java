@@ -14,7 +14,6 @@ import br.com.unicos.ms_pessoas.repository.PessoaRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +35,6 @@ public class EnderecoService {
     private final PessoaRepository pessoaRepository;
     private final MunicipioRepository municipioRepository;
     private final EnderecoMapper mapper;
-    private final ModelMapper modelMapper;
 
     // ============================================================
     // CREATE
@@ -51,7 +49,7 @@ public class EnderecoService {
         Municipio municipio = municipioRepository.findById(request.municipioId())
                 .orElseThrow(() -> new EntityNotFoundException("Município não encontrado"));
 
-        Endereco endereco = mapper.toEntity(request);
+        Endereco endereco = mapper.toEntity(request, pessoa, municipio);
         endereco.setPessoa(pessoa);
         endereco.setMunicipio(municipio);
 
@@ -82,7 +80,7 @@ public class EnderecoService {
         if (Boolean.TRUE.equals(request.principal()))
             removerPrincipalExistente(pessoa);
 
-        modelMapper.map(request, endereco);
+        mapper.toEntity(request, pessoa, municipio);
         endereco.setPessoa(pessoa);
         endereco.setMunicipio(municipio);
 

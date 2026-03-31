@@ -6,6 +6,6 @@ package br.com.unicos.ms_permissao.dto.role;
  */
 public record RoleListDTO(
         Long id,
-        String codigo,
+        String nome,
         String descricao
 ) {}

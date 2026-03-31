@@ -1,6 +1,5 @@
 package br.com.unicos.ms_pessoas.service;
 
-import br.com.unicos.ms_pessoas.client.PermissaoClient;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaFisicaListDTO;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaFisicaRequest;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaFisicaResponse;
@@ -10,7 +9,6 @@ import br.com.unicos.ms_pessoas.repository.PessoaFisicaRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,10 +25,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PessoaFisicaService {
 
-    private final PermissaoClient permissaoClient;
     private final PessoaFisicaRepository repository;
     private final PessoaFisicaMapper mapper;
-    private final ModelMapper modelMapper;
 
     // ============================================================
     // CREATE
@@ -64,7 +60,7 @@ public class PessoaFisicaService {
                 throw new IllegalArgumentException("Já existe outra pessoa física com este CPF.");
         });
 
-        modelMapper.map(request, pessoa);
+        mapper.toEntity(request);
         repository.save(pessoa);
 
         return mapper.toResponse(pessoa);

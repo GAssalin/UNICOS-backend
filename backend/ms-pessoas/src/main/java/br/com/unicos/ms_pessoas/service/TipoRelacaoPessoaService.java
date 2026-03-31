@@ -9,7 +9,6 @@ import br.com.unicos.ms_pessoas.repository.TipoRelacaoPessoaRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +27,6 @@ public class TipoRelacaoPessoaService {
 
     private final TipoRelacaoPessoaRepository repository;
     private final TipoRelacaoPessoaMapper mapper;
-    private final ModelMapper modelMapper;
 
     // ============================================================
     // CREATE
@@ -62,7 +60,7 @@ public class TipoRelacaoPessoaService {
                 throw new IllegalArgumentException("Já existe outro tipo de relação com este nome.");
         });
 
-        modelMapper.map(request, entity);
+        mapper.toEntity(request);
         repository.save(entity);
 
         return mapper.toResponse(entity);

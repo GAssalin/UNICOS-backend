@@ -1,6 +1,5 @@
 package br.com.unicos.ms_pessoas.service;
 
-import br.com.unicos.ms_pessoas.client.PermissaoClient;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaListDTO;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaResponse;
 import br.com.unicos.ms_pessoas.enums.TipoPessoa;

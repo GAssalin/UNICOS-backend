@@ -9,7 +9,6 @@ import br.com.unicos.ms_pessoas.repository.PessoaJuridicaRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +27,6 @@ public class PessoaJuridicaService {
 
     private final PessoaJuridicaRepository repository;
     private final PessoaJuridicaMapper mapper;
-    private final ModelMapper modelMapper;
 
     // ============================================================
     // CREATE
@@ -62,7 +60,7 @@ public class PessoaJuridicaService {
                 throw new IllegalArgumentException("Já existe outra pessoa jurídica com este CNPJ.");
         });
 
-        modelMapper.map(request, pessoa);
+        mapper.toEntity(request);
         repository.save(pessoa);
 
         return mapper.toResponse(pessoa);

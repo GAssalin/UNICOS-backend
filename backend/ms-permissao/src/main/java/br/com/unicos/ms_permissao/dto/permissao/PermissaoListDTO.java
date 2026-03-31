@@ -6,5 +6,5 @@ package br.com.unicos.ms_permissao.dto.permissao;
  */
 public record PermissaoListDTO(
         Long id,
-        String codigo
+        String nome
 ) {}
