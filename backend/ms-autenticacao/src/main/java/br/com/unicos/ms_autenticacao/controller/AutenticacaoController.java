@@ -49,7 +49,7 @@ public class AutenticacaoController {
     )
     @PostMapping("/login")
     public ResponseEntity<DadosToken> efetuarLogin(@Valid @RequestBody DadosLogin dados) {
-        return autenticacaoService.autenticar(dados);
+        return ResponseEntity.ok(autenticacaoService.autenticar(dados));
     }
 
     // ============================================================
@@ -62,6 +62,6 @@ public class AutenticacaoController {
     )
     @PostMapping("/atualizar-token")
     public ResponseEntity<DadosToken> atualizarToken(@Valid @RequestBody DadosRefreshToken dados) {
-        return autenticacaoService.atualizarToken(dados);
+        return ResponseEntity.ok(autenticacaoService.atualizarToken(dados));
     }
 }

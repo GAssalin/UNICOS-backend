@@ -33,6 +33,7 @@ public class AutenticacaoRequestFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         return path.equals("/v1/autenticacao/login")
+                || path.equals("/v1/autenticacao/atualizar-token")
                 || path.equals("/internal/autenticacao/validate-token")
                 || path.startsWith("/swagger")
                 || path.startsWith("/v3/api-docs")
