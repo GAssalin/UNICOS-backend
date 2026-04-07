@@ -32,8 +32,7 @@ public class AutenticacaoService {
             TokenUserData tokenUser = new TokenUserData(
                     user.getUserId(),
                     user.getUsername(),
-                    user.getEmpresaId(),
-                    user.getRoles()
+                    user.getEmpresaId()
             );
 
             String accessToken = tokenService.gerarAccessToken(tokenUser);
@@ -55,8 +54,7 @@ public class AutenticacaoService {
             TokenUserData tokenUser = new TokenUserData(
                     jwt.getClaim("usuarioId").asLong(),
                     jwt.getClaim("username").asString(),
-                    jwt.getClaim("tenantId").asLong(),
-                    jwt.getClaim("roles").asList(String.class)
+                    jwt.getClaim("tenantId").asLong()
             );
 
             String novoAccessToken = tokenService.gerarAccessToken(tokenUser);

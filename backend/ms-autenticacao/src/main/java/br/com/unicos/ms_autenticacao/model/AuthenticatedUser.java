@@ -3,7 +3,6 @@ package br.com.unicos.ms_autenticacao.model;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -17,13 +16,10 @@ public class AuthenticatedUser implements UserDetails {
     private final String username;
     private final String password;
     private final Long empresaId;
-    private final List<String> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(SimpleGrantedAuthority::new)
-                .toList();
+        return List.of();
     }
 
     @Override

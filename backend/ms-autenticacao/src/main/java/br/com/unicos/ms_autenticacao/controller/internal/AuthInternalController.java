@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Set;
-
 @RestController
 @RequestMapping("/internal/autenticacao")
 @RequiredArgsConstructor
@@ -40,15 +37,13 @@ public class AuthInternalController {
 
         Long usuarioId = decodedJWT.getClaim("usuarioId").asLong();
         Long empresaId = decodedJWT.getClaim("tenantId").asLong();
-        List<String> roles = decodedJWT.getClaim("roles").asList(String.class);
 
         if (usuarioId == null || empresaId == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         TokenValidationResponse response = new TokenValidationResponse(
                 usuarioId,
-                empresaId,
-                roles != null ? Set.copyOf(roles) : Set.of()
+                empresaId
         );
 
         return ResponseEntity.ok(response);

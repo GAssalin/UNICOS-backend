@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -70,38 +69,34 @@ public class ProdutoRequestFilter extends OncePerRequestFilter {
 
         TokenValidationResponse tokenInfo = authClient.validateToken(authorizationHeader);
 
-        var roles = Optional.ofNullable(tokenInfo.roles()).orElseGet(java.util.Set::of);
-
         AuthContext.setToken(authorizationHeader);
-        AuthContext.setRoles(roles);
         TenantContext.setEmpresaId(tokenInfo.empresaId());
 
         String path = request.getServletPath();
-        if(path.startsWith("/v1/produtos/categorias"))
+        if (path.startsWith("/v1/produtos/categorias"))
             verificarPermissao(request.getMethod(), "PRODUTO_CATEGORIA_");
-        else if(path.startsWith("/v1/produtos/marcas-produto"))
+        else if (path.startsWith("/v1/produtos/marcas-produto"))
             verificarPermissao(request.getMethod(), "PRODUTO_MARCAS_PRODUTO_");
-        else if(path.startsWith("/v1/produtos/atributos-valores"))
+        else if (path.startsWith("/v1/produtos/atributos-valores"))
             verificarPermissao(request.getMethod(), "PRODUTO_ATRIBUTOS_VALORES_");
-        else if(path.startsWith("/v1/produtos/atributos"))
+        else if (path.startsWith("/v1/produtos/atributos"))
             verificarPermissao(request.getMethod(), "PRODUTO_ATRIBUTOS_");
-        else if(path.startsWith("/v1/produtos/codigo-barras"))
+        else if (path.startsWith("/v1/produtos/codigo-barras"))
             verificarPermissao(request.getMethod(), "PRODUTO_CODIGO_BARRAS_");
-        else if(path.startsWith("/v1/produtos/imagens"))
+        else if (path.startsWith("/v1/produtos/imagens"))
             verificarPermissao(request.getMethod(), "PRODUTO_IMAGENS_");
-        else if(path.startsWith("/v1/produtos/precos-base"))
+        else if (path.startsWith("/v1/produtos/precos-base"))
             verificarPermissao(request.getMethod(), "PRODUTO_PRECO_BASE_");
-        else if(path.startsWith("/v1/produtos/tipos"))
+        else if (path.startsWith("/v1/produtos/tipos"))
             verificarPermissao(request.getMethod(), "PRODUTO_TIPOS_");
-        else if(path.startsWith("/v1/produtos/unidades-medida"))
+        else if (path.startsWith("/v1/produtos/unidades-medida"))
             verificarPermissao(request.getMethod(), "PRODUTO_UNIDADE_MEDIDA_");
-        else if(path.startsWith("/v1/produtos"))
+        else if (path.startsWith("/v1/produtos"))
             verificarPermissao(request.getMethod(), "PRODUTO_");
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 tokenInfo.usuarioId(),
-                null,
-                roles.stream().map(SimpleGrantedAuthority::new).toList()
+                null
         );
 
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -112,12 +107,12 @@ public class ProdutoRequestFilter extends OncePerRequestFilter {
         boolean permitido = switch (metodo) {
             case "GET" -> permissaoClient.usuarioPossuiPermissao(inicioEnpoint.concat("LISTAR"));
             case "POST" -> permissaoClient.usuarioPossuiPermissao(inicioEnpoint.concat("CRIAR"));
-            case "PUT" -> permissaoClient.usuarioPossuiPermissao(inicioEnpoint.concat("EDITAR"));
+            case "PUT", "PATCH" -> permissaoClient.usuarioPossuiPermissao(inicioEnpoint.concat("EDITAR"));
             case "DELETE" -> permissaoClient.usuarioPossuiPermissao(inicioEnpoint.concat("EXCLUIR"));
-            default -> true;
+            default -> false;
         };
 
-        if(!permitido)
+        if (!permitido)
             throw new AccessDeniedException("Usuário não possui permissão.");
     }
 }

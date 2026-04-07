@@ -2,12 +2,9 @@ package br.com.unicos.ms_permissao.repository;
 
 import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_permissao.model.RolePermissao;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Repositório responsável pelo acesso aos dados da entidade {@link RolePermissao}.
@@ -32,34 +29,5 @@ public interface RolePermissaoRepository extends BaseTenantRepository<RolePermis
      */
     boolean existsByRoleIdAndPermissaoIdAndEmpresaId(Long roleId, Long permissaoId, Long empresaId);
 
-    /**
-     * Busca um vínculo específico entre empresa, papel e permissão.
-     */
-    Optional<RolePermissao> findByRoleIdAndPermissaoIdAndEmpresaId(Long empresaId, Long roleId, Long permissaoId);
-
-    /**
-     * Retorna os nomes das permissões ativas de uma empresa
-     * para um conjunto de papéis (roles).
-     *
-     * <p>
-     * Utilizado durante o processo de autenticação/autorização
-     * em tempo de execução.
-     * </p>
-     */
-    List<String> findAllByRoleIdAndPermissaoIdAndEmpresaId(Long roleId, Long permissaoId, Long empresaId);
-
-    @Query("""
-                select count(rp) > 0
-                from RolePermissao rp
-                join rp.permissao p
-                join rp.role r
-                where rp.empresaId = :empresaId
-                  and r.nome in :roles
-                  and p.nome = :nomePermissao
-            """)
-    boolean rolePossuiPermissao(@Param("empresaId") Long empresaId, @Param("roles") List<String> roles, @Param("nomePermissao") String nomePermissao);
-
     List<RolePermissao> findByAtivoTrueAndEmpresaId(Long empresaId);
-
-    List<RolePermissao> findByAtivoFalseAndEmpresaId(Long empresaId);
 }

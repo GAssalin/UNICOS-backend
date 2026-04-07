@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -63,36 +62,32 @@ public class PessoaRequestFilter extends OncePerRequestFilter {
 
         TokenValidationResponse tokenInfo = authClient.validateToken(authorizationHeader);
 
-        var roles = Optional.ofNullable(tokenInfo.roles()).orElseGet(java.util.Set::of);
-
         AuthContext.setToken(authorizationHeader);
-        AuthContext.setRoles(roles);
         TenantContext.setEmpresaId(tokenInfo.empresaId());
 
         String path = request.getServletPath();
-        if(path.startsWith("/v1/contatos"))
+        if (path.startsWith("/v1/contatos"))
             verificarPermissao(request.getMethod(), "PESSOA_CONTATO_");
-        else if(path.startsWith("/v1/documentos"))
+        else if (path.startsWith("/v1/documentos"))
             verificarPermissao(request.getMethod(), "PESSOA_DOCUMENTO_");
-        else if(path.startsWith("/v1/enderecos"))
+        else if (path.startsWith("/v1/enderecos"))
             verificarPermissao(request.getMethod(), "PESSOA_ENDERECO_");
-        else if(path.startsWith("/v1/municipios"))
+        else if (path.startsWith("/v1/municipios"))
             verificarPermissao(request.getMethod(), "PESSOA_MUNICIPIO_");
-        else if(path.startsWith("/v1/pessoas"))
+        else if (path.startsWith("/v1/pessoas"))
             verificarPermissao(request.getMethod(), "PESSOA_");
-        else if(path.startsWith("/v1/pessoas-fisicas"))
+        else if (path.startsWith("/v1/pessoas-fisicas"))
             verificarPermissao(request.getMethod(), "PESSOA_FISICA_");
-        else if(path.startsWith("/v1/pessoas-juridicas"))
+        else if (path.startsWith("/v1/pessoas-juridicas"))
             verificarPermissao(request.getMethod(), "PESSOA_JURIDICA_");
-        else if(path.startsWith("/v1/pessoas-relacoes"))
+        else if (path.startsWith("/v1/pessoas-relacoes"))
             verificarPermissao(request.getMethod(), "PESSOA_JURIDICA_");
-        else if(path.startsWith("/v1/tipos-relacao-pessoa"))
+        else if (path.startsWith("/v1/tipos-relacao-pessoa"))
             verificarPermissao(request.getMethod(), "PESSOA_TIPO_RELACAO_PESSOA_");
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 tokenInfo.usuarioId(),
-                null,
-                roles.stream().map(SimpleGrantedAuthority::new).toList()
+                null
         );
 
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -103,12 +98,12 @@ public class PessoaRequestFilter extends OncePerRequestFilter {
         boolean permitido = switch (metodo) {
             case "GET" -> permissaoClient.usuarioPossuiPermissao(inicioEnpoint.concat("LISTAR"));
             case "POST" -> permissaoClient.usuarioPossuiPermissao(inicioEnpoint.concat("CRIAR"));
-            case "PUT" -> permissaoClient.usuarioPossuiPermissao(inicioEnpoint.concat("EDITAR"));
+            case "PUT", "PATCH" -> permissaoClient.usuarioPossuiPermissao(inicioEnpoint.concat("EDITAR"));
             case "DELETE" -> permissaoClient.usuarioPossuiPermissao(inicioEnpoint.concat("EXCLUIR"));
-            default -> true;
+            default -> false;
         };
 
-        if(!permitido)
+        if (!permitido)
             throw new AccessDeniedException("Usuário não possui permissão.");
     }
 

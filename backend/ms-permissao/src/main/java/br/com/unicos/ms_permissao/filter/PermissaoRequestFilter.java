@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -62,10 +61,7 @@ public class PermissaoRequestFilter extends OncePerRequestFilter {
 
         TokenValidationResponse tokenInfo = authClient.validateToken(authorizationHeader);
 
-        var roles = Optional.ofNullable(tokenInfo.roles()).orElseGet(java.util.Set::of);
-
         AuthContext.setToken(authorizationHeader);
-        AuthContext.setRoles(roles);
         TenantContext.setEmpresaId(tokenInfo.empresaId());
 
         String path = request.getServletPath();
@@ -78,8 +74,7 @@ public class PermissaoRequestFilter extends OncePerRequestFilter {
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 tokenInfo.usuarioId(),
-                null,
-                roles.stream().map(SimpleGrantedAuthority::new).toList()
+                null
         );
 
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -90,9 +85,9 @@ public class PermissaoRequestFilter extends OncePerRequestFilter {
         boolean permitido = switch (metodo) {
             case "GET" -> permissaoService.usuarioPossuiPermissao(inicioEnpoint.concat("LISTAR"));
             case "POST" -> permissaoService.usuarioPossuiPermissao(inicioEnpoint.concat("CRIAR"));
-            case "PUT" -> permissaoService.usuarioPossuiPermissao(inicioEnpoint.concat("EDITAR"));
+            case "PUT", "PATCH" -> permissaoService.usuarioPossuiPermissao(inicioEnpoint.concat("EDITAR"));
             case "DELETE" -> permissaoService.usuarioPossuiPermissao(inicioEnpoint.concat("EXCLUIR"));
-            default -> true;
+            default -> false;
         };
 
         if (!permitido)

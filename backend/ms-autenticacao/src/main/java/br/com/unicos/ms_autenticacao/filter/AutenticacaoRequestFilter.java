@@ -1,6 +1,5 @@
 package br.com.unicos.ms_autenticacao.filter;
 
-import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.usuario.auth.context.UserContext;
 import br.com.unicos.ms_autenticacao.model.AuthenticatedUser;
@@ -13,14 +12,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -67,25 +63,17 @@ public class AutenticacaoRequestFilter extends OncePerRequestFilter {
             Long userId = decodedJWT.getClaim("usuarioId").asLong();
             String username = decodedJWT.getSubject();
 
-            List<String> roles = decodedJWT.getClaim("roles").asList(String.class);
-
-            var authorities = roles.stream()
-                    .map(SimpleGrantedAuthority::new)
-                    .toList();
-
             AuthenticatedUser principal = new AuthenticatedUser(
                     userId,
                     username,
                     null,
-                    tenantId,
-                    roles
+                    tenantId
             );
 
             TenantContext.setEmpresaId(tenantId);
             UserContext.setUsuarioId(userId);
-            AuthContext.setRoles(Set.copyOf(roles));
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(principal, null, authorities);
+            Authentication authentication = new UsernamePasswordAuthenticationToken(principal, null);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

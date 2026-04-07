@@ -2,8 +2,6 @@ package br.com.unicos.ms_permissao.repository;
 
 import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_permissao.model.Role;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -28,18 +26,4 @@ public interface RoleRepository extends BaseTenantRepository<Role, Long> {
      */
     boolean existsByNomeContainingIgnoreCaseAndEmpresaId(String nome, Long empresaId);
 
-    /**
-     * Lista entidades cujo nome contenha o termo informado,
-     * ignorando diferenças de maiúsculas e minúsculas, de forma paginada.
-     *
-     * <p>
-     * Método indicado para telas administrativas,
-     * cadastros e buscas textuais.
-     * </p>
-     *
-     * @param nome     Parte do nome da entidade.
-     * @param pageable Informações de paginação e ordenação.
-     * @return Página de entidades encontradas.
-     */
-    Page<Role> findByNomeContainingIgnoreCaseAndEmpresaId(String nome, Long empresaId, Pageable pageable);
 }

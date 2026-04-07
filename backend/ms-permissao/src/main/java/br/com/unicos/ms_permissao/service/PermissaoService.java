@@ -1,20 +1,19 @@
 package br.com.unicos.ms_permissao.service;
 
-import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
+import br.com.unicos.core.usuario.auth.context.UserContext;
 import br.com.unicos.ms_permissao.dto.permissao.PermissaoRequest;
 import br.com.unicos.ms_permissao.dto.permissao.PermissaoResponse;
 import br.com.unicos.ms_permissao.mapper.PermissaoMapper;
 import br.com.unicos.ms_permissao.model.Permissao;
 import br.com.unicos.ms_permissao.repository.PermissaoRepository;
-import br.com.unicos.ms_permissao.repository.RolePermissaoRepository;
+import br.com.unicos.ms_permissao.repository.RoleUsuarioRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,17 +22,17 @@ import org.springframework.web.server.ResponseStatusException;
 public class PermissaoService extends BaseTenantService<Permissao, Long> {
 
     private final PermissaoRepository repository;
-    private final RolePermissaoRepository rolePermissaoRepository;
+    private final RoleUsuarioRepository roleUsuarioRepository;
     private final PermissaoMapper mapper;
 
     public PermissaoService(
             PermissaoRepository repository,
-            RolePermissaoRepository rolePermissaoRepository,
+            RoleUsuarioRepository roleUsuarioRepository,
             PermissaoMapper mapper
     ) {
         super(repository);
         this.repository = repository;
-        this.rolePermissaoRepository = rolePermissaoRepository;
+        this.roleUsuarioRepository = roleUsuarioRepository;
         this.mapper = mapper;
     }
 
@@ -93,8 +92,6 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "permissao-admin", fallbackMethod = "fallbackAdmin")
     public Page<PermissaoResponse> listar(String nome, Pageable pageable) {
-        possuiPermissao("PERMISSAO_LISTAR");
-
         Page<Permissao> page;
 
         if (nome == null || nome.isBlank()) {
@@ -113,7 +110,7 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "permissao-admin", fallbackMethod = "fallbackAdminPermissao")
     public boolean usuarioPossuiPermissao(String nomePermissao) {
-        return rolePermissaoRepository.rolePossuiPermissao(TenantContext.getEmpresaId(), AuthContext.getRoles().stream().toList(), nomePermissao);
+        return roleUsuarioRepository.usuarioPossuiPermissao(TenantContext.getEmpresaId(), UserContext.getUsuarioId(), nomePermissao);
     }
 
     // ============================================================
@@ -155,12 +152,4 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
             throw new IllegalArgumentException("Já existe uma permissão cadastrada com o nome informado.");
     }
 
-    public void possuiPermissao(String nomePermissao) {
-        if (!rolePermissaoRepository.rolePossuiPermissao(
-                TenantContext.getEmpresaId(),
-                AuthContext.getRoles().stream().toList(),
-                nomePermissao
-        ))
-            throw new AccessDeniedException("Usuário não possui permissão para executar a função desejada");
-    }
 }

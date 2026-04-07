@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -63,22 +62,18 @@ public class UsuarioRequestFilter extends OncePerRequestFilter {
 
         TokenValidationResponse tokenInfo = authClient.validateToken(authorizationHeader);
 
-        var roles = Optional.ofNullable(tokenInfo.roles()).orElseGet(java.util.Set::of);
-
         AuthContext.setToken(authorizationHeader);
-        AuthContext.setRoles(roles);
         TenantContext.setEmpresaId(tokenInfo.empresaId());
 
         String path = request.getServletPath();
-        if(path.startsWith("/v1/usuarios"))
+        if (path.startsWith("/v1/usuarios"))
             verificarPermissao(request.getMethod(), "USUARIO_");
-        else if(path.startsWith("/v1/verificacao-email"))
+        else if (path.startsWith("/v1/verificacao-email"))
             verificarPermissao(request.getMethod(), "USUARIO_EMAIL_");
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 tokenInfo.usuarioId(),
-                null,
-                roles.stream().map(SimpleGrantedAuthority::new).toList()
+                null
         );
 
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -89,12 +84,12 @@ public class UsuarioRequestFilter extends OncePerRequestFilter {
         boolean permitido = switch (metodo) {
             case "GET" -> permissaoClient.usuarioPossuiPermissao(inicioEnpoint.concat("LISTAR"));
             case "POST" -> permissaoClient.usuarioPossuiPermissao(inicioEnpoint.concat("CRIAR"));
-            case "PUT" -> permissaoClient.usuarioPossuiPermissao(inicioEnpoint.concat("EDITAR"));
+            case "PUT", "PATCH" -> permissaoClient.usuarioPossuiPermissao(inicioEnpoint.concat("EDITAR"));
             case "DELETE" -> permissaoClient.usuarioPossuiPermissao(inicioEnpoint.concat("EXCLUIR"));
-            default -> true;
+            default -> false;
         };
 
-        if(!permitido)
+        if (!permitido)
             throw new AccessDeniedException("Usuário não possui permissão.");
     }
 }
