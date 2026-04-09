@@ -15,8 +15,7 @@ import java.time.LocalDateTime;
  *
  * <p>
  * Este microserviço é responsável apenas pelos dados cadastrais
- * do usuário. Informações de autenticação, roles e permissões
- * são gerenciadas exclusivamente pelo ms-auth.
+ * do usuário. Informações de autenticação e permissões são compartilhadas com os serviços de identidade. A role do usuário é armazenada neste microserviço por meio do campo roleId.
  * </p>
  */
 @Entity
@@ -49,6 +48,9 @@ public class Usuario extends BaseTenantEntity {
     @Email
     @Column(length = 150, nullable = false, unique = true)
     private String email;
+
+    @Column(name = "role_id", nullable = false)
+    private Long roleId;
 
     @Builder.Default
     @Column(name = "email_verificado", nullable = false)

@@ -3,6 +3,7 @@ package br.com.unicos.ms_usuario.filter;
 import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.auth.dto.TokenValidationResponse;
 import br.com.unicos.core.tenant.context.TenantContext;
+import br.com.unicos.core.usuario.auth.context.UserContext;
 import br.com.unicos.ms_usuario.client.AuthClient;
 import br.com.unicos.ms_usuario.client.PermissaoClient;
 import jakarta.servlet.FilterChain;
@@ -32,8 +33,7 @@ public class UsuarioRequestFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
 
-        return path.startsWith("/internal")
-                || path.startsWith("/swagger")
+        return path.startsWith("/swagger")
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/error");
     }
@@ -63,6 +63,7 @@ public class UsuarioRequestFilter extends OncePerRequestFilter {
         TokenValidationResponse tokenInfo = authClient.validateToken(authorizationHeader);
 
         AuthContext.setToken(authorizationHeader);
+        UserContext.setUsuarioId(tokenInfo.usuarioId());
         TenantContext.setEmpresaId(tokenInfo.empresaId());
 
         String path = request.getServletPath();

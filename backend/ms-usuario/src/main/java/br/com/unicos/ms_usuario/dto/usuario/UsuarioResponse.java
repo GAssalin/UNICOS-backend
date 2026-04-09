@@ -1,11 +1,9 @@
 package br.com.unicos.ms_usuario.dto.usuario;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 /**
- * DTO utilizado para retornar informações completas sobre um usuário,
- * incluindo seus papéis e metadados de auditoria.
+ * DTO utilizado para retornar informações completas sobre um usuário.
  */
 public record UsuarioResponse(
         Long id,
@@ -14,6 +12,8 @@ public record UsuarioResponse(
         String email,
         boolean emailVerificado,
         boolean ativo,
+        Long roleId,
+        String roleNome,
         LocalDateTime criadoEm,
         LocalDateTime atualizadoEm
 ) {}

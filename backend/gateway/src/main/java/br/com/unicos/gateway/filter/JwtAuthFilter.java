@@ -60,7 +60,6 @@ public class JwtAuthFilter implements GatewayFilter {
 
             Long usuarioId = jwt.getClaim("usuarioId").asLong();
             Long tenantId = jwt.getClaim("tenantId").asLong();
-            List<String> roles = jwt.getClaim("roles").asList(String.class);
 
             if (usuarioId == null || tenantId == null) {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
@@ -71,7 +70,6 @@ public class JwtAuthFilter implements GatewayFilter {
                     .mutate()
                     .header("X-Usuario-Id", usuarioId.toString())
                     .header("X-Tenant-Id", tenantId.toString())
-                    .header("X-Roles", roles.toString())
                     .build();
 
             return chain.filter(exchange.mutate().request(mutatedRequest).build());

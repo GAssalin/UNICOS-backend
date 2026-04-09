@@ -1,10 +1,7 @@
 package br.com.unicos.ms_usuario.dto.usuario;
 
-import java.util.Set;
-
 /**
- * DTO utilizado para listagens de usuários,
- * apresentando apenas dados essenciais para consultas.
+ * DTO resumido para listagem de usuários.
  */
 public record UsuarioListDTO(
         Long id,
@@ -12,5 +9,6 @@ public record UsuarioListDTO(
         String email,
         boolean emailVerificado,
         boolean ativo,
-        Set<String> roles
+        Long roleId,
+        String roleNome
 ) {}

@@ -1,18 +1,16 @@
 package br.com.unicos.ms_usuario.dto.usuario;
 
-import java.util.Set;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * DTO utilizado para criação ou atualização de usuários.
- * <p>
- * Contém apenas os dados necessários para operações de escrita,
- * não expondo informações sensíveis ou geradas automaticamente.
  */
 public record UsuarioRequest(
-        String login,
+        @NotBlank String login,
         Long pessoaId,
-        String password,
+        @NotBlank String password,
         String email,
         Boolean ativo,
-        Set<Long> rolesIds
+        @NotNull Long roleId
 ) {}

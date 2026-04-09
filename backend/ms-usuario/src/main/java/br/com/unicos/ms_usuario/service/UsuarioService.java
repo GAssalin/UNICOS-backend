@@ -4,6 +4,7 @@ import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.core.usuario.auth.dto.UsuarioAuthResponse;
 import br.com.unicos.ms_usuario.client.PermissaoClient;
+import br.com.unicos.ms_usuario.dto.permissao.RoleResumoResponse;
 import br.com.unicos.ms_usuario.dto.usuario.UsuarioRequest;
 import br.com.unicos.ms_usuario.dto.usuario.UsuarioResponse;
 import br.com.unicos.ms_usuario.mapper.UsuarioMapper;
@@ -14,42 +15,32 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-/**
- * Serviço responsável pela gestão de usuários do sistema.
- *
- * <p>
- * Este serviço NÃO gerencia autenticação, roles ou permissões.
- * Essas responsabilidades pertencem exclusivamente ao ms-auth.
- * </p>
- */
 @Service
 public class UsuarioService extends BaseTenantService<Usuario, Long> {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioMapper usuarioMapper;
+    private final PermissaoClient permissaoClient;
 
     public UsuarioService(
             UsuarioRepository usuarioRepository,
             PasswordEncoder passwordEncoder,
-            UsuarioMapper usuarioMapper
+            UsuarioMapper usuarioMapper,
+            PermissaoClient permissaoClient
     ) {
         super(usuarioRepository);
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.usuarioMapper = usuarioMapper;
+        this.permissaoClient = permissaoClient;
     }
-
-    // ============================================================
-    // AUTENTICAÇÃO (USO INTERNO PELO MS-AUTH)
-    // ============================================================
 
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAuth")
@@ -64,32 +55,27 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
         );
     }
 
-    // ============================================================
-    // CREATE
-    // ============================================================
-
     @Transactional
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdmin")
     public UsuarioResponse salvar(UsuarioRequest request) {
         validarLoginDuplicado(request.login());
         validarEmailDuplicado(request.email());
 
+        RoleResumoResponse role = buscarRoleObrigatoria(request.roleId());
+
         Usuario usuario = Usuario.builder()
                 .login(request.login())
                 .password(passwordEncoder.encode(request.password()))
                 .email(request.email())
                 .pessoaId(request.pessoaId())
+                .roleId(role.id())
                 .ativo(request.ativo() != null ? request.ativo() : true)
                 .empresaId(TenantContext.getEmpresaId())
                 .emailVerificado(false)
                 .build();
 
-        return usuarioMapper.toResponse(usuarioRepository.save(usuario));
+        return usuarioMapper.toResponse(usuarioRepository.save(usuario), role.nome());
     }
-
-    // ============================================================
-    // UPDATE
-    // ============================================================
 
     @Transactional
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdmin")
@@ -109,71 +95,55 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
         usuario.setPessoaId(request.pessoaId());
         usuario.setAtivo(request.ativo() != null ? request.ativo() : usuario.getAtivo());
 
-        return usuarioMapper.toResponse(usuarioRepository.save(usuario));
-    }
+        RoleResumoResponse role = buscarRoleObrigatoria(request.roleId());
+        usuario.setRoleId(role.id());
 
-    // ============================================================
-    // GET
-    // ============================================================
+        if (request.password() != null && !request.password().isBlank()) {
+            usuario.setPassword(passwordEncoder.encode(request.password()));
+        }
+
+        return usuarioMapper.toResponse(usuarioRepository.save(usuario), role.nome());
+    }
 
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminById")
     public UsuarioResponse buscarPorId(Long id) {
-        return usuarioMapper.toResponse(buscarUsuario(id));
+        return toResponseComRole(buscarUsuario(id));
     }
 
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminByLogin")
     public UsuarioResponse buscarPorLogin(String login) {
         Usuario usuario = usuarioRepository
-                .findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(
-                        login,
-                        TenantContext.getEmpresaId()
-                )
-                .orElseThrow(() ->
-                        new EntityNotFoundException("Usuário não encontrado: " + login)
-                );
+                .findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(login, TenantContext.getEmpresaId())
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + login));
 
-        return usuarioMapper.toResponse(usuario);
+        return toResponseComRole(usuario);
     }
-
-    // ============================================================
-    // LIST
-    // ============================================================
 
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminPage")
     public Page<UsuarioResponse> listarTodos(Pageable pageable) {
         return usuarioRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
-                .map(usuarioMapper::toResponse);
+                .map(this::toResponseComRole);
     }
 
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminPage")
     public Page<UsuarioResponse> listarAtivos(Pageable pageable) {
         return usuarioRepository
-                .findByAtivoTrueAndEmailVerificadoTrueAndEmpresaId(
-                        TenantContext.getEmpresaId(),
-                        pageable
-                )
-                .map(usuarioMapper::toResponse);
+                .findByAtivoTrueAndEmailVerificadoTrueAndEmpresaId(TenantContext.getEmpresaId(), pageable)
+                .map(this::toResponseComRole);
     }
 
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminPage")
     public Page<UsuarioResponse> listarInativos(Pageable pageable) {
         return usuarioRepository
-                .findByAtivoFalseAndEmailVerificadoTrueAndEmpresaId(
-                        TenantContext.getEmpresaId(),
-                        pageable
-                )
-                .map(usuarioMapper::toResponse);
+                .findByAtivoFalseAndEmailVerificadoTrueAndEmpresaId(TenantContext.getEmpresaId(), pageable)
+                .map(this::toResponseComRole);
     }
-
-    // ============================================================
-    // STATUS / DELETE
-    // ============================================================
 
     @Transactional
     @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminEntity")
@@ -189,10 +159,6 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
         usuarioRepository.delete(buscarUsuario(id));
         return usuarioRepository.findById(id).orElseGet(Usuario::new);
     }
-
-    // ============================================================
-    // FALLBACKS
-    // ============================================================
 
     private UsuarioAuthResponse fallbackAuth(String email, Throwable ex) {
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de usuários temporariamente indisponível");
@@ -218,38 +184,51 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de usuários temporariamente indisponível");
     }
 
-    // ============================================================
-    // AUXILIARES
-    // ============================================================
-
     private Usuario buscarUsuario(Long id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + id));
     }
 
+    private UsuarioResponse toResponseComRole(Usuario usuario) {
+        String roleNome = null;
+        if (usuario.getRoleId() != null) {
+            try {
+                roleNome = permissaoClient.buscarRolePorId(usuario.getRoleId()).nome();
+            } catch (Exception ignored) {
+                roleNome = null;
+            }
+        }
+        return usuarioMapper.toResponse(usuario, roleNome);
+    }
+
+    private RoleResumoResponse buscarRoleObrigatoria(Long roleId) {
+        try {
+            RoleResumoResponse role = permissaoClient.buscarRolePorId(roleId);
+            if (role == null || role.id() == null) {
+                throw new EntityNotFoundException("Role não encontrada: " + roleId);
+            }
+            return role;
+        } catch (Exception ex) {
+            throw new EntityNotFoundException("Role não encontrada: " + roleId);
+        }
+    }
+
     private void validarLoginDuplicado(String login) {
         if (usuarioRepository
-                .findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(
-                        login,
-                        TenantContext.getEmpresaId()
-                )
-                .isPresent()
-        ) {
+                .findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(login, TenantContext.getEmpresaId())
+                .isPresent()) {
             throw new IllegalArgumentException("Já existe um usuário com o login informado.");
         }
     }
 
     private void validarEmailDuplicado(String email) {
-        if (email == null)
+        if (email == null) {
             return;
+        }
 
         if (usuarioRepository
-                .findByEmailIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(
-                        email,
-                        TenantContext.getEmpresaId()
-                )
-                .isPresent()
-        ) {
+                .findByEmailIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(email, TenantContext.getEmpresaId())
+                .isPresent()) {
             throw new IllegalArgumentException("Já existe um usuário com o e-mail informado.");
         }
     }

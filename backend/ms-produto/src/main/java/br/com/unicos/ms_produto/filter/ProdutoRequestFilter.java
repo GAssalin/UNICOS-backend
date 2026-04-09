@@ -3,6 +3,7 @@ package br.com.unicos.ms_produto.filter;
 import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.auth.dto.TokenValidationResponse;
 import br.com.unicos.core.tenant.context.TenantContext;
+import br.com.unicos.core.usuario.auth.context.UserContext;
 import br.com.unicos.ms_produto.client.AuthClient;
 import br.com.unicos.ms_produto.client.PermissaoClient;
 import jakarta.servlet.FilterChain;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Optional;
 
 @Component
@@ -32,8 +34,7 @@ public class ProdutoRequestFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
 
-        return path.startsWith("/internal")
-                || path.startsWith("/swagger")
+        return path.startsWith("/swagger")
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/error");
     }
@@ -70,6 +71,7 @@ public class ProdutoRequestFilter extends OncePerRequestFilter {
         TokenValidationResponse tokenInfo = authClient.validateToken(authorizationHeader);
 
         AuthContext.setToken(authorizationHeader);
+        UserContext.setUsuarioId(tokenInfo.usuarioId());
         TenantContext.setEmpresaId(tokenInfo.empresaId());
 
         String path = request.getServletPath();
@@ -94,10 +96,12 @@ public class ProdutoRequestFilter extends OncePerRequestFilter {
         else if (path.startsWith("/v1/produtos"))
             verificarPermissao(request.getMethod(), "PRODUTO_");
 
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                tokenInfo.usuarioId(),
-                null
-        );
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        tokenInfo.usuarioId(),
+                        null,
+                        Collections.emptyList()
+                );
 
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);

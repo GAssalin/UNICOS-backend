@@ -3,6 +3,7 @@ package br.com.unicos.ms_permissao.filter;
 import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.auth.dto.TokenValidationResponse;
 import br.com.unicos.core.tenant.context.TenantContext;
+import br.com.unicos.core.usuario.auth.context.UserContext;
 import br.com.unicos.ms_permissao.client.AuthClient;
 import br.com.unicos.ms_permissao.service.PermissaoService;
 import jakarta.servlet.FilterChain;
@@ -63,6 +64,7 @@ public class PermissaoRequestFilter extends OncePerRequestFilter {
 
         AuthContext.setToken(authorizationHeader);
         TenantContext.setEmpresaId(tokenInfo.empresaId());
+        UserContext.setUsuarioId(tokenInfo.usuarioId());
 
         String path = request.getServletPath();
         if (path.startsWith("/v1/permissoes"))
