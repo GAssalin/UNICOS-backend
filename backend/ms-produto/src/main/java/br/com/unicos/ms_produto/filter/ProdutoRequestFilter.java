@@ -96,12 +96,11 @@ public class ProdutoRequestFilter extends OncePerRequestFilter {
         else if (path.startsWith("/v1/produtos"))
             verificarPermissao(request.getMethod(), "PRODUTO_");
 
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(
-                        tokenInfo.usuarioId(),
-                        null,
-                        Collections.emptyList()
-                );
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                tokenInfo.usuarioId(),
+                null,
+                Collections.emptyList()
+        );
 
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);

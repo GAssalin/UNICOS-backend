@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Optional;
 
 @Component
@@ -74,7 +75,8 @@ public class UsuarioRequestFilter extends OncePerRequestFilter {
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 tokenInfo.usuarioId(),
-                null
+                null,
+                Collections.emptyList()
         );
 
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
