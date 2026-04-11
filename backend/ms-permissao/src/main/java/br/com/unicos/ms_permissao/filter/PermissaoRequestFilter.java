@@ -6,18 +6,25 @@ import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.usuario.auth.context.UserContext;
 import br.com.unicos.ms_permissao.client.AuthClient;
 import br.com.unicos.ms_permissao.service.PermissaoService;
+import feign.FeignException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -25,10 +32,12 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class PermissaoRequestFilter extends OncePerRequestFilter {
 
     private final PermissaoService permissaoService;
     private final AuthClient authClient;
+    private final CircuitBreakerFactory<?, ?> circuitBreakerFactory;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -36,13 +45,17 @@ public class PermissaoRequestFilter extends OncePerRequestFilter {
 
         return path.startsWith("/swagger")
                 || path.startsWith("/v3/api-docs")
-                || path.startsWith("/error");
+                || path.startsWith("/error")
+                || path.startsWith("/internal");
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
+
         boolean contextoAplicado = false;
 
         try {
@@ -54,40 +67,33 @@ public class PermissaoRequestFilter extends OncePerRequestFilter {
             }
 
             filterChain.doFilter(request, response);
+
         } finally {
             if (contextoAplicado) {
-                SecurityContextHolder.clearContext();
-                AuthContext.clear();
-                UserContext.clear();
-                TenantContext.clear();
+                clearContexts();
             }
         }
     }
 
     private Optional<String> resolveAuthorizationHeader(HttpServletRequest request) {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header == null || !header.startsWith("Bearer "))
+
+        if (header == null || header.isBlank() || !header.startsWith("Bearer ")) {
             return Optional.empty();
+        }
+
         return Optional.of(header);
     }
 
     private void authenticateRequest(HttpServletRequest request, String authorizationHeader) {
-        if (SecurityContextHolder.getContext().getAuthentication() != null)
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
             return;
+        }
 
-        TokenValidationResponse tokenInfo = authClient.validateToken(authorizationHeader);
+        TokenValidationResponse tokenInfo = validarTokenComResiliencia(authorizationHeader);
 
-        AuthContext.setToken(authorizationHeader);
-        TenantContext.setEmpresaId(tokenInfo.empresaId());
-        UserContext.setUsuarioId(tokenInfo.usuarioId());
-
-        String path = request.getServletPath();
-        if (path.startsWith("/v1/permissoes"))
-            verificarPermissao(request.getMethod(), "PERMISSAO_");
-        else if (path.startsWith("/v1/roles"))
-            verificarPermissao(request.getMethod(), "ROLE_");
-        else if (path.startsWith("/v1/role-permissao"))
-            verificarPermissao(request.getMethod(), "ROLE_PERMISSAO_");
+        applyContexts(authorizationHeader, tokenInfo);
+        validarPermissaoPorRota(request);
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 tokenInfo.usuarioId(),
@@ -99,16 +105,140 @@ public class PermissaoRequestFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    private void verificarPermissao(String metodo, String inicioEnpoint) {
-        boolean permitido = switch (metodo) {
-            case "GET" -> permissaoService.usuarioPossuiPermissao(inicioEnpoint.concat("LISTAR"));
-            case "POST" -> permissaoService.usuarioPossuiPermissao(inicioEnpoint.concat("CRIAR"));
-            case "PUT", "PATCH" -> permissaoService.usuarioPossuiPermissao(inicioEnpoint.concat("EDITAR"));
-            case "DELETE" -> permissaoService.usuarioPossuiPermissao(inicioEnpoint.concat("EXCLUIR"));
-            default -> false;
-        };
+    private TokenValidationResponse validarTokenComResiliencia(String authorizationHeader) {
+        try {
+            return circuitBreakerFactory.create("auth-client").run(
+                    () -> authClient.validateToken(authorizationHeader),
+                    throwable -> {
+                        throw traduzirFalhaAutenticacao(throwable);
+                    }
+            );
+        } catch (FeignException.BadRequest | FeignException.Unauthorized | FeignException.Forbidden ex) {
+            log.warn("Token inválido ou não autorizado: {}", ex.getMessage());
+            throw new BadCredentialsException("Token inválido, expirado ou não autorizado.", ex);
+        } catch (FeignException ex) {
+            log.error(
+                    "Falha ao validar token no ms-autenticacao. status={}, mensagem={}",
+                    ex.status(),
+                    ex.getMessage(),
+                    ex
+            );
+            throw new ResponseStatusException(
+                    HttpStatus.SERVICE_UNAVAILABLE,
+                    "Serviço de autenticação temporariamente indisponível.",
+                    ex
+            );
+        }
+    }
 
-        if (!permitido)
+    private RuntimeException traduzirFalhaAutenticacao(Throwable throwable) {
+        if (throwable instanceof FeignException.BadRequest
+                || throwable instanceof FeignException.Unauthorized
+                || throwable instanceof FeignException.Forbidden) {
+            return new BadCredentialsException(
+                    "Token inválido, expirado ou não autorizado.",
+                    throwable
+            );
+        }
+
+        log.error("Circuit breaker acionado ao validar token no ms-autenticacao.", throwable);
+
+        return new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de autenticação temporariamente indisponível.",
+                throwable
+        );
+    }
+
+    private void validarPermissaoPorRota(HttpServletRequest request) {
+        String permissao = resolverPermissao(
+                request.getMethod(),
+                request.getServletPath()
+        );
+
+        if (permissao == null) {
+            return;
+        }
+
+        boolean permitido = verificarPermissao(permissao);
+
+        if (!permitido) {
             throw new AccessDeniedException("Usuário não possui permissão.");
+        }
+    }
+
+    private String resolverPermissao(String metodoHttp, String path) {
+        String prefixo;
+
+        if (path.startsWith("/v1/permissoes")) {
+            prefixo = "PERMISSAO_";
+        } else if (path.startsWith("/v1/roles")) {
+            prefixo = "ROLE_";
+        } else if (path.startsWith("/v1/role-permissao")) {
+            prefixo = "ROLE_PERMISSAO_";
+        } else {
+            return null;
+        }
+
+        return switch (metodoHttp) {
+            case "GET" -> prefixo.concat("LISTAR");
+            case "POST" -> prefixo.concat("CRIAR");
+            case "PUT", "PATCH" -> prefixo.concat("EDITAR");
+            case "DELETE" -> prefixo.concat("EXCLUIR");
+            default -> null;
+        };
+    }
+
+    private boolean verificarPermissao(String nomePermissao) {
+        try {
+            return permissaoService.usuarioPossuiPermissao(nomePermissao);
+        } catch (AccessDeniedException ex) {
+            throw ex;
+        } catch (IllegalArgumentException ex) {
+            log.warn("Falha ao validar permissão {}: {}", nomePermissao, ex.getMessage());
+            throw new InsufficientAuthenticationException(
+                    "Não foi possível validar as permissões do usuário.",
+                    ex
+            );
+        } catch (Exception ex) {
+            log.error(
+                    "Falha inesperada ao consultar permissão {} no ms-permissao.",
+                    nomePermissao,
+                    ex
+            );
+            throw new ResponseStatusException(
+                    HttpStatus.SERVICE_UNAVAILABLE,
+                    "Serviço de permissões temporariamente indisponível.",
+                    ex
+            );
+        }
+    }
+
+    private void applyContexts(String authorizationHeader, TokenValidationResponse tokenInfo) {
+        AuthContext.setToken(authorizationHeader);
+        UserContext.setUsuarioId(tokenInfo.usuarioId());
+        TenantContext.setEmpresaId(tokenInfo.empresaId());
+    }
+
+    private void clearContexts() {
+        SecurityContextHolder.clearContext();
+
+        try {
+            AuthContext.clear();
+        } catch (Exception ex) {
+            log.debug("Não foi possível limpar AuthContext explicitamente.", ex);
+        }
+
+        try {
+            UserContext.clear();
+        } catch (Exception ex) {
+            log.debug("Não foi possível limpar UserContext explicitamente.", ex);
+        }
+
+        try {
+            TenantContext.clear();
+        } catch (Exception ex) {
+            log.debug("Não foi possível limpar TenantContext explicitamente.", ex);
+        }
     }
 }

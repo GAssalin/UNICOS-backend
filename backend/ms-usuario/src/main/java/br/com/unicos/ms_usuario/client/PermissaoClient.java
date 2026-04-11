@@ -17,4 +17,5 @@ public interface PermissaoClient {
     boolean usuarioPossuiPermissao(
             @RequestParam("nomePermissao") String nomePermissao,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader);
+
 }
