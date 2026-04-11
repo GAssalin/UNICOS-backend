@@ -11,6 +11,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AutenticacaoService {
 
@@ -68,6 +70,13 @@ public class AutenticacaoService {
     }
 
     private DadosToken fallbackLogin(DadosLogin dados, Throwable ex) {
+        log.error(
+                "Fallback do CircuitBreaker acionado no login para o email [{}]. Causa: {}",
+                dados.email(),
+                ex.getMessage(),
+                ex
+        );
+
         throw new ResponseStatusException(
                 HttpStatus.SERVICE_UNAVAILABLE,
                 "Serviço de autenticação temporariamente indisponível"

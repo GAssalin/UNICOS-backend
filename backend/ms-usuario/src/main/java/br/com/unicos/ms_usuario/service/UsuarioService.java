@@ -10,8 +10,10 @@ import br.com.unicos.ms_usuario.dto.usuario.UsuarioResponse;
 import br.com.unicos.ms_usuario.mapper.UsuarioMapper;
 import br.com.unicos.ms_usuario.model.Usuario;
 import br.com.unicos.ms_usuario.repository.UsuarioRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,31 +24,35 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
+@Slf4j
 public class UsuarioService extends BaseTenantService<Usuario, Long> {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioMapper usuarioMapper;
     private final PermissaoClient permissaoClient;
+    private final CircuitBreakerFactory<?, ?> circuitBreakerFactory;
 
     public UsuarioService(
             UsuarioRepository usuarioRepository,
             PasswordEncoder passwordEncoder,
             UsuarioMapper usuarioMapper,
-            PermissaoClient permissaoClient
+            PermissaoClient permissaoClient,
+            CircuitBreakerFactory<?, ?> circuitBreakerFactory
     ) {
         super(usuarioRepository);
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.usuarioMapper = usuarioMapper;
         this.permissaoClient = permissaoClient;
+        this.circuitBreakerFactory = circuitBreakerFactory;
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAuth")
     public UsuarioAuthResponse buscarParaAutenticacao(String email) {
         Usuario usuario = usuarioRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+
         return new UsuarioAuthResponse(
                 usuario.getId(),
                 usuario.getLogin(),
@@ -56,7 +62,6 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     }
 
     @Transactional
-    @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdmin")
     public UsuarioResponse salvar(UsuarioRequest request) {
         validarLoginDuplicado(request.login());
         validarEmailDuplicado(request.email());
@@ -74,11 +79,11 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
                 .emailVerificado(false)
                 .build();
 
-        return usuarioMapper.toResponse(usuarioRepository.save(usuario), role.nome());
+        Usuario usuarioSalvo = usuarioRepository.save(usuario);
+        return usuarioMapper.toResponse(usuarioSalvo, role.nome());
     }
 
     @Transactional
-    @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdmin")
     public UsuarioResponse atualizar(Long id, UsuarioRequest request) {
         Usuario usuario = buscarUsuario(id);
 
@@ -102,17 +107,16 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
             usuario.setPassword(passwordEncoder.encode(request.password()));
         }
 
-        return usuarioMapper.toResponse(usuarioRepository.save(usuario), role.nome());
+        Usuario usuarioAtualizado = usuarioRepository.save(usuario);
+        return usuarioMapper.toResponse(usuarioAtualizado, role.nome());
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminById")
     public UsuarioResponse buscarPorId(Long id) {
         return toResponseComRole(buscarUsuario(id));
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminByLogin")
     public UsuarioResponse buscarPorLogin(String login) {
         Usuario usuario = usuarioRepository
                 .findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(login, TenantContext.getEmpresaId())
@@ -122,7 +126,6 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminPage")
     public Page<UsuarioResponse> listarTodos(Pageable pageable) {
         return usuarioRepository
                 .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -130,7 +133,6 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminPage")
     public Page<UsuarioResponse> listarAtivos(Pageable pageable) {
         return usuarioRepository
                 .findByAtivoTrueAndEmailVerificadoTrueAndEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -138,7 +140,6 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminPage")
     public Page<UsuarioResponse> listarInativos(Pageable pageable) {
         return usuarioRepository
                 .findByAtivoFalseAndEmailVerificadoTrueAndEmpresaId(TenantContext.getEmpresaId(), pageable)
@@ -146,42 +147,21 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     }
 
     @Transactional
-    @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminEntity")
-    public Usuario desativar(Long id) {
+    public void desativar(Long id) {
         Usuario usuario = buscarUsuario(id);
+
+        if (Boolean.FALSE.equals(usuario.getAtivo())) {
+            return;
+        }
+
         usuario.setAtivo(false);
-        return usuarioRepository.save(usuario);
+        usuarioRepository.save(usuario);
     }
 
     @Transactional
-    @CircuitBreaker(name = "usuario-admin", fallbackMethod = "fallbackAdminEntity")
-    public Usuario deletar(Long id) {
-        usuarioRepository.delete(buscarUsuario(id));
-        return usuarioRepository.findById(id).orElseGet(Usuario::new);
-    }
-
-    private UsuarioAuthResponse fallbackAuth(String email, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de usuários temporariamente indisponível");
-    }
-
-    private UsuarioResponse fallbackAdmin(Object req, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de usuários temporariamente indisponível");
-    }
-
-    private UsuarioResponse fallbackAdminById(Long id, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de usuários temporariamente indisponível");
-    }
-
-    private UsuarioResponse fallbackAdminByLogin(String login, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de usuários temporariamente indisponível");
-    }
-
-    private Page<UsuarioResponse> fallbackAdminPage(Pageable pageable, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de usuários temporariamente indisponível");
-    }
-
-    private Usuario fallbackAdminEntity(Long id, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de usuários temporariamente indisponível");
+    public void deletar(Long id) {
+        Usuario usuario = buscarUsuario(id);
+        usuarioRepository.delete(usuario);
     }
 
     private Usuario buscarUsuario(Long id) {
@@ -190,27 +170,108 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     }
 
     private UsuarioResponse toResponseComRole(Usuario usuario) {
-        String roleNome = null;
-        if (usuario.getRoleId() != null) {
-            try {
-                roleNome = permissaoClient.buscarRolePorId(usuario.getRoleId()).nome();
-            } catch (Exception ignored) {
-                roleNome = null;
-            }
-        }
+        String roleNome = buscarNomeRoleComResiliencia(usuario.getRoleId());
         return usuarioMapper.toResponse(usuario, roleNome);
     }
 
-    private RoleResumoResponse buscarRoleObrigatoria(Long roleId) {
+    private String buscarNomeRoleComResiliencia(Long roleId) {
+        if (roleId == null) {
+            return null;
+        }
+
         try {
-            RoleResumoResponse role = permissaoClient.buscarRolePorId(roleId);
+            RoleResumoResponse role = circuitBreakerFactory.create("permissao-client-role").run(
+                    () -> permissaoClient.buscarRolePorId(roleId),
+                    throwable -> fallbackConsultaRole(roleId, throwable)
+            );
+
+            return role != null ? role.nome() : null;
+
+        } catch (FeignException.NotFound ex) {
+            log.warn("Role não encontrada ao montar resposta do usuário. roleId={}", roleId);
+            return null;
+
+        } catch (FeignException ex) {
+            log.error(
+                    "Falha ao consultar role no ms-permissao durante leitura do usuário. roleId={}, status={}, mensagem={}",
+                    roleId,
+                    ex.status(),
+                    ex.getMessage(),
+                    ex
+            );
+            return null;
+
+        } catch (ResponseStatusException ex) {
+            log.error("Circuit breaker acionado ao consultar role {} durante leitura do usuário.", roleId, ex);
+            return null;
+        }
+    }
+
+    private RoleResumoResponse buscarRoleObrigatoria(Long roleId) {
+        if (roleId == null) {
+            throw new IllegalArgumentException("O roleId é obrigatório.");
+        }
+
+        try {
+            RoleResumoResponse role = circuitBreakerFactory.create("permissao-client-role").run(
+                    () -> permissaoClient.buscarRolePorId(roleId),
+                    throwable -> fallbackRoleObrigatoria(roleId, throwable)
+            );
+
             if (role == null || role.id() == null) {
                 throw new EntityNotFoundException("Role não encontrada: " + roleId);
             }
+
             return role;
-        } catch (Exception ex) {
+
+        } catch (FeignException.NotFound ex) {
+            throw new EntityNotFoundException("Role não encontrada: " + roleId);
+
+        } catch (FeignException.BadRequest ex) {
+            throw new IllegalArgumentException("Role inválida: " + roleId);
+
+        } catch (FeignException ex) {
+            log.error(
+                    "Falha ao consultar role obrigatória no ms-permissao. roleId={}, status={}, mensagem={}",
+                    roleId,
+                    ex.status(),
+                    ex.getMessage(),
+                    ex
+            );
+
+            throw new ResponseStatusException(
+                    HttpStatus.SERVICE_UNAVAILABLE,
+                    "Serviço de permissões temporariamente indisponível.",
+                    ex
+            );
+        }
+    }
+
+    private RoleResumoResponse fallbackConsultaRole(Long roleId, Throwable throwable) {
+        log.error("Circuit breaker acionado na consulta de role para leitura. roleId={}", roleId, throwable);
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de permissões temporariamente indisponível.",
+                throwable
+        );
+    }
+
+    private RoleResumoResponse fallbackRoleObrigatoria(Long roleId, Throwable throwable) {
+        if (throwable instanceof FeignException.NotFound) {
             throw new EntityNotFoundException("Role não encontrada: " + roleId);
         }
+
+        if (throwable instanceof FeignException.BadRequest) {
+            throw new IllegalArgumentException("Role inválida: " + roleId);
+        }
+
+        log.error("Circuit breaker acionado na validação de role obrigatória. roleId={}", roleId, throwable);
+
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de permissões temporariamente indisponível.",
+                throwable
+        );
     }
 
     private void validarLoginDuplicado(String login) {
