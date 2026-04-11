@@ -40,14 +40,28 @@ public class PermissaoRequestFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
-        resolveAuthorizationHeader(request)
-                .ifPresent(header -> authenticateRequest(request, header));
-        filterChain.doFilter(request, response);
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        boolean contextoAplicado = false;
+
+        try {
+            Optional<String> authorizationHeader = resolveAuthorizationHeader(request);
+
+            if (authorizationHeader.isPresent()) {
+                authenticateRequest(request, authorizationHeader.get());
+                contextoAplicado = true;
+            }
+
+            filterChain.doFilter(request, response);
+        } finally {
+            if (contextoAplicado) {
+                SecurityContextHolder.clearContext();
+                AuthContext.clear();
+                UserContext.clear();
+                TenantContext.clear();
+            }
+        }
     }
 
     private Optional<String> resolveAuthorizationHeader(HttpServletRequest request) {

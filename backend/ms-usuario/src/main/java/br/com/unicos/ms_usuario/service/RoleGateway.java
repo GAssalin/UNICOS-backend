@@ -1,5 +1,6 @@
 package br.com.unicos.ms_usuario.service;
 
+import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.ms_usuario.client.PermissaoClient;
 import br.com.unicos.ms_usuario.dto.permissao.RoleResumoResponse;
 import feign.FeignException;
@@ -21,7 +22,7 @@ public class RoleGateway {
     @CircuitBreaker(name = "ms-permissao-role", fallbackMethod = "fallbackBuscarRolePorId")
     public RoleResumoResponse buscarRolePorId(Long roleId) {
         try {
-            RoleResumoResponse role = permissaoClient.buscarRolePorId(roleId);
+            RoleResumoResponse role = permissaoClient.buscarRolePorId(roleId, AuthContext.getToken());
 
             if (role == null || role.id() == null) {
                 throw new EntityNotFoundException("Role não encontrada: " + roleId);

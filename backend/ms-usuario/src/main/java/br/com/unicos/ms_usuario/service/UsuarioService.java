@@ -1,5 +1,6 @@
 package br.com.unicos.ms_usuario.service;
 
+import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.core.usuario.auth.dto.UsuarioAuthResponse;
@@ -147,6 +148,18 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     }
 
     @Transactional
+    public void ativar(Long id) {
+        Usuario usuario = buscarUsuario(id);
+
+        if (Boolean.TRUE.equals(usuario.getAtivo())) {
+            return;
+        }
+
+        usuario.setAtivo(true);
+        usuarioRepository.save(usuario);
+    }
+
+    @Transactional
     public void desativar(Long id) {
         Usuario usuario = buscarUsuario(id);
 
@@ -181,7 +194,7 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
 
         try {
             RoleResumoResponse role = circuitBreakerFactory.create("permissao-client-role").run(
-                    () -> permissaoClient.buscarRolePorId(roleId),
+                    () -> permissaoClient.buscarRolePorId(roleId, AuthContext.getToken()),
                     throwable -> fallbackConsultaRole(roleId, throwable)
             );
 
@@ -214,7 +227,7 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
 
         try {
             RoleResumoResponse role = circuitBreakerFactory.create("permissao-client-role").run(
-                    () -> permissaoClient.buscarRolePorId(roleId),
+                    () -> permissaoClient.buscarRolePorId(roleId, AuthContext.getToken()),
                     throwable -> fallbackRoleObrigatoria(roleId, throwable)
             );
 

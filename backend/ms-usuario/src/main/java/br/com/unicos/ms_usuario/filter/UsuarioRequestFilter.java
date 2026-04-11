@@ -187,8 +187,10 @@ public class UsuarioRequestFilter extends OncePerRequestFilter {
 
     private boolean verificarPermissaoComResiliencia(String nomePermissao) {
         try {
+            String token = AuthContext.getToken();
+
             return circuitBreakerFactory.create("permissao-client-check").run(
-                    () -> permissaoClient.usuarioPossuiPermissao(nomePermissao),
+                    () -> permissaoClient.usuarioPossuiPermissao(nomePermissao, token),
                     throwable -> {
                         throw traduzirFalhaPermissao(nomePermissao, throwable);
                     }
