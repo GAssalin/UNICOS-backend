@@ -1,5 +1,6 @@
 package br.com.unicos.ms_permissao.service;
 
+import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.core.usuario.auth.context.UserContext;
@@ -95,7 +96,9 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "permissao-admin", fallbackMethod = "fallbackAdminPermissao")
     public boolean usuarioPossuiPermissao(String nomePermissao) {
-        UsuarioRoleResponse usuarioRole = usuarioClient.buscarRoleDoUsuario(UserContext.getUsuarioId());
+        Long userId = UserContext.getUsuarioId();
+
+        UsuarioRoleResponse usuarioRole = usuarioClient.buscarRoleDoUsuario(userId);
         if (usuarioRole == null || usuarioRole.roleId() == null)
             return false;
 

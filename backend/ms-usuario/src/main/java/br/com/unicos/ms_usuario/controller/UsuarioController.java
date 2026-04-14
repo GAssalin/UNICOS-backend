@@ -66,13 +66,13 @@ public class UsuarioController {
     @PatchMapping("/{id}/ativar")
     public ResponseEntity<Void> ativar(@PathVariable Long id) {
         usuarioService.ativar(id);
-        return ResponseEntity.unprocessableEntity().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/desativar")
     public ResponseEntity<Void> desativar(@PathVariable Long id) {
         usuarioService.desativar(id);
-        return ResponseEntity.unprocessableEntity().build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

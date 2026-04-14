@@ -31,8 +31,8 @@ CREATE TABLE usuario (
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
 
     PRIMARY KEY (id),
-    UNIQUE (login),
-    UNIQUE (email),
+    UNIQUE KEY uk_usuario_empresa_login (empresa_id, login),
+    UNIQUE KEY uk_usuario_empresa_email (empresa_id, email),
     INDEX idx_usuario_empresa (empresa_id)
 ) ENGINE=InnoDB;
 
