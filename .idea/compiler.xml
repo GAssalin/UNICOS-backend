@@ -20,7 +20,7 @@
         </processorPath>
         <module name="config-server" />
       </profile>
-      <profile name="Annotation profile for UNICOS :: MS-Pessoas" enabled="true">
+      <profile name="Annotation profile for UNICOS :: MS-Empresa" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -36,6 +36,7 @@
         <module name="ms-usuario" />
         <module name="core-base" />
         <module name="core-tenant" />
+        <module name="ms-empresa" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -53,7 +54,6 @@
       <module name="ms-auth" target="21" />
       <module name="ms-compras" target="21" />
       <module name="ms-departamento" target="21" />
-      <module name="ms-empresa" target="21" />
       <module name="ms-estoque" target="21" />
       <module name="ms-filial" target="21" />
       <module name="ms-notificacao" target="21" />

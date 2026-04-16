@@ -1,11 +1,11 @@
-package br.com.unicos.ms_produto.filter;
+package br.com.unicos.ms_empresa.filter;
 
 import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.auth.dto.TokenValidationResponse;
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.usuario.auth.context.UserContext;
-import br.com.unicos.ms_produto.client.AuthClient;
-import br.com.unicos.ms_produto.client.PermissaoClient;
+import br.com.unicos.ms_empresa.client.AuthClient;
+import br.com.unicos.ms_empresa.client.PermissaoClient;
 import feign.FeignException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,7 +33,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ProdutoRequestFilter extends OncePerRequestFilter {
+public class EmpresaRequestFilter extends OncePerRequestFilter {
 
     private final PermissaoClient permissaoClient;
     private final AuthClient authClient;
@@ -55,7 +55,6 @@ public class ProdutoRequestFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-
         boolean contextoAplicado = false;
 
         try {
@@ -174,26 +173,18 @@ public class ProdutoRequestFilter extends OncePerRequestFilter {
     private String resolverPermissao(String metodoHttp, String path) {
         String prefixo;
 
-        if (path.startsWith("/v1/produtos/categorias")) {
-            prefixo = "PRODUTO_CATEGORIA_";
-        } else if (path.startsWith("/v1/produtos/marcas-produto")) {
-            prefixo = "PRODUTO_MARCAS_PRODUTO_";
-        } else if (path.startsWith("/v1/produtos/atributos-valores")) {
-            prefixo = "PRODUTO_ATRIBUTOS_VALORES_";
-        } else if (path.startsWith("/v1/produtos/atributos")) {
-            prefixo = "PRODUTO_ATRIBUTOS_";
-        } else if (path.startsWith("/v1/produtos/codigo-barras")) {
-            prefixo = "PRODUTO_CODIGO_BARRAS_";
-        } else if (path.startsWith("/v1/produtos/imagens")) {
-            prefixo = "PRODUTO_IMAGENS_";
-        } else if (path.startsWith("/v1/produtos/precos-base")) {
-            prefixo = "PRODUTO_PRECO_BASE_";
-        } else if (path.startsWith("/v1/produtos/tipos")) {
-            prefixo = "PRODUTO_TIPOS_";
-        } else if (path.startsWith("/v1/produtos/unidades-medida")) {
-            prefixo = "PRODUTO_UNIDADE_MEDIDA_";
-        } else if (path.startsWith("/v1/produtos")) {
-            prefixo = "PRODUTO_";
+        if (path.startsWith("/v1/empresas/configuracoes")) {
+            prefixo = "EMPRESA_CONFIGURACAO_";
+        } else if (path.startsWith("/v1/empresas/contatos")) {
+            prefixo = "EMPRESA_CONTATO_";
+        } else if (path.startsWith("/v1/empresas/enderecos")) {
+            prefixo = "EMPRESA_ENDERECO_";
+        } else if (path.startsWith("/v1/empresas/parametros")) {
+            prefixo = "EMPRESA_PARAMETRO_";
+        } else if (path.startsWith("/v1/empresas/usuarios")) {
+            prefixo = "EMPRESA_USUARIO_";
+        } else if (path.startsWith("/v1/empresas")) {
+            prefixo = "EMPRESA_";
         } else {
             return null;
         }

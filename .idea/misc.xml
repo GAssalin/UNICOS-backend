@@ -31,7 +31,6 @@
         <option value="$PROJECT_DIR$/backend/ms-auth/pom.xml" />
         <option value="$PROJECT_DIR$/backend/ms-compras/pom.xml" />
         <option value="$PROJECT_DIR$/backend/ms-departamento/pom.xml" />
-        <option value="$PROJECT_DIR$/backend/ms-empresa/pom.xml" />
         <option value="$PROJECT_DIR$/backend/ms-estoque/pom.xml" />
         <option value="$PROJECT_DIR$/backend/ms-filial/pom.xml" />
         <option value="$PROJECT_DIR$/backend/ms-notificacao/pom.xml" />
