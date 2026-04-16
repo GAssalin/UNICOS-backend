@@ -1,6 +1,5 @@
 package br.com.unicos.ms_permissao.service;
 
-import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.core.usuario.auth.context.UserContext;
