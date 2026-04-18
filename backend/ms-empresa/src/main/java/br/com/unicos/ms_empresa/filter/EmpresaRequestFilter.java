@@ -45,8 +45,7 @@ public class EmpresaRequestFilter extends OncePerRequestFilter {
 
         return path.startsWith("/swagger")
                 || path.startsWith("/v3/api-docs")
-                || path.startsWith("/error")
-                || path.startsWith("/internal");
+                || path.startsWith("/error");
     }
 
     @Override
@@ -67,11 +66,43 @@ public class EmpresaRequestFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
 
+        } catch (ResponseStatusException ex) {
+            escreverErro(response, request, ex.getStatusCode().value(), ex.getReason());
+        } catch (BadCredentialsException | InsufficientAuthenticationException ex) {
+            escreverErro(response, request, 401, ex.getMessage());
         } finally {
             if (contextoAplicado) {
                 clearContexts();
             }
         }
+    }
+
+    private void escreverErro(
+            HttpServletResponse response,
+            HttpServletRequest request,
+            int status,
+            String message
+    ) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        String body = """
+        {
+          "status": %d,
+          "error": "%s",
+          "message": "%s",
+          "path": "%s"
+        }
+        """.formatted(
+                status,
+                HttpStatus.valueOf(status).getReasonPhrase(),
+                message == null ? "" : message.replace("\"", "\\\""),
+                request.getRequestURI()
+        );
+
+        response.getWriter().write(body);
+        response.getWriter().flush();
     }
 
     private Optional<String> resolveAuthorizationHeader(HttpServletRequest request) {
@@ -166,7 +197,10 @@ public class EmpresaRequestFilter extends OncePerRequestFilter {
         boolean permitido = verificarPermissaoComResiliencia(permissao);
 
         if (!permitido) {
-            throw new AccessDeniedException("Usuário não possui permissão.");
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Usuário não possui permissão para acessar este recurso."
+            );
         }
     }
 

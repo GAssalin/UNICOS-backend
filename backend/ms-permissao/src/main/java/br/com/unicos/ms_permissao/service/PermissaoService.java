@@ -13,6 +13,7 @@ import br.com.unicos.ms_permissao.repository.PermissaoRepository;
 import br.com.unicos.ms_permissao.repository.RolePermissaoRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
+@Slf4j
 public class PermissaoService extends BaseTenantService<Permissao, Long> {
 
     private final PermissaoRepository repository;
@@ -101,11 +103,13 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
         if (usuarioRole == null || usuarioRole.roleId() == null)
             return false;
 
-        return rolePermissaoRepository.rolePossuiPermissao(
+        boolean isRolePossuiPermissao = rolePermissaoRepository.rolePossuiPermissao(
                 TenantContext.getEmpresaId(),
                 usuarioRole.roleId(),
                 nomePermissao
         );
+        log.info("" + isRolePossuiPermissao);
+        return isRolePossuiPermissao;
     }
 
     @CircuitBreaker(name = "permissao-admin", fallbackMethod = "fallbackAdminVoid")
