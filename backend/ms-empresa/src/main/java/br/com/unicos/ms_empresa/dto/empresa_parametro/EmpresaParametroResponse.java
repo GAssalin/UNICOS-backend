@@ -7,8 +7,6 @@ import java.time.LocalDateTime;
  */
 public record EmpresaParametroResponse(
         Long id,
-        Long empresaId,
-        Long empresaRefId,
         String chave,
         String valor,
         LocalDateTime criadoEm,

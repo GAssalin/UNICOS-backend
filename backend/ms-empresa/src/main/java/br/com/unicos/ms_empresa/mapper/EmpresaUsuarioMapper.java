@@ -4,7 +4,6 @@ import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioResponse;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioResumoResponse;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioUpdateRequest;
-import br.com.unicos.ms_empresa.model.Empresa;
 import br.com.unicos.ms_empresa.model.EmpresaUsuario;
 import org.springframework.stereotype.Component;
 
@@ -26,12 +25,6 @@ public class EmpresaUsuarioMapper {
     /**
      * Converte o DTO de criação para uma nova entidade {@link EmpresaUsuario}.
      *
-     * <p>
-     * Campos controlados pelo domínio, como {@code id}, auditoria e demais
-     * metadados, não são definidos neste mapper e devem ser atribuídos
-     * na camada de service.
-     * </p>
-     *
      * @param request DTO de criação
      * @return nova entidade EmpresaUsuario
      */
@@ -41,8 +34,6 @@ public class EmpresaUsuarioMapper {
         }
 
         EmpresaUsuario entity = new EmpresaUsuario();
-        entity.setEmpresaId(request.empresaId());
-        entity.setEmpresa(mapEmpresaReferencia(request.empresaRefId()));
         entity.setUsuarioId(request.usuarioId());
         entity.setPerfil(request.perfil());
 
@@ -54,9 +45,8 @@ public class EmpresaUsuarioMapper {
      * com base no DTO de atualização.
      *
      * <p>
-     * Campos imutáveis ou controlados pelo domínio, como {@code id},
-     * {@code empresaId}, {@code empresa} e {@code usuarioId},
-     * não são alterados neste método.
+     * Campos imutáveis ou controlados pelo domínio, como {@code id}
+     * e {@code usuarioId}, não são alterados neste método.
      * </p>
      *
      * @param request DTO de atualização
@@ -83,8 +73,6 @@ public class EmpresaUsuarioMapper {
 
         return new EmpresaUsuarioResponse(
                 entity.getId(),
-                entity.getEmpresaId(),
-                extractEmpresaRefId(entity),
                 entity.getUsuarioId(),
                 entity.getPerfil(),
                 mapLocalDateTime(entity.getCriadoEm()),
@@ -110,43 +98,7 @@ public class EmpresaUsuarioMapper {
     }
 
     /**
-     * Cria uma referência simplificada de {@link Empresa}
-     * contendo apenas o identificador.
-     *
-     * @param empresaRefId identificador da empresa de referência
-     * @return entidade Empresa com ID preenchido
-     */
-    private Empresa mapEmpresaReferencia(Long empresaRefId) {
-        if (empresaRefId == null) {
-            return null;
-        }
-
-        Empresa empresa = new Empresa();
-        empresa.setId(empresaRefId);
-        return empresa;
-    }
-
-    /**
-     * Extrai de forma segura o identificador da empresa de referência.
-     *
-     * @param entity entidade de vínculo usuário-empresa
-     * @return ID da empresa associada
-     */
-    private Long extractEmpresaRefId(EmpresaUsuario entity) {
-        if (entity.getEmpresa() == null) {
-            return null;
-        }
-
-        return entity.getEmpresa().getId();
-    }
-
-    /**
      * Conversão explícita de {@link LocalDateTime}.
-     *
-     * <p>
-     * Mantido como método dedicado para deixar a transformação de data/hora
-     * visível no mapper e facilitar futura evolução.
-     * </p>
      *
      * @param source data/hora de origem
      * @return data/hora convertida

@@ -9,10 +9,6 @@ import jakarta.validation.constraints.NotNull;
  */
 public record EmpresaContatoCreateRequest(
         @NotNull
-        Long empresaId,
-        @NotNull
-        Long empresaRefId,
-        @NotNull
         TipoContatoEmpresa tipoContato,
         @NotBlank
         String valor,

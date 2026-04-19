@@ -9,8 +9,6 @@ import java.time.LocalDateTime;
  */
 public record EmpresaUsuarioResponse(
         Long id,
-        Long empresaId,
-        Long empresaRefId,
         Long usuarioId,
         PerfilEmpresaUsuario perfil,
         LocalDateTime criadoEm,

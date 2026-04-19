@@ -8,10 +8,6 @@ import jakarta.validation.constraints.NotNull;
  */
 public record EmpresaUsuarioCreateRequest(
         @NotNull
-        Long empresaId,
-        @NotNull
-        Long empresaRefId,
-        @NotNull
         Long usuarioId,
         @NotNull
         PerfilEmpresaUsuario perfil

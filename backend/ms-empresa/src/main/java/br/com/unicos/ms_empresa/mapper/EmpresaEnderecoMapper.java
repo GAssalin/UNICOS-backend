@@ -4,7 +4,6 @@ import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoCreateReques
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoResponse;
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoResumoResponse;
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoUpdateRequest;
-import br.com.unicos.ms_empresa.model.Empresa;
 import br.com.unicos.ms_empresa.model.EmpresaEndereco;
 import org.springframework.stereotype.Component;
 
@@ -26,12 +25,6 @@ public class EmpresaEnderecoMapper {
     /**
      * Converte o DTO de criação para uma nova entidade {@link EmpresaEndereco}.
      *
-     * <p>
-     * Campos controlados pelo domínio, como {@code id}, auditoria e demais
-     * metadados, não são definidos neste mapper e devem ser atribuídos
-     * na camada de service.
-     * </p>
-     *
      * @param request DTO de criação
      * @return nova entidade EmpresaEndereco
      */
@@ -41,8 +34,6 @@ public class EmpresaEnderecoMapper {
         }
 
         EmpresaEndereco entity = new EmpresaEndereco();
-        entity.setEmpresaId(request.empresaId());
-        entity.setEmpresa(mapEmpresaReferencia(request.empresaRefId()));
         entity.setTipoEndereco(request.tipoEndereco());
         entity.setLogradouro(request.logradouro());
         entity.setNumero(request.numero());
@@ -61,8 +52,8 @@ public class EmpresaEnderecoMapper {
      * com base no DTO de atualização.
      *
      * <p>
-     * Campos imutáveis ou controlados pelo domínio, como {@code id},
-     * {@code empresaId} e a referência da empresa, não são alterados neste método.
+     * Campos imutáveis ou controlados pelo domínio, como {@code id}
+     * e {@code tipoEndereco}, não são alterados neste método.
      * </p>
      *
      * @param request DTO de atualização
@@ -96,8 +87,6 @@ public class EmpresaEnderecoMapper {
 
         return new EmpresaEnderecoResponse(
                 entity.getId(),
-                entity.getEmpresaId(),
-                extractEmpresaRefId(entity),
                 entity.getTipoEndereco(),
                 entity.getLogradouro(),
                 entity.getNumero(),
@@ -133,43 +122,7 @@ public class EmpresaEnderecoMapper {
     }
 
     /**
-     * Cria uma referência simplificada de {@link Empresa}
-     * contendo apenas o identificador.
-     *
-     * @param empresaRefId identificador da empresa de referência
-     * @return entidade Empresa com ID preenchido
-     */
-    private Empresa mapEmpresaReferencia(Long empresaRefId) {
-        if (empresaRefId == null) {
-            return null;
-        }
-
-        Empresa empresa = new Empresa();
-        empresa.setId(empresaRefId);
-        return empresa;
-    }
-
-    /**
-     * Extrai de forma segura o identificador da empresa de referência.
-     *
-     * @param entity entidade de endereço
-     * @return ID da empresa associada
-     */
-    private Long extractEmpresaRefId(EmpresaEndereco entity) {
-        if (entity.getEmpresa() == null) {
-            return null;
-        }
-
-        return entity.getEmpresa().getId();
-    }
-
-    /**
      * Conversão explícita de {@link LocalDateTime}.
-     *
-     * <p>
-     * Mantido como método dedicado para deixar a transformação de data/hora
-     * visível no mapper e facilitar futura evolução.
-     * </p>
      *
      * @param source data/hora de origem
      * @return data/hora convertida

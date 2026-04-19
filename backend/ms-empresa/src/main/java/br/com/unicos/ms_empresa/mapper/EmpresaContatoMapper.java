@@ -4,7 +4,6 @@ import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoResponse;
 import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoResumoResponse;
 import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoUpdateRequest;
-import br.com.unicos.ms_empresa.model.Empresa;
 import br.com.unicos.ms_empresa.model.EmpresaContato;
 import org.springframework.stereotype.Component;
 
@@ -26,12 +25,6 @@ public class EmpresaContatoMapper {
     /**
      * Converte o DTO de criação para uma nova entidade {@link EmpresaContato}.
      *
-     * <p>
-     * Campos controlados pelo domínio, como {@code id}, auditoria e demais
-     * metadados, não são definidos neste mapper e devem ser atribuídos
-     * na camada de service.
-     * </p>
-     *
      * @param request DTO de criação
      * @return nova entidade EmpresaContato
      */
@@ -41,8 +34,6 @@ public class EmpresaContatoMapper {
         }
 
         EmpresaContato entity = new EmpresaContato();
-        entity.setEmpresaId(request.empresaId());
-        entity.setEmpresa(mapEmpresaReferencia(request.empresaRefId()));
         entity.setTipoContato(request.tipoContato());
         entity.setValor(request.valor());
         entity.setPrincipal(request.principal());
@@ -55,9 +46,8 @@ public class EmpresaContatoMapper {
      * com base no DTO de atualização.
      *
      * <p>
-     * Campos imutáveis ou controlados pelo domínio, como {@code id},
-     * {@code empresaId}, {@code empresa} e {@code tipoContato},
-     * não são alterados neste método.
+     * Campos imutáveis ou controlados pelo domínio, como {@code id}
+     * e {@code tipoContato}, não são alterados neste método.
      * </p>
      *
      * @param request DTO de atualização
@@ -85,8 +75,6 @@ public class EmpresaContatoMapper {
 
         return new EmpresaContatoResponse(
                 entity.getId(),
-                entity.getEmpresaId(),
-                extractEmpresaRefId(entity),
                 entity.getTipoContato(),
                 entity.getValor(),
                 entity.isPrincipal(),
@@ -115,43 +103,7 @@ public class EmpresaContatoMapper {
     }
 
     /**
-     * Cria uma referência simplificada de {@link Empresa}
-     * contendo apenas o identificador.
-     *
-     * @param empresaRefId identificador da empresa de referência
-     * @return entidade Empresa com ID preenchido
-     */
-    private Empresa mapEmpresaReferencia(Long empresaRefId) {
-        if (empresaRefId == null) {
-            return null;
-        }
-
-        Empresa empresa = new Empresa();
-        empresa.setId(empresaRefId);
-        return empresa;
-    }
-
-    /**
-     * Extrai de forma segura o identificador da empresa de referência.
-     *
-     * @param entity entidade de contato
-     * @return ID da empresa associada
-     */
-    private Long extractEmpresaRefId(EmpresaContato entity) {
-        if (entity.getEmpresa() == null) {
-            return null;
-        }
-
-        return entity.getEmpresa().getId();
-    }
-
-    /**
      * Conversão explícita de {@link LocalDateTime}.
-     *
-     * <p>
-     * Mantido como método dedicado para deixar a transformação de data/hora
-     * visível no mapper e facilitar futura evolução.
-     * </p>
      *
      * @param source data/hora de origem
      * @return data/hora convertida

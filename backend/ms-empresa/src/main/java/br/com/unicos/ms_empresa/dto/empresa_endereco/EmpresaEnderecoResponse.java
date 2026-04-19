@@ -9,8 +9,6 @@ import java.time.LocalDateTime;
  */
 public record EmpresaEnderecoResponse(
         Long id,
-        Long empresaId,
-        Long empresaRefId,
         TipoEnderecoEmpresa tipoEndereco,
         String logradouro,
         String numero,
