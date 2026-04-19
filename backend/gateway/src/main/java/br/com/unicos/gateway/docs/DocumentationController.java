@@ -18,12 +18,8 @@ public class DocumentationController {
         String permissaoUrl = resolveServiceUrl("ms-permissao");
         String usuarioUrl = resolveServiceUrl("ms-usuario");
         String pessoasUrl = resolveServiceUrl("ms-pessoas");
+        String produtoUrl = resolveServiceUrl("ms-produto");
         String empresaUrl = resolveServiceUrl("ms-empresa");
-        String filialUrl = resolveServiceUrl("ms-filial");
-        String departamentoUrl = resolveServiceUrl("ms-departamento");
-        String estoqueUrl = resolveServiceUrl("ms-estoque");
-        String vendasUrl = resolveServiceUrl("ms-vendas");
-        String comprasUrl = resolveServiceUrl("ms-compras");
 
         return """
                 <html>
@@ -82,31 +78,7 @@ public class DocumentationController {
                     </div>
 
                     <div class="card">
-                      <strong>MS-FILIAL</strong><br/>
-                      <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
-                      <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
-                    </div>
-
-                    <div class="card">
-                      <strong>MS-DEPARTAMENTO</strong><br/>
-                      <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
-                      <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
-                    </div>
-                    
-                    <div class="card">
-                      <strong>MS-ESTOQUE</strong><br/>
-                      <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
-                      <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
-                    </div>
-                    
-                    <div class="card">
-                      <strong>MS-VENDAS</strong><br/>
-                      <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
-                      <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
-                    </div>
-                    
-                    <div class="card">
-                      <strong>MS-COMPRAS</strong><br/>
+                      <strong>MS-PRODUTO</strong><br/>
                       <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
                       <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
                     </div>
@@ -119,17 +91,13 @@ public class DocumentationController {
                         usuarioUrl, usuarioUrl,
                         pessoasUrl, pessoasUrl,
                         empresaUrl, empresaUrl,
-                        filialUrl, filialUrl,
-                        departamentoUrl, departamentoUrl,
-                        estoqueUrl, estoqueUrl,
-                        vendasUrl, vendasUrl,
-                        comprasUrl, comprasUrl);
+                        produtoUrl, produtoUrl);
     }
 
     private String resolveServiceUrl(String serviceId) {
         var instances = discoveryClient.getInstances(serviceId);
         if (instances == null || instances.isEmpty())
             return "http://service-not-found";
-        return instances.get(0).getUri().toString();
+        return instances.getFirst().getUri().toString();
     }
 }
