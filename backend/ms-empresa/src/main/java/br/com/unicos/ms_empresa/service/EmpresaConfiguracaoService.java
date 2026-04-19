@@ -7,7 +7,6 @@ import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoResp
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoResumoResponse;
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoUpdateRequest;
 import br.com.unicos.ms_empresa.mapper.EmpresaConfiguracaoMapper;
-import br.com.unicos.ms_empresa.model.Empresa;
 import br.com.unicos.ms_empresa.model.EmpresaConfiguracao;
 import br.com.unicos.ms_empresa.repository.EmpresaConfiguracaoRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -42,9 +41,8 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
     @CircuitBreaker(name = "empresa-configuracao-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaConfiguracaoResponse criar(EmpresaConfiguracaoCreateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
-        Empresa empresa = empresaRef(request.empresaRefId());
 
-        validarChaveDuplicada(empresa, request.chave(), empresaId);
+        validarChaveDuplicada(request.chave(), empresaId);
 
         EmpresaConfiguracao entity = mapper.toEntity(request);
         entity.setEmpresaId(empresaId);
@@ -58,12 +56,18 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
 
     @CircuitBreaker(name = "empresa-configuracao-admin", fallbackMethod = "fallbackAdmin")
     public EmpresaConfiguracaoResponse atualizar(
-            Long empresaRefId,
             String chave,
             EmpresaConfiguracaoUpdateRequest request
     ) {
         Long empresaId = TenantContext.getEmpresaId();
-        EmpresaConfiguracao configuracao = buscarConfiguracaoPorChave(empresaRefId, chave, empresaId);
+        EmpresaConfiguracao configuracao = buscarConfiguracaoPorChave(chave, empresaId);
+
+        /*
+         * Caso a chave esteja sendo alterada, valida duplicidade para a nova chave.
+         */
+        if (!configuracao.getChave().equals(request.chave())) {
+            validarChaveDuplicada(request.chave(), empresaId);
+        }
 
         mapper.updateEntity(request, configuracao);
 
@@ -75,10 +79,10 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "empresa-configuracao-admin", fallbackMethod = "fallbackAdmin")
-    public EmpresaConfiguracaoResponse buscarPorChave(Long empresaRefId, String chave) {
+    @CircuitBreaker(name = "empresa-configuracao-admin", fallbackMethod = "fallbackAdminBuscar")
+    public EmpresaConfiguracaoResponse buscarPorChave(String chave) {
         Long empresaId = TenantContext.getEmpresaId();
-        return mapper.toResponse(buscarConfiguracaoPorChave(empresaRefId, chave, empresaId));
+        return mapper.toResponse(buscarConfiguracaoPorChave(chave, empresaId));
     }
 
     // ============================================================
@@ -87,11 +91,10 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
 
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "empresa-configuracao-admin", fallbackMethod = "fallbackAdminPage")
-    public Page<EmpresaConfiguracaoResumoResponse> listar(Long empresaRefId, Pageable pageable) {
+    public Page<EmpresaConfiguracaoResumoResponse> listar(Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
-        Empresa empresa = empresaRef(empresaRefId);
 
-        return repository.findByEmpresaAndEmpresaId(empresa, empresaId, pageable)
+        return repository.findByEmpresaId(empresaId, pageable)
                 .map(mapper::toResumoResponse);
     }
 
@@ -100,16 +103,37 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
     // ============================================================
 
     @CircuitBreaker(name = "empresa-configuracao-admin", fallbackMethod = "fallbackAdminVoid")
-    public void remover(Long empresaRefId, String chave) {
+    public void remover(String chave) {
         Long empresaId = TenantContext.getEmpresaId();
-        repository.delete(buscarConfiguracaoPorChave(empresaRefId, chave, empresaId));
+        repository.delete(buscarConfiguracaoPorChave(chave, empresaId));
     }
 
     // ============================================================
     // FALLBACKS
     // ============================================================
 
-    private EmpresaConfiguracaoResponse fallbackAdmin(Object req, Throwable ex) {
+    private EmpresaConfiguracaoResponse fallbackAdmin(
+            EmpresaConfiguracaoCreateRequest request,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de configurações da empresa temporariamente indisponível"
+        );
+    }
+
+    private EmpresaConfiguracaoResponse fallbackAdmin(
+            String chave,
+            EmpresaConfiguracaoUpdateRequest request,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de configurações da empresa temporariamente indisponível"
+        );
+    }
+
+    private EmpresaConfiguracaoResponse fallbackAdminBuscar(String chave, Throwable ex) {
         throw new ResponseStatusException(
                 HttpStatus.SERVICE_UNAVAILABLE,
                 "Serviço de configurações da empresa temporariamente indisponível"
@@ -117,7 +141,6 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
     }
 
     private Page<EmpresaConfiguracaoResumoResponse> fallbackAdminPage(
-            Long empresaRefId,
             Pageable pageable,
             Throwable ex
     ) {
@@ -127,7 +150,7 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
         );
     }
 
-    private void fallbackAdminVoid(Long empresaRefId, String chave, Throwable ex) {
+    private void fallbackAdminVoid(String chave, Throwable ex) {
         throw new ResponseStatusException(
                 HttpStatus.SERVICE_UNAVAILABLE,
                 "Serviço de configurações da empresa temporariamente indisponível"
@@ -138,22 +161,15 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
     // AUXILIARES
     // ============================================================
 
-    private EmpresaConfiguracao buscarConfiguracaoPorChave(Long empresaRefId, String chave, Long empresaId) {
-        Empresa empresa = empresaRef(empresaRefId);
-
-        return repository.findByEmpresaAndChaveAndEmpresaId(empresa, chave, empresaId)
-                .orElseThrow(() -> new EntityNotFoundException("Configuração não encontrada para a chave: " + chave));
+    private EmpresaConfiguracao buscarConfiguracaoPorChave(String chave, Long empresaId) {
+        return repository.findByChaveAndEmpresaId(chave, empresaId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Configuração não encontrada para a chave: " + chave));
     }
 
-    private void validarChaveDuplicada(Empresa empresa, String chave, Long empresaId) {
-        if (repository.existsByEmpresaAndChaveAndEmpresaId(empresa, chave, empresaId)) {
+    private void validarChaveDuplicada(String chave, Long empresaId) {
+        if (repository.existsByChaveAndEmpresaId(chave, empresaId)) {
             throw new IllegalArgumentException("Já existe uma configuração cadastrada com a chave informada.");
         }
-    }
-
-    private Empresa empresaRef(Long empresaRefId) {
-        return Empresa.builder()
-                .id(empresaRefId)
-                .build();
     }
 }

@@ -7,7 +7,6 @@ import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroResponse;
 import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroResumoResponse;
 import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroUpdateRequest;
 import br.com.unicos.ms_empresa.mapper.EmpresaParametroMapper;
-import br.com.unicos.ms_empresa.model.Empresa;
 import br.com.unicos.ms_empresa.model.EmpresaParametro;
 import br.com.unicos.ms_empresa.repository.EmpresaParametroRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -22,6 +21,9 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 @Transactional
 public class EmpresaParametroService extends BaseTenantService<EmpresaParametro, Long> {
+
+    private static final String CB = "empresa-parametro-admin";
+    private static final String MSG = "Serviço de parâmetros da empresa temporariamente indisponível";
 
     private final EmpresaParametroRepository repository;
     private final EmpresaParametroMapper mapper;
@@ -39,35 +41,31 @@ public class EmpresaParametroService extends BaseTenantService<EmpresaParametro,
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "empresa-parametro-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = CB, fallbackMethod = "fallback")
     public EmpresaParametroResponse criar(EmpresaParametroCreateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
-        Empresa empresa = empresaRef(request.empresaRefId());
 
-        validarChaveDuplicada(empresa, request.chave(), empresaId);
+        validarChaveDuplicada(request.chave(), empresaId);
 
-        EmpresaParametro parametro = mapper.toEntity(request);
-        parametro.setEmpresaId(empresaId);
+        EmpresaParametro entity = mapper.toEntity(request);
+        entity.setEmpresaId(empresaId);
 
-        return mapper.toResponse(repository.save(parametro));
+        return mapper.toResponse(repository.save(entity));
     }
 
     // ============================================================
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "empresa-parametro-admin", fallbackMethod = "fallbackAdmin")
-    public EmpresaParametroResponse atualizar(
-            Long empresaRefId,
-            String chave,
-            EmpresaParametroUpdateRequest request
-    ) {
+    @CircuitBreaker(name = CB, fallbackMethod = "fallbackUpdate")
+    public EmpresaParametroResponse atualizar(String chave, EmpresaParametroUpdateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
-        EmpresaParametro parametro = buscarParametroPorChave(empresaRefId, chave, empresaId);
 
-        mapper.updateEntity(request, parametro);
+        EmpresaParametro entity = buscarPorChaveInterno(chave, empresaId);
 
-        return mapper.toResponse(repository.save(parametro));
+        mapper.updateEntity(request, entity);
+
+        return mapper.toResponse(repository.save(entity));
     }
 
     // ============================================================
@@ -75,10 +73,11 @@ public class EmpresaParametroService extends BaseTenantService<EmpresaParametro,
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "empresa-parametro-admin", fallbackMethod = "fallbackAdmin")
-    public EmpresaParametroResponse buscarPorChave(Long empresaRefId, String chave) {
+    @CircuitBreaker(name = CB, fallbackMethod = "fallbackGet")
+    public EmpresaParametroResponse buscarPorChave(String chave) {
         Long empresaId = TenantContext.getEmpresaId();
-        return mapper.toResponse(buscarParametroPorChave(empresaRefId, chave, empresaId));
+
+        return mapper.toResponse(buscarPorChaveInterno(chave, empresaId));
     }
 
     // ============================================================
@@ -86,12 +85,11 @@ public class EmpresaParametroService extends BaseTenantService<EmpresaParametro,
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "empresa-parametro-admin", fallbackMethod = "fallbackAdminPage")
-    public Page<EmpresaParametroResumoResponse> listar(Long empresaRefId, Pageable pageable) {
+    @CircuitBreaker(name = CB, fallbackMethod = "fallbackPage")
+    public Page<EmpresaParametroResumoResponse> listar(Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
-        Empresa empresa = empresaRef(empresaRefId);
 
-        return repository.findByEmpresaAndEmpresaId(empresa, empresaId, pageable)
+        return repository.findByEmpresaId(empresaId, pageable)
                 .map(mapper::toResumoResponse);
     }
 
@@ -99,63 +97,51 @@ public class EmpresaParametroService extends BaseTenantService<EmpresaParametro,
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "empresa-parametro-admin", fallbackMethod = "fallbackAdminVoid")
-    public void remover(Long empresaRefId, String chave) {
+    @CircuitBreaker(name = CB, fallbackMethod = "fallbackVoid")
+    public void remover(String chave) {
         Long empresaId = TenantContext.getEmpresaId();
-        repository.delete(buscarParametroPorChave(empresaRefId, chave, empresaId));
+
+        repository.deleteByChaveAndEmpresaId(chave, empresaId);
     }
 
     // ============================================================
     // FALLBACKS
     // ============================================================
 
-    private EmpresaParametroResponse fallbackAdmin(Object req, Throwable ex) {
-        throw new ResponseStatusException(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                "Serviço de parâmetros da empresa temporariamente indisponível"
-        );
+    private EmpresaParametroResponse fallback(EmpresaParametroCreateRequest req, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, MSG, ex);
     }
 
-    private Page<EmpresaParametroResumoResponse> fallbackAdminPage(
-            Long empresaRefId,
-            Pageable pageable,
-            Throwable ex
-    ) {
-        throw new ResponseStatusException(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                "Serviço de parâmetros da empresa temporariamente indisponível"
-        );
+    private EmpresaParametroResponse fallbackUpdate(String chave, EmpresaParametroUpdateRequest req, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, MSG, ex);
     }
 
-    private void fallbackAdminVoid(Long empresaRefId, String chave, Throwable ex) {
-        throw new ResponseStatusException(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                "Serviço de parâmetros da empresa temporariamente indisponível"
-        );
+    private EmpresaParametroResponse fallbackGet(String chave, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, MSG, ex);
+    }
+
+    private Page<EmpresaParametroResumoResponse> fallbackPage(Pageable pageable, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, MSG, ex);
+    }
+
+    private void fallbackVoid(String chave, Throwable ex) {
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, MSG, ex);
     }
 
     // ============================================================
-    // AUXILIARES
+    // AUX
     // ============================================================
 
-    private EmpresaParametro buscarParametroPorChave(Long empresaRefId, String chave, Long empresaId) {
-        Empresa empresa = empresaRef(empresaRefId);
-
-        return repository.findByEmpresaAndChaveAndEmpresaId(empresa, chave, empresaId)
-                .orElseThrow(() -> new EntityNotFoundException("Parâmetro não encontrado para a chave: " + chave));
+    private EmpresaParametro buscarPorChaveInterno(String chave, Long empresaId) {
+        return repository.findByChaveAndEmpresaId(chave, empresaId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Parâmetro não encontrado para a chave: " + chave)
+                );
     }
 
-    private void validarChaveDuplicada(Empresa empresa, String chave, Long empresaId) {
-        if (repository.existsByEmpresaAndChaveAndEmpresaId(empresa, chave, empresaId)) {
-            throw new IllegalArgumentException(
-                    "Já existe um parâmetro cadastrado com a chave informada para esta empresa."
-            );
+    private void validarChaveDuplicada(String chave, Long empresaId) {
+        if (repository.existsByChaveAndEmpresaId(chave, empresaId)) {
+            throw new IllegalArgumentException("Já existe um parâmetro com essa chave.");
         }
-    }
-
-    private Empresa empresaRef(Long empresaRefId) {
-        return Empresa.builder()
-                .id(empresaRefId)
-                .build();
     }
 }

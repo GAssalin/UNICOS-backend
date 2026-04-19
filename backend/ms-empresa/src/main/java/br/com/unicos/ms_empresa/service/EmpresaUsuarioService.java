@@ -8,7 +8,6 @@ import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioResumoResponse
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioUpdateRequest;
 import br.com.unicos.ms_empresa.enums.PerfilEmpresaUsuario;
 import br.com.unicos.ms_empresa.mapper.EmpresaUsuarioMapper;
-import br.com.unicos.ms_empresa.model.Empresa;
 import br.com.unicos.ms_empresa.model.EmpresaUsuario;
 import br.com.unicos.ms_empresa.repository.EmpresaUsuarioRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -23,6 +22,10 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 @Transactional
 public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Long> {
+
+    private static final String CIRCUIT_BREAKER_NAME = "empresa-usuario-admin";
+    private static final String MSG_SERVICO_INDISPONIVEL =
+            "Serviço de usuários da empresa temporariamente indisponível";
 
     private final EmpresaUsuarioRepository repository;
     private final EmpresaUsuarioMapper mapper;
@@ -40,12 +43,11 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackCriar")
     public EmpresaUsuarioResponse criar(EmpresaUsuarioCreateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
-        Empresa empresa = empresaRef(request.empresaRefId());
 
-        validarUsuarioNaoVinculado(empresa, request.usuarioId(), empresaId);
+        validarUsuarioNaoVinculado(request.usuarioId(), empresaId);
 
         EmpresaUsuario entity = mapper.toEntity(request);
         entity.setEmpresaId(empresaId);
@@ -57,14 +59,13 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAtualizarPerfil")
     public EmpresaUsuarioResponse atualizarPerfil(
-            Long empresaRefId,
             Long usuarioId,
             EmpresaUsuarioUpdateRequest request
     ) {
         Long empresaId = TenantContext.getEmpresaId();
-        EmpresaUsuario vinculo = buscarVinculo(empresaRefId, usuarioId, empresaId);
+        EmpresaUsuario vinculo = buscarVinculo(usuarioId, empresaId);
 
         protegerUltimoAdmin(vinculo, request.perfil(), empresaId);
 
@@ -78,10 +79,10 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdmin")
-    public EmpresaUsuarioResponse buscar(Long empresaRefId, Long usuarioId) {
+    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackBuscar")
+    public EmpresaUsuarioResponse buscar(Long usuarioId) {
         Long empresaId = TenantContext.getEmpresaId();
-        return mapper.toResponse(buscarVinculo(empresaRefId, usuarioId, empresaId));
+        return mapper.toResponse(buscarVinculo(usuarioId, empresaId));
     }
 
     // ============================================================
@@ -89,26 +90,23 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdminPage")
-    public Page<EmpresaUsuarioResumoResponse> listar(Long empresaRefId, Pageable pageable) {
+    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackListar")
+    public Page<EmpresaUsuarioResumoResponse> listar(Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
-        Empresa empresa = empresaRef(empresaRefId);
 
-        return repository.findByEmpresaAndEmpresaId(empresa, empresaId, pageable)
+        return repository.findByEmpresaId(empresaId, pageable)
                 .map(mapper::toResumoResponse);
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdminPagePerfil")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackListarPorPerfil")
     public Page<EmpresaUsuarioResumoResponse> listarPorPerfil(
-            Long empresaRefId,
             PerfilEmpresaUsuario perfil,
             Pageable pageable
     ) {
         Long empresaId = TenantContext.getEmpresaId();
-        Empresa empresa = empresaRef(empresaRefId);
 
-        return repository.findByEmpresaAndPerfilAndEmpresaId(empresa, perfil, empresaId, pageable)
+        return repository.findByPerfilAndEmpresaId(perfil, empresaId, pageable)
                 .map(mapper::toResumoResponse);
     }
 
@@ -116,54 +114,79 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "empresa-usuario-admin", fallbackMethod = "fallbackAdminVoid")
-    public void remover(Long empresaRefId, Long usuarioId) {
+    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackRemover")
+    public void remover(Long usuarioId) {
         Long empresaId = TenantContext.getEmpresaId();
-        EmpresaUsuario vinculo = buscarVinculo(empresaRefId, usuarioId, empresaId);
+        EmpresaUsuario vinculo = buscarVinculo(usuarioId, empresaId);
 
         protegerUltimoAdmin(vinculo, null, empresaId);
 
-        repository.delete(vinculo);
+        repository.deleteByUsuarioIdAndEmpresaId(usuarioId, empresaId);
     }
 
     // ============================================================
     // FALLBACKS
     // ============================================================
 
-    private EmpresaUsuarioResponse fallbackAdmin(Object req, Throwable ex) {
+    private EmpresaUsuarioResponse fallbackCriar(
+            EmpresaUsuarioCreateRequest request,
+            Throwable ex
+    ) {
         throw new ResponseStatusException(
                 HttpStatus.SERVICE_UNAVAILABLE,
-                "Serviço de usuários da empresa temporariamente indisponível"
+                MSG_SERVICO_INDISPONIVEL,
+                ex
         );
     }
 
-    private Page<EmpresaUsuarioResumoResponse> fallbackAdminPage(
-            Long empresaRefId,
+    private EmpresaUsuarioResponse fallbackAtualizarPerfil(
+            Long usuarioId,
+            EmpresaUsuarioUpdateRequest request,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                MSG_SERVICO_INDISPONIVEL,
+                ex
+        );
+    }
+
+    private EmpresaUsuarioResponse fallbackBuscar(Long usuarioId, Throwable ex) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                MSG_SERVICO_INDISPONIVEL,
+                ex
+        );
+    }
+
+    private Page<EmpresaUsuarioResumoResponse> fallbackListar(
             Pageable pageable,
             Throwable ex
     ) {
         throw new ResponseStatusException(
                 HttpStatus.SERVICE_UNAVAILABLE,
-                "Serviço de usuários da empresa temporariamente indisponível"
+                MSG_SERVICO_INDISPONIVEL,
+                ex
         );
     }
 
-    private Page<EmpresaUsuarioResumoResponse> fallbackAdminPagePerfil(
-            Long empresaRefId,
+    private Page<EmpresaUsuarioResumoResponse> fallbackListarPorPerfil(
             PerfilEmpresaUsuario perfil,
             Pageable pageable,
             Throwable ex
     ) {
         throw new ResponseStatusException(
                 HttpStatus.SERVICE_UNAVAILABLE,
-                "Serviço de usuários da empresa temporariamente indisponível"
+                MSG_SERVICO_INDISPONIVEL,
+                ex
         );
     }
 
-    private void fallbackAdminVoid(Long empresaRefId, Long usuarioId, Throwable ex) {
+    private void fallbackRemover(Long usuarioId, Throwable ex) {
         throw new ResponseStatusException(
                 HttpStatus.SERVICE_UNAVAILABLE,
-                "Serviço de usuários da empresa temporariamente indisponível"
+                MSG_SERVICO_INDISPONIVEL,
+                ex
         );
     }
 
@@ -171,15 +194,15 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     // AUXILIARES
     // ============================================================
 
-    private EmpresaUsuario buscarVinculo(Long empresaRefId, Long usuarioId, Long empresaId) {
-        Empresa empresa = empresaRef(empresaRefId);
-
-        return repository.findByEmpresaAndUsuarioIdAndEmpresaId(empresa, usuarioId, empresaId)
-                .orElseThrow(() -> new EntityNotFoundException("Vínculo usuário-empresa não encontrado."));
+    private EmpresaUsuario buscarVinculo(Long usuarioId, Long empresaId) {
+        return repository.findByUsuarioIdAndEmpresaId(usuarioId, empresaId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Vínculo usuário-empresa não encontrado.")
+                );
     }
 
-    private void validarUsuarioNaoVinculado(Empresa empresa, Long usuarioId, Long empresaId) {
-        if (repository.existsByEmpresaAndUsuarioIdAndEmpresaId(empresa, usuarioId, empresaId)) {
+    private void validarUsuarioNaoVinculado(Long usuarioId, Long empresaId) {
+        if (repository.existsByUsuarioIdAndEmpresaId(usuarioId, empresaId)) {
             throw new IllegalArgumentException("O usuário já está vinculado a esta empresa.");
         }
     }
@@ -192,8 +215,7 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
         if (vinculo.getPerfil() == PerfilEmpresaUsuario.ADMIN
                 && novoPerfil != PerfilEmpresaUsuario.ADMIN) {
 
-            long totalAdmins = repository.findByEmpresaAndPerfilAndEmpresaId(
-                    vinculo.getEmpresa(),
+            long totalAdmins = repository.findByPerfilAndEmpresaId(
                     PerfilEmpresaUsuario.ADMIN,
                     empresaId,
                     Pageable.unpaged()
@@ -205,11 +227,5 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
                 );
             }
         }
-    }
-
-    private Empresa empresaRef(Long empresaRefId) {
-        return Empresa.builder()
-                .id(empresaRefId)
-                .build();
     }
 }

@@ -8,7 +8,6 @@ import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoResumoRespon
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoUpdateRequest;
 import br.com.unicos.ms_empresa.enums.TipoEnderecoEmpresa;
 import br.com.unicos.ms_empresa.mapper.EmpresaEnderecoMapper;
-import br.com.unicos.ms_empresa.model.Empresa;
 import br.com.unicos.ms_empresa.model.EmpresaEndereco;
 import br.com.unicos.ms_empresa.repository.EmpresaEnderecoRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -40,13 +39,11 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
     // CREATE
     // ============================================================
 
-    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackCriar")
     public EmpresaEnderecoResponse criar(EmpresaEnderecoCreateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
-        Empresa empresa = empresaRef(request.empresaRefId());
 
         validarEnderecoDuplicado(
-                empresa,
                 request.logradouro(),
                 request.numero(),
                 request.cep(),
@@ -54,7 +51,7 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
         );
 
         if (request.principal()) {
-            removerEnderecoPrincipalAtual(empresa, empresaId);
+            removerEnderecoPrincipalAtual(empresaId);
         }
 
         EmpresaEndereco endereco = mapper.toEntity(request);
@@ -67,7 +64,7 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
     // UPDATE
     // ============================================================
 
-    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAtualizar")
     public EmpresaEnderecoResponse atualizar(Long id, EmpresaEnderecoUpdateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
         EmpresaEndereco endereco = buscarEndereco(id, empresaId);
@@ -79,7 +76,6 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
 
         if (alterouEndereco) {
             validarEnderecoDuplicado(
-                    endereco.getEmpresa(),
                     request.logradouro(),
                     request.numero(),
                     request.cep(),
@@ -88,10 +84,7 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
         }
 
         if (request.principal()) {
-            removerEnderecoPrincipalAtual(endereco.getEmpresa(), empresaId);
-            endereco.setPrincipal(true);
-        } else {
-            endereco.setPrincipal(false);
+            removerEnderecoPrincipalAtual(empresaId, id);
         }
 
         mapper.updateEntityFromDTO(request, endereco);
@@ -104,7 +97,7 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdmin")
+    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackBuscarPorId")
     public EmpresaEnderecoResponse buscarPorId(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
         return mapper.toResponseDTO(buscarEndereco(id, empresaId));
@@ -115,31 +108,23 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdminPage")
-    public Page<EmpresaEnderecoResumoResponse> listar(Long empresaRefId, Pageable pageable) {
+    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackListar")
+    public Page<EmpresaEnderecoResumoResponse> listar(Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
-        Empresa empresa = empresaRef(empresaRefId);
 
-        return repository.findByEmpresaAndEmpresaId(empresa, empresaId, pageable)
+        return repository.findByEmpresaId(empresaId, pageable)
                 .map(mapper::toResumoDTO);
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdminPageTipo")
+    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackListarPorTipo")
     public Page<EmpresaEnderecoResumoResponse> listarPorTipo(
-            Long empresaRefId,
             TipoEnderecoEmpresa tipo,
             Pageable pageable
     ) {
         Long empresaId = TenantContext.getEmpresaId();
-        Empresa empresa = empresaRef(empresaRefId);
 
-        return repository.findByEmpresaAndTipoEnderecoAndEmpresaId(
-                        empresa,
-                        tipo,
-                        empresaId,
-                        pageable
-                )
+        return repository.findByTipoEnderecoAndEmpresaId(tipo, empresaId, pageable)
                 .map(mapper::toResumoDTO);
     }
 
@@ -147,7 +132,7 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
     // DELETE
     // ============================================================
 
-    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackAdminVoid")
+    @CircuitBreaker(name = "empresa-endereco-admin", fallbackMethod = "fallbackRemover")
     public void remover(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
         repository.delete(buscarEndereco(id, empresaId));
@@ -157,15 +142,32 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
     // FALLBACKS
     // ============================================================
 
-    private EmpresaEnderecoResponse fallbackAdmin(Object req, Throwable ex) {
+    private EmpresaEnderecoResponse fallbackCriar(EmpresaEnderecoCreateRequest request, Throwable ex) {
         throw new ResponseStatusException(
                 HttpStatus.SERVICE_UNAVAILABLE,
                 "Serviço de endereços da empresa temporariamente indisponível"
         );
     }
 
-    private Page<EmpresaEnderecoResumoResponse> fallbackAdminPage(
-            Long empresaRefId,
+    private EmpresaEnderecoResponse fallbackAtualizar(
+            Long id,
+            EmpresaEnderecoUpdateRequest request,
+            Throwable ex
+    ) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de endereços da empresa temporariamente indisponível"
+        );
+    }
+
+    private EmpresaEnderecoResponse fallbackBuscarPorId(Long id, Throwable ex) {
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de endereços da empresa temporariamente indisponível"
+        );
+    }
+
+    private Page<EmpresaEnderecoResumoResponse> fallbackListar(
             Pageable pageable,
             Throwable ex
     ) {
@@ -175,8 +177,7 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
         );
     }
 
-    private Page<EmpresaEnderecoResumoResponse> fallbackAdminPageTipo(
-            Long empresaRefId,
+    private Page<EmpresaEnderecoResumoResponse> fallbackListarPorTipo(
             TipoEnderecoEmpresa tipo,
             Pageable pageable,
             Throwable ex
@@ -187,7 +188,7 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
         );
     }
 
-    private void fallbackAdminVoid(Long id, Throwable ex) {
+    private void fallbackRemover(Long id, Throwable ex) {
         throw new ResponseStatusException(
                 HttpStatus.SERVICE_UNAVAILABLE,
                 "Serviço de endereços da empresa temporariamente indisponível"
@@ -201,18 +202,17 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
     private EmpresaEndereco buscarEndereco(Long id, Long empresaId) {
         return repository.findById(id)
                 .filter(endereco -> empresaId.equals(endereco.getEmpresaId()))
-                .orElseThrow(() -> new EntityNotFoundException("Endereço institucional não encontrado: " + id));
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Endereço institucional não encontrado: " + id));
     }
 
     private void validarEnderecoDuplicado(
-            Empresa empresa,
             String logradouro,
             String numero,
             String cep,
             Long empresaId
     ) {
-        if (repository.existsByEmpresaAndLogradouroAndNumeroAndCepAndEmpresaId(
-                empresa,
+        if (repository.existsByLogradouroAndNumeroAndCepAndEmpresaId(
                 logradouro,
                 numero,
                 cep,
@@ -224,18 +224,20 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
         }
     }
 
-    private void removerEnderecoPrincipalAtual(Empresa empresa, Long empresaId) {
-        repository.findByEmpresaAndPrincipalTrueAndEmpresaId(empresa, empresaId)
+    private void removerEnderecoPrincipalAtual(Long empresaId) {
+        repository.findByPrincipalTrueAndEmpresaId(empresaId)
                 .ifPresent(endereco -> {
                     endereco.setPrincipal(false);
                     repository.save(endereco);
                 });
     }
 
-    private Empresa empresaRef(Long empresaRefId) {
-        return Empresa.builder()
-                .id(empresaRefId)
-                .build();
+    private void removerEnderecoPrincipalAtual(Long empresaId, Long enderecoAtualId) {
+        repository.findByPrincipalTrueAndEmpresaId(empresaId)
+                .filter(endereco -> !endereco.getId().equals(enderecoAtualId))
+                .ifPresent(endereco -> {
+                    endereco.setPrincipal(false);
+                    repository.save(endereco);
+                });
     }
-
 }
