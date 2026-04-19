@@ -62,7 +62,7 @@ public class EmpresaParametroController {
     ) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(empresaParametroService.criar(normalizarCreateRequest(request, empresaRefId)));
+                .body(empresaParametroService.criar(request));
     }
 
     @Operation(
@@ -86,7 +86,7 @@ public class EmpresaParametroController {
             @PathVariable String chave,
             @RequestBody @Valid EmpresaParametroUpdateRequest request
     ) {
-        return ResponseEntity.ok(empresaParametroService.atualizar(empresaRefId, chave, request));
+        return ResponseEntity.ok(empresaParametroService.atualizar(chave, request));
     }
 
     @Operation(
@@ -108,7 +108,7 @@ public class EmpresaParametroController {
             @PathVariable @Positive Long empresaRefId,
             @PathVariable String chave
     ) {
-        return ResponseEntity.ok(empresaParametroService.buscarPorChave(empresaRefId, chave));
+        return ResponseEntity.ok(empresaParametroService.buscarPorChave(chave));
     }
 
     @Operation(
@@ -133,7 +133,7 @@ public class EmpresaParametroController {
             @PathVariable @Positive Long empresaRefId,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(empresaParametroService.listar(empresaRefId, pageable));
+        return ResponseEntity.ok(empresaParametroService.listar(pageable));
     }
 
     @Operation(
@@ -151,19 +151,7 @@ public class EmpresaParametroController {
             @PathVariable @Positive Long empresaRefId,
             @PathVariable String chave
     ) {
-        empresaParametroService.remover(empresaRefId, chave);
+        empresaParametroService.remover(chave);
         return ResponseEntity.noContent().build();
-    }
-
-    private EmpresaParametroCreateRequest normalizarCreateRequest(
-            EmpresaParametroCreateRequest request,
-            Long empresaRefId
-    ) {
-        return new EmpresaParametroCreateRequest(
-                request.empresaId(),
-                empresaRefId,
-                request.chave(),
-                request.valor()
-        );
     }
 }

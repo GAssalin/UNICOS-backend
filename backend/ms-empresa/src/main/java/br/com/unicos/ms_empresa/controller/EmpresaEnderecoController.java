@@ -63,7 +63,7 @@ public class EmpresaEnderecoController {
     ) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(empresaEnderecoService.criar(normalizarCreateRequest(request, empresaRefId)));
+                .body(empresaEnderecoService.criar(request));
     }
 
     @Operation(
@@ -134,7 +134,7 @@ public class EmpresaEnderecoController {
             @PathVariable @Positive Long empresaRefId,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(empresaEnderecoService.listar(empresaRefId, pageable));
+        return ResponseEntity.ok(empresaEnderecoService.listar(pageable));
     }
 
     @Operation(
@@ -160,7 +160,7 @@ public class EmpresaEnderecoController {
             @PathVariable TipoEnderecoEmpresa tipo,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(empresaEnderecoService.listarPorTipo(empresaRefId, tipo, pageable));
+        return ResponseEntity.ok(empresaEnderecoService.listarPorTipo(tipo, pageable));
     }
 
     @Operation(
@@ -180,24 +180,5 @@ public class EmpresaEnderecoController {
     ) {
         empresaEnderecoService.remover(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private EmpresaEnderecoCreateRequest normalizarCreateRequest(
-            EmpresaEnderecoCreateRequest request,
-            Long empresaRefId
-    ) {
-        return new EmpresaEnderecoCreateRequest(
-                request.empresaId(),
-                empresaRefId,
-                request.tipoEndereco(),
-                request.logradouro(),
-                request.numero(),
-                request.complemento(),
-                request.bairro(),
-                request.municipio(),
-                request.uf(),
-                request.cep(),
-                request.principal()
-        );
     }
 }

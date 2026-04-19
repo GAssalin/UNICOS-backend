@@ -62,7 +62,7 @@ public class EmpresaConfiguracaoController {
     ) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(empresaConfiguracaoService.criar(normalizarCreateRequest(request, empresaRefId)));
+                .body(empresaConfiguracaoService.criar(request));
     }
 
     @Operation(
@@ -82,11 +82,10 @@ public class EmpresaConfiguracaoController {
     )
     @PutMapping("/{chave}")
     public ResponseEntity<EmpresaConfiguracaoResponse> atualizar(
-            @PathVariable @Positive Long empresaRefId,
             @PathVariable String chave,
             @RequestBody @Valid EmpresaConfiguracaoUpdateRequest request
     ) {
-        return ResponseEntity.ok(empresaConfiguracaoService.atualizar(empresaRefId, chave, request));
+        return ResponseEntity.ok(empresaConfiguracaoService.atualizar(chave, request));
     }
 
     @Operation(
@@ -108,7 +107,7 @@ public class EmpresaConfiguracaoController {
             @PathVariable @Positive Long empresaRefId,
             @PathVariable String chave
     ) {
-        return ResponseEntity.ok(empresaConfiguracaoService.buscarPorChave(empresaRefId, chave));
+        return ResponseEntity.ok(empresaConfiguracaoService.buscarPorChave(chave));
     }
 
     @Operation(
@@ -133,7 +132,7 @@ public class EmpresaConfiguracaoController {
             @PathVariable @Positive Long empresaRefId,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(empresaConfiguracaoService.listar(empresaRefId, pageable));
+        return ResponseEntity.ok(empresaConfiguracaoService.listar(pageable));
     }
 
     @Operation(
@@ -151,19 +150,8 @@ public class EmpresaConfiguracaoController {
             @PathVariable @Positive Long empresaRefId,
             @PathVariable String chave
     ) {
-        empresaConfiguracaoService.remover(empresaRefId, chave);
+        empresaConfiguracaoService.remover(chave);
         return ResponseEntity.noContent().build();
     }
 
-    private EmpresaConfiguracaoCreateRequest normalizarCreateRequest(
-            EmpresaConfiguracaoCreateRequest request,
-            Long empresaRefId
-    ) {
-        return new EmpresaConfiguracaoCreateRequest(
-                request.empresaId(),
-                empresaRefId,
-                request.chave(),
-                request.valor()
-        );
-    }
 }

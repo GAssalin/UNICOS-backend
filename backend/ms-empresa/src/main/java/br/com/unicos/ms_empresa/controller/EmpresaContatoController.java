@@ -63,7 +63,7 @@ public class EmpresaContatoController {
     ) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(empresaContatoService.criar(normalizarCreateRequest(request, empresaRefId)));
+                .body(empresaContatoService.criar(request));
     }
 
     @Operation(
@@ -134,7 +134,7 @@ public class EmpresaContatoController {
             @PathVariable @Positive Long empresaRefId,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(empresaContatoService.listar(empresaRefId, pageable));
+        return ResponseEntity.ok(empresaContatoService.listar(pageable));
     }
 
     @Operation(
@@ -160,7 +160,7 @@ public class EmpresaContatoController {
             @PathVariable TipoContatoEmpresa tipo,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(empresaContatoService.listarPorTipo(empresaRefId, tipo, pageable));
+        return ResponseEntity.ok(empresaContatoService.listarPorTipo(tipo, pageable));
     }
 
     @Operation(
@@ -180,18 +180,5 @@ public class EmpresaContatoController {
     ) {
         empresaContatoService.remover(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private EmpresaContatoCreateRequest normalizarCreateRequest(
-            EmpresaContatoCreateRequest request,
-            Long empresaRefId
-    ) {
-        return new EmpresaContatoCreateRequest(
-                request.empresaId(),
-                empresaRefId,
-                request.tipoContato(),
-                request.valor(),
-                request.principal()
-        );
     }
 }

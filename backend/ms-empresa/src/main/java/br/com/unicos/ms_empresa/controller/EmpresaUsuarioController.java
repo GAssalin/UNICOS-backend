@@ -63,7 +63,7 @@ public class EmpresaUsuarioController {
     ) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(empresaUsuarioService.criar(normalizarCreateRequest(request, empresaRefId)));
+                .body(empresaUsuarioService.criar(request));
     }
 
     @Operation(
@@ -88,7 +88,7 @@ public class EmpresaUsuarioController {
             @PathVariable @Positive Long usuarioId,
             @RequestBody @Valid EmpresaUsuarioUpdateRequest request
     ) {
-        return ResponseEntity.ok(empresaUsuarioService.atualizarPerfil(empresaRefId, usuarioId, request));
+        return ResponseEntity.ok(empresaUsuarioService.atualizarPerfil(usuarioId, request));
     }
 
     @Operation(
@@ -110,7 +110,7 @@ public class EmpresaUsuarioController {
             @PathVariable @Positive Long empresaRefId,
             @PathVariable @Positive Long usuarioId
     ) {
-        return ResponseEntity.ok(empresaUsuarioService.buscar(empresaRefId, usuarioId));
+        return ResponseEntity.ok(empresaUsuarioService.buscar(usuarioId));
     }
 
     @Operation(
@@ -135,7 +135,7 @@ public class EmpresaUsuarioController {
             @PathVariable @Positive Long empresaRefId,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(empresaUsuarioService.listar(empresaRefId, pageable));
+        return ResponseEntity.ok(empresaUsuarioService.listar(pageable));
     }
 
     @Operation(
@@ -161,7 +161,7 @@ public class EmpresaUsuarioController {
             @PathVariable PerfilEmpresaUsuario perfil,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(empresaUsuarioService.listarPorPerfil(empresaRefId, perfil, pageable));
+        return ResponseEntity.ok(empresaUsuarioService.listarPorPerfil(perfil, pageable));
     }
 
     @Operation(
@@ -179,19 +179,7 @@ public class EmpresaUsuarioController {
             @PathVariable @Positive Long empresaRefId,
             @PathVariable @Positive Long usuarioId
     ) {
-        empresaUsuarioService.remover(empresaRefId, usuarioId);
+        empresaUsuarioService.remover(usuarioId);
         return ResponseEntity.noContent().build();
-    }
-
-    private EmpresaUsuarioCreateRequest normalizarCreateRequest(
-            EmpresaUsuarioCreateRequest request,
-            Long empresaRefId
-    ) {
-        return new EmpresaUsuarioCreateRequest(
-                request.empresaId(),
-                empresaRefId,
-                request.usuarioId(),
-                request.perfil()
-        );
     }
 }
