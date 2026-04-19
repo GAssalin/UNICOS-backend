@@ -57,10 +57,7 @@ public class EmpresaContatoController {
             }
     )
     @PostMapping
-    public ResponseEntity<EmpresaContatoResponse> criar(
-            @PathVariable @Positive Long empresaRefId,
-            @RequestBody @Valid EmpresaContatoCreateRequest request
-    ) {
+    public ResponseEntity<EmpresaContatoResponse> criar(@RequestBody @Valid EmpresaContatoCreateRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(empresaContatoService.criar(request));
@@ -83,7 +80,6 @@ public class EmpresaContatoController {
     )
     @PutMapping("/{id}")
     public ResponseEntity<EmpresaContatoResponse> atualizar(
-            @PathVariable @Positive Long empresaRefId,
             @PathVariable @Positive Long id,
             @RequestBody @Valid EmpresaContatoUpdateRequest request
     ) {
@@ -105,10 +101,7 @@ public class EmpresaContatoController {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<EmpresaContatoResponse> buscarPorId(
-            @PathVariable @Positive Long empresaRefId,
-            @PathVariable @Positive Long id
-    ) {
+    public ResponseEntity<EmpresaContatoResponse> buscarPorId(@PathVariable @Positive Long id) {
         return ResponseEntity.ok(empresaContatoService.buscarPorId(id));
     }
 
@@ -130,10 +123,7 @@ public class EmpresaContatoController {
             }
     )
     @GetMapping
-    public ResponseEntity<Page<EmpresaContatoResumoResponse>> listar(
-            @PathVariable @Positive Long empresaRefId,
-            @ParameterObject Pageable pageable
-    ) {
+    public ResponseEntity<Page<EmpresaContatoResumoResponse>> listar(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(empresaContatoService.listar(pageable));
     }
 
@@ -156,7 +146,6 @@ public class EmpresaContatoController {
     )
     @GetMapping("/tipo/{tipo}")
     public ResponseEntity<Page<EmpresaContatoResumoResponse>> listarPorTipo(
-            @PathVariable @Positive Long empresaRefId,
             @PathVariable TipoContatoEmpresa tipo,
             @ParameterObject Pageable pageable
     ) {
@@ -174,10 +163,7 @@ public class EmpresaContatoController {
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(
-            @PathVariable @Positive Long empresaRefId,
-            @PathVariable @Positive Long id
-    ) {
+    public ResponseEntity<Void> remover(@PathVariable @Positive Long id) {
         empresaContatoService.remover(id);
         return ResponseEntity.noContent().build();
     }

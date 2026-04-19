@@ -57,10 +57,7 @@ public class EmpresaEnderecoController {
             }
     )
     @PostMapping
-    public ResponseEntity<EmpresaEnderecoResponse> criar(
-            @PathVariable @Positive Long empresaRefId,
-            @RequestBody @Valid EmpresaEnderecoCreateRequest request
-    ) {
+    public ResponseEntity<EmpresaEnderecoResponse> criar(@RequestBody @Valid EmpresaEnderecoCreateRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(empresaEnderecoService.criar(request));
@@ -83,7 +80,6 @@ public class EmpresaEnderecoController {
     )
     @PutMapping("/{id}")
     public ResponseEntity<EmpresaEnderecoResponse> atualizar(
-            @PathVariable @Positive Long empresaRefId,
             @PathVariable @Positive Long id,
             @RequestBody @Valid EmpresaEnderecoUpdateRequest request
     ) {
@@ -105,10 +101,7 @@ public class EmpresaEnderecoController {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<EmpresaEnderecoResponse> buscarPorId(
-            @PathVariable @Positive Long empresaRefId,
-            @PathVariable @Positive Long id
-    ) {
+    public ResponseEntity<EmpresaEnderecoResponse> buscarPorId(@PathVariable @Positive Long id) {
         return ResponseEntity.ok(empresaEnderecoService.buscarPorId(id));
     }
 
@@ -130,10 +123,7 @@ public class EmpresaEnderecoController {
             }
     )
     @GetMapping
-    public ResponseEntity<Page<EmpresaEnderecoResumoResponse>> listar(
-            @PathVariable @Positive Long empresaRefId,
-            @ParameterObject Pageable pageable
-    ) {
+    public ResponseEntity<Page<EmpresaEnderecoResumoResponse>> listar(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(empresaEnderecoService.listar(pageable));
     }
 
@@ -156,7 +146,6 @@ public class EmpresaEnderecoController {
     )
     @GetMapping("/tipo/{tipo}")
     public ResponseEntity<Page<EmpresaEnderecoResumoResponse>> listarPorTipo(
-            @PathVariable @Positive Long empresaRefId,
             @PathVariable TipoEnderecoEmpresa tipo,
             @ParameterObject Pageable pageable
     ) {
@@ -174,10 +163,7 @@ public class EmpresaEnderecoController {
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(
-            @PathVariable @Positive Long empresaRefId,
-            @PathVariable @Positive Long id
-    ) {
+    public ResponseEntity<Void> remover(@PathVariable @Positive Long id) {
         empresaEnderecoService.remover(id);
         return ResponseEntity.noContent().build();
     }

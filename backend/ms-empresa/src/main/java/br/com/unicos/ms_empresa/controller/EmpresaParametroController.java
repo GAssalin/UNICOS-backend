@@ -56,10 +56,7 @@ public class EmpresaParametroController {
             }
     )
     @PostMapping
-    public ResponseEntity<EmpresaParametroResponse> criar(
-            @PathVariable @Positive Long empresaRefId,
-            @RequestBody @Valid EmpresaParametroCreateRequest request
-    ) {
+    public ResponseEntity<EmpresaParametroResponse> criar(@RequestBody @Valid EmpresaParametroCreateRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(empresaParametroService.criar(request));
@@ -82,7 +79,6 @@ public class EmpresaParametroController {
     )
     @PutMapping("/{chave}")
     public ResponseEntity<EmpresaParametroResponse> atualizar(
-            @PathVariable @Positive Long empresaRefId,
             @PathVariable String chave,
             @RequestBody @Valid EmpresaParametroUpdateRequest request
     ) {
@@ -104,10 +100,7 @@ public class EmpresaParametroController {
             }
     )
     @GetMapping("/{chave}")
-    public ResponseEntity<EmpresaParametroResponse> buscarPorChave(
-            @PathVariable @Positive Long empresaRefId,
-            @PathVariable String chave
-    ) {
+    public ResponseEntity<EmpresaParametroResponse> buscarPorChave(@PathVariable String chave) {
         return ResponseEntity.ok(empresaParametroService.buscarPorChave(chave));
     }
 
@@ -129,10 +122,7 @@ public class EmpresaParametroController {
             }
     )
     @GetMapping
-    public ResponseEntity<Page<EmpresaParametroResumoResponse>> listar(
-            @PathVariable @Positive Long empresaRefId,
-            @ParameterObject Pageable pageable
-    ) {
+    public ResponseEntity<Page<EmpresaParametroResumoResponse>> listar(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(empresaParametroService.listar(pageable));
     }
 
@@ -147,10 +137,7 @@ public class EmpresaParametroController {
             }
     )
     @DeleteMapping("/{chave}")
-    public ResponseEntity<Void> remover(
-            @PathVariable @Positive Long empresaRefId,
-            @PathVariable String chave
-    ) {
+    public ResponseEntity<Void> remover(@PathVariable String chave) {
         empresaParametroService.remover(chave);
         return ResponseEntity.noContent().build();
     }

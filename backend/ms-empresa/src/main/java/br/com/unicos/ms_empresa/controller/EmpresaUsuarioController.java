@@ -57,10 +57,7 @@ public class EmpresaUsuarioController {
             }
     )
     @PostMapping
-    public ResponseEntity<EmpresaUsuarioResponse> criar(
-            @PathVariable @Positive Long empresaRefId,
-            @RequestBody @Valid EmpresaUsuarioCreateRequest request
-    ) {
+    public ResponseEntity<EmpresaUsuarioResponse> criar(@RequestBody @Valid EmpresaUsuarioCreateRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(empresaUsuarioService.criar(request));
@@ -84,7 +81,6 @@ public class EmpresaUsuarioController {
     )
     @PutMapping("/{usuarioId}/perfil")
     public ResponseEntity<EmpresaUsuarioResponse> atualizarPerfil(
-            @PathVariable @Positive Long empresaRefId,
             @PathVariable @Positive Long usuarioId,
             @RequestBody @Valid EmpresaUsuarioUpdateRequest request
     ) {
@@ -106,10 +102,7 @@ public class EmpresaUsuarioController {
             }
     )
     @GetMapping("/{usuarioId}")
-    public ResponseEntity<EmpresaUsuarioResponse> buscar(
-            @PathVariable @Positive Long empresaRefId,
-            @PathVariable @Positive Long usuarioId
-    ) {
+    public ResponseEntity<EmpresaUsuarioResponse> buscar(@PathVariable @Positive Long usuarioId) {
         return ResponseEntity.ok(empresaUsuarioService.buscar(usuarioId));
     }
 
@@ -131,10 +124,7 @@ public class EmpresaUsuarioController {
             }
     )
     @GetMapping
-    public ResponseEntity<Page<EmpresaUsuarioResumoResponse>> listar(
-            @PathVariable @Positive Long empresaRefId,
-            @ParameterObject Pageable pageable
-    ) {
+    public ResponseEntity<Page<EmpresaUsuarioResumoResponse>> listar(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(empresaUsuarioService.listar(pageable));
     }
 
@@ -157,7 +147,6 @@ public class EmpresaUsuarioController {
     )
     @GetMapping("/perfil/{perfil}")
     public ResponseEntity<Page<EmpresaUsuarioResumoResponse>> listarPorPerfil(
-            @PathVariable @Positive Long empresaRefId,
             @PathVariable PerfilEmpresaUsuario perfil,
             @ParameterObject Pageable pageable
     ) {
@@ -175,10 +164,7 @@ public class EmpresaUsuarioController {
             }
     )
     @DeleteMapping("/{usuarioId}")
-    public ResponseEntity<Void> remover(
-            @PathVariable @Positive Long empresaRefId,
-            @PathVariable @Positive Long usuarioId
-    ) {
+    public ResponseEntity<Void> remover(@PathVariable @Positive Long usuarioId) {
         empresaUsuarioService.remover(usuarioId);
         return ResponseEntity.noContent().build();
     }

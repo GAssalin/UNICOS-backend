@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -56,10 +55,7 @@ public class EmpresaConfiguracaoController {
             }
     )
     @PostMapping
-    public ResponseEntity<EmpresaConfiguracaoResponse> criar(
-            @PathVariable @Positive Long empresaRefId,
-            @RequestBody @Valid EmpresaConfiguracaoCreateRequest request
-    ) {
+    public ResponseEntity<EmpresaConfiguracaoResponse> criar(@RequestBody @Valid EmpresaConfiguracaoCreateRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(empresaConfiguracaoService.criar(request));
@@ -103,10 +99,7 @@ public class EmpresaConfiguracaoController {
             }
     )
     @GetMapping("/{chave}")
-    public ResponseEntity<EmpresaConfiguracaoResponse> buscarPorChave(
-            @PathVariable @Positive Long empresaRefId,
-            @PathVariable String chave
-    ) {
+    public ResponseEntity<EmpresaConfiguracaoResponse> buscarPorChave(@PathVariable String chave) {
         return ResponseEntity.ok(empresaConfiguracaoService.buscarPorChave(chave));
     }
 
@@ -128,10 +121,7 @@ public class EmpresaConfiguracaoController {
             }
     )
     @GetMapping
-    public ResponseEntity<Page<EmpresaConfiguracaoResumoResponse>> listar(
-            @PathVariable @Positive Long empresaRefId,
-            @ParameterObject Pageable pageable
-    ) {
+    public ResponseEntity<Page<EmpresaConfiguracaoResumoResponse>> listar(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(empresaConfiguracaoService.listar(pageable));
     }
 
@@ -146,10 +136,7 @@ public class EmpresaConfiguracaoController {
             }
     )
     @DeleteMapping("/{chave}")
-    public ResponseEntity<Void> remover(
-            @PathVariable @Positive Long empresaRefId,
-            @PathVariable String chave
-    ) {
+    public ResponseEntity<Void> remover(@PathVariable String chave) {
         empresaConfiguracaoService.remover(chave);
         return ResponseEntity.noContent().build();
     }
