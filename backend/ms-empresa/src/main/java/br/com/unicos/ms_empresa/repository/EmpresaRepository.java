@@ -1,91 +1,86 @@
 package br.com.unicos.ms_empresa.repository;
 
-import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_empresa.enums.StatusEmpresa;
 import br.com.unicos.ms_empresa.enums.TipoEmpresa;
 import br.com.unicos.ms_empresa.model.Empresa;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 /**
  * Repositório responsável pelo acesso aos dados da entidade {@link Empresa}.
- * <p>
- * Centraliza consultas relacionadas às empresas (tenants) do UniCoS,
- * garantindo isolamento por {@code empresaId}.
- * </p>
  *
  * <p>
- * Utilizado em fluxos como:
- * <ul>
- *     <li>Cadastro e manutenção de empresas</li>
- *     <li>Validação de tenant ativo</li>
- *     <li>Integração entre microsserviços</li>
- *     <li>Inicialização de contexto multi-tenant</li>
- * </ul>
+ * Como a entidade {@link Empresa} não utiliza mais o atributo {@code empresaId},
+ * este repositório não deve mais herdar de {@code BaseTenantRepository}.
  * </p>
  */
 @Repository
-public interface EmpresaRepository extends BaseTenantRepository<Empresa, Long> {
+public interface EmpresaRepository extends JpaRepository<Empresa, Long> {
 
     /**
-     * Recupera uma empresa pelo CNPJ dentro do contexto da empresa (tenant).
+     * Recupera uma empresa pelo CNPJ.
      *
-     * @param cnpj      CNPJ da empresa (sem formatação).
-     * @param empresaId Identificador da empresa (tenant).
+     * @param cnpj CNPJ da empresa (sem formatação).
      * @return {@link Optional} contendo a empresa, se encontrada.
      */
-    Optional<Empresa> findByCnpjAndEmpresaId(String cnpj, Long empresaId);
+    Optional<Empresa> findByCnpj(String cnpj);
 
     /**
-     * Verifica se já existe uma empresa cadastrada com o mesmo CNPJ
-     * dentro do tenant.
+     * Verifica se já existe uma empresa cadastrada com o mesmo CNPJ.
      *
-     * @param cnpj      CNPJ da empresa.
-     * @param empresaId Identificador da empresa (tenant).
+     * @param cnpj CNPJ da empresa.
      * @return {@code true} se já existir; {@code false} caso contrário.
      */
-    boolean existsByCnpjAndEmpresaId(String cnpj, Long empresaId);
+    boolean existsByCnpj(String cnpj);
 
     /**
-     * Lista empresas filtrando pelo status operacional,
-     * respeitando o contexto multi-tenant.
+     * Lista empresas filtrando pelo status operacional.
      *
      * @param statusEmpresa Status da empresa.
-     * @param empresaId     Identificador da empresa (tenant).
      * @param pageable      Parâmetros de paginação.
      * @return Página de empresas filtradas por status.
      */
-    Page<Empresa> findByStatusEmpresaAndEmpresaId(
-            StatusEmpresa statusEmpresa,
-            Long empresaId,
-            Pageable pageable
-    );
+    Page<Empresa> findByStatusEmpresa(StatusEmpresa statusEmpresa, Pageable pageable);
 
     /**
-     * Lista empresas filtrando pelo tipo (MATRIZ ou FILIAL),
-     * respeitando o contexto multi-tenant.
+     * Lista empresas filtrando pelo tipo (MATRIZ ou FILIAL).
      *
      * @param tipoEmpresa Tipo da empresa.
-     * @param empresaId   Identificador da empresa (tenant).
      * @param pageable    Parâmetros de paginação.
      * @return Página de empresas filtradas por tipo.
      */
-    Page<Empresa> findByTipoEmpresaAndEmpresaId(
-            TipoEmpresa tipoEmpresa,
-            Long empresaId,
-            Pageable pageable
-    );
+    Page<Empresa> findByTipoEmpresa(TipoEmpresa tipoEmpresa, Pageable pageable);
 
     /**
-     * Lista todas as empresas pertencentes ao tenant,
-     * com suporte à paginação.
+     * Lista empresas de uma matriz específica.
      *
-     * @param empresaId Identificador da empresa (tenant).
-     * @param pageable  Parâmetros de paginação e ordenação.
-     * @return Página de empresas.
+     * @param matrizId identificador da matriz.
+     * @param pageable parâmetros de paginação.
+     * @return página de empresas vinculadas à matriz.
      */
-    Page<Empresa> findByEmpresaId(Long empresaId, Pageable pageable);
+    Page<Empresa> findByMatrizId(Long matrizId, Pageable pageable);
+
+    /**
+     * Busca empresas por matriz e tipo.
+     *
+     * @param matrizId    identificador da matriz.
+     * @param tipoEmpresa tipo da empresa.
+     * @param pageable    parâmetros de paginação.
+     * @return página filtrada.
+     */
+    Page<Empresa> findByMatrizIdAndTipoEmpresa(Long matrizId, TipoEmpresa tipoEmpresa, Pageable pageable);
+
+    /**
+     * Busca empresas por matriz e status.
+     *
+     * @param matrizId      identificador da matriz.
+     * @param statusEmpresa status da empresa.
+     * @param pageable      parâmetros de paginação.
+     * @return página filtrada.
+     */
+    Page<Empresa> findByMatrizIdAndStatusEmpresa(Long matrizId, StatusEmpresa statusEmpresa, Pageable pageable);
 }

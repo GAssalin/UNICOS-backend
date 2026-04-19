@@ -27,14 +27,6 @@ public class EmpresaContato extends BaseTenantEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * Empresa proprietária do contato.
-     */
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "empresa_id_ref", nullable = false)
-    private Empresa empresa;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_contato", nullable = false, length = 20)

@@ -1,6 +1,6 @@
 package br.com.unicos.ms_empresa.model;
 
-import br.com.unicos.core.tenant.model.BaseTenantEntity;
+import br.com.unicos.core.base.model.EntidadeAuditavel;
 import br.com.unicos.ms_empresa.enums.RegimeTributario;
 import br.com.unicos.ms_empresa.enums.StatusEmpresa;
 import br.com.unicos.ms_empresa.enums.TipoEmpresa;
@@ -28,11 +28,18 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Empresa extends BaseTenantEntity {
+public class Empresa extends EntidadeAuditavel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /**
+     * Identificador da empresa matriz.
+     * Campo não obrigatório para empresa que já é matriz.
+     */
+    @Column(name = "matriz_id", updatable = false)
+    private Long matrizId;
 
     /**
      * Razão social da empresa.

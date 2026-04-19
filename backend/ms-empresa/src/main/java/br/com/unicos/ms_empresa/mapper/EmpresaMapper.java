@@ -35,7 +35,7 @@ public class EmpresaMapper {
 
         return new EmpresaResponseDTO(
                 entity.getId(),
-                entity.getEmpresaId(),
+                entity.getMatrizId(),
                 entity.getRazaoSocial(),
                 entity.getNomeFantasia(),
                 entity.getCnpj(),
@@ -60,7 +60,7 @@ public class EmpresaMapper {
 
         return new EmpresaResumoDTO(
                 entity.getId(),
-                entity.getEmpresaId(),
+                entity.getMatrizId(),
                 entity.getRazaoSocial(),
                 entity.getCnpj(),
                 entity.getStatusEmpresa()

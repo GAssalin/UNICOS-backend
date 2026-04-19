@@ -27,11 +27,6 @@ public class EmpresaParametro extends BaseTenantEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "empresa_id_ref", nullable = false)
-    private Empresa empresa;
-
     @NotBlank
     @Column(nullable = false, length = 100)
     private String chave;

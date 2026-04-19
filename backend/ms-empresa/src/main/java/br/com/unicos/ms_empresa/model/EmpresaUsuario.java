@@ -25,14 +25,6 @@ public class EmpresaUsuario extends BaseTenantEntity {
     private Long id;
 
     /**
-     * Empresa vinculada.
-     */
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "empresa_id_ref", nullable = false)
-    private Empresa empresa;
-
-    /**
      * Identificador do usuário no ms-auth.
      */
     @NotNull
