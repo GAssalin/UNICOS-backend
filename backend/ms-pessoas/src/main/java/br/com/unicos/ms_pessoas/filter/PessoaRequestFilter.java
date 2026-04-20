@@ -306,19 +306,19 @@ public class PessoaRequestFilter extends OncePerRequestFilter {
         SecurityContextHolder.clearContext();
 
         try {
-            AuthContext.setToken(null);
+            AuthContext.clear();
         } catch (Exception ex) {
             log.debug("Não foi possível limpar AuthContext.", ex);
         }
 
         try {
-            UserContext.setUsuarioId(null);
+            UserContext.clear();
         } catch (Exception ex) {
             log.debug("Não foi possível limpar UserContext.", ex);
         }
 
         try {
-            TenantContext.setEmpresaId(null);
+            TenantContext.clear();
         } catch (Exception ex) {
             log.debug("Não foi possível limpar TenantContext.", ex);
         }

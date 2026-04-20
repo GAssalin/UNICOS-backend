@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -297,19 +296,19 @@ public class EmpresaRequestFilter extends OncePerRequestFilter {
         SecurityContextHolder.clearContext();
 
         try {
-            AuthContext.setToken(null);
+            AuthContext.clear();
         } catch (Exception ex) {
             log.debug("Não foi possível limpar AuthContext explicitamente.", ex);
         }
 
         try {
-            UserContext.setUsuarioId(null);
+            UserContext.clear();
         } catch (Exception ex) {
             log.debug("Não foi possível limpar UserContext explicitamente.", ex);
         }
 
         try {
-            TenantContext.setEmpresaId(null);
+            TenantContext.clear();
         } catch (Exception ex) {
             log.debug("Não foi possível limpar TenantContext explicitamente.", ex);
         }

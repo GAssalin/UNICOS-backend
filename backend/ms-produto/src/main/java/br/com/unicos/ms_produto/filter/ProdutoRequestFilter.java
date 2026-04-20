@@ -306,19 +306,19 @@ public class ProdutoRequestFilter extends OncePerRequestFilter {
         SecurityContextHolder.clearContext();
 
         try {
-            AuthContext.setToken(null);
+            AuthContext.clear();
         } catch (Exception ex) {
             log.debug("Não foi possível limpar AuthContext explicitamente.", ex);
         }
 
         try {
-            UserContext.setUsuarioId(null);
+            UserContext.clear();
         } catch (Exception ex) {
             log.debug("Não foi possível limpar UserContext explicitamente.", ex);
         }
 
         try {
-            TenantContext.setEmpresaId(null);
+            TenantContext.clear();
         } catch (Exception ex) {
             log.debug("Não foi possível limpar TenantContext explicitamente.", ex);
         }
