@@ -20,7 +20,7 @@
         </processorPath>
         <module name="config-server" />
       </profile>
-      <profile name="Annotation profile for UNICOS :: MS-Empresa" enabled="true">
+      <profile name="Annotation profile for UNICOS :: MS-Estoque" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -28,6 +28,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
         </processorPath>
         <module name="ms-pessoas" />
+        <module name="ms-estoque" />
         <module name="ms-permissao" />
         <module name="core-auth" />
         <module name="ms-produto" />
@@ -54,7 +55,6 @@
       <module name="ms-auth" target="21" />
       <module name="ms-compras" target="21" />
       <module name="ms-departamento" target="21" />
-      <module name="ms-estoque" target="21" />
       <module name="ms-filial" target="21" />
       <module name="ms-notificacao" target="21" />
       <module name="ms-produtos" target="21" />

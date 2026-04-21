@@ -20,6 +20,7 @@ public class DocumentationController {
         String pessoasUrl = resolveServiceUrl("ms-pessoas");
         String produtoUrl = resolveServiceUrl("ms-produto");
         String empresaUrl = resolveServiceUrl("ms-empresa");
+        String estoqueUrl = resolveServiceUrl("ms-estoque");
 
         return """
                 <html>
@@ -76,6 +77,12 @@ public class DocumentationController {
                       <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
                       <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
                     </div>
+                    
+                    <div class="card">
+                      <strong>MS-ESTOQUE</strong><br/>
+                      <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
+                      <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
+                    </div>
 
                     <div class="card">
                       <strong>MS-PRODUTO</strong><br/>
@@ -91,6 +98,7 @@ public class DocumentationController {
                         usuarioUrl, usuarioUrl,
                         pessoasUrl, pessoasUrl,
                         empresaUrl, empresaUrl,
+                        estoqueUrl, estoqueUrl,
                         produtoUrl, produtoUrl);
     }
 

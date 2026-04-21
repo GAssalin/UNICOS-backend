@@ -3,7 +3,11 @@ package br.com.unicos.core.base.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
-import lombok.*;
+import jakarta.persistence.PreUpdate;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -13,12 +17,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.time.LocalDateTime;
 
 /**
- * Classe base para auditoria de entidades no sistema UniCoS.
+ * Classe base para auditoria das entidades do sistema.
  *
- * <p>
- * Fornece campos padrão para controle de criação, atualização e exclusão lógica.
- * Todas as entidades que herdarem esta classe terão automaticamente os campos de auditoria.
- * </p>
+ * <p>Fornece os campos padrão de criação, atualização e exclusão lógica.</p>
  */
 @MappedSuperclass
 @Getter
@@ -49,7 +50,17 @@ public abstract class EntidadeAuditavel {
 
     @PrePersist
     public void prePersist() {
-        this.criadoEm = LocalDateTime.now();
+        if (this.criadoEm == null) {
+            this.criadoEm = LocalDateTime.now();
+        }
+
+        if (this.ativo == null) {
+            this.ativo = true;
+        }
     }
 
+    @PreUpdate
+    public void preUpdate() {
+        this.atualizadoEm = LocalDateTime.now();
+    }
 }
