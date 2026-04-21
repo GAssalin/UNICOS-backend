@@ -10,13 +10,13 @@ INSERT INTO permissao (empresa_id, nome, descricao, criado_em, ativo) VALUES
 (1, 'ESTOQUE_EXCLUIR', 'Permite remover estoque', NOW(), 1),
 
 -- RESPONSAVEL DE ESTOQUE
-(1, 'RESPONSAVEL_ESTOQUE_CRIAR', 'Permite criar vinculo de responsavel por estoque', NOW(), 1),
-(1, 'RESPONSAVEL_ESTOQUE_EDITAR', 'Permite atualizar vinculo de responsavel por estoque', NOW(), 1),
-(1, 'RESPONSAVEL_ESTOQUE_LISTAR', 'Permite consultar e listar responsaveis por estoque', NOW(), 1),
-(1, 'RESPONSAVEL_ESTOQUE_EXCLUIR', 'Permite remover vinculo de responsavel por estoque', NOW(), 1),
+(1, 'ESTOQUE_RESPONSAVEL_CRIAR', 'Permite criar vinculo de responsavel por estoque', NOW(), 1),
+(1, 'ESTOQUE_RESPONSAVEL_EDITAR', 'Permite atualizar vinculo de responsavel por estoque', NOW(), 1),
+(1, 'ESTOQUE_RESPONSAVEL_LISTAR', 'Permite consultar e listar responsaveis por estoque', NOW(), 1),
+(1, 'ESTOQUE_RESPONSAVEL_EXCLUIR', 'Permite remover vinculo de responsavel por estoque', NOW(), 1),
 
 -- VINCULO ESTOQUE x FILIAL
-(1, 'VINCULO_ESTOQUE_FILIAL_CRIAR', 'Permite criar vinculo entre estoque e filial', NOW(), 1),
-(1, 'VINCULO_ESTOQUE_FILIAL_EDITAR', 'Permite atualizar vinculo entre estoque e filial', NOW(), 1),
-(1, 'VINCULO_ESTOQUE_FILIAL_LISTAR', 'Permite consultar e listar vinculos entre estoque e filial', NOW(), 1),
-(1, 'VINCULO_ESTOQUE_FILIAL_EXCLUIR', 'Permite remover vinculo entre estoque e filial', NOW(), 1);
+(1, 'ESTOQUE_VINCULO_FILIAL_CRIAR', 'Permite criar vinculo entre estoque e filial', NOW(), 1),
+(1, 'ESTOQUE_VINCULO_FILIAL_EDITAR', 'Permite atualizar vinculo entre estoque e filial', NOW(), 1),
+(1, 'ESTOQUE_VINCULO_FILIAL_LISTAR', 'Permite consultar e listar vinculos entre estoque e filial', NOW(), 1),
+(1, 'ESTOQUE_VINCULO_FILIAL_EXCLUIR', 'Permite remover vinculo entre estoque e filial', NOW(), 1);

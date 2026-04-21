@@ -207,11 +207,11 @@ public class EstoqueRequestFilter extends OncePerRequestFilter {
         String prefixo;
 
         if(path.startsWith("/v1/estoques")) {
-            prefixo = "DEPARTAMENTO_";
+            prefixo = "ESTOQUE_";
         } else if(path.startsWith("/v1/responsaveis-estoque")) {
-                prefixo = "DEPARTAMENTO_RESPONSAVEL_";
+                prefixo = "ESTOQUE_RESPONSAVEL_";
         } else if(path.startsWith("/v1/vinculos-estoque-filial")) {
-            prefixo = "DEPARTAMENTO_VINCULO_FILIAL_";
+            prefixo = "ESTOQUE_VINCULO_FILIAL_";
         } else {
             return null;
         }
