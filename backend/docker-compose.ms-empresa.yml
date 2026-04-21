@@ -1,0 +1,33 @@
+name: unicos-empresa
+
+services:
+  ms-empresa:
+    build:
+      context: .
+      dockerfile: ./ms-empresa/Dockerfile
+    container_name: ms-empresa
+    restart: unless-stopped
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://service-registry:8081/eureka
+
+      UNICOS_TEMPO_EXP_TOKEN: ${UNICOS_TEMPO_EXP_TOKEN}
+      UNICOS_TEMPO_EXP_REFRESH_TOKEN: ${UNICOS_TEMPO_EXP_REFRESH_TOKEN}
+
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/unicos_ms_empresa?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+    networks:
+      - unicos-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8087/actuator/health | grep UP || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+networks:
+  unicos-net:
+    external: true
+    name: unicos-net
