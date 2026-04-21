@@ -12,6 +12,7 @@ public interface PermissaoClient {
     @PostMapping("/internal/permissao/check")
     boolean usuarioPossuiPermissao(
             @RequestParam("nomePermissao") String nomePermissao,
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader);
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+    );
 
 }

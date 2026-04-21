@@ -10,34 +10,26 @@
         <module name="service-registry" />
         <module name="gateway" />
       </profile>
-      <profile name="Annotation profile for config-server" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
-        </processorPath>
-        <module name="config-server" />
-      </profile>
-      <profile name="Annotation profile for UNICOS :: MS-Estoque" enabled="true">
+      <profile name="Annotation profile for UNICOS :: MS-Produto" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
         </processorPath>
+        <module name="ms-autenticacao" />
+        <module name="ms-usuario" />
+        <module name="ms-empresa" />
         <module name="ms-pessoas" />
         <module name="ms-estoque" />
+        <module name="config-server" />
         <module name="ms-permissao" />
-        <module name="core-auth" />
         <module name="ms-produto" />
-        <module name="ms-autenticacao" />
+        <module name="core-auth" />
+        <module name="core-produto" />
         <module name="core-usuario" />
-        <module name="ms-usuario" />
         <module name="core-base" />
         <module name="core-tenant" />
-        <module name="ms-empresa" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -45,7 +37,6 @@
       <module name="core-contas" target="21" />
       <module name="core-financeiro" target="21" />
       <module name="core-pedido" target="21" />
-      <module name="core-produto" target="21" />
       <module name="core-produto-api" target="21" />
       <module name="core-produto-domain" target="21" />
       <module name="core-produto-events" target="21" />
