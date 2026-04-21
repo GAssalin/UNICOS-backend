@@ -159,6 +159,7 @@ backend
 │   ├── core-request
 │   ├── core-tenant
 │   ├── core-usuario
+│   ├── core-produto
 │
 ├── ms-autenticacao
 ├── ms-permissao

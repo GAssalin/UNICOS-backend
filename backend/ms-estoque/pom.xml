@@ -11,7 +11,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.3</version>
+        <version>3.5.13</version>
         <relativePath/>
     </parent>
 
@@ -58,17 +58,21 @@
     <!-- =============================================== -->
     <dependencies>
 
-        <!-- 🧩 CORE (publicado no GitHub Packages) -->
         <dependency>
             <groupId>br.com.unicos</groupId>
             <artifactId>core-tenant</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
-        <!-- 🧩 CORE (publicado no GitHub Packages) -->
         <dependency>
             <groupId>br.com.unicos</groupId>
             <artifactId>core-usuario</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>br.com.unicos</groupId>
+            <artifactId>core-produto</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 

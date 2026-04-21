@@ -24,6 +24,7 @@
         - core-base
         - core-tenant
         - core-usuario
+        - core-produto
     </description>
 
     <modules>
@@ -31,6 +32,7 @@
         <module>core-base</module>
         <module>core-tenant</module>
         <module>core-usuario</module>
+        <module>core-produto</module>
     </modules>
 
     <properties>
@@ -134,6 +136,11 @@
             <dependency>
                 <groupId>br.com.unicos</groupId>
                 <artifactId>core-auth</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>br.com.unicos</groupId>
+                <artifactId>core-produto</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
