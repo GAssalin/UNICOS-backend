@@ -31,6 +31,7 @@ public class AutenticacaoRequestFilter extends OncePerRequestFilter {
         return path.equals("/v1/autenticacao/login")
                 || path.equals("/v1/autenticacao/atualizar-token")
                 || path.equals("/internal/autenticacao/validate-token")
+                || path.startsWith("/actuator")
                 || path.startsWith("/swagger")
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/error");

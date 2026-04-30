@@ -34,9 +34,9 @@ public class JwtAuthFilter implements GatewayFilter {
         // ROTAS SEM JWT
         // ==============================
         if (
-                path.equals("/v1/autenticacao/login") ||
-                        path.startsWith("/ms-usuario/internal/") ||
-                        path.startsWith("/ms-autenticacao/internal/")
+                path.contains("/v1/autenticacao/login") ||
+                path.startsWith("/ms-usuario/internal/") ||
+                path.startsWith("/ms-autenticacao/internal/")
         ) {
             return chain.filter(exchange);
         }

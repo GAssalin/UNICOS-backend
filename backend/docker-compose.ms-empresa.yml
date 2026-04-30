@@ -11,14 +11,14 @@ services:
       - "8087:8087"
     environment:
       SPRING_CONFIG_SERVER_URL: http://config-server:8888
-      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://service-registry:8081/eureka
+      EUREKA_CLIENT_SERVICE_URL_DEFAULT ZONE: http://service-registry:8081/eureka
 
       UNICOS_TEMPO_EXP_TOKEN: ${UNICOS_TEMPO_EXP_TOKEN}
       UNICOS_TEMPO_EXP_REFRESH_TOKEN: ${UNICOS_TEMPO_EXP_REFRESH_TOKEN}
 
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/unicos_ms_empresa?createDatabaseIfNotExist=true
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
     networks:
       - unicos-net
     healthcheck:

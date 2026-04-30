@@ -27,6 +27,7 @@ public class SecurityConfig {
     public SecurityFilterChain filtrosSeguranca(HttpSecurity http) throws Exception {
 
         String[] SWAGGER_WHITELIST = {
+                "/actuator/**",
                 "/swagger-ui.html",
                 "/swagger-ui/**",
                 "/v3/api-docs",

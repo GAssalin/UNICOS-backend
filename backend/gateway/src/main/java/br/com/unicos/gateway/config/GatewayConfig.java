@@ -29,7 +29,6 @@ public class GatewayConfig {
                         .path("/ms-autenticacao/**")
                         .filters(f -> f
                                 .stripPrefix(1)
-                                .filter(jwtAuthFilter)
                         )
                         .uri("lb://ms-autenticacao")
                 )
