@@ -1,0 +1,35 @@
+name: unicos-cliente
+
+services:
+  ms-cliente:
+    build:
+      context: .
+      dockerfile: ./ms-cliente/Dockerfile
+    container_name: ms-cliente
+    restart: unless-stopped
+    ports:
+      - "8089:8089"
+    environment:
+      SPRING_CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_CLIENT_SERVICE_URL_DEFAULT ZONE: http://service-registry:8081/eureka
+
+      UNICOS_JWT_SECRET: ${UNICOS_JWT_SECRET}
+      UNICOS_JWT_ISSUER: ${UNICOS_JWT_ISSUER}
+      UNICOS_TEMPO_EXP_TOKEN: ${UNICOS_TEMPO_EXP_TOKEN}
+      UNICOS_TEMPO_EXP_REFRESH_TOKEN: ${UNICOS_TEMPO_EXP_REFRESH_TOKEN}
+
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/unicos_ms_cliente?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - unicos-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8087/actuator/health | grep UP || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+networks:
+  unicos-net:
+    external: true
+    name: unicos-net
