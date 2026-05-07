@@ -23,7 +23,9 @@
     <version>1.0.0-SNAPSHOT</version>
     <name>UNICOS :: MS-cliente</name>
     <description>
-
+        Microsserviço responsável pelo gerenciamento de clientes da plataforma UNICOS,
+        incluindo cadastro, atualização de dados pessoais e empresariais, contatos,
+        endereços, vínculos comerciais e histórico de relacionamento.
     </description>
 
     <!-- =============================================== -->

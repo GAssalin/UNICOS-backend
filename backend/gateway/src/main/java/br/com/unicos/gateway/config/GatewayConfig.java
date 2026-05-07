@@ -82,30 +82,6 @@ public class GatewayConfig {
                 )
 
                 // ===============================
-                // ROTA: MS-FILIAL (COM JWT)
-                // ===============================
-                .route("ms-filial", r -> r
-                        .path("/ms-filial/**")
-                        .filters(f -> f
-                                .stripPrefix(1)
-                                .filter(jwtAuthFilter)
-                        )
-                        .uri("lb://ms-filial")
-                )
-
-                // ===============================
-                // ROTA: MS-DEPARTAMENTO (COM JWT)
-                // ===============================
-                .route("ms-departamento", r -> r
-                        .path("/ms-departamento/**")
-                        .filters(f -> f
-                                .stripPrefix(1)
-                                .filter(jwtAuthFilter)
-                        )
-                        .uri("lb://ms-departamento")
-                )
-
-                // ===============================
                 // ROTA: MS-ESTOQUE (COM JWT)
                 // ===============================
                 .route("ms-estoque", r -> r
@@ -118,27 +94,15 @@ public class GatewayConfig {
                 )
 
                 // ===============================
-                // ROTA: MS-VENDAS (COM JWT)
+                // ROTA: MS-CLIENTE (COM JWT)
                 // ===============================
-                .route("ms-vendas", r -> r
-                        .path("/ms-vendas/**")
+                .route("ms-cliente", r -> r
+                        .path("/ms-cliente/**")
                         .filters(f -> f
                                 .stripPrefix(1)
                                 .filter(jwtAuthFilter)
                         )
-                        .uri("lb://ms-vendas")
-                )
-
-                // ===============================
-                // ROTA: MS-COMPRAS (COM JWT)
-                // ===============================
-                .route("ms-compras", r -> r
-                        .path("/ms-compras/**")
-                        .filters(f -> f
-                                .stripPrefix(1)
-                                .filter(jwtAuthFilter)
-                        )
-                        .uri("lb://ms-compras")
+                        .uri("lb://ms-cliente")
                 )
 
                 .build();

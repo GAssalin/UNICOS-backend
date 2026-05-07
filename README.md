@@ -68,6 +68,7 @@ A plataforma utiliza o ecossistema **Spring Cloud** para orquestração dos serv
 │                       MS-PRODUTO                           │
 │                       MS-EMPRESA                           │
 │                       MS-ESTOQUE                           │
+│                       MS-CLIENTE                           │
 │                                                            │
 └────────────────────────────────────────────────────────────┘
                    ┌───────────────────┐
@@ -92,6 +93,7 @@ A plataforma utiliza o ecossistema **Spring Cloud** para orquestração dos serv
 | **ms-produto**       | Cadastro de produtos |
 | **ms-empresa**       | Gestão de empresas, configurações, contatos, endereços, parâmetros e vínculos de usuários |
 | **ms-estoque**       | Gestão de estoque de produtos, controlando entradas, saídas, saldos e movimentações |
+| **ms-cliente**       | Gerenciamento de clientes, incluindo dados cadastrais, contatos, endereços, vínculos comerciais e histórico de relacionamento |
 
 ---
 
@@ -168,6 +170,7 @@ backend
 ├── ms-produto
 ├── ms-empresa
 ├── ms-estoque
+├── ms-cliente
 ```
 
 ---
