@@ -47,9 +47,7 @@ public class ClienteRequestFilter extends OncePerRequestFilter {
 
         return path.startsWith("/swagger")
                 || path.startsWith("/v3/api-docs")
-                || path.startsWith("/error")
-                || path.startsWith("/internal/auth/by-email")
-                || path.equals("/v1/verificacao-email/confirmar");
+                || path.startsWith("/error");
     }
 
     @Override
@@ -202,10 +200,12 @@ public class ClienteRequestFilter extends OncePerRequestFilter {
     private String resolverPermissao(String metodoHttp, String path) {
         String prefixo;
 
-        if (path.startsWith("/v1/usuarios")) {
-            prefixo = USUARIO_PREFIXO;
-        } else if (path.startsWith("/v1/verificacao-email")) {
-            prefixo = USUARIO_EMAIL_PREFIXO;
+        if (path.startsWith("/v1/clientes/categorias")) {
+            prefixo = "CLIENTE_CATEGORIA_";
+        } else if (path.startsWith("/v1/clientes/observacoes")) {
+            prefixo = "CLIENTE_OBSERVACAO_";
+        } else if (path.startsWith("/v1/clientes")) {
+            prefixo = "CLIENTE_";
         } else {
             return null;
         }
