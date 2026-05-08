@@ -177,6 +177,26 @@ backend
 
 # 🚀 Executando o Projeto
 
+# 🔧 Configuração de Ambiente
+
+O projeto utiliza arquivos `.env` para gerenciamento de variáveis de ambiente.
+
+## Arquivos utilizados
+
+| Arquivo | Finalidade |
+|----------|-------------|
+| `.env.example` | Template versionado no GitHub |
+
+---
+
+## 📦 Configuração inicial
+
+Copie o arquivo `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
 ## 📦 Rodando com Docker (Recomendado)
 
 ```bash
