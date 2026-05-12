@@ -1,6 +1,6 @@
 package br.com.unicos.ms_autenticacao.dto.token;
 
 public record DadosToken(
-        String tokenAcesso,
+        String tokenAccess,
         String refreshToken
 ) { }

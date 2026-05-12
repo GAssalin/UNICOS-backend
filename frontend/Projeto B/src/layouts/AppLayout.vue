@@ -41,10 +41,10 @@
           </div>
 
           <div class="topbar-user">
-            <div class="user-avatar">A</div>
+            <div class="user-avatar">{{ userInitial }}</div>
             <div>
-              <strong>Administrador</strong>
-              <p>admin</p>
+              <strong>{{ userName }}</strong>
+              <p>{{ userEmail }}</p>
             </div>
           </div>
         </header>
@@ -60,12 +60,13 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { logout } from '../composables/useAuth'
+import { getCurrentUser, logout } from '../composables/useAuth'
 
 const route = useRoute()
 const router = useRouter()
 const logoUrl = '/assets/logo-outline.png'
 const showLogo = ref(true)
+const currentUser = getCurrentUser() || {}
 
 const menuItems = [
   { label: 'Compras', to: '/compras' },
@@ -79,6 +80,11 @@ const menuItems = [
   { label: 'TI', to: '/ti' },
   { label: 'Vendas', to: '/vendas' }
 ].sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+
+
+const userEmail = computed(() => currentUser.email || currentUser.login || 'usuário logado')
+const userName = computed(() => currentUser.nome || currentUser.name || currentUser.username || 'Administrador')
+const userInitial = computed(() => userName.value.charAt(0).toUpperCase())
 
 const pageTitle = computed(() => route.meta.title || route.name || 'Dashboard')
 

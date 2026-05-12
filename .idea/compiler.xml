@@ -10,7 +10,7 @@
         <module name="service-registry" />
         <module name="gateway" />
       </profile>
-      <profile name="Annotation profile for UNICOS :: MS-cliente" enabled="true">
+      <profile name="Annotation profile for UNICOS :: Core Modules" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -25,8 +25,8 @@
         <module name="ms-cliente" />
         <module name="config-server" />
         <module name="ms-permissao" />
-        <module name="ms-produto" />
         <module name="core-auth" />
+        <module name="ms-produto" />
         <module name="core-produto" />
         <module name="core-usuario" />
         <module name="core-base" />

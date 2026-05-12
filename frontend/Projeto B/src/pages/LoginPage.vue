@@ -9,13 +9,13 @@
       </div>
 
       <label class="field">
-        <span>Usuário</span>
-        <input v-model="user" type="text" placeholder="Digite seu usuário" />
+        <span>E-mail</span>
+        <input v-model="email" type="email" autocomplete="username" placeholder="admin@unicos.com" />
       </label>
 
       <label class="field">
         <span>Senha</span>
-        <input v-model="pass" type="password" placeholder="Digite sua senha" />
+        <input v-model="senha" type="password" autocomplete="current-password" placeholder="123456" />
       </label>
 
       <label class="remember-row">
@@ -25,7 +25,7 @@
 
       <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
 
-      <button type="submit">Entrar</button>
+      <button type="submit" :disabled="loading">{{ loading ? 'Entrando...' : 'Entrar' }}</button>
       <p class="copyright">© 2024 UniCoS. Todos os direitos reservados.</p>
     </form>
   </div>
@@ -37,17 +37,21 @@ import { useRouter } from 'vue-router'
 import { login } from '../composables/useAuth'
 
 const router = useRouter()
-const user = ref('')
-const pass = ref('')
+const email = ref('admin@unicos.com')
+const senha = ref('123456')
 const errorMessage = ref('')
+const loading = ref(false)
 
-function handleLogin() {
+async function handleLogin() {
   try {
-    login(user.value, pass.value)
+    loading.value = true
+    await login(email.value, senha.value)
     errorMessage.value = ''
     router.push({ name: 'dashboard' })
   } catch (error) {
-    errorMessage.value = error.message
+    errorMessage.value = error.message || 'Não foi possível realizar o login.'
+  } finally {
+    loading.value = false
   }
 }
 </script>
@@ -133,7 +137,7 @@ h1 {
   font-weight: 600;
 }
 
-input[type='text'],
+input[type='email'],
 input[type='password'] {
   border: 1px solid rgba(255,255,255,0.38);
   border-radius: 14px;
