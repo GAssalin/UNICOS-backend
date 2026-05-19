@@ -12,7 +12,7 @@ SET @TENANT_ID := 1;
 SET @CRIADO_POR := 1;
 
 -- =========================================================
--- DEPARTAMENTOS (alguns raiz e alguns filhos)
+-- ESTOQUES (alguns raiz e alguns filhos)
 -- =========================================================
 INSERT INTO estoque (
     empresa_id, criado_por, criado_em, atualizado_por, atualizado_em, ativo,
@@ -70,7 +70,7 @@ INSERT INTO estoque (
 );
 
 -- =========================================================
--- RESPONSÁVEIS DEPARTAMENTO
+-- RESPONSÁVEIS DE ESTOQUE
 -- =========================================================
 -- responsavel_id é integração lógica com ms-pessoas/ms-rh: ids fictícios (ex.: 501, 502...)
 -- vigenciaFim nula = vigente
@@ -111,11 +111,11 @@ INSERT INTO responsavel_estoque (
 );
 
 -- =========================================================
--- VÍNCULOS DEPARTAMENTO x FILIAL
+-- VÍNCULOS ESTOQUE x FILIAL
 -- =========================================================
 -- filial_id: ids fictícios (integração lógica com ms-filial)
 
--- Estoques raiz vinculados a 3 filiais
+-- Estoques vinculados a 3 filiais
 INSERT INTO vinculo_estoque_filial (
     empresa_id, criado_por, criado_em, atualizado_por, atualizado_em, ativo,
     estoque_id, filial_id, tipo_atuacao, vigencia_inicio, vigencia_fim, status_vinculo_estoque_filial
