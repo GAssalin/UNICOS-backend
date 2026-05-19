@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
  * Controller responsável pelos endpoints de gerenciamento de movimentações de estoque.
  */
 @RestController
-@RequestMapping("/api/movimentacoes-estoque")
+@RequestMapping("/v1/movimentacoes-estoque")
 @RequiredArgsConstructor
 public class MovimentacaoEstoqueController {
 

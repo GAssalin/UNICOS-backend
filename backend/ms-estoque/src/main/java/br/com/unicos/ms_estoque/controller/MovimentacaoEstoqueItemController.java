@@ -19,7 +19,7 @@ import java.util.List;
  * Controller responsável pelos endpoints de gerenciamento de itens de movimentação de estoque.
  */
 @RestController
-@RequestMapping("/api/movimentacoes-estoque-itens")
+@RequestMapping("/v1/movimentacoes-estoque-itens")
 @RequiredArgsConstructor
 public class MovimentacaoEstoqueItemController {
 
