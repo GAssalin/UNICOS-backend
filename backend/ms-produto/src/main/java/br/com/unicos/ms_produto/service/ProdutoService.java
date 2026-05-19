@@ -8,6 +8,7 @@ import br.com.unicos.ms_produto.dto.produto.ProdutoResumoResponse;
 import br.com.unicos.ms_produto.dto.produto.ProdutoUpdateRequest;
 import br.com.unicos.ms_produto.mapper.ProdutoMapper;
 import br.com.unicos.ms_produto.model.Produto;
+import br.com.unicos.ms_produto.repository.CategoriaProdutoRepository;
 import br.com.unicos.ms_produto.repository.ProdutoRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,14 +23,17 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 public class ProdutoService extends BaseTenantService<Produto, Long> {
 
+    private final CategoriaProdutoRepository categoriaProdutoRepository;
     private final ProdutoRepository repository;
     private final ProdutoMapper mapper;
 
     public ProdutoService(
+            CategoriaProdutoRepository categoriaProdutoRepository,
             ProdutoRepository repository,
             ProdutoMapper mapper
     ) {
         super(repository);
+        this.categoriaProdutoRepository = categoriaProdutoRepository;
         this.repository = repository;
         this.mapper = mapper;
     }
@@ -48,7 +52,7 @@ public class ProdutoService extends BaseTenantService<Produto, Long> {
         produto.setEmpresaId(empresaId);
         produto.setAtivo(true);
 
-        return mapper.toResponse(repository.save(produto), empresaId);
+        return mapper.toResponse(repository.save(produto), empresaId, categoriaProdutoRepository.getReferenceById(request.categoriaId()));
     }
 
     // ============================================================
@@ -63,7 +67,7 @@ public class ProdutoService extends BaseTenantService<Produto, Long> {
 
         mapper.updateEntity(request, produto, empresaId);
 
-        return mapper.toResponse(repository.save(produto), empresaId);
+        return mapper.toResponse(repository.save(produto), empresaId, categoriaProdutoRepository.getReferenceById(request.categoriaId()));
     }
 
     // ============================================================
@@ -74,7 +78,8 @@ public class ProdutoService extends BaseTenantService<Produto, Long> {
     @CircuitBreaker(name = "produto-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoResponse buscarPorId(Long id) {
         Long empresaId = TenantContext.getEmpresaId();
-        return mapper.toResponse(buscarProduto(id, empresaId), empresaId);
+        Produto produto = buscarProduto(id, empresaId);
+        return mapper.toResponse(produto, empresaId, categoriaProdutoRepository.getReferenceById(produto.getCategoriaId()));
     }
 
     @Transactional(readOnly = true)
@@ -85,7 +90,7 @@ public class ProdutoService extends BaseTenantService<Produto, Long> {
         Produto produto = repository.findByCodigoAndEmpresaId(codigo, empresaId)
                 .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado para o código: " + codigo));
 
-        return mapper.toResponse(produto, empresaId);
+        return mapper.toResponse(produto, empresaId, categoriaProdutoRepository.getReferenceById(produto.getCategoriaId()));
     }
 
     // ============================================================
@@ -127,7 +132,7 @@ public class ProdutoService extends BaseTenantService<Produto, Long> {
         Produto produto = buscarProduto(id, empresaId);
         produto.setAtivo(true);
 
-        return mapper.toResponse(repository.save(produto), empresaId);
+        return mapper.toResponse(repository.save(produto), empresaId, categoriaProdutoRepository.getReferenceById(produto.getCategoriaId()));
     }
 
     @CircuitBreaker(name = "produto-admin", fallbackMethod = "fallbackAdmin")
@@ -137,7 +142,7 @@ public class ProdutoService extends BaseTenantService<Produto, Long> {
         Produto produto = buscarProduto(id, empresaId);
         produto.setAtivo(false);
 
-        return mapper.toResponse(repository.save(produto), empresaId);
+        return mapper.toResponse(repository.save(produto), empresaId, categoriaProdutoRepository.getReferenceById(produto.getCategoriaId()));
     }
 
     // ============================================================
