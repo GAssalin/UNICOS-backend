@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @Service
 @Slf4j
 public class PermissaoService extends BaseTenantService<Permissao, Long> {
@@ -110,6 +112,24 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
         );
         log.info("" + isRolePossuiPermissao);
         return isRolePossuiPermissao;
+    }
+
+
+
+    @Transactional(readOnly = true)
+    @CircuitBreaker(name = "permissao-admin", fallbackMethod = "fallbackListaPermissoes")
+    public List<String> listarPermissoesDoUsuarioLogado() {
+        Long userId = UserContext.getUsuarioId();
+
+        UsuarioRoleResponse usuarioRole = usuarioClient.buscarRoleDoUsuario(userId);
+        if (usuarioRole == null || usuarioRole.roleId() == null) {
+            return List.of();
+        }
+
+        return rolePermissaoRepository.listarNomesPermissoesDaRole(
+                TenantContext.getEmpresaId(),
+                usuarioRole.roleId()
+        );
     }
 
     @CircuitBreaker(name = "permissao-admin", fallbackMethod = "fallbackAdminVoid")

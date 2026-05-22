@@ -28,4 +28,18 @@ public interface RolePermissaoRepository extends BaseTenantRepository<RolePermis
     boolean rolePossuiPermissao(@Param("empresaId") Long empresaId,
                                 @Param("roleId") Long roleId,
                                 @Param("nomePermissao") String nomePermissao);
+
+    @Query("""
+        select distinct p.nome
+        from RolePermissao rp
+        join rp.permissao p
+        where rp.empresaId = :empresaId
+          and rp.role.id = :roleId
+          and rp.ativo = true
+          and p.ativo = true
+        order by p.nome
+    """)
+    List<String> listarNomesPermissoesDaRole(@Param("empresaId") Long empresaId,
+                                             @Param("roleId") Long roleId);
+
 }

@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/permissoes")
 @RequiredArgsConstructor
@@ -26,6 +28,20 @@ import org.springframework.web.bind.annotation.*;
 public class PermissaoController {
 
     private final PermissaoService permissaoService;
+
+    // ============================================================
+    // GET CURRENT USER PERMISSIONS
+    // ============================================================
+
+    @Operation(
+            summary = "Listar permissões do usuário autenticado",
+            description = "Retorna os nomes das permissões ativas vinculadas à role do usuário logado na empresa atual."
+    )
+    @GetMapping("/minhas")
+    public ResponseEntity<List<String>> listarPermissoesDoUsuarioLogado() {
+        return ResponseEntity.ok(permissaoService.listarPermissoesDoUsuarioLogado());
+    }
+
 
     // ============================================================
     // CREATE
