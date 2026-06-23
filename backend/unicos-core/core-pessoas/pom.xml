@@ -13,12 +13,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>core-produto</artifactId>
-    <name>UNICOS :: Core Produto</name>
+    <artifactId>core-pessoas</artifactId>
+    <name>UNICOS :: Core Pessoas</name>
     <packaging>jar</packaging>
 
     <description>
-        Fornece base reutilizável para isolar dados do ms-produto nos microserviços.
+        Fornece base reutilizável para isolar dados do ms-pessoas nos microserviços.
     </description>
 
     <dependencies>
