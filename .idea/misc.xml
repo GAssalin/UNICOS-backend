@@ -26,6 +26,7 @@
         <option value="$PROJECT_DIR$/backend/ms-compras/pom.xml" />
         <option value="$PROJECT_DIR$/backend/unicos-core/core-produto/pom.xml" />
         <option value="$PROJECT_DIR$/backend/ms-cliente/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/unicos-core/core-pessoas/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

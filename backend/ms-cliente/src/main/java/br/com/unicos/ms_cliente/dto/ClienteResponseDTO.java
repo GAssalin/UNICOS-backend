@@ -10,10 +10,11 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class ClienteResponseDTO {
-
     private Long id;
     private Long empresaId;
     private Long pessoaId;
+    private Long vendedorId;
+    private String nomeVendedor;
     private Long filialId;
     private String codigoInterno;
     private StatusCliente status;

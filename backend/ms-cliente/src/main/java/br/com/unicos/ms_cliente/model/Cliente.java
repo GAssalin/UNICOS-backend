@@ -1,12 +1,10 @@
 package br.com.unicos.ms_cliente.model;
 
 import br.com.unicos.core.tenant.model.BaseTenantEntity;
+import br.com.unicos.core.usuario.auth.context.UserContext;
 import br.com.unicos.ms_cliente.enums.StatusCliente;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
@@ -26,6 +24,10 @@ public class Cliente extends BaseTenantEntity {
 
     @Column(name = "pessoa_id", nullable = false)
     private Long pessoaId;
+
+    @Builder.Default
+    @Column(name = "vendedor_id", nullable = false)
+    private Long vendedorId = UserContext.getUsuarioId();
 
     @Column(name = "filial_id")
     private Long filialId;

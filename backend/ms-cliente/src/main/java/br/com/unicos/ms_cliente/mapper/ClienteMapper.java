@@ -1,5 +1,7 @@
 package br.com.unicos.ms_cliente.mapper;
 
+import br.com.unicos.core.auth.context.AuthContext;
+import br.com.unicos.ms_cliente.client.PessoasClient;
 import br.com.unicos.ms_cliente.dto.ClienteRequestDTO;
 import br.com.unicos.ms_cliente.dto.ClienteResponseDTO;
 import br.com.unicos.ms_cliente.model.Cliente;
@@ -11,6 +13,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClienteMapper {
 
+    private final PessoasClient pessoasClient;
+
+    public ClienteMapper(PessoasClient pessoasClient) {
+        this.pessoasClient = pessoasClient;
+    }
+
     public ClienteResponseDTO toResponse(Cliente entity) {
         if (entity == null) {
             return null;
@@ -21,6 +29,8 @@ public class ClienteMapper {
         dto.setId(entity.getId());
         dto.setEmpresaId(entity.getEmpresaId());
         dto.setPessoaId(entity.getPessoaId());
+        dto.setVendedorId(entity.getVendedorId());
+        dto.setNomeVendedor(pessoasClient.buscarPorId(entity.getVendedorId(), AuthContext.getToken()).nome());
         dto.setFilialId(entity.getFilialId());
         dto.setCodigoInterno(entity.getCodigoInterno());
         dto.setStatus(entity.getStatus());
@@ -47,6 +57,7 @@ public class ClienteMapper {
 
         return Cliente.builder()
                 .pessoaId(request.getPessoaId())
+                .vendedorId(request.getVendedorId())
                 .filialId(request.getFilialId())
                 .codigoInterno(request.getCodigoInterno())
                 .status(request.getStatus())
@@ -62,6 +73,7 @@ public class ClienteMapper {
         }
 
         entity.setPessoaId(request.getPessoaId());
+        entity.setVendedorId(request.getVendedorId());
         entity.setFilialId(request.getFilialId());
         entity.setCodigoInterno(request.getCodigoInterno());
         entity.setStatus(request.getStatus());
