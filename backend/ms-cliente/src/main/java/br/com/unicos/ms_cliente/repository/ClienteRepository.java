@@ -7,8 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 /**
  * Repositório responsável pelo acesso aos dados da entidade {@link Cliente}.
  *
@@ -21,13 +19,13 @@ import java.util.Optional;
 public interface ClienteRepository extends BaseTenantRepository<Cliente, Long> {
 
     /**
-     * Busca cliente por pessoa dentro do tenant.
+     * Busca cliente por vendedor responsável dentro do tenant.
      *
-     * @param pessoaId identificador da pessoa
      * @param tenantId identificador da empresa (tenant)
+     * @param vendedorId identificador do vendedor
      * @return cliente encontrado
      */
-    Optional<Cliente> findByPessoaIdAndEmpresaId(Long pessoaId, Long tenantId);
+    Page<Cliente> findByEmpresaIdAndVendedorId(Long tenantId, Long vendedorId, Pageable pageable);
 
     /**
      * Lista clientes por status dentro do tenant.
@@ -38,26 +36,6 @@ public interface ClienteRepository extends BaseTenantRepository<Cliente, Long> {
      * @return página de clientes
      */
     Page<Cliente> findByStatusAndEmpresaId(StatusCliente status, Long tenantId, Pageable pageable);
-
-    /**
-     * Lista clientes por categoria dentro do tenant.
-     *
-     * @param categoriaId identificador da categoria
-     * @param tenantId identificador da empresa
-     * @param pageable paginação
-     * @return página de clientes
-     */
-    Page<Cliente> findByCategoriaIdAndEmpresaId(Long categoriaId, Long tenantId, Pageable pageable);
-
-    /**
-     * Lista clientes por filial dentro do tenant.
-     *
-     * @param filialId identificador da filial
-     * @param tenantId identificador da empresa
-     * @param pageable paginação
-     * @return página de clientes
-     */
-    Page<Cliente> findByFilialIdAndEmpresaId(Long filialId, Long tenantId, Pageable pageable);
 
     /**
      * Verifica se já existe cliente para uma pessoa dentro do tenant.

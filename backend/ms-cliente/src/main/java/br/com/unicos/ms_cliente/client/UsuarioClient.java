@@ -1,4 +1,4 @@
-package br.com.unicos.ms_permissao.client;
+package br.com.unicos.ms_cliente.client;
 
 import br.com.unicos.core.usuario.auth.dto.UsuarioRoleResponse;
 import org.springframework.cloud.openfeign.FeignClient;

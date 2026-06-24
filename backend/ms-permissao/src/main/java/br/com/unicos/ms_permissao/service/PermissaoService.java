@@ -4,7 +4,7 @@ import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.core.usuario.auth.context.UserContext;
 import br.com.unicos.ms_permissao.client.UsuarioClient;
-import br.com.unicos.ms_permissao.dto.internal.UsuarioRoleResponse;
+import br.com.unicos.core.usuario.auth.dto.UsuarioRoleResponse;
 import br.com.unicos.ms_permissao.dto.permissao.PermissaoRequest;
 import br.com.unicos.ms_permissao.dto.permissao.PermissaoResponse;
 import br.com.unicos.ms_permissao.mapper.PermissaoMapper;
@@ -99,22 +99,16 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "permissao-admin", fallbackMethod = "fallbackAdminPermissao")
     public boolean usuarioPossuiPermissao(String nomePermissao) {
-        Long userId = UserContext.getUsuarioId();
-
-        UsuarioRoleResponse usuarioRole = usuarioClient.buscarRoleDoUsuario(userId);
+        UsuarioRoleResponse usuarioRole = usuarioClient.buscarRoleDoUsuario(UserContext.getUsuarioId());
         if (usuarioRole == null || usuarioRole.roleId() == null)
             return false;
 
-        boolean isRolePossuiPermissao = rolePermissaoRepository.rolePossuiPermissao(
+        return rolePermissaoRepository.rolePossuiPermissao(
                 TenantContext.getEmpresaId(),
                 usuarioRole.roleId(),
                 nomePermissao
         );
-        log.info("" + isRolePossuiPermissao);
-        return isRolePossuiPermissao;
     }
-
-
 
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "permissao-admin", fallbackMethod = "fallbackListaPermissoes")

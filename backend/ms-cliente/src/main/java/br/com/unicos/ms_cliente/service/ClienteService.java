@@ -1,7 +1,12 @@
 package br.com.unicos.ms_cliente.service;
 
+import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
+import br.com.unicos.core.usuario.auth.context.UserContext;
+import br.com.unicos.core.usuario.auth.dto.UsuarioRoleResponse;
+import br.com.unicos.ms_cliente.client.PermissaoClient;
+import br.com.unicos.ms_cliente.client.UsuarioClient;
 import br.com.unicos.ms_cliente.dto.ClienteRequestDTO;
 import br.com.unicos.ms_cliente.dto.ClienteResponseDTO;
 import br.com.unicos.ms_cliente.enums.StatusCliente;
@@ -31,16 +36,20 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
     private final ClienteRepository repository;
     private final ClienteCategoriaRepository categoriaRepository;
     private final ClienteMapper mapper;
+    private final UsuarioClient usuarioClient;
+    private final PermissaoClient permissaoClient;
 
     public ClienteService(
             ClienteRepository repository,
             ClienteCategoriaRepository categoriaRepository,
-            ClienteMapper mapper
+            ClienteMapper mapper, UsuarioClient usuarioClient, PermissaoClient permissaoClient
     ) {
         super(repository);
         this.repository = repository;
         this.categoriaRepository = categoriaRepository;
         this.mapper = mapper;
+        this.usuarioClient = usuarioClient;
+        this.permissaoClient = permissaoClient;
     }
 
     @CircuitBreaker(name = CB, fallbackMethod = "fallback")
@@ -87,8 +96,26 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
     @Transactional(readOnly = true)
     @CircuitBreaker(name = CB, fallbackMethod = "fallbackPage")
     public Page<ClienteResponseDTO> listar(Pageable pageable) {
-        return findAllByEmpresaId(obterEmpresaId(), pageable)
+        Long empresaId = obterEmpresaId();
+        Long usuarioId = UserContext.getUsuarioId();
+
+        if (isUsuarioUmVendedor()) {
+            return repository
+                    .findByEmpresaIdAndVendedorId(
+                            empresaId,
+                            usuarioId,
+                            pageable
+                    )
+                    .map(mapper::toResponse);
+        }
+
+        return findAllByEmpresaId(empresaId, pageable)
                 .map(mapper::toResponse);
+    }
+
+    private boolean isUsuarioUmVendedor() {
+        UsuarioRoleResponse response = usuarioClient.buscarRoleDoUsuario(UserContext.getUsuarioId());
+        return permissaoClient.buscarNomeRoleById(response.roleId(), AuthContext.getToken()).nomeRole().toUpperCase().contains("VENDEDOR");
     }
 
     @Transactional(readOnly = true)
