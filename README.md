@@ -162,6 +162,7 @@ backend
 │   ├── core-tenant
 │   ├── core-usuario
 │   ├── core-produto
+│   ├── core-pessoas
 │
 ├── ms-autenticacao
 ├── ms-permissao
