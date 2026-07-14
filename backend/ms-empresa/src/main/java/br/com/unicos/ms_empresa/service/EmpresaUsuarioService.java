@@ -23,27 +23,15 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Long> {
 
-    private static final String CIRCUIT_BREAKER_NAME = "empresa-usuario-admin";
-    private static final String MSG_SERVICO_INDISPONIVEL =
-            "Serviço de usuários da empresa temporariamente indisponível";
-
     private final EmpresaUsuarioRepository repository;
     private final EmpresaUsuarioMapper mapper;
 
-    public EmpresaUsuarioService(
-            EmpresaUsuarioRepository repository,
-            EmpresaUsuarioMapper mapper
-    ) {
+    public EmpresaUsuarioService(EmpresaUsuarioRepository repository, EmpresaUsuarioMapper mapper) {
         super(repository);
         this.repository = repository;
         this.mapper = mapper;
     }
 
-    // ============================================================
-    // CREATE
-    // ============================================================
-
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackCriar")
     public EmpresaUsuarioResponse criar(EmpresaUsuarioCreateRequest request) {
         Long empresaId = TenantContext.getEmpresaId();
 
@@ -55,139 +43,39 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
         return mapper.toResponse(repository.save(entity));
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
+    public EmpresaUsuarioResponse atualizarPerfil(Long usuarioId, EmpresaUsuarioUpdateRequest request) {
+        EmpresaUsuario vinculo = buscarVinculo(usuarioId, TenantContext.getEmpresaId());
 
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAtualizarPerfil")
-    public EmpresaUsuarioResponse atualizarPerfil(
-            Long usuarioId,
-            EmpresaUsuarioUpdateRequest request
-    ) {
-        Long empresaId = TenantContext.getEmpresaId();
-        EmpresaUsuario vinculo = buscarVinculo(usuarioId, empresaId);
-
-        protegerUltimoAdmin(vinculo, request.perfil(), empresaId);
+        protegerUltimoAdmin(vinculo, request.perfil(), TenantContext.getEmpresaId());
 
         mapper.updateEntity(request, vinculo);
 
         return mapper.toResponse(repository.save(vinculo));
     }
 
-    // ============================================================
-    // GET
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackBuscar")
     public EmpresaUsuarioResponse buscar(Long usuarioId) {
-        Long empresaId = TenantContext.getEmpresaId();
-        return mapper.toResponse(buscarVinculo(usuarioId, empresaId));
+        return mapper.toResponse(buscarVinculo(usuarioId, TenantContext.getEmpresaId()));
     }
 
-    // ============================================================
-    // LIST
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackListar")
     public Page<EmpresaUsuarioResumoResponse> listar(Pageable pageable) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        return repository.findByEmpresaId(empresaId, pageable)
+        return repository.findByEmpresaId(TenantContext.getEmpresaId(), pageable)
                 .map(mapper::toResumoResponse);
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackListarPorPerfil")
-    public Page<EmpresaUsuarioResumoResponse> listarPorPerfil(
-            PerfilEmpresaUsuario perfil,
-            Pageable pageable
-    ) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        return repository.findByPerfilAndEmpresaId(perfil, empresaId, pageable)
+    public Page<EmpresaUsuarioResumoResponse> listarPorPerfil(PerfilEmpresaUsuario perfil, Pageable pageable) {
+        return repository.findByPerfilAndEmpresaId(perfil, TenantContext.getEmpresaId(), pageable)
                 .map(mapper::toResumoResponse);
     }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
-
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackRemover")
     public void remover(Long usuarioId) {
-        Long empresaId = TenantContext.getEmpresaId();
-        EmpresaUsuario vinculo = buscarVinculo(usuarioId, empresaId);
+        EmpresaUsuario vinculo = buscarVinculo(usuarioId, TenantContext.getEmpresaId());
 
-        protegerUltimoAdmin(vinculo, null, empresaId);
+        protegerUltimoAdmin(vinculo, null, TenantContext.getEmpresaId());
 
-        repository.deleteByUsuarioIdAndEmpresaId(usuarioId, empresaId);
-    }
-
-    // ============================================================
-    // FALLBACKS
-    // ============================================================
-
-    private EmpresaUsuarioResponse fallbackCriar(
-            EmpresaUsuarioCreateRequest request,
-            Throwable ex
-    ) {
-        throw new ResponseStatusException(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                MSG_SERVICO_INDISPONIVEL,
-                ex
-        );
-    }
-
-    private EmpresaUsuarioResponse fallbackAtualizarPerfil(
-            Long usuarioId,
-            EmpresaUsuarioUpdateRequest request,
-            Throwable ex
-    ) {
-        throw new ResponseStatusException(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                MSG_SERVICO_INDISPONIVEL,
-                ex
-        );
-    }
-
-    private EmpresaUsuarioResponse fallbackBuscar(Long usuarioId, Throwable ex) {
-        throw new ResponseStatusException(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                MSG_SERVICO_INDISPONIVEL,
-                ex
-        );
-    }
-
-    private Page<EmpresaUsuarioResumoResponse> fallbackListar(
-            Pageable pageable,
-            Throwable ex
-    ) {
-        throw new ResponseStatusException(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                MSG_SERVICO_INDISPONIVEL,
-                ex
-        );
-    }
-
-    private Page<EmpresaUsuarioResumoResponse> fallbackListarPorPerfil(
-            PerfilEmpresaUsuario perfil,
-            Pageable pageable,
-            Throwable ex
-    ) {
-        throw new ResponseStatusException(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                MSG_SERVICO_INDISPONIVEL,
-                ex
-        );
-    }
-
-    private void fallbackRemover(Long usuarioId, Throwable ex) {
-        throw new ResponseStatusException(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                MSG_SERVICO_INDISPONIVEL,
-                ex
-        );
+        repository.deleteByUsuarioIdAndEmpresaId(usuarioId, TenantContext.getEmpresaId());
     }
 
     // ============================================================
@@ -202,30 +90,20 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     }
 
     private void validarUsuarioNaoVinculado(Long usuarioId, Long empresaId) {
-        if (repository.existsByUsuarioIdAndEmpresaId(usuarioId, empresaId)) {
+        if (repository.existsByUsuarioIdAndEmpresaId(usuarioId, empresaId))
             throw new IllegalArgumentException("O usuário já está vinculado a esta empresa.");
-        }
     }
 
-    private void protegerUltimoAdmin(
-            EmpresaUsuario vinculo,
-            PerfilEmpresaUsuario novoPerfil,
-            Long empresaId
-    ) {
-        if (vinculo.getPerfil() == PerfilEmpresaUsuario.ADMIN
-                && novoPerfil != PerfilEmpresaUsuario.ADMIN) {
-
+    private void protegerUltimoAdmin(EmpresaUsuario vinculo, PerfilEmpresaUsuario novoPerfil, Long empresaId) {
+        if (vinculo.getPerfil() == PerfilEmpresaUsuario.ADMIN && novoPerfil != PerfilEmpresaUsuario.ADMIN) {
             long totalAdmins = repository.findByPerfilAndEmpresaId(
                     PerfilEmpresaUsuario.ADMIN,
                     empresaId,
                     Pageable.unpaged()
             ).getTotalElements();
 
-            if (totalAdmins <= 1) {
-                throw new IllegalStateException(
-                        "Não é permitido remover ou alterar o perfil do último ADMIN da empresa."
-                );
-            }
+            if (totalAdmins <= 1)
+                throw new IllegalStateException("Não é permitido remover ou alterar o perfil do último ADMIN da empresa.");
         }
     }
 }

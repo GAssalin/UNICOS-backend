@@ -9,14 +9,11 @@ import br.com.unicos.ms_produto.dto.produtotipo.ProdutoTipoUpdateRequest;
 import br.com.unicos.ms_produto.mapper.ProdutoTipoMapper;
 import br.com.unicos.ms_produto.model.ProdutoTipo;
 import br.com.unicos.ms_produto.repository.ProdutoTipoRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional
@@ -25,143 +22,78 @@ public class ProdutoTipoService extends BaseTenantService<ProdutoTipo, Long> {
     private final ProdutoTipoRepository repository;
     private final ProdutoTipoMapper mapper;
 
-    public ProdutoTipoService(
-            ProdutoTipoRepository repository,
-            ProdutoTipoMapper mapper
-    ) {
+    public ProdutoTipoService(ProdutoTipoRepository repository, ProdutoTipoMapper mapper) {
         super(repository);
         this.repository = repository;
         this.mapper = mapper;
     }
 
-    // ============================================================
-    // CREATE
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-tipo-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoTipoResponse criar(ProdutoTipoCreateRequest request) {
-        Long empresaId = TenantContext.getEmpresaId();
+        validarNomeDuplicado(request.nome());
 
-        validarNomeDuplicado(request.nome(), empresaId);
-
-        ProdutoTipo tipo = mapper.toEntity(request, empresaId);
+        ProdutoTipo tipo = mapper.toEntity(request, TenantContext.getEmpresaId());
         tipo.setAtivo(true);
 
         return mapper.toResponse(repository.save(tipo));
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-tipo-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoTipoResponse atualizar(Long id, ProdutoTipoUpdateRequest request) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        ProdutoTipo tipo = buscarTipo(id, empresaId);
+        ProdutoTipo tipo = buscarTipo(id);
 
         if (!tipo.getNome().equalsIgnoreCase(request.nome()))
-            validarNomeDuplicado(request.nome(), empresaId);
+            validarNomeDuplicado(request.nome());
 
         mapper.updateEntity(request, tipo);
 
         return mapper.toResponse(repository.save(tipo));
     }
 
-    // ============================================================
-    // GET
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-tipo-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoTipoResponse buscarPorId(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-        return mapper.toResponse(buscarTipo(id, empresaId));
+        return mapper.toResponse(buscarTipo(id));
     }
 
-    // ============================================================
-    // LIST
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-tipo-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ProdutoTipoResumoResponse> listar(Pageable pageable) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        return repository.findAllByEmpresaId(empresaId, pageable)
+        return repository.findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
                 .map(mapper::toResumoResponse);
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-tipo-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ProdutoTipoResumoResponse> listarPorAtivo(Boolean ativo, Pageable pageable) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        return repository.findByAtivoAndEmpresaId(ativo, empresaId, pageable)
+        return repository.findByAtivoAndEmpresaId(ativo, TenantContext.getEmpresaId(), pageable)
                 .map(mapper::toResumoResponse);
     }
 
-    // ============================================================
-    // STATUS
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-tipo-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoTipoResponse ativar(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        ProdutoTipo tipo = buscarTipo(id, empresaId);
+        ProdutoTipo tipo = buscarTipo(id);
         tipo.setAtivo(true);
 
         return mapper.toResponse(repository.save(tipo));
     }
 
-    @CircuitBreaker(name = "produto-tipo-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoTipoResponse inativar(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        ProdutoTipo tipo = buscarTipo(id, empresaId);
+        ProdutoTipo tipo = buscarTipo(id);
         tipo.setAtivo(false);
 
         return mapper.toResponse(repository.save(tipo));
     }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-tipo-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-        repository.delete(buscarTipo(id, empresaId));
-    }
-
-    // ============================================================
-    // FALLBACKS
-    // ============================================================
-
-    private ProdutoTipoResponse fallbackAdmin(Object req, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de tipos de produto temporariamente indisponível");
-    }
-
-    private Page<ProdutoTipoResumoResponse> fallbackAdminPage(Pageable pageable, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de tipos de produto temporariamente indisponível");
-    }
-
-    private void fallbackAdminVoid(Long id, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de tipos de produto temporariamente indisponível");
+        repository.delete(buscarTipo(id));
     }
 
     // ============================================================
     // AUXILIARES
     // ============================================================
 
-    private ProdutoTipo buscarTipo(Long id, Long empresaId) {
-        return repository.findByIdAndEmpresaId(id, empresaId)
+    private ProdutoTipo buscarTipo(Long id) {
+        return repository.findByIdAndEmpresaId(id, TenantContext.getEmpresaId())
                 .orElseThrow(() -> new EntityNotFoundException("Tipo de produto não encontrado: " + id));
     }
 
-    private void validarNomeDuplicado(String nome, Long empresaId) {
-        if (repository.existsByNomeAndEmpresaId(nome, empresaId))
+    private void validarNomeDuplicado(String nome) {
+        if (repository.existsByNomeAndEmpresaId(nome, TenantContext.getEmpresaId()))
             throw new IllegalArgumentException("Já existe um tipo de produto com o nome informado.");
     }
 }

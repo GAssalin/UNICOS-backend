@@ -37,6 +37,12 @@
             <artifactId>core-tenant</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>br.com.atcare</groupId>
+            <artifactId>core-auth</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
 
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -80,6 +86,12 @@
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
             <version>4.4.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>br.com.unicos</groupId>
+            <artifactId>core-auth</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

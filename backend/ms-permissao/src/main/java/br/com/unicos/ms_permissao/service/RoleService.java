@@ -7,12 +7,9 @@ import br.com.unicos.ms_permissao.dto.role.RoleResponse;
 import br.com.unicos.ms_permissao.mapper.RoleMapper;
 import br.com.unicos.ms_permissao.model.Role;
 import br.com.unicos.ms_permissao.repository.RoleRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -32,12 +29,7 @@ public class RoleService extends BaseTenantService<Role, Long> {
         this.roleMapper = roleMapper;
     }
 
-    // ============================================================
-    // CREATE
-    // ============================================================
-
     @Transactional
-    @CircuitBreaker(name = "role-admin", fallbackMethod = "fallbackAdmin")
     public RoleResponse salvar(RoleRequest request) {
         validarNomeDuplicado(request.nome());
 
@@ -49,12 +41,7 @@ public class RoleService extends BaseTenantService<Role, Long> {
         return roleMapper.toResponse(roleRepository.save(role));
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
-
     @Transactional
-    @CircuitBreaker(name = "role-admin", fallbackMethod = "fallbackAdmin")
     public RoleResponse atualizar(Long id, RoleRequest request) {
         Role entity = buscarEntidadePorId(id);
 
@@ -68,22 +55,12 @@ public class RoleService extends BaseTenantService<Role, Long> {
         return roleMapper.toResponse(roleRepository.save(entity));
     }
 
-    // ============================================================
-    // GET BY ID
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "role-admin", fallbackMethod = "fallbackAdmin")
     public RoleResponse buscarPorId(Long id) {
         return roleMapper.toResponse(buscarEntidadePorId(id));
     }
 
-    // ============================================================
-    // LIST ALL
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "role-admin", fallbackMethod = "fallbackAdminList")
     public List<RoleResponse> listarTodos() {
         return roleRepository.findAll()
                 .stream()
@@ -91,31 +68,10 @@ public class RoleService extends BaseTenantService<Role, Long> {
                 .toList();
     }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
-
-    @CircuitBreaker(name = "role-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         if (!roleRepository.existsById(id))
             throw new EntityNotFoundException("Role não encontrada: " + id);
         roleRepository.deleteById(id);
-    }
-
-    // ============================================================
-    // FALLBACKS
-    // ============================================================
-
-    private RoleResponse fallbackAdmin(Object request, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de roles temporariamente indisponível");
-    }
-
-    private List<RoleResponse> fallbackAdminList(Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de roles temporariamente indisponível");
-    }
-
-    private void fallbackAdminVoid(Long id, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de roles temporariamente indisponível");
     }
 
     // ============================================================

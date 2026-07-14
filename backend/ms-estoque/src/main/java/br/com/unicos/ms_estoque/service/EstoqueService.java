@@ -27,8 +27,6 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 public class EstoqueService extends BaseTenantService<Estoque, Long> {
 
-    private static final String CIRCUIT_BREAKER_NAME = "estoque-admin";
-    private static final String FALLBACK_MESSAGE = "Serviço de estoques temporariamente indisponível.";
     private static final String DUPLICATE_CODE_MESSAGE = "Já existe um estoque com o código informado neste tenant.";
 
     private final EstoqueRepository estoqueRepository;
@@ -40,10 +38,7 @@ public class EstoqueService extends BaseTenantService<Estoque, Long> {
      * @param estoqueRepository repositório de estoque
      * @param estoqueMapper mapper de conversão entre entidade e DTOs
      */
-    public EstoqueService(
-            EstoqueRepository estoqueRepository,
-            EstoqueMapper estoqueMapper
-    ) {
+    public EstoqueService(EstoqueRepository estoqueRepository, EstoqueMapper estoqueMapper) {
         super(estoqueRepository);
         this.estoqueRepository = estoqueRepository;
         this.estoqueMapper = estoqueMapper;
@@ -55,13 +50,12 @@ public class EstoqueService extends BaseTenantService<Estoque, Long> {
      * @param request dados de criação do estoque
      * @return estoque criado
      */
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdmin")
     public EstoqueResponseDto salvar(EstoqueCreateRequestDto request) {
         validarCodigoDuplicado(request.codigo());
         validarEstoquePai(request.estoquePaiId(), null);
 
         Estoque entity = estoqueMapper.toEntity(request);
-        entity.setEmpresaId(obterEmpresaId());
+        entity.setEmpresaId(TenantContext.getEmpresaId());
 
         return estoqueMapper.toResponse(save(entity));
     }
@@ -73,13 +67,11 @@ public class EstoqueService extends BaseTenantService<Estoque, Long> {
      * @param request dados de atualização
      * @return estoque atualizado
      */
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminIdReq")
     public EstoqueResponseDto atualizar(Long id, EstoqueUpdateRequestDto request) {
         Estoque entity = buscarEstoque(id);
 
-        if (!entity.getCodigo().equalsIgnoreCase(request.codigo())) {
+        if (!entity.getCodigo().equalsIgnoreCase(request.codigo()))
             validarCodigoDuplicado(request.codigo());
-        }
 
         validarEstoquePai(request.estoquePaiId(), id);
 
@@ -95,7 +87,6 @@ public class EstoqueService extends BaseTenantService<Estoque, Long> {
      * @return estoque encontrado
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminId")
     public EstoqueResponseDto buscarPorId(Long id) {
         return estoqueMapper.toResponse(buscarEstoque(id));
     }
@@ -107,7 +98,6 @@ public class EstoqueService extends BaseTenantService<Estoque, Long> {
      * @return página de estoques
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminPage")
     public Page<EstoqueResponseDto> listar(Pageable pageable) {
         return findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
                 .map(estoqueMapper::toResponse);
@@ -121,10 +111,9 @@ public class EstoqueService extends BaseTenantService<Estoque, Long> {
      * @return página de estoques
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminPageStatus")
     public Page<EstoqueResponseDto> listarPorStatus(StatusEstoque status, Pageable pageable) {
         return estoqueRepository
-                .findByStatusEstoqueAndEmpresaId(status, obterEmpresaId(), pageable)
+                .findByStatusEstoqueAndEmpresaId(status, TenantContext.getEmpresaId(), pageable)
                 .map(estoqueMapper::toResponse);
     }
 
@@ -136,12 +125,11 @@ public class EstoqueService extends BaseTenantService<Estoque, Long> {
      * @return página de estoques filhos
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminPagePai")
     public Page<EstoqueResponseDto> listarFilhos(Long estoquePaiId, Pageable pageable) {
         buscarEstoque(estoquePaiId);
 
         return estoqueRepository
-                .findByEstoquePaiIdAndEmpresaId(estoquePaiId, obterEmpresaId(), pageable)
+                .findByEstoquePaiIdAndEmpresaId(estoquePaiId, TenantContext.getEmpresaId(), pageable)
                 .map(estoqueMapper::toResponse);
     }
 
@@ -150,90 +138,10 @@ public class EstoqueService extends BaseTenantService<Estoque, Long> {
      *
      * @param id identificador do estoque
      */
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         Estoque entity = buscarEstoque(id);
         validarSePossuiFilhos(id);
         estoqueRepository.delete(entity);
-    }
-
-    /**
-     * Fallback para operações com request simples.
-     *
-     * @param req request recebido
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private EstoqueResponseDto fallbackAdmin(Object req, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para operações com identificador.
-     *
-     * @param id identificador recebido
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private EstoqueResponseDto fallbackAdminId(Long id, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para operações com identificador e request.
-     *
-     * @param id identificador recebido
-     * @param req request recebido
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private EstoqueResponseDto fallbackAdminIdReq(Long id, Object req, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para listagem paginada.
-     *
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<EstoqueResponseDto> fallbackAdminPage(Pageable pageable, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para listagem paginada por status.
-     *
-     * @param status status recebido
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<EstoqueResponseDto> fallbackAdminPageStatus(StatusEstoque status, Pageable pageable, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para listagem paginada por estoque pai.
-     *
-     * @param estoquePaiId identificador do pai
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<EstoqueResponseDto> fallbackAdminPagePai(Long estoquePaiId, Pageable pageable, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para deleção.
-     *
-     * @param id identificador recebido
-     * @param ex exceção original
-     */
-    private void fallbackAdminVoid(Long id, Throwable ex) {
-        throw indisponibilidade(ex);
     }
 
     /**
@@ -246,9 +154,8 @@ public class EstoqueService extends BaseTenantService<Estoque, Long> {
         Estoque entity = estoqueRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Estoque não encontrado: " + id));
 
-        if (!obterEmpresaId().equals(entity.getEmpresaId())) {
+        if (!TenantContext.getEmpresaId().equals(entity.getEmpresaId()))
             throw new AccessDeniedException("Acesso negado ao estoque fora do tenant.");
-        }
 
         return entity;
     }
@@ -259,9 +166,8 @@ public class EstoqueService extends BaseTenantService<Estoque, Long> {
      * @param codigo código a ser validado
      */
     private void validarCodigoDuplicado(String codigo) {
-        if (estoqueRepository.existsByCodigoAndEmpresaId(codigo, obterEmpresaId())) {
+        if (estoqueRepository.existsByCodigoAndEmpresaId(codigo, TenantContext.getEmpresaId()))
             throw new IllegalArgumentException(DUPLICATE_CODE_MESSAGE);
-        }
     }
 
     /**
@@ -271,13 +177,10 @@ public class EstoqueService extends BaseTenantService<Estoque, Long> {
      * @param idEstoqueAtual identificador do estoque atual em caso de update
      */
     private void validarEstoquePai(Long estoquePaiId, Long idEstoqueAtual) {
-        if (estoquePaiId == null) {
+        if (estoquePaiId == null)
             return;
-        }
-
-        if (idEstoqueAtual != null && idEstoqueAtual.equals(estoquePaiId)) {
+        if (idEstoqueAtual != null && idEstoqueAtual.equals(estoquePaiId))
             throw new IllegalArgumentException("Um estoque não pode ser pai de si mesmo.");
-        }
 
         buscarEstoque(estoquePaiId);
     }
@@ -289,30 +192,11 @@ public class EstoqueService extends BaseTenantService<Estoque, Long> {
      */
     private void validarSePossuiFilhos(Long estoqueId) {
         boolean possuiFilhos = estoqueRepository
-                .findByEstoquePaiIdAndEmpresaId(estoqueId, obterEmpresaId(), PageRequest.of(0, 1))
+                .findByEstoquePaiIdAndEmpresaId(estoqueId, TenantContext.getEmpresaId(), PageRequest.of(0, 1))
                 .hasContent();
 
-        if (possuiFilhos) {
+        if (possuiFilhos)
             throw new IllegalStateException("Não é possível excluir um estoque que possui estoques filhos vinculados.");
-        }
     }
 
-    /**
-     * Obtém o identificador da empresa do tenant corrente.
-     *
-     * @return identificador da empresa
-     */
-    private Long obterEmpresaId() {
-        return TenantContext.getEmpresaId();
-    }
-
-    /**
-     * Cria a exceção padrão de indisponibilidade do serviço.
-     *
-     * @param ex exceção original
-     * @return exceção HTTP padronizada
-     */
-    private ResponseStatusException indisponibilidade(Throwable ex) {
-        return new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, FALLBACK_MESSAGE, ex);
-    }
 }

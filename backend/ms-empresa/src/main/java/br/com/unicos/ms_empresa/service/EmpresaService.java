@@ -38,9 +38,8 @@ public class EmpresaService {
 
         Empresa empresa = empresaMapper.toEntity(request);
 
-        if (TipoEmpresa.MATRIZ.equals(request.tipoEmpresa())) {
+        if (TipoEmpresa.MATRIZ.equals(request.tipoEmpresa()))
             empresa.setMatrizId(null);
-        }
 
         Empresa empresaSalva = empresaRepository.save(empresa);
 
@@ -170,9 +169,8 @@ public class EmpresaService {
 
         empresaMapper.updateEntityFromDTO(request, empresa);
 
-        if (TipoEmpresa.MATRIZ.equals(request.tipoEmpresa())) {
+        if (TipoEmpresa.MATRIZ.equals(request.tipoEmpresa()))
             empresa.setMatrizId(empresa.getId());
-        }
 
         Empresa empresaAtualizada = empresaRepository.save(empresa);
         return empresaMapper.toResponseDTO(empresaAtualizada);
@@ -206,8 +204,7 @@ public class EmpresaService {
      * @param cnpj CNPJ da empresa
      */
     private void validarCnpjDuplicado(String cnpj) {
-        if (empresaRepository.existsByCnpj(cnpj)) {
+        if (empresaRepository.existsByCnpj(cnpj))
             throw new IllegalArgumentException("Já existe uma empresa cadastrada com o CNPJ informado.");
-        }
     }
 }

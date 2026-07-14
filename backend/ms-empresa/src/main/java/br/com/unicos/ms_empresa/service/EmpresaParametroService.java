@@ -37,95 +37,36 @@ public class EmpresaParametroService extends BaseTenantService<EmpresaParametro,
         this.mapper = mapper;
     }
 
-    // ============================================================
-    // CREATE
-    // ============================================================
-
-    @CircuitBreaker(name = CB, fallbackMethod = "fallback")
     public EmpresaParametroResponse criar(EmpresaParametroCreateRequest request) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        validarChaveDuplicada(request.chave(), empresaId);
+        validarChaveDuplicada(request.chave(), TenantContext.getEmpresaId());
 
         EmpresaParametro entity = mapper.toEntity(request);
-        entity.setEmpresaId(empresaId);
+        entity.setEmpresaId(TenantContext.getEmpresaId());
 
         return mapper.toResponse(repository.save(entity));
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
-
-    @CircuitBreaker(name = CB, fallbackMethod = "fallbackUpdate")
     public EmpresaParametroResponse atualizar(String chave, EmpresaParametroUpdateRequest request) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        EmpresaParametro entity = buscarPorChaveInterno(chave, empresaId);
+        EmpresaParametro entity = buscarPorChaveInterno(chave, TenantContext.getEmpresaId());
 
         mapper.updateEntity(request, entity);
 
         return mapper.toResponse(repository.save(entity));
     }
 
-    // ============================================================
-    // GET
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CB, fallbackMethod = "fallbackGet")
     public EmpresaParametroResponse buscarPorChave(String chave) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        return mapper.toResponse(buscarPorChaveInterno(chave, empresaId));
+        return mapper.toResponse(buscarPorChaveInterno(chave, TenantContext.getEmpresaId()));
     }
 
-    // ============================================================
-    // LIST
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CB, fallbackMethod = "fallbackPage")
     public Page<EmpresaParametroResumoResponse> listar(Pageable pageable) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        return repository.findByEmpresaId(empresaId, pageable)
+        return repository.findByEmpresaId(TenantContext.getEmpresaId(), pageable)
                 .map(mapper::toResumoResponse);
     }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
-
-    @CircuitBreaker(name = CB, fallbackMethod = "fallbackVoid")
     public void remover(String chave) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        repository.deleteByChaveAndEmpresaId(chave, empresaId);
-    }
-
-    // ============================================================
-    // FALLBACKS
-    // ============================================================
-
-    private EmpresaParametroResponse fallback(EmpresaParametroCreateRequest req, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, MSG, ex);
-    }
-
-    private EmpresaParametroResponse fallbackUpdate(String chave, EmpresaParametroUpdateRequest req, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, MSG, ex);
-    }
-
-    private EmpresaParametroResponse fallbackGet(String chave, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, MSG, ex);
-    }
-
-    private Page<EmpresaParametroResumoResponse> fallbackPage(Pageable pageable, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, MSG, ex);
-    }
-
-    private void fallbackVoid(String chave, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, MSG, ex);
+        repository.deleteByChaveAndEmpresaId(chave, TenantContext.getEmpresaId());
     }
 
     // ============================================================
@@ -140,8 +81,7 @@ public class EmpresaParametroService extends BaseTenantService<EmpresaParametro,
     }
 
     private void validarChaveDuplicada(String chave, Long empresaId) {
-        if (repository.existsByChaveAndEmpresaId(chave, empresaId)) {
+        if (repository.existsByChaveAndEmpresaId(chave, empresaId))
             throw new IllegalArgumentException("Já existe um parâmetro com essa chave.");
-        }
     }
 }

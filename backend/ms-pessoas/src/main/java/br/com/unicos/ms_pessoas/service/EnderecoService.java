@@ -1,5 +1,6 @@
 package br.com.unicos.ms_pessoas.service;
 
+import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_pessoas.dto.endereco.EnderecoListDTO;
 import br.com.unicos.ms_pessoas.dto.endereco.EnderecoRequest;
 import br.com.unicos.ms_pessoas.dto.endereco.EnderecoResponse;
@@ -13,11 +14,8 @@ import br.com.unicos.ms_pessoas.repository.MunicipioRepository;
 import br.com.unicos.ms_pessoas.repository.PessoaRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,20 +26,22 @@ import java.util.Optional;
  * por município, tipo, CEP e pessoa.
  */
 @Service
-@RequiredArgsConstructor
-public class EnderecoService {
+public class EnderecoService extends BaseTenantService<Endereco, Long> {
 
     private final EnderecoRepository repository;
     private final PessoaRepository pessoaRepository;
     private final MunicipioRepository municipioRepository;
     private final EnderecoMapper mapper;
 
-    // ============================================================
-    // CREATE
-    // ============================================================
+    public EnderecoService(EnderecoRepository repository, PessoaRepository pessoaRepository, MunicipioRepository municipioRepository, EnderecoMapper mapper) {
+        super(repository);
+        this.repository = repository;
+        this.pessoaRepository = pessoaRepository;
+        this.municipioRepository = municipioRepository;
+        this.mapper = mapper;
+    }
 
     @Transactional
-    @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdmin")
     public EnderecoResponse criar(EnderecoRequest request) {
         Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
@@ -61,12 +61,7 @@ public class EnderecoService {
         return mapper.toResponse(endereco);
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
-
     @Transactional
-    @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdmin")
     public EnderecoResponse atualizar(Long id, EnderecoRequest request) {
         Endereco endereco = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Endereço não encontrado"));
@@ -97,12 +92,7 @@ public class EnderecoService {
                 });
     }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
-
     @Transactional
-    @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminVoid")
     public void excluir(Long id) {
         if (!repository.existsById(id))
             throw new EntityNotFoundException("Endereço não encontrado.");
@@ -110,23 +100,13 @@ public class EnderecoService {
         repository.deleteById(id);
     }
 
-    // ============================================================
-    // GET
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminOptional")
     public Optional<EnderecoResponse> buscarPorId(Long id) {
         return repository.findById(id)
                 .map(mapper::toResponse);
     }
 
-    // ============================================================
-    // LIST
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminList")
     public List<EnderecoListDTO> listarTodos() {
         return repository.findAll()
                 .stream()
@@ -135,7 +115,6 @@ public class EnderecoService {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminListPessoa")
     public List<EnderecoListDTO> listarPorPessoa(Long pessoaId) {
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
@@ -152,21 +131,13 @@ public class EnderecoService {
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
 
-        TipoEndereco tipoEnum;
-        try {
-            tipoEnum = TipoEndereco.valueOf(tipo.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Tipo de endereço inválido: " + tipo);
-        }
-
-        return repository.findByPessoaAndTipo(pessoa, tipoEnum)
+        return repository.findByPessoaAndTipo(pessoa, TipoEndereco.valueOf(tipo.toUpperCase()))
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminListMunicipio")
     public List<EnderecoListDTO> listarPorMunicipio(Long municipioId) {
         Municipio municipio = municipioRepository.findById(municipioId)
                 .orElseThrow(() -> new EntityNotFoundException("Município não encontrado"));
@@ -178,7 +149,6 @@ public class EnderecoService {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminListCep")
     public List<EnderecoListDTO> listarPorCep(String cep) {
         return repository.findByCep(cep)
                 .stream()
@@ -186,12 +156,7 @@ public class EnderecoService {
                 .toList();
     }
 
-    // ============================================================
-    // PRINCIPAL
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminOptionalPessoa")
     public Optional<EnderecoResponse> buscarPrincipal(Long pessoaId) {
         Pessoa pessoa = pessoaRepository.findById(pessoaId)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
@@ -200,43 +165,4 @@ public class EnderecoService {
                 .map(mapper::toResponse);
     }
 
-    // ============================================================
-    // FALLBACKS
-    // ============================================================
-
-    private EnderecoResponse fallbackAdmin(Object req, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de endereços da pessoa temporariamente indisponível");
-    }
-
-    private void fallbackAdminVoid(Long id, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de endereços da pessoa temporariamente indisponível");
-    }
-
-    private Optional<EnderecoResponse> fallbackAdminOptional(Long id, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de endereços da pessoa temporariamente indisponível");
-    }
-
-    private Optional<EnderecoResponse> fallbackAdminOptionalPessoa(Long pessoaId, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de endereços da pessoa temporariamente indisponível");
-    }
-
-    private List<EnderecoListDTO> fallbackAdminList(Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de endereços da pessoa temporariamente indisponível");
-    }
-
-    private List<EnderecoListDTO> fallbackAdminListPessoa(Long pessoaId, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de endereços da pessoa temporariamente indisponível");
-    }
-
-    private List<EnderecoListDTO> fallbackAdminListPessoaTipo(Long pessoaId, String tipo, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de endereços da pessoa temporariamente indisponível");
-    }
-
-    private List<EnderecoListDTO> fallbackAdminListMunicipio(Long municipioId, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de endereços da pessoa temporariamente indisponível");
-    }
-
-    private List<EnderecoListDTO> fallbackAdminListCep(String cep, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de endereços da pessoa temporariamente indisponível");
-    }
 }

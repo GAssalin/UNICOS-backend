@@ -12,15 +12,12 @@ import br.com.unicos.ms_permissao.model.RolePermissao;
 import br.com.unicos.ms_permissao.repository.PermissaoRepository;
 import br.com.unicos.ms_permissao.repository.RolePermissaoRepository;
 import br.com.unicos.ms_permissao.repository.RoleRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -32,12 +29,7 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
     private final PermissaoRepository permissaoRepository;
     private final RolePermissaoMapper mapper;
 
-    public RolePermissaoService(
-            RolePermissaoRepository rolePermissaoRepository,
-            RoleRepository roleRepository,
-            PermissaoRepository permissaoRepository,
-            RolePermissaoMapper mapper
-    ) {
+    public RolePermissaoService(RolePermissaoRepository rolePermissaoRepository, RoleRepository roleRepository, PermissaoRepository permissaoRepository, RolePermissaoMapper mapper) {
         super(rolePermissaoRepository);
         this.rolePermissaoRepository = rolePermissaoRepository;
         this.roleRepository = roleRepository;
@@ -45,12 +37,7 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
         this.mapper = mapper;
     }
 
-    // ============================================================
-    // CREATE
-    // ============================================================
-
     @Transactional
-    @CircuitBreaker(name = "role-permissao-admin", fallbackMethod = "fallbackAdmin")
     public RolePermissaoResponse criar(RolePermissaoRequest request) {
         if (rolePermissaoRepository.existsByRoleIdAndPermissaoIdAndEmpresaId(
                 request.roleId(),
@@ -76,12 +63,7 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
         return mapper.toResponse(save(entity));
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
-
     @Transactional
-    @CircuitBreaker(name = "role-permissao-admin", fallbackMethod = "fallbackAdmin")
     public RolePermissaoResponse alterarStatus(Long id, boolean ativo) {
         RolePermissao entity = findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Vínculo Empresa-Role-Permissão não encontrado"));
@@ -90,23 +72,13 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
         return mapper.toResponse(save(entity));
     }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
-
-    @CircuitBreaker(name = "role-permissao-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
         if (!rolePermissaoRepository.existsById(id))
             throw new EntityNotFoundException("Vínculo Empresa-Role-Permissão não encontrado");
         rolePermissaoRepository.deleteById(id);
     }
 
-    // ============================================================
-    // LISTAGENS ADMINISTRATIVAS
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "role-permissao-admin", fallbackMethod = "fallbackAdminPage")
     public Page<RolePermissaoListDTO> listarPorEmpresa(Long empresaId, Pageable pageable) {
         Page<RolePermissao> entidades =
                 rolePermissaoRepository.findAllByEmpresaId(
@@ -122,7 +94,6 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "role-permissao-admin", fallbackMethod = "fallbackAdminPage")
     public Page<RolePermissaoListDTO> listarAtivosPorEmpresa(Long empresaId, Pageable pageable) {
         List<RolePermissao> ativos =
                 rolePermissaoRepository.findByAtivoTrueAndEmpresaId(empresaId);
@@ -134,19 +105,4 @@ public class RolePermissaoService extends BaseTenantService<RolePermissao, Long>
         );
     }
 
-    // ============================================================
-    // FALLBACKS
-    // ============================================================
-
-    private RolePermissaoResponse fallbackAdmin(Object request, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de vínculo Role-Permissão temporariamente indisponível");
-    }
-
-    private Page<RolePermissaoListDTO> fallbackAdminPage(Long empresaId, Pageable pageable, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de vínculo Role-Permissão temporariamente indisponível");
-    }
-
-    private void fallbackAdminVoid(Long id, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de vínculo Role-Permissão temporariamente indisponível");
-    }
 }

@@ -11,7 +11,6 @@ import br.com.unicos.ms_estoque.enums.TipoMovimentacaoEstoque;
 import br.com.unicos.ms_estoque.mapper.MovimentacaoEstoqueMapper;
 import br.com.unicos.ms_estoque.model.MovimentacaoEstoque;
 import br.com.unicos.ms_estoque.repository.MovimentacaoEstoqueRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,11 +32,6 @@ import java.util.Optional;
 @Transactional
 public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEstoque, Long> {
 
-    private static final String CIRCUIT_BREAKER_NAME = "movimentacao-estoque-admin";
-    private static final String FALLBACK_MESSAGE = "Serviço de movimentações de estoque temporariamente indisponível.";
-    private static final String DUPLICATE_DOCUMENT_MESSAGE =
-            "Já existe uma movimentação com o documento de referência informado neste tenant.";
-
     private final MovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
     private final MovimentacaoEstoqueMapper movimentacaoEstoqueMapper;
 
@@ -46,10 +41,7 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @param movimentacaoEstoqueRepository repositório da movimentação
      * @param movimentacaoEstoqueMapper mapper de conversão entre entidade e DTOs
      */
-    public MovimentacaoEstoqueService(
-            MovimentacaoEstoqueRepository movimentacaoEstoqueRepository,
-            MovimentacaoEstoqueMapper movimentacaoEstoqueMapper
-    ) {
+    public MovimentacaoEstoqueService(MovimentacaoEstoqueRepository movimentacaoEstoqueRepository, MovimentacaoEstoqueMapper movimentacaoEstoqueMapper) {
         super(movimentacaoEstoqueRepository);
         this.movimentacaoEstoqueRepository = movimentacaoEstoqueRepository;
         this.movimentacaoEstoqueMapper = movimentacaoEstoqueMapper;
@@ -61,7 +53,6 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @param request dados de criação da movimentação
      * @return movimentação criada
      */
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdmin")
     public MovimentacaoEstoqueResponseDto salvar(MovimentacaoEstoqueCreateRequestDto request) {
         validarDocumentoReferenciaDuplicado(request.documentoReferencia());
         validarConsistenciaMovimentacao(
@@ -83,13 +74,11 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @param request dados de atualização
      * @return movimentação atualizada
      */
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminIdReq")
     public MovimentacaoEstoqueResponseDto atualizar(Long id, MovimentacaoEstoqueUpdateRequestDto request) {
         MovimentacaoEstoque entity = buscarMovimentacao(id);
 
-        if (documentoReferenciaAlterado(entity, request.documentoReferencia())) {
+        if (documentoReferenciaAlterado(entity, request.documentoReferencia()))
             validarDocumentoReferenciaDuplicado(request.documentoReferencia());
-        }
 
         validarConsistenciaMovimentacao(
                 request.tipoMovimentacao(),
@@ -109,7 +98,6 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @return movimentação encontrada
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminId")
     public MovimentacaoEstoqueResponseDto buscarPorId(Long id) {
         return movimentacaoEstoqueMapper.toResponse(buscarMovimentacao(id));
     }
@@ -121,7 +109,6 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @return página de movimentações
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminPage")
     public Page<MovimentacaoEstoqueResponseDto> listar(Pageable pageable) {
         return findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
                 .map(movimentacaoEstoqueMapper::toResponse);
@@ -135,11 +122,7 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @return página de movimentações
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminPageTipo")
-    public Page<MovimentacaoEstoqueResponseDto> listarPorTipo(
-            TipoMovimentacaoEstoque tipoMovimentacao,
-            Pageable pageable
-    ) {
+    public Page<MovimentacaoEstoqueResponseDto> listarPorTipo(TipoMovimentacaoEstoque tipoMovimentacao, Pageable pageable) {
         return movimentacaoEstoqueRepository
                 .findByTipoMovimentacaoAndEmpresaId(tipoMovimentacao, TenantContext.getEmpresaId(), pageable)
                 .map(movimentacaoEstoqueMapper::toResponse);
@@ -153,11 +136,7 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @return página de movimentações
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminPageStatus")
-    public Page<MovimentacaoEstoqueResponseDto> listarPorStatus(
-            StatusMovimentacaoEstoque statusMovimentacao,
-            Pageable pageable
-    ) {
+    public Page<MovimentacaoEstoqueResponseDto> listarPorStatus(StatusMovimentacaoEstoque statusMovimentacao, Pageable pageable) {
         return movimentacaoEstoqueRepository
                 .findByStatusMovimentacaoAndEmpresaId(statusMovimentacao, TenantContext.getEmpresaId(), pageable)
                 .map(movimentacaoEstoqueMapper::toResponse);
@@ -171,7 +150,6 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @return página de movimentações
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminPageOrigem")
     public Page<MovimentacaoEstoqueResponseDto> listarPorEstoqueOrigem(Long estoqueOrigemId, Pageable pageable) {
         return movimentacaoEstoqueRepository
                 .findByEstoqueOrigemIdAndEmpresaId(estoqueOrigemId, TenantContext.getEmpresaId(), pageable)
@@ -186,7 +164,6 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @return página de movimentações
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminPageDestino")
     public Page<MovimentacaoEstoqueResponseDto> listarPorEstoqueDestino(Long estoqueDestinoId, Pageable pageable) {
         return movimentacaoEstoqueRepository
                 .findByEstoqueDestinoIdAndEmpresaId(estoqueDestinoId, TenantContext.getEmpresaId(), pageable)
@@ -200,7 +177,6 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @return movimentação encontrada
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminDocumento")
     public MovimentacaoEstoqueResponseDto buscarPorDocumentoReferencia(String documentoReferencia) {
         MovimentacaoEstoque entity = movimentacaoEstoqueRepository
                 .findByDocumentoReferenciaAndEmpresaId(documentoReferencia, TenantContext.getEmpresaId())
@@ -220,12 +196,7 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @return página de movimentações
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminPagePeriodo")
-    public Page<MovimentacaoEstoqueResponseDto> listarPorPeriodo(
-            java.time.LocalDateTime dataInicial,
-            java.time.LocalDateTime dataFinal,
-            Pageable pageable
-    ) {
+    public Page<MovimentacaoEstoqueResponseDto> listarPorPeriodo(LocalDateTime dataInicial, LocalDateTime dataFinal, Pageable pageable) {
         validarPeriodo(dataInicial, dataFinal);
 
         return movimentacaoEstoqueRepository
@@ -247,18 +218,11 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @return página filtrada de movimentações
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminSearch")
-    public Page<MovimentacaoEstoqueResponseDto> pesquisar(
-            MovimentacaoEstoqueSearchRequestDto request,
-            Pageable pageable
-    ) {
-        if (request == null) {
+    public Page<MovimentacaoEstoqueResponseDto> pesquisar(MovimentacaoEstoqueSearchRequestDto request, Pageable pageable) {
+        if (request == null)
             return listar(pageable);
-        }
-
-        if (request.dataInicial() != null && request.dataFinal() != null) {
+        if (request.dataInicial() != null && request.dataFinal() != null)
             validarPeriodo(request.dataInicial(), request.dataFinal());
-        }
 
         List<MovimentacaoEstoque> filtrados = findAllByEmpresaId(TenantContext.getEmpresaId(), Pageable.unpaged())
                 .stream()
@@ -301,174 +265,9 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      *
      * @param id identificador da movimentação
      */
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         MovimentacaoEstoque entity = buscarMovimentacao(id);
         movimentacaoEstoqueRepository.delete(entity);
-    }
-
-    /**
-     * Fallback para operações com request simples.
-     *
-     * @param req request recebido
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private MovimentacaoEstoqueResponseDto fallbackAdmin(Object req, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para operações com identificador.
-     *
-     * @param id identificador recebido
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private MovimentacaoEstoqueResponseDto fallbackAdminId(Long id, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para operações com identificador e request.
-     *
-     * @param id identificador recebido
-     * @param req request recebido
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private MovimentacaoEstoqueResponseDto fallbackAdminIdReq(Long id, Object req, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para listagem paginada genérica.
-     *
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<MovimentacaoEstoqueResponseDto> fallbackAdminPage(Pageable pageable, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para pesquisa paginada.
-     *
-     * @param request filtros recebidos
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<MovimentacaoEstoqueResponseDto> fallbackAdminSearch(
-            MovimentacaoEstoqueSearchRequestDto request,
-            Pageable pageable,
-            Throwable ex
-    ) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para listagem por tipo.
-     *
-     * @param tipoMovimentacao tipo recebido
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<MovimentacaoEstoqueResponseDto> fallbackAdminPageTipo(
-            TipoMovimentacaoEstoque tipoMovimentacao,
-            Pageable pageable,
-            Throwable ex
-    ) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para listagem por status.
-     *
-     * @param statusMovimentacao status recebido
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<MovimentacaoEstoqueResponseDto> fallbackAdminPageStatus(
-            StatusMovimentacaoEstoque statusMovimentacao,
-            Pageable pageable,
-            Throwable ex
-    ) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para listagem por estoque de origem.
-     *
-     * @param estoqueOrigemId identificador recebido
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<MovimentacaoEstoqueResponseDto> fallbackAdminPageOrigem(
-            Long estoqueOrigemId,
-            Pageable pageable,
-            Throwable ex
-    ) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para listagem por estoque de destino.
-     *
-     * @param estoqueDestinoId identificador recebido
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<MovimentacaoEstoqueResponseDto> fallbackAdminPageDestino(
-            Long estoqueDestinoId,
-            Pageable pageable,
-            Throwable ex
-    ) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para busca por documento.
-     *
-     * @param documentoReferencia documento recebido
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private MovimentacaoEstoqueResponseDto fallbackAdminDocumento(String documentoReferencia, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para listagem por período.
-     *
-     * @param dataInicial data inicial recebida
-     * @param dataFinal data final recebida
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<MovimentacaoEstoqueResponseDto> fallbackAdminPagePeriodo(
-            java.time.LocalDateTime dataInicial,
-            java.time.LocalDateTime dataFinal,
-            Pageable pageable,
-            Throwable ex
-    ) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para deleção.
-     *
-     * @param id identificador recebido
-     * @param ex exceção original
-     */
-    private void fallbackAdminVoid(Long id, Throwable ex) {
-        throw indisponibilidade(ex);
     }
 
     /**
@@ -481,9 +280,8 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
         MovimentacaoEstoque entity = movimentacaoEstoqueRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Movimentação de estoque não encontrada: " + id));
 
-        if (!TenantContext.getEmpresaId().equals(entity.getEmpresaId())) {
+        if (!TenantContext.getEmpresaId().equals(entity.getEmpresaId()))
             throw new AccessDeniedException("Acesso negado à movimentação fora do tenant.");
-        }
 
         return entity;
     }
@@ -495,16 +293,10 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @param documentoReferencia documento de referência
      */
     private void validarDocumentoReferenciaDuplicado(String documentoReferencia) {
-        if (documentoReferencia == null || documentoReferencia.isBlank()) {
+        if (documentoReferencia == null || documentoReferencia.isBlank())
             return;
-        }
-
-        if (movimentacaoEstoqueRepository.existsByDocumentoReferenciaAndEmpresaId(
-                documentoReferencia,
-                TenantContext.getEmpresaId()
-        )) {
-            throw new IllegalArgumentException(DUPLICATE_DOCUMENT_MESSAGE);
-        }
+        if (movimentacaoEstoqueRepository.existsByDocumentoReferenciaAndEmpresaId(documentoReferencia, TenantContext.getEmpresaId()))
+            throw new IllegalArgumentException("Já existe uma movimentação com o documento de referência informado neste tenant.");
     }
 
     /**
@@ -517,9 +309,8 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
     private boolean documentoReferenciaAlterado(MovimentacaoEstoque entity, String novoDocumento) {
         String documentoAtual = entity.getDocumentoReferencia();
 
-        if (documentoAtual == null && (novoDocumento == null || novoDocumento.isBlank())) {
+        if (documentoAtual == null && (novoDocumento == null || novoDocumento.isBlank()))
             return false;
-        }
 
         return !Optional.ofNullable(documentoAtual).orElse("")
                 .equalsIgnoreCase(Optional.ofNullable(novoDocumento).orElse(""));
@@ -532,22 +323,13 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @param estoqueOrigemId estoque de origem
      * @param estoqueDestinoId estoque de destino
      */
-    private void validarConsistenciaMovimentacao(
-            TipoMovimentacaoEstoque tipoMovimentacao,
-            Long estoqueOrigemId,
-            Long estoqueDestinoId
-    ) {
-        if (estoqueOrigemId == null || estoqueDestinoId == null) {
+    private void validarConsistenciaMovimentacao(TipoMovimentacaoEstoque tipoMovimentacao, Long estoqueOrigemId, Long estoqueDestinoId) {
+        if (estoqueOrigemId == null || estoqueDestinoId == null)
             throw new IllegalArgumentException("O estoque de origem ou estoque de destino deve ser informado.");
-        }
-
-        if (estoqueOrigemId.equals(estoqueDestinoId)) {
+        if (estoqueOrigemId.equals(estoqueDestinoId))
             throw new IllegalArgumentException("O estoque de origem e o estoque de destino não podem ser iguais.");
-        }
-
-        if (tipoMovimentacao == null) {
+        if (tipoMovimentacao == null)
             throw new IllegalArgumentException("Tipo de movimentação deve ser informada.");
-        }
     }
 
     /**
@@ -557,18 +339,8 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @param dataFinal data final
      */
     private void validarPeriodo(java.time.LocalDateTime dataInicial, java.time.LocalDateTime dataFinal) {
-        if (dataInicial != null && dataFinal != null && dataInicial.isAfter(dataFinal)) {
+        if (dataInicial != null && dataFinal != null && dataInicial.isAfter(dataFinal))
             throw new IllegalArgumentException("A data inicial não pode ser maior que a data final.");
-        }
     }
 
-    /**
-     * Cria a exceção padrão de indisponibilidade do serviço.
-     *
-     * @param ex exceção original
-     * @return exceção HTTP padronizada
-     */
-    private ResponseStatusException indisponibilidade(Throwable ex) {
-        return new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, FALLBACK_MESSAGE, ex);
-    }
 }

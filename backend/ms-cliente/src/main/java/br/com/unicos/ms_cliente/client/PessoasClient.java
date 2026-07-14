@@ -9,14 +9,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(
         name = "ms-pessoas",
-        contextId = "PeopleClient"
+        contextId = "PessoasClient"
 )
 public interface PessoasClient {
 
     @GetMapping("/{id}")
-    PessoaResponseClient buscarPorId(
-            @PathVariable Long id,
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
-    );
+    PessoaResponseClient buscarPorId(@PathVariable Long id);
 
 }

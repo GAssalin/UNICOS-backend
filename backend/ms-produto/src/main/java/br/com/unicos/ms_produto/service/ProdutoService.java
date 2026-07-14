@@ -10,14 +10,11 @@ import br.com.unicos.ms_produto.mapper.ProdutoMapper;
 import br.com.unicos.ms_produto.model.Produto;
 import br.com.unicos.ms_produto.repository.CategoriaProdutoRepository;
 import br.com.unicos.ms_produto.repository.ProdutoRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional
@@ -27,165 +24,92 @@ public class ProdutoService extends BaseTenantService<Produto, Long> {
     private final ProdutoRepository repository;
     private final ProdutoMapper mapper;
 
-    public ProdutoService(
-            CategoriaProdutoRepository categoriaProdutoRepository,
-            ProdutoRepository repository,
-            ProdutoMapper mapper
-    ) {
+    public ProdutoService(CategoriaProdutoRepository categoriaProdutoRepository, ProdutoRepository repository, ProdutoMapper mapper) {
         super(repository);
         this.categoriaProdutoRepository = categoriaProdutoRepository;
         this.repository = repository;
         this.mapper = mapper;
     }
 
-    // ============================================================
-    // CREATE
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoResponse criar(ProdutoCreateRequest request) {
-        Long empresaId = TenantContext.getEmpresaId();
+        validarCodigoDuplicado(request.codigo());
 
-        validarCodigoDuplicado(request.codigo(), empresaId);
-
-        Produto produto = mapper.toEntity(request, empresaId);
-        produto.setEmpresaId(empresaId);
+        Produto produto = mapper.toEntity(request, TenantContext.getEmpresaId());
+        produto.setEmpresaId(TenantContext.getEmpresaId());
         produto.setAtivo(true);
 
-        return mapper.toResponse(repository.save(produto), empresaId, categoriaProdutoRepository.getReferenceById(request.categoriaId()));
+        return mapper.toResponse(repository.save(produto), TenantContext.getEmpresaId(), categoriaProdutoRepository.getReferenceById(request.categoriaId()));
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoResponse atualizar(Long id, ProdutoUpdateRequest request) {
-        Long empresaId = TenantContext.getEmpresaId();
+        Produto produto = buscarProduto(id);
 
-        Produto produto = buscarProduto(id, empresaId);
+        mapper.updateEntity(request, produto, TenantContext.getEmpresaId());
 
-        mapper.updateEntity(request, produto, empresaId);
-
-        return mapper.toResponse(repository.save(produto), empresaId, categoriaProdutoRepository.getReferenceById(request.categoriaId()));
+        return mapper.toResponse(repository.save(produto), TenantContext.getEmpresaId(), categoriaProdutoRepository.getReferenceById(request.categoriaId()));
     }
 
-    // ============================================================
-    // GET
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoResponse buscarPorId(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-        Produto produto = buscarProduto(id, empresaId);
-        return mapper.toResponse(produto, empresaId, categoriaProdutoRepository.getReferenceById(produto.getCategoriaId()));
+        Produto produto = buscarProduto(id);
+        return mapper.toResponse(produto, TenantContext.getEmpresaId(), categoriaProdutoRepository.getReferenceById(produto.getCategoriaId()));
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoResponse buscarPorCodigo(String codigo) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        Produto produto = repository.findByCodigoAndEmpresaId(codigo, empresaId)
+        Produto produto = repository.findByCodigoAndEmpresaId(codigo, TenantContext.getEmpresaId())
                 .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado para o código: " + codigo));
 
-        return mapper.toResponse(produto, empresaId, categoriaProdutoRepository.getReferenceById(produto.getCategoriaId()));
+        return mapper.toResponse(produto, TenantContext.getEmpresaId(), categoriaProdutoRepository.getReferenceById(produto.getCategoriaId()));
     }
 
-    // ============================================================
-    // LIST
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ProdutoResumoResponse> listar(Pageable pageable) {
-        Long empresaId = TenantContext.getEmpresaId();
-        return repository.findAllByEmpresaId(empresaId, pageable)
+        return repository.findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
                 .map(mapper::toResumoResponse);
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ProdutoResumoResponse> listarPorAtivo(Boolean ativo, Pageable pageable) {
-        Long empresaId = TenantContext.getEmpresaId();
-        return repository.findByAtivoAndEmpresaId(ativo, empresaId, pageable)
+        return repository.findByAtivoAndEmpresaId(ativo, TenantContext.getEmpresaId(), pageable)
                 .map(mapper::toResumoResponse);
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ProdutoResumoResponse> pesquisarPorNome(String nome, Pageable pageable) {
-        Long empresaId = TenantContext.getEmpresaId();
-        return repository.findByNomeContainingIgnoreCaseAndEmpresaId(nome, empresaId, pageable)
+        return repository.findByNomeContainingIgnoreCaseAndEmpresaId(nome, TenantContext.getEmpresaId(), pageable)
                 .map(mapper::toResumoResponse);
     }
 
-    // ============================================================
-    // STATUS
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoResponse ativar(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        Produto produto = buscarProduto(id, empresaId);
+        Produto produto = buscarProduto(id);
         produto.setAtivo(true);
 
-        return mapper.toResponse(repository.save(produto), empresaId, categoriaProdutoRepository.getReferenceById(produto.getCategoriaId()));
+        return mapper.toResponse(repository.save(produto), TenantContext.getEmpresaId(), categoriaProdutoRepository.getReferenceById(produto.getCategoriaId()));
     }
 
-    @CircuitBreaker(name = "produto-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoResponse inativar(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        Produto produto = buscarProduto(id, empresaId);
+        Produto produto = buscarProduto(id);
         produto.setAtivo(false);
 
-        return mapper.toResponse(repository.save(produto), empresaId, categoriaProdutoRepository.getReferenceById(produto.getCategoriaId()));
+        return mapper.toResponse(repository.save(produto), TenantContext.getEmpresaId(), categoriaProdutoRepository.getReferenceById(produto.getCategoriaId()));
     }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-        repository.delete(buscarProduto(id, empresaId));
-    }
-
-    // ============================================================
-    // FALLBACKS
-    // ============================================================
-
-    private ProdutoResponse fallbackAdmin(Object req, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de produtos temporariamente indisponível");
-    }
-
-    private Page<ProdutoResumoResponse> fallbackAdminPage(Pageable pageable, Throwable ex) {
-        ex.printStackTrace(); // ou log.error(...)
-        throw new ResponseStatusException(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                "Serviço de produtos temporariamente indisponível"
-        );
-    }
-
-    private void fallbackAdminVoid(Long id, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de produtos temporariamente indisponível");
+        repository.delete(buscarProduto(id));
     }
 
     // ============================================================
     // AUXILIARES
     // ============================================================
 
-    private Produto buscarProduto(Long id, Long empresaId) {
-        return repository.findByIdAndEmpresaId(id, empresaId)
+    private Produto buscarProduto(Long id) {
+        return repository.findByIdAndEmpresaId(id, TenantContext.getEmpresaId())
                 .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado: " + id));
     }
 
-    private void validarCodigoDuplicado(String codigo, Long empresaId) {
-        if (repository.existsByCodigoAndEmpresaId(codigo, empresaId))
+    private void validarCodigoDuplicado(String codigo) {
+        if (repository.existsByCodigoAndEmpresaId(codigo, TenantContext.getEmpresaId()))
             throw new IllegalArgumentException("Já existe um produto com o código (SKU) informado.");
     }
 }

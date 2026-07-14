@@ -1,10 +1,9 @@
 package br.com.unicos.ms_cliente.mapper;
 
-import br.com.unicos.core.auth.context.AuthContext;
-import br.com.unicos.ms_cliente.client.PessoasClient;
 import br.com.unicos.ms_cliente.dto.ClienteRequestDTO;
 import br.com.unicos.ms_cliente.dto.ClienteResponseDTO;
 import br.com.unicos.ms_cliente.model.Cliente;
+import br.com.unicos.ms_cliente.client.PessoasService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,16 +12,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClienteMapper {
 
-    private final PessoasClient pessoasClient;
+    private final PessoasService pessoasService;
 
-    public ClienteMapper(PessoasClient pessoasClient) {
-        this.pessoasClient = pessoasClient;
+    public ClienteMapper(PessoasService pessoasService) {
+        this.pessoasService = pessoasService;
     }
 
     public ClienteResponseDTO toResponse(Cliente entity) {
-        if (entity == null) {
+        if (entity == null)
             return null;
-        }
 
         ClienteResponseDTO dto = new ClienteResponseDTO();
 
@@ -30,7 +28,7 @@ public class ClienteMapper {
         dto.setEmpresaId(entity.getEmpresaId());
         dto.setPessoaId(entity.getPessoaId());
         dto.setVendedorId(entity.getVendedorId());
-        dto.setNomeVendedor(pessoasClient.buscarPorId(entity.getVendedorId(), AuthContext.getToken()).nome());
+        dto.setNomeVendedor(pessoasService.buscarPorId(entity.getVendedorId()).nome());
         dto.setFilialId(entity.getFilialId());
         dto.setCodigoInterno(entity.getCodigoInterno());
         dto.setStatus(entity.getStatus());
@@ -51,9 +49,8 @@ public class ClienteMapper {
     }
 
     public Cliente toEntity(ClienteRequestDTO request) {
-        if (request == null) {
+        if (request == null)
             return null;
-        }
 
         return Cliente.builder()
                 .pessoaId(request.getPessoaId())
@@ -68,9 +65,8 @@ public class ClienteMapper {
     }
 
     public void updateEntity(ClienteRequestDTO request, Cliente entity) {
-        if (request == null || entity == null) {
+        if (request == null || entity == null)
             return;
-        }
 
         entity.setPessoaId(request.getPessoaId());
         entity.setVendedorId(request.getVendedorId());

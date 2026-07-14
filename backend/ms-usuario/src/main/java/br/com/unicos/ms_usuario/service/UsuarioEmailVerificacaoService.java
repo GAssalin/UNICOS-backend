@@ -1,6 +1,7 @@
 package br.com.unicos.ms_usuario.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
+import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_usuario.dto.verificacao.UsuarioEmailVerificacaoListDTO;
 import br.com.unicos.ms_usuario.mapper.UsuarioEmailVerificacaoMapper;
 import br.com.unicos.ms_usuario.model.Usuario;
@@ -8,7 +9,6 @@ import br.com.unicos.ms_usuario.model.UsuarioEmailVerificacao;
 import br.com.unicos.ms_usuario.repository.UsuarioEmailVerificacaoRepository;
 import br.com.unicos.ms_usuario.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,27 +26,28 @@ import java.util.UUID;
  * Serviço responsável pelo fluxo de verificação de e-mail do usuário.
  */
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class UsuarioEmailVerificacaoService {
+public class UsuarioEmailVerificacaoService extends BaseTenantService<UsuarioEmailVerificacao, Long> {
 
     private static final int EXPIRACAO_MINUTOS = 30;
 
-    private final UsuarioRepository usuarioRepository;
     private final UsuarioEmailVerificacaoRepository verificacaoRepository;
+    private final UsuarioRepository usuarioRepository;
     private final UsuarioEmailVerificacaoMapper usuarioEmailVerificacaoMapper;
 
-    // ============================================================
-    // TOKEN
-    // ============================================================
+    public UsuarioEmailVerificacaoService(UsuarioRepository usuarioRepository, UsuarioEmailVerificacaoRepository verificacaoRepository, UsuarioEmailVerificacaoMapper usuarioEmailVerificacaoMapper) {
+        super(verificacaoRepository);
+        this.usuarioRepository = usuarioRepository;
+        this.verificacaoRepository = verificacaoRepository;
+        this.usuarioEmailVerificacaoMapper = usuarioEmailVerificacaoMapper;
+    }
 
     @Transactional
     public String gerarTokenParaUsuario(Long usuarioId) {
         Usuario usuario = buscarUsuario(usuarioId);
 
-        if (usuario.isEmailVerificado()) {
+        if (usuario.isEmailVerificado())
             throw new IllegalStateException("O e-mail deste usuário já está verificado.");
-        }
 
         verificacaoRepository
                 .findByUsuarioIdAndUtilizadoFalseAndEmpresaId(usuarioId, TenantContext.getEmpresaId())
@@ -77,12 +78,8 @@ public class UsuarioEmailVerificacaoService {
         return token;
     }
 
-    // ============================================================
-    // CONFIRMAÇÃO
-    // ============================================================
-
     @Transactional
-    public Usuario confirmarEmail(String token) {
+    public void confirmarEmail(String token) {
         String tokenHash = gerarHash(token);
         LocalDateTime agora = LocalDateTime.now();
 
@@ -94,9 +91,8 @@ public class UsuarioEmailVerificacaoService {
                 )
                 .orElseThrow(() -> new IllegalArgumentException("Token inválido ou expirado."));
 
-        if (verificacao.isUtilizado()) {
+        if (verificacao.isUtilizado())
             throw new IllegalStateException("Este link de verificação já foi utilizado.");
-        }
 
         Usuario usuario = verificacao.getUsuario();
 
@@ -112,21 +108,12 @@ public class UsuarioEmailVerificacaoService {
                 TenantContext.getEmpresaId()
         );
 
-        return usuario;
     }
-
-    // ============================================================
-    // REENVIO
-    // ============================================================
 
     @Transactional
     public String reenviarToken(Long usuarioId) {
         return gerarTokenParaUsuario(usuarioId);
     }
-
-    // ============================================================
-    // LIMPEZA
-    // ============================================================
 
     @Transactional
     public void limparTokensExpirados() {
@@ -145,10 +132,6 @@ public class UsuarioEmailVerificacaoService {
                 TenantContext.getEmpresaId()
         );
     }
-
-    // ============================================================
-    // LISTAGENS
-    // ============================================================
 
     @Transactional(readOnly = true)
     public Page<UsuarioEmailVerificacaoListDTO> listarPendentes(Long empresaId, Pageable pageable) {
@@ -177,9 +160,7 @@ public class UsuarioEmailVerificacaoService {
         return usuarioRepository.findById(usuarioId)
                 .filter(usuario -> TenantContext.getEmpresaId().equals(usuario.getEmpresaId()))
                 .orElseThrow(() ->
-                        new EntityNotFoundException(
-                                "Usuário não encontrado no tenant informado: " + usuarioId
-                        )
+                        new EntityNotFoundException("Usuário não encontrado no tenant informado: " + usuarioId)
                 );
     }
 

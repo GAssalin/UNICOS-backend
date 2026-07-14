@@ -8,14 +8,11 @@ import br.com.unicos.ms_produto.dto.produtoimagem.ProdutoImagemUpdateRequest;
 import br.com.unicos.ms_produto.mapper.ProdutoImagemMapper;
 import br.com.unicos.ms_produto.model.ProdutoImagem;
 import br.com.unicos.ms_produto.repository.ProdutoImagemRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional
@@ -24,121 +21,63 @@ public class ProdutoImagemService extends BaseTenantService<ProdutoImagem, Long>
     private final ProdutoImagemRepository repository;
     private final ProdutoImagemMapper mapper;
 
-    public ProdutoImagemService(
-            ProdutoImagemRepository repository,
-            ProdutoImagemMapper mapper
-    ) {
+    public ProdutoImagemService(ProdutoImagemRepository repository, ProdutoImagemMapper mapper) {
         super(repository);
         this.repository = repository;
         this.mapper = mapper;
     }
 
-    // ============================================================
-    // CREATE
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-imagem-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoImagemResponse criar(ProdutoImagemCreateRequest request) {
-        Long empresaId = TenantContext.getEmpresaId();
-
         if (request.principal())
-            removerPrincipalAtual(request.produtoId(), empresaId);
+            removerPrincipalAtual(request.produtoId());
 
-        ProdutoImagem imagem = mapper.toEntity(request, empresaId);
+        ProdutoImagem imagem = mapper.toEntity(request, TenantContext.getEmpresaId());
         imagem.setAtivo(true);
 
         return mapper.toResponse(repository.save(imagem));
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-imagem-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoImagemResponse atualizar(Long id, ProdutoImagemUpdateRequest request) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        ProdutoImagem imagem = buscarImagem(id, empresaId);
+        ProdutoImagem imagem = buscarImagem(id);
 
         if (request.principal())
-            removerPrincipalAtual(imagem.getProdutoId(), empresaId);
+            removerPrincipalAtual(imagem.getProdutoId());
 
         mapper.updateEntity(request, imagem);
 
         return mapper.toResponse(repository.save(imagem));
     }
 
-    // ============================================================
-    // GET
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-imagem-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoImagemResponse buscarPorId(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-        return mapper.toResponse(buscarImagem(id, empresaId));
+        return mapper.toResponse(buscarImagem(id));
     }
 
-    // ============================================================
-    // LIST
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-imagem-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ProdutoImagemResponse> listarPorProduto(Long produtoId, Pageable pageable) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        return repository.findByProdutoIdAndEmpresaId(produtoId, empresaId, pageable)
+        return repository.findByProdutoIdAndEmpresaId(produtoId, TenantContext.getEmpresaId(), pageable)
                 .map(mapper::toResponse);
     }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-imagem-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-        repository.delete(buscarImagem(id, empresaId));
+        repository.delete(buscarImagem(id));
     }
 
-    @CircuitBreaker(name = "produto-imagem-admin", fallbackMethod = "fallbackAdminVoid2")
     public void removerPorProduto(Long produtoId) {
-        Long empresaId = TenantContext.getEmpresaId();
-        repository.deleteByProdutoIdAndEmpresaId(produtoId, empresaId);
-    }
-
-    // ============================================================
-    // FALLBACKS
-    // ============================================================
-
-    private ProdutoImagemResponse fallbackAdmin(Object req, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de imagens de produto temporariamente indisponível");
-    }
-
-    private Page<ProdutoImagemResponse> fallbackAdminPage(Long produtoId, Pageable pageable, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de imagens de produto temporariamente indisponível");
-    }
-
-    private void fallbackAdminVoid(Long id, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de imagens de produto temporariamente indisponível");
-    }
-
-    private void fallbackAdminVoid2(Long produtoId, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de imagens de produto temporariamente indisponível");
+        repository.deleteByProdutoIdAndEmpresaId(produtoId, TenantContext.getEmpresaId());
     }
 
     // ============================================================
     // AUXILIARES
     // ============================================================
 
-    private ProdutoImagem buscarImagem(Long id, Long empresaId) {
-        return repository.findByIdAndEmpresaId(id, empresaId)
+    private ProdutoImagem buscarImagem(Long id) {
+        return repository.findByIdAndEmpresaId(id, TenantContext.getEmpresaId())
                 .orElseThrow(() -> new EntityNotFoundException("Imagem de produto não encontrada: " + id));
     }
 
-    private void removerPrincipalAtual(Long produtoId, Long empresaId) {
-        repository.findByProdutoIdAndPrincipalTrueAndEmpresaId(produtoId, empresaId)
+    private void removerPrincipalAtual(Long produtoId) {
+        repository.findByProdutoIdAndPrincipalTrueAndEmpresaId(produtoId, TenantContext.getEmpresaId())
                 .ifPresent(img -> {
                     img.setPrincipal(false);
                     repository.save(img);

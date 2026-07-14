@@ -8,14 +8,11 @@ import br.com.unicos.ms_produto.dto.produtoatributovalor.ProdutoAtributoValorUpd
 import br.com.unicos.ms_produto.mapper.ProdutoAtributoValorMapper;
 import br.com.unicos.ms_produto.model.ProdutoAtributoValor;
 import br.com.unicos.ms_produto.repository.ProdutoAtributoValorRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -26,132 +23,67 @@ public class ProdutoAtributoValorService extends BaseTenantService<ProdutoAtribu
     private final ProdutoAtributoValorRepository repository;
     private final ProdutoAtributoValorMapper mapper;
 
-    public ProdutoAtributoValorService(
-            ProdutoAtributoValorRepository repository,
-            ProdutoAtributoValorMapper mapper
-    ) {
+    public ProdutoAtributoValorService(ProdutoAtributoValorRepository repository, ProdutoAtributoValorMapper mapper) {
         super(repository);
         this.repository = repository;
         this.mapper = mapper;
     }
 
-    // ============================================================
-    // CREATE
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-atributo-valor-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoAtributoValorResponse criar(ProdutoAtributoValorCreateRequest request) {
-        Long empresaId = TenantContext.getEmpresaId();
+        validarDuplicidade(request.produtoId(), request.atributoId());
 
-        validarDuplicidade(request.produtoId(), request.atributoId(), empresaId);
-
-        ProdutoAtributoValor valor = mapper.toEntity(request, empresaId);
+        ProdutoAtributoValor valor = mapper.toEntity(request, TenantContext.getEmpresaId());
         valor.setAtivo(true);
 
         return mapper.toResponse(repository.save(valor));
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-atributo-valor-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoAtributoValorResponse atualizar(Long id, ProdutoAtributoValorUpdateRequest request) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        ProdutoAtributoValor valor = buscarValor(id, empresaId);
+        ProdutoAtributoValor valor = buscarValor(id);
 
         mapper.updateEntity(request, valor);
 
         return mapper.toResponse(repository.save(valor));
     }
 
-    // ============================================================
-    // GET
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-atributo-valor-admin", fallbackMethod = "fallbackAdmin")
     public ProdutoAtributoValorResponse buscarPorId(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-        return mapper.toResponse(buscarValor(id, empresaId));
+        return mapper.toResponse(buscarValor(id));
     }
 
-    // ============================================================
-    // LIST
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-atributo-valor-admin", fallbackMethod = "fallbackAdminList")
     public List<ProdutoAtributoValorResponse> listarPorProduto(Long produtoId) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        return repository.findByProdutoIdAndEmpresaId(produtoId, empresaId)
+        return repository.findByProdutoIdAndEmpresaId(produtoId, TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-atributo-valor-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ProdutoAtributoValorResponse> listar(Pageable pageable) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        return repository.findAllByEmpresaId(empresaId, pageable)
+        return repository.findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
                 .map(mapper::toResponse);
     }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-atributo-valor-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-        repository.delete(buscarValor(id, empresaId));
+        repository.delete(buscarValor(id));
     }
 
-    @CircuitBreaker(name = "produto-atributo-valor-admin", fallbackMethod = "fallbackAdminVoid2")
     public void removerPorProduto(Long produtoId) {
-        Long empresaId = TenantContext.getEmpresaId();
-        repository.deleteByProdutoIdAndEmpresaId(produtoId, empresaId);
-    }
-
-    // ============================================================
-    // FALLBACKS
-    // ============================================================
-
-    private ProdutoAtributoValorResponse fallbackAdmin(Object req, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de valores de atributos de produto temporariamente indisponível");
-    }
-
-    private Page<ProdutoAtributoValorResponse> fallbackAdminPage(Pageable pageable, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de valores de atributos de produto temporariamente indisponível");
-    }
-
-    private List<ProdutoAtributoValorResponse> fallbackAdminList(Long produtoId, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de valores de atributos de produto temporariamente indisponível");
-    }
-
-    private void fallbackAdminVoid(Long id, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de valores de atributos de produto temporariamente indisponível");
-    }
-
-    private void fallbackAdminVoid2(Long produtoId, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de valores de atributos de produto temporariamente indisponível");
+        repository.deleteByProdutoIdAndEmpresaId(produtoId, TenantContext.getEmpresaId());
     }
 
     // ============================================================
     // AUXILIARES
     // ============================================================
 
-    private ProdutoAtributoValor buscarValor(Long id, Long empresaId) {
-        return repository.findByIdAndEmpresaId(id, empresaId)
+    private ProdutoAtributoValor buscarValor(Long id) {
+        return repository.findByIdAndEmpresaId(id, TenantContext.getEmpresaId())
                 .orElseThrow(() -> new EntityNotFoundException("Valor de atributo não encontrado: " + id));
     }
 
-    private void validarDuplicidade(Long produtoId, Long atributoId, Long empresaId) {
-        if (repository.existsByProdutoIdAndAtributoIdAndEmpresaId(produtoId, atributoId, empresaId))
+    private void validarDuplicidade(Long produtoId, Long atributoId) {
+        if (repository.existsByProdutoIdAndAtributoIdAndEmpresaId(produtoId, atributoId, TenantContext.getEmpresaId()))
             throw new IllegalArgumentException("Já existe um valor cadastrado para este atributo neste produto.");
     }
 }

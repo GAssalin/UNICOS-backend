@@ -9,16 +9,13 @@ import br.com.unicos.ms_estoque.dto.estoqueproduto.EstoqueProdutoUpdateRequestDt
 import br.com.unicos.ms_estoque.mapper.EstoqueProdutoMapper;
 import br.com.unicos.ms_estoque.model.EstoqueProduto;
 import br.com.unicos.ms_estoque.repository.EstoqueProdutoRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,11 +28,6 @@ import java.util.Objects;
 @Transactional
 public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Long> {
 
-    private static final String CIRCUIT_BREAKER_NAME = "estoque-produto-admin";
-    private static final String FALLBACK_MESSAGE = "Serviço de saldo de produtos em estoque temporariamente indisponível.";
-    private static final String DUPLICATE_MESSAGE =
-            "Já existe um registro de produto para o estoque informado neste tenant.";
-
     private final EstoqueProdutoRepository estoqueProdutoRepository;
     private final EstoqueProdutoMapper estoqueProdutoMapper;
 
@@ -45,10 +37,7 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
      * @param estoqueProdutoRepository repositório de estoque produto
      * @param estoqueProdutoMapper mapper de conversão entre entidade e DTOs
      */
-    public EstoqueProdutoService(
-            EstoqueProdutoRepository estoqueProdutoRepository,
-            EstoqueProdutoMapper estoqueProdutoMapper
-    ) {
+    public EstoqueProdutoService(EstoqueProdutoRepository estoqueProdutoRepository, EstoqueProdutoMapper estoqueProdutoMapper) {
         super(estoqueProdutoRepository);
         this.estoqueProdutoRepository = estoqueProdutoRepository;
         this.estoqueProdutoMapper = estoqueProdutoMapper;
@@ -60,7 +49,6 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
      * @param request dados de criação
      * @return registro criado
      */
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdmin")
     public EstoqueProdutoResponseDto salvar(EstoqueProdutoCreateRequestDto request) {
         validarDuplicidade(request.estoqueId(), request.produtoId());
         validarQuantidades(
@@ -70,7 +58,7 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
         );
 
         EstoqueProduto entity = estoqueProdutoMapper.toEntity(request);
-        entity.setEmpresaId(obterEmpresaId());
+        entity.setEmpresaId(TenantContext.getEmpresaId());
 
         return estoqueProdutoMapper.toResponse(save(entity));
     }
@@ -82,13 +70,11 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
      * @param request dados de atualização
      * @return registro atualizado
      */
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminIdReq")
     public EstoqueProdutoResponseDto atualizar(Long id, EstoqueProdutoUpdateRequestDto request) {
         EstoqueProduto entity = buscarEstoqueProduto(id);
 
-        if (chaveLogicaAlterada(entity, request.estoqueId(), request.produtoId())) {
+        if (chaveLogicaAlterada(entity, request.estoqueId(), request.produtoId()))
             validarDuplicidade(request.estoqueId(), request.produtoId());
-        }
 
         validarQuantidades(
                 request.quantidadeAtual(),
@@ -108,7 +94,6 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
      * @return registro encontrado
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminId")
     public EstoqueProdutoResponseDto buscarPorId(Long id) {
         return estoqueProdutoMapper.toResponse(buscarEstoqueProduto(id));
     }
@@ -120,9 +105,8 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
      * @return página de registros
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminPage")
     public Page<EstoqueProdutoResponseDto> listar(Pageable pageable) {
-        return findAllByEmpresaId(obterEmpresaId(), pageable)
+        return findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
                 .map(estoqueProdutoMapper::toResponse);
     }
 
@@ -134,10 +118,9 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
      * @return página de registros
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminEstoquePage")
     public Page<EstoqueProdutoResponseDto> listarPorEstoque(Long estoqueId, Pageable pageable) {
         return estoqueProdutoRepository
-                .findByEstoqueIdAndEmpresaId(estoqueId, obterEmpresaId(), pageable)
+                .findByEstoqueIdAndEmpresaId(estoqueId, TenantContext.getEmpresaId(), pageable)
                 .map(estoqueProdutoMapper::toResponse);
     }
 
@@ -149,10 +132,9 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
      * @return página de registros
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminProdutoPage")
     public Page<EstoqueProdutoResponseDto> listarPorProduto(Long produtoId, Pageable pageable) {
         return estoqueProdutoRepository
-                .findByProdutoIdAndEmpresaId(produtoId, obterEmpresaId(), pageable)
+                .findByProdutoIdAndEmpresaId(produtoId, TenantContext.getEmpresaId(), pageable)
                 .map(estoqueProdutoMapper::toResponse);
     }
 
@@ -164,10 +146,9 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
      * @return registro encontrado
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminEstoqueProduto")
     public EstoqueProdutoResponseDto buscarPorEstoqueEProduto(Long estoqueId, Long produtoId) {
         EstoqueProduto entity = estoqueProdutoRepository
-                .findByEstoqueIdAndProdutoIdAndEmpresaId(estoqueId, produtoId, obterEmpresaId())
+                .findByEstoqueIdAndProdutoIdAndEmpresaId(estoqueId, produtoId, TenantContext.getEmpresaId())
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Saldo não encontrado para estoque " + estoqueId + " e produto " + produtoId
                 ));
@@ -188,16 +169,11 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
      * @return página filtrada de registros
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminSearch")
-    public Page<EstoqueProdutoResponseDto> pesquisar(
-            EstoqueProdutoSearchRequestDto request,
-            Pageable pageable
-    ) {
-        if (request == null) {
+    public Page<EstoqueProdutoResponseDto> pesquisar(EstoqueProdutoSearchRequestDto request, Pageable pageable) {
+        if (request == null)
             return listar(pageable);
-        }
 
-        List<EstoqueProduto> filtrados = findAllByEmpresaId(obterEmpresaId(), Pageable.unpaged())
+        List<EstoqueProduto> filtrados = findAllByEmpresaId(TenantContext.getEmpresaId(), Pageable.unpaged())
                 .stream()
                 .filter(entity -> request.estoqueId() == null
                         || request.estoqueId().equals(entity.getEstoqueId()))
@@ -223,7 +199,6 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
      *
      * @param id identificador do registro
      */
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         EstoqueProduto entity = buscarEstoqueProduto(id);
         estoqueProdutoRepository.delete(entity);
@@ -242,7 +217,6 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
      * @param quantidadeReservada nova quantidade reservada
      * @return registro atualizado
      */
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminAjuste")
     public EstoqueProdutoResponseDto ajustarSaldoComLock(
             Long estoqueId,
             Long produtoId,
@@ -250,7 +224,7 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
             BigDecimal quantidadeReservada
     ) {
         EstoqueProduto entity = estoqueProdutoRepository
-                .findWithLockByEstoqueIdAndProdutoIdAndEmpresaId(estoqueId, produtoId, obterEmpresaId())
+                .findWithLockByEstoqueIdAndProdutoIdAndEmpresaId(estoqueId, produtoId, TenantContext.getEmpresaId())
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Saldo não encontrado para estoque " + estoqueId + " e produto " + produtoId
                 ));
@@ -266,144 +240,10 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
         return estoqueProdutoMapper.toResponse(save(entity));
     }
 
-    /**
-     * Fallback para operações com request simples.
-     *
-     * @param req request recebido
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private EstoqueProdutoResponseDto fallbackAdmin(Object req, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
 
-    /**
-     * Fallback para operações com identificador.
-     *
-     * @param id identificador recebido
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private EstoqueProdutoResponseDto fallbackAdminId(Long id, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para operações com identificador e request.
-     *
-     * @param id identificador recebido
-     * @param req request recebido
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private EstoqueProdutoResponseDto fallbackAdminIdReq(Long id, Object req, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para listagem paginada genérica.
-     *
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<EstoqueProdutoResponseDto> fallbackAdminPage(Pageable pageable, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para listagem paginada por estoque.
-     *
-     * @param estoqueId identificador recebido
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<EstoqueProdutoResponseDto> fallbackAdminEstoquePage(
-            Long estoqueId,
-            Pageable pageable,
-            Throwable ex
-    ) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para listagem paginada por produto.
-     *
-     * @param produtoId identificador recebido
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<EstoqueProdutoResponseDto> fallbackAdminProdutoPage(
-            Long produtoId,
-            Pageable pageable,
-            Throwable ex
-    ) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para busca por estoque e produto.
-     *
-     * @param estoqueId identificador recebido
-     * @param produtoId identificador recebido
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private EstoqueProdutoResponseDto fallbackAdminEstoqueProduto(
-            Long estoqueId,
-            Long produtoId,
-            Throwable ex
-    ) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para pesquisa paginada.
-     *
-     * @param request filtros recebidos
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<EstoqueProdutoResponseDto> fallbackAdminSearch(
-            EstoqueProdutoSearchRequestDto request,
-            Pageable pageable,
-            Throwable ex
-    ) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para deleção.
-     *
-     * @param id identificador recebido
-     * @param ex exceção original
-     */
-    private void fallbackAdminVoid(Long id, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para ajuste de saldo com lock.
-     *
-     * @param estoqueId identificador recebido
-     * @param produtoId identificador recebido
-     * @param quantidadeAtual quantidade recebida
-     * @param quantidadeReservada quantidade recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private EstoqueProdutoResponseDto fallbackAdminAjuste(
-            Long estoqueId,
-            Long produtoId,
-            BigDecimal quantidadeAtual,
-            BigDecimal quantidadeReservada,
-            Throwable ex
-    ) {
-        throw indisponibilidade(ex);
-    }
+    // ============================================================
+    // AUX
+    // ============================================================
 
     /**
      * Busca um registro e garante que ele pertence ao tenant corrente.
@@ -415,9 +255,8 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
         EstoqueProduto entity = estoqueProdutoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("EstoqueProduto não encontrado: " + id));
 
-        if (!obterEmpresaId().equals(entity.getEmpresaId())) {
+        if (!TenantContext.getEmpresaId().equals(entity.getEmpresaId()))
             throw new AccessDeniedException("Acesso negado ao saldo de estoque fora do tenant.");
-        }
 
         return entity;
     }
@@ -429,13 +268,8 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
      * @param produtoId identificador do produto
      */
     private void validarDuplicidade(Long estoqueId, Long produtoId) {
-        if (estoqueProdutoRepository.existsByEstoqueIdAndProdutoIdAndEmpresaId(
-                estoqueId,
-                produtoId,
-                obterEmpresaId()
-        )) {
-            throw new IllegalArgumentException(DUPLICATE_MESSAGE);
-        }
+        if (estoqueProdutoRepository.existsByEstoqueIdAndProdutoIdAndEmpresaId(estoqueId, produtoId, TenantContext.getEmpresaId()))
+            throw new IllegalArgumentException("Já existe um registro de produto para o estoque informado neste tenant.");
     }
 
     /**
@@ -463,46 +297,16 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
             BigDecimal quantidadeReservada,
             BigDecimal quantidadeDisponivel
     ) {
-        if (quantidadeAtual == null || quantidadeAtual.compareTo(BigDecimal.ZERO) < 0) {
+        if (quantidadeAtual == null || quantidadeAtual.compareTo(BigDecimal.ZERO) < 0)
             throw new IllegalArgumentException("A quantidade atual não pode ser negativa.");
-        }
-
-        if (quantidadeReservada == null || quantidadeReservada.compareTo(BigDecimal.ZERO) < 0) {
+        if (quantidadeReservada == null || quantidadeReservada.compareTo(BigDecimal.ZERO) < 0)
             throw new IllegalArgumentException("A quantidade reservada não pode ser negativa.");
-        }
-
-        if (quantidadeDisponivel == null || quantidadeDisponivel.compareTo(BigDecimal.ZERO) < 0) {
+        if (quantidadeDisponivel == null || quantidadeDisponivel.compareTo(BigDecimal.ZERO) < 0)
             throw new IllegalArgumentException("A quantidade disponível não pode ser negativa.");
-        }
-
-        if (quantidadeReservada.compareTo(quantidadeAtual) > 0) {
+        if (quantidadeReservada.compareTo(quantidadeAtual) > 0)
             throw new IllegalArgumentException("A quantidade reservada não pode ser maior que a quantidade atual.");
-        }
-
-        BigDecimal esperado = quantidadeAtual.subtract(quantidadeReservada);
-        if (esperado.compareTo(quantidadeDisponivel) != 0) {
-            throw new IllegalArgumentException(
-                    "A quantidade disponível deve ser igual à quantidade atual menos a quantidade reservada."
-            );
-        }
+        if (quantidadeAtual.subtract(quantidadeReservada).compareTo(quantidadeDisponivel) != 0)
+            throw new IllegalArgumentException("A quantidade disponível deve ser igual à quantidade atual menos a quantidade reservada.");
     }
 
-    /**
-     * Obtém o identificador da empresa do tenant corrente.
-     *
-     * @return identificador da empresa
-     */
-    private Long obterEmpresaId() {
-        return TenantContext.getEmpresaId();
-    }
-
-    /**
-     * Cria a exceção padrão de indisponibilidade do serviço.
-     *
-     * @param ex exceção original
-     * @return exceção HTTP padronizada
-     */
-    private ResponseStatusException indisponibilidade(Throwable ex) {
-        return new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, FALLBACK_MESSAGE, ex);
-    }
 }
