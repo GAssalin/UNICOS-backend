@@ -19,17 +19,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+
 /**
  * Service responsável pelas regras de negócio e operações do agregado {@link ResponsavelEstoque}.
  */
 @Service
 @Transactional
 public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEstoque, Long> {
-
-    private static final String CIRCUIT_BREAKER_NAME = "estoque-responsavel-admin";
-    private static final String FALLBACK_MESSAGE = "Serviço de responsáveis de estoque temporariamente indisponível.";
-    private static final String DUPLICATE_PRINCIPAL_MESSAGE =
-            "Já existe um responsável principal ativo para este estoque neste tenant.";
 
     private final ResponsavelEstoqueRepository responsavelRepository;
     private final ResponsavelEstoqueMapper responsavelMapper;
@@ -40,10 +37,7 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
      * @param responsavelRepository repositório do vínculo de responsável por estoque
      * @param responsavelMapper mapper de conversão entre entidade e DTOs
      */
-    public ResponsavelEstoqueService(
-            ResponsavelEstoqueRepository responsavelRepository,
-            ResponsavelEstoqueMapper responsavelMapper
-    ) {
+    public ResponsavelEstoqueService(ResponsavelEstoqueRepository responsavelRepository, ResponsavelEstoqueMapper responsavelMapper) {
         super(responsavelRepository);
         this.responsavelRepository = responsavelRepository;
         this.responsavelMapper = responsavelMapper;
@@ -55,7 +49,6 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
      * @param request dados de criação do vínculo
      * @return vínculo criado
      */
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdmin")
     public ResponsavelEstoqueResponseDto salvar(ResponsavelEstoqueCreateRequestDto request) {
         validarRegrasNegocio(
                 request.estoqueId(),
@@ -67,7 +60,7 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
         );
 
         ResponsavelEstoque entity = responsavelMapper.toEntity(request);
-        entity.setEmpresaId(obterEmpresaId());
+        entity.setEmpresaId(TenantContext.getEmpresaId());
 
         return responsavelMapper.toResponse(save(entity));
     }
@@ -79,7 +72,6 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
      * @param request dados de atualização
      * @return vínculo atualizado
      */
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminIdReq")
     public ResponsavelEstoqueResponseDto atualizar(Long id, ResponsavelEstoqueUpdateRequestDto request) {
         ResponsavelEstoque entity = buscarResponsavel(id);
 
@@ -104,7 +96,6 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
      * @return vínculo encontrado
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminId")
     public ResponsavelEstoqueResponseDto buscarPorId(Long id) {
         return responsavelMapper.toResponse(buscarResponsavel(id));
     }
@@ -117,10 +108,9 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
      * @return página de responsáveis vinculados ao estoque
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminPage")
     public Page<ResponsavelEstoqueResponseDto> listarPorEstoque(Long estoqueId, Pageable pageable) {
         return responsavelRepository
-                .findByEstoqueIdAndEmpresaId(estoqueId, obterEmpresaId(), pageable)
+                .findByEstoqueIdAndEmpresaId(estoqueId, TenantContext.getEmpresaId(), pageable)
                 .map(responsavelMapper::toResponse);
     }
 
@@ -133,7 +123,6 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
      * @return página de responsáveis filtrados
      */
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminPageStatus")
     public Page<ResponsavelEstoqueResponseDto> listarPorEstoqueEStatus(
             Long estoqueId,
             StatusResponsavelEstoque status,
@@ -143,7 +132,7 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
                 .findByEstoqueIdAndStatusResponsavelEstoqueAndEmpresaId(
                         estoqueId,
                         status,
-                        obterEmpresaId(),
+                        TenantContext.getEmpresaId(),
                         pageable
                 )
                 .map(responsavelMapper::toResponse);
@@ -154,83 +143,8 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
      *
      * @param id identificador do vínculo
      */
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         responsavelRepository.delete(buscarResponsavel(id));
-    }
-
-    /**
-     * Fallback para operações com request simples.
-     *
-     * @param req request recebido
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private ResponsavelEstoqueResponseDto fallbackAdmin(Object req, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para operações com identificador.
-     *
-     * @param id identificador recebido
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private ResponsavelEstoqueResponseDto fallbackAdminId(Long id, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para operações com identificador e request.
-     *
-     * @param id identificador recebido
-     * @param req request recebido
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private ResponsavelEstoqueResponseDto fallbackAdminIdReq(Long id, Object req, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para listagem paginada por estoque.
-     *
-     * @param estoqueId identificador do estoque
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<ResponsavelEstoqueResponseDto> fallbackAdminPage(Long estoqueId, Pageable pageable, Throwable ex) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para listagem paginada por estoque e status.
-     *
-     * @param estoqueId identificador do estoque
-     * @param status status recebido
-     * @param pageable paginação recebida
-     * @param ex exceção original
-     * @return nunca retorna com sucesso
-     */
-    private Page<ResponsavelEstoqueResponseDto> fallbackAdminPageStatus(
-            Long estoqueId,
-            StatusResponsavelEstoque status,
-            Pageable pageable,
-            Throwable ex
-    ) {
-        throw indisponibilidade(ex);
-    }
-
-    /**
-     * Fallback para deleção.
-     *
-     * @param id identificador recebido
-     * @param ex exceção original
-     */
-    private void fallbackAdminVoid(Long id, Throwable ex) {
-        throw indisponibilidade(ex);
     }
 
     /**
@@ -243,9 +157,8 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
         ResponsavelEstoque entity = responsavelRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Responsável do estoque não encontrado: " + id));
 
-        if (!obterEmpresaId().equals(entity.getEmpresaId())) {
+        if (!TenantContext.getEmpresaId().equals(entity.getEmpresaId()))
             throw new AccessDeniedException("Acesso negado ao responsável fora do tenant.");
-        }
 
         return entity;
     }
@@ -264,8 +177,8 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
             Long estoqueId,
             Boolean principal,
             StatusResponsavelEstoque status,
-            java.time.LocalDate vigenciaInicio,
-            java.time.LocalDate vigenciaFim,
+            LocalDate vigenciaInicio,
+            LocalDate vigenciaFim,
             Long ignorarId
     ) {
         validarVigencia(vigenciaInicio, vigenciaFim);
@@ -278,10 +191,9 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
      * @param vigenciaInicio data inicial
      * @param vigenciaFim data final
      */
-    private void validarVigencia(java.time.LocalDate vigenciaInicio, java.time.LocalDate vigenciaFim) {
-        if (vigenciaFim != null && vigenciaFim.isBefore(vigenciaInicio)) {
+    private void validarVigencia(LocalDate vigenciaInicio, LocalDate vigenciaFim) {
+        if (vigenciaFim != null && vigenciaFim.isBefore(vigenciaInicio))
             throw new IllegalArgumentException("A vigência final não pode ser anterior à vigência inicial.");
-        }
     }
 
     /**
@@ -292,43 +204,18 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
      * @param status status do vínculo
      * @param ignorarId identificador a ser ignorado na atualização
      */
-    private void validarPrincipalUnicoAtivo(
-            Long estoqueId,
-            Boolean principal,
-            StatusResponsavelEstoque status,
-            Long ignorarId
-    ) {
-        if (!Boolean.TRUE.equals(principal) || status != StatusResponsavelEstoque.ATIVO) {
+    private void validarPrincipalUnicoAtivo(Long estoqueId, Boolean principal, StatusResponsavelEstoque status, Long ignorarId) {
+        if (!Boolean.TRUE.equals(principal) || status != StatusResponsavelEstoque.ATIVO)
             return;
-        }
 
         boolean existeOutroPrincipalAtivo = responsavelRepository
-                .findByEstoqueIdAndPrincipalAndEmpresaId(estoqueId, true, obterEmpresaId())
+                .findByEstoqueIdAndPrincipalAndEmpresaId(estoqueId, true, TenantContext.getEmpresaId())
                 .filter(responsavel -> responsavel.getStatusResponsavelEstoque() == StatusResponsavelEstoque.ATIVO)
                 .filter(responsavel -> !responsavel.getId().equals(ignorarId))
                 .isPresent();
 
-        if (existeOutroPrincipalAtivo) {
-            throw new IllegalArgumentException(DUPLICATE_PRINCIPAL_MESSAGE);
-        }
+        if (existeOutroPrincipalAtivo)
+            throw new IllegalArgumentException("Já existe um responsável principal ativo para este estoque neste tenant.");
     }
 
-    /**
-     * Obtém o identificador da empresa do tenant corrente.
-     *
-     * @return identificador da empresa
-     */
-    private Long obterEmpresaId() {
-        return TenantContext.getEmpresaId();
-    }
-
-    /**
-     * Cria a exceção padrão de indisponibilidade do serviço.
-     *
-     * @param ex exceção original
-     * @return exceção HTTP padronizada
-     */
-    private ResponseStatusException indisponibilidade(Throwable ex) {
-        return new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, FALLBACK_MESSAGE, ex);
-    }
 }

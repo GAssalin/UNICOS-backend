@@ -14,24 +14,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class ClienteObservacaoService extends BaseTenantService<ClienteObservacao, Long> {
-
-    private static final String CB = "cliente-obs";
-
-    private final ClienteObservacaoRepository repository;
     private final ClienteObservacaoMapper mapper;
 
-    public ClienteObservacaoService(
-            ClienteObservacaoRepository repository,
-            ClienteObservacaoMapper mapper
-    ) {
+    public ClienteObservacaoService(ClienteObservacaoRepository repository, ClienteObservacaoMapper mapper) {
         super(repository);
-        this.repository = repository;
         this.mapper = mapper;
     }
 
-    @CircuitBreaker(name = CB)
     public ClienteObservacaoResponseDTO salvar(ClienteObservacaoRequestDTO request) {
-
         ClienteObservacao entity = mapper.toEntity(request);
         entity.setEmpresaId(TenantContext.getEmpresaId());
 

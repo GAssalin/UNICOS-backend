@@ -1,9 +1,8 @@
 package br.com.unicos.ms_autenticacao.controller;
 
-import br.com.unicos.ms_autenticacao.dto.login.DadosLogin;
-import br.com.unicos.ms_autenticacao.dto.token.DadosRefreshToken;
-import br.com.unicos.ms_autenticacao.dto.token.DadosToken;
-import br.com.unicos.ms_autenticacao.service.AutenticacaoService;
+import br.com.unicos.ms_autenticacao.dto.login.DadosLoginDto;
+import br.com.unicos.ms_autenticacao.dto.token.DadosTokenDto;
+import br.com.unicos.ms_autenticacao.service.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,11 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 )
 public class AutenticacaoController {
 
-    private final AutenticacaoService autenticacaoService;
-
-    // ============================================================
-    // LOGIN
-    // ============================================================
+    private final TokenService tokenService;
 
     @Operation(
             summary = "Efetuar login",
@@ -39,7 +34,7 @@ public class AutenticacaoController {
                     @ApiResponse(
                             responseCode = "200",
                             description = "Login realizado com sucesso",
-                            content = @Content(schema = @Schema(implementation = DadosToken.class))
+                            content = @Content(schema = @Schema(implementation = DadosTokenDto.class))
                     ),
                     @ApiResponse(responseCode = "400", description = "Dados inválidos"),
                     @ApiResponse(responseCode = "401", description = "Credenciais inválidas"),
@@ -48,20 +43,8 @@ public class AutenticacaoController {
             }
     )
     @PostMapping("/login")
-    public ResponseEntity<DadosToken> efetuarLogin(@Valid @RequestBody DadosLogin dados) {
-        return ResponseEntity.ok(autenticacaoService.autenticar(dados));
+    public ResponseEntity<DadosTokenDto> efetuarLogin(@Valid @RequestBody DadosLoginDto dados) {
+        return ResponseEntity.ok(tokenService.autenticar(dados));
     }
 
-    // ============================================================
-    // REFRESH TOKEN
-    // ============================================================
-
-    @Operation(
-            summary = "Atualizar token de acesso",
-            description = "Gera um novo token JWT de acesso utilizando um refresh token válido e ainda ativo."
-    )
-    @PostMapping("/atualizar-token")
-    public ResponseEntity<DadosToken> atualizarToken(@Valid @RequestBody DadosRefreshToken dados) {
-        return ResponseEntity.ok(autenticacaoService.atualizarToken(dados));
-    }
 }

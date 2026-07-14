@@ -17,40 +17,25 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 public class ClienteCategoriaService extends BaseTenantService<ClienteCategoria, Long> {
 
-    private static final String CB = "cliente-categoria";
     private static final String MSG_DUPLICADO = "Categoria já existente.";
-    private static final String MSG_FALLBACK = "Serviço indisponível.";
 
     private final ClienteCategoriaRepository repository;
     private final ClienteCategoriaMapper mapper;
 
-    public ClienteCategoriaService(
-            ClienteCategoriaRepository repository,
-            ClienteCategoriaMapper mapper
-    ) {
+    public ClienteCategoriaService(ClienteCategoriaRepository repository, ClienteCategoriaMapper mapper) {
         super(repository);
         this.repository = repository;
         this.mapper = mapper;
     }
 
-    @CircuitBreaker(name = CB, fallbackMethod = "fallback")
     public ClienteCategoriaResponseDTO salvar(ClienteCategoriaRequestDTO request) {
-
-        if (repository.existsByNomeAndEmpresaId(request.getNome(), obterEmpresaId())) {
+        if (repository.existsByNomeAndEmpresaId(request.getNome(), TenantContext.getEmpresaId()))
             throw new IllegalArgumentException(MSG_DUPLICADO);
-        }
 
         ClienteCategoria entity = mapper.toEntity(request);
-        entity.setEmpresaId(obterEmpresaId());
+        entity.setEmpresaId(TenantContext.getEmpresaId());
 
         return mapper.toResponse(save(entity));
     }
 
-    private Long obterEmpresaId() {
-        return TenantContext.getEmpresaId();
-    }
-
-    private ClienteCategoriaResponseDTO fallback(Object req, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, MSG_FALLBACK, ex);
-    }
 }

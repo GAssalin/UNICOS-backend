@@ -1,9 +1,11 @@
 package br.com.unicos.ms_pessoas.service;
 
+import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_pessoas.dto.relacao.PessoaRelacaoListDTO;
 import br.com.unicos.ms_pessoas.dto.relacao.PessoaRelacaoRequest;
 import br.com.unicos.ms_pessoas.dto.relacao.PessoaRelacaoResponse;
 import br.com.unicos.ms_pessoas.mapper.PessoaRelacaoMapper;
+import br.com.unicos.ms_pessoas.model.Documento;
 import br.com.unicos.ms_pessoas.model.Pessoa;
 import br.com.unicos.ms_pessoas.model.PessoaRelacao;
 import br.com.unicos.ms_pessoas.model.TipoRelacaoPessoa;
@@ -25,20 +27,21 @@ import java.util.Optional;
  * Implementação das regras de negócio aplicadas às relações entre pessoas.
  */
 @Service
-@RequiredArgsConstructor
-public class PessoaRelacaoService {
+public class PessoaRelacaoService extends BaseTenantService<PessoaRelacao, Long> {
 
     private final PessoaRelacaoRepository repository;
     private final PessoaRepository pessoaRepository;
     private final TipoRelacaoPessoaRepository tipoRelacaoPessoaRepository;
     private final PessoaRelacaoMapper mapper;
 
-    // ============================================================
-    // CREATE
-    // ============================================================
+    public PessoaRelacaoService(PessoaRelacaoRepository repository, PessoaRepository pessoaRepository, TipoRelacaoPessoaRepository tipoRelacaoPessoaRepository, PessoaRelacaoMapper mapper) {
+        super(repository);
+        this.repository = repository;
+        this.pessoaRepository = pessoaRepository;
+        this.tipoRelacaoPessoaRepository = tipoRelacaoPessoaRepository;
+        this.mapper = mapper;
+    }
 
-    @Transactional
-    @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdmin")
     public PessoaRelacaoResponse criar(PessoaRelacaoRequest request) {
         Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa principal não encontrada."));
@@ -69,12 +72,7 @@ public class PessoaRelacaoService {
         return mapper.toResponse(relacao);
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
-
     @Transactional
-    @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdmin")
     public PessoaRelacaoResponse atualizar(Long id, PessoaRelacaoRequest request) {
         PessoaRelacao relacao = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Relação não encontrada."));
@@ -109,12 +107,7 @@ public class PessoaRelacaoService {
         return mapper.toResponse(relacao);
     }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
-
     @Transactional
-    @CircuitBreaker(name = "pessoa-relacao-admin", fallbackMethod = "fallbackAdminVoid")
     public void excluir(Long id) {
         if (!repository.existsById(id))
             throw new EntityNotFoundException("Relação não encontrada.");

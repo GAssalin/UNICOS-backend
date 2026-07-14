@@ -9,14 +9,11 @@ import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaUpdateRequest;
 import br.com.unicos.ms_produto.mapper.UnidadeMedidaMapper;
 import br.com.unicos.ms_produto.model.UnidadeMedida;
 import br.com.unicos.ms_produto.repository.UnidadeMedidaRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional
@@ -25,154 +22,86 @@ public class UnidadeMedidaService extends BaseTenantService<UnidadeMedida, Long>
     private final UnidadeMedidaRepository repository;
     private final UnidadeMedidaMapper mapper;
 
-    public UnidadeMedidaService(
-            UnidadeMedidaRepository repository,
-            UnidadeMedidaMapper mapper
-    ) {
+    public UnidadeMedidaService(UnidadeMedidaRepository repository, UnidadeMedidaMapper mapper) {
         super(repository);
         this.repository = repository;
         this.mapper = mapper;
     }
 
-    // ============================================================
-    // CREATE
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
     public UnidadeMedidaResponse criar(UnidadeMedidaCreateRequest request) {
-        Long empresaId = TenantContext.getEmpresaId();
+        validarCodigoDuplicado(request.codigo());
 
-        validarCodigoDuplicado(request.codigo(), empresaId);
-
-        UnidadeMedida unidade = mapper.toEntity(request, empresaId);
+        UnidadeMedida unidade = mapper.toEntity(request, TenantContext.getEmpresaId());
         unidade.setAtivo(true);
 
         return mapper.toResponse(repository.save(unidade));
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
     public UnidadeMedidaResponse atualizar(Long id, UnidadeMedidaUpdateRequest request) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        UnidadeMedida unidade = buscarUnidade(id, empresaId);
+        UnidadeMedida unidade = buscarUnidade(id);
 
         if (!unidade.getCodigo().equalsIgnoreCase(request.codigo()))
-            validarCodigoDuplicado(request.codigo(), empresaId);
+            validarCodigoDuplicado(request.codigo());
 
         mapper.updateEntity(request, unidade);
 
         return mapper.toResponse(repository.save(unidade));
     }
 
-    // ============================================================
-    // GET
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
     public UnidadeMedidaResponse buscarPorId(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-        return mapper.toResponse(buscarUnidade(id, empresaId));
+        return mapper.toResponse(buscarUnidade(id));
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
     public UnidadeMedidaResponse buscarPorCodigo(String codigo) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        UnidadeMedida unidade = repository.findByCodigoAndEmpresaId(codigo, empresaId)
+        UnidadeMedida unidade = repository.findByCodigoAndEmpresaId(codigo, TenantContext.getEmpresaId())
                 .orElseThrow(() -> new EntityNotFoundException("Unidade de medida não encontrada para o código: " + codigo));
 
         return mapper.toResponse(unidade);
     }
 
-    // ============================================================
-    // LIST
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-unidade-medida-admin", fallbackMethod = "fallbackAdminPage")
     public Page<UnidadeMedidaResumoResponse> listar(Pageable pageable) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        return repository.findAllByEmpresaId(empresaId, pageable)
+        return repository.findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
                 .map(mapper::toResumoResponse);
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "produto-unidade-medida-admin", fallbackMethod = "fallbackAdminPage")
     public Page<UnidadeMedidaResumoResponse> listarPorAtivo(Boolean ativo, Pageable pageable) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        return repository.findByAtivoAndEmpresaId(ativo, empresaId, pageable)
+        return repository.findByAtivoAndEmpresaId(ativo, TenantContext.getEmpresaId(), pageable)
                 .map(mapper::toResumoResponse);
     }
 
-    // ============================================================
-    // STATUS
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
     public UnidadeMedidaResponse ativar(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        UnidadeMedida unidade = buscarUnidade(id, empresaId);
+        UnidadeMedida unidade = buscarUnidade(id);
         unidade.setAtivo(true);
 
         return mapper.toResponse(repository.save(unidade));
     }
 
-    @CircuitBreaker(name = "produto-unidade-medida-admin", fallbackMethod = "fallbackAdmin")
     public UnidadeMedidaResponse inativar(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-
-        UnidadeMedida unidade = buscarUnidade(id, empresaId);
+        UnidadeMedida unidade = buscarUnidade(id);
         unidade.setAtivo(false);
 
         return mapper.toResponse(repository.save(unidade));
     }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
-
-    @CircuitBreaker(name = "produto-unidade-medida-admin", fallbackMethod = "fallbackAdminVoid")
     public void remover(Long id) {
-        Long empresaId = TenantContext.getEmpresaId();
-        repository.delete(buscarUnidade(id, empresaId));
-    }
-
-    // ============================================================
-    // FALLBACKS
-    // ============================================================
-
-    private UnidadeMedidaResponse fallbackAdmin(Object req, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de unidades de medida temporariamente indisponível");
-    }
-
-    private Page<UnidadeMedidaResumoResponse> fallbackAdminPage(Pageable pageable, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de unidades de medida temporariamente indisponível");
-    }
-
-    private void fallbackAdminVoid(Long id, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de unidades de medida temporariamente indisponível");
+        repository.delete(buscarUnidade(id));
     }
 
     // ============================================================
     // AUXILIARES
     // ============================================================
 
-    private UnidadeMedida buscarUnidade(Long id, Long empresaId) {
-        return repository.findByIdAndEmpresaId(id, empresaId)
+    private UnidadeMedida buscarUnidade(Long id) {
+        return repository.findByIdAndEmpresaId(id, TenantContext.getEmpresaId())
                 .orElseThrow(() -> new EntityNotFoundException("Unidade de medida não encontrada: " + id));
     }
 
-    private void validarCodigoDuplicado(String codigo, Long empresaId) {
-        if (repository.existsByCodigoAndEmpresaId(codigo, empresaId))
+    private void validarCodigoDuplicado(String codigo) {
+        if (repository.existsByCodigoAndEmpresaId(codigo, TenantContext.getEmpresaId()))
             throw new IllegalArgumentException("Já existe uma unidade de medida com o código informado.");
     }
 }

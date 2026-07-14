@@ -15,10 +15,8 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ContatoService extends BaseTenantService<Contato, Long> {
@@ -27,11 +25,7 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     private final PessoaRepository pessoaRepository;
     private final ContatoMapper contatoMapper;
 
-    public ContatoService(
-            ContatoRepository contatoRepository,
-            PessoaRepository pessoaRepository,
-            ContatoMapper contatoMapper
-    ) {
+    public ContatoService(ContatoRepository contatoRepository, PessoaRepository pessoaRepository, ContatoMapper contatoMapper) {
         super(contatoRepository);
         this.contatoRepository = contatoRepository;
         this.pessoaRepository = pessoaRepository;
@@ -43,7 +37,6 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     // ============================================================
 
     @Transactional
-    @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdmin")
     public ContatoResponse salvar(ContatoRequest request) {
         Pessoa pessoa = buscarPessoa(request.pessoaId());
         validarContatoDuplicado(pessoa, request.valor());
@@ -67,7 +60,6 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     // ============================================================
 
     @Transactional
-    @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdmin")
     public ContatoResponse atualizar(Long id, ContatoRequest request) {
         Contato contato = buscarContato(id);
         Pessoa pessoa = buscarPessoa(request.pessoaId());
@@ -94,7 +86,6 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdmin")
     public ContatoResponse buscarPorId(Long id) {
         return contatoMapper.toResponse(buscarContato(id));
     }
@@ -104,27 +95,18 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     // ============================================================
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdminPage")
     public Page<ContatoListDTO> listarPorPessoa(Long pessoaId, Pageable pageable) {
-        Pessoa pessoa = buscarPessoa(pessoaId);
-
         return contatoRepository
-                .findByPessoaAndEmpresaId(pessoa, TenantContext.getEmpresaId(), pageable)
+                .findByPessoaAndEmpresaId(buscarPessoa(pessoaId), TenantContext.getEmpresaId(), pageable)
                 .map(contatoMapper::toListDTO);
     }
 
     @Transactional(readOnly = true)
     @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdminPageTipo")
-    public Page<ContatoListDTO> listarPorPessoaETipo(
-            Long pessoaId,
-            TipoContato tipo,
-            Pageable pageable
-    ) {
-        Pessoa pessoa = buscarPessoa(pessoaId);
-
+    public Page<ContatoListDTO> listarPorPessoaETipo(Long pessoaId, TipoContato tipo, Pageable pageable) {
         return contatoRepository
                 .findByPessoaAndTipoAndEmpresaId(
-                        pessoa,
+                        buscarPessoa(pessoaId),
                         tipo,
                         TenantContext.getEmpresaId(),
                         pageable
@@ -132,43 +114,9 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
                 .map(contatoMapper::toListDTO);
     }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
-
     @Transactional
-    @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdminVoid")
     public void deletar(Long id) {
         contatoRepository.delete(buscarContato(id));
-    }
-
-    // ============================================================
-    // FALLBACKS
-    // ============================================================
-
-    private ContatoResponse fallbackAdmin(Object req, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de contatos de pessoa temporariamente indisponível");
-    }
-
-    private Page<ContatoListDTO> fallbackAdminPage(
-            Long pessoaId,
-            Pageable pageable,
-            Throwable ex
-    ) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de contatos de pessoa temporariamente indisponível");
-    }
-
-    private Page<ContatoListDTO> fallbackAdminPageTipo(
-            Long pessoaId,
-            TipoContato tipo,
-            Pageable pageable,
-            Throwable ex
-    ) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de contatos de pessoa temporariamente indisponível");
-    }
-
-    private void fallbackAdminVoid(Long id, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de contatos de pessoa temporariamente indisponível");
     }
 
     // ============================================================
@@ -186,13 +134,8 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     }
 
     private void validarContatoDuplicado(Pessoa pessoa, String valor) {
-        if (contatoRepository.existsByPessoaAndValorAndEmpresaId(
-                pessoa,
-                valor,
-                TenantContext.getEmpresaId()
-        )) {
+        if (contatoRepository.existsByPessoaAndValorAndEmpresaId(pessoa, valor, TenantContext.getEmpresaId()))
             throw new IllegalArgumentException("Já existe um contato com o valor informado para esta pessoa.");
-        }
     }
 
     private void removerContatoPrincipalAtual(Pessoa pessoa) {

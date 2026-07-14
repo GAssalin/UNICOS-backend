@@ -1,7 +1,7 @@
 package br.com.unicos.ms_usuario.controller.internal;
 
 import br.com.unicos.core.usuario.auth.dto.UsuarioAuthResponse;
-import br.com.unicos.ms_usuario.dto.usuario.UsuarioRoleResponse;
+import br.com.unicos.core.usuario.auth.dto.UsuarioRoleIdsResponse;
 import br.com.unicos.ms_usuario.model.Usuario;
 import br.com.unicos.ms_usuario.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -23,9 +23,9 @@ public class UsuarioInternalController {
     }
 
     @GetMapping("/usuarios/{id}/role")
-    public UsuarioRoleResponse buscarRoleDoUsuario(@PathVariable Long id) {
+    public UsuarioRoleIdsResponse buscarRoleDoUsuario(@PathVariable Long id) {
         Usuario usuario = usuarioService.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + id));
-        return new UsuarioRoleResponse(usuario.getId(), usuario.getRoleId());
+        return new UsuarioRoleIdsResponse(usuario.getId(), usuario.getRoleId());
     }
 }

@@ -1,6 +1,6 @@
 package br.com.unicos.ms_permissao.client;
 
-import br.com.unicos.core.usuario.auth.dto.UsuarioRoleResponse;
+import br.com.unicos.core.usuario.auth.dto.UsuarioRoleIdsResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,5 +12,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface UsuarioClient {
 
     @GetMapping("/internal/usuarios/{id}/role")
-    UsuarioRoleResponse buscarRoleDoUsuario(@PathVariable Long id);
+    UsuarioRoleIdsResponse buscarRoleDoUsuario(@PathVariable Long id);
 }

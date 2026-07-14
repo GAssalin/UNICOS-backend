@@ -1,5 +1,6 @@
 package br.com.unicos.ms_pessoas.service;
 
+import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoListDTO;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoRequest;
 import br.com.unicos.ms_pessoas.dto.documento.DocumentoResponse;
@@ -11,11 +12,8 @@ import br.com.unicos.ms_pessoas.repository.DocumentoRepository;
 import br.com.unicos.ms_pessoas.repository.PessoaRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,19 +23,20 @@ import java.util.Optional;
  * vinculados a pessoas.
  */
 @Service
-@RequiredArgsConstructor
-public class DocumentoService {
+public class DocumentoService extends BaseTenantService<Documento, Long> {
 
     private final DocumentoRepository repository;
     private final PessoaRepository pessoaRepository;
     private final DocumentoMapper mapper;
 
-    // ============================================================
-    // CREATE
-    // ============================================================
+    public DocumentoService(DocumentoRepository repository, PessoaRepository pessoaRepository, DocumentoMapper mapper) {
+        super(repository);
+        this.repository = repository;
+        this.pessoaRepository = pessoaRepository;
+        this.mapper = mapper;
+    }
 
     @Transactional
-    @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdmin")
     public DocumentoResponse criar(DocumentoRequest request) {
         Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
@@ -58,12 +57,7 @@ public class DocumentoService {
         return mapper.toResponse(documento);
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
-
     @Transactional
-    @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdmin")
     public DocumentoResponse atualizar(Long id, DocumentoRequest request) {
         Documento documento = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Documento não encontrado"));
@@ -89,35 +83,20 @@ public class DocumentoService {
         return mapper.toResponse(documento);
     }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
-
     @Transactional
-    @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminVoid")
     public void excluir(Long id) {
         if (!repository.existsById(id))
             throw new EntityNotFoundException("Documento não encontrado");
         repository.deleteById(id);
     }
 
-    // ============================================================
-    // GET
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminOptional")
     public Optional<DocumentoResponse> buscarPorId(Long id) {
         return repository.findById(id)
                 .map(mapper::toResponse);
     }
 
-    // ============================================================
-    // LIST
-    // ============================================================
-
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminList")
     public List<DocumentoListDTO> listarTodos() {
         return repository.findAll()
                 .stream()
@@ -138,46 +117,11 @@ public class DocumentoService {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "pessoa-documento-admin", fallbackMethod = "fallbackAdminListTipo")
     public List<DocumentoListDTO> listarPorTipo(String tipo) {
-        TipoDocumento tipoEnum;
-        try {
-            tipoEnum = TipoDocumento.valueOf(tipo.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Tipo de documento inválido: " + tipo);
-        }
-
-        return repository.findByTipo(tipoEnum)
+        return repository.findByTipo(TipoDocumento.valueOf(tipo.toUpperCase()))
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
     }
 
-    // ============================================================
-    // FALLBACKS
-    // ============================================================
-
-    private DocumentoResponse fallbackAdmin(Object req, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de documentos da pessoa temporariamente indisponível");
-    }
-
-    private void fallbackAdminVoid(Long id, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de documentos da pessoa temporariamente indisponível");
-    }
-
-    private Optional<DocumentoResponse> fallbackAdminOptional(Long id, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de documentos da pessoa temporariamente indisponível");
-    }
-
-    private List<DocumentoListDTO> fallbackAdminList(Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de documentos da pessoa temporariamente indisponível");
-    }
-
-    private List<DocumentoListDTO> fallbackAdminListPessoa(Long pessoaId, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de documentos da pessoa temporariamente indisponível");
-    }
-
-    private List<DocumentoListDTO> fallbackAdminListTipo(String tipo, Throwable ex) {
-        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de documentos da pessoa temporariamente indisponível");
-    }
 }
