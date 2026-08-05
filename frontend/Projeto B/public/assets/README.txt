@@ -1,1 +1,0 @@
-Coloque aqui o arquivo do logo da empresa com o nome logo-empresa.png para exibição automática no canto superior esquerdo.
