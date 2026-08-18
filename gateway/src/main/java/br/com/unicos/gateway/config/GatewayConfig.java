@@ -46,18 +46,6 @@ public class GatewayConfig {
                 )
 
                 // ===============================
-                // ROTA: MS-USUARIO (COM JWT)
-                // ===============================
-                .route("ms-usuario", r -> r
-                        .path("/ms-usuario/**")
-                        .filters(f -> f
-                                .stripPrefix(1)
-                                .filter(jwtAuthFilter)
-                        )
-                        .uri("lb://ms-usuario")
-                )
-
-                // ===============================
                 // ROTA: MS-PESSOAS (COM JWT)
                 // ===============================
                 .route("ms-pessoas", r -> r

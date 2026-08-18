@@ -1,6 +1,6 @@
 package br.com.unicos.ms_pessoas.client;
 
-import br.com.unicos.core.usuario.auth.dto.UsuarioAuthResponse;
+import br.com.unicos.ms_pessoas.usuario.dto.permissao.RoleResumoResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ public class PermissaoService {
         return permissaoClient.usuarioPossuiPermissao(nomePermissao);
     }
 
-    private UsuarioAuthResponse fallbackUsuarioPossuiPermissao(String nomePermissao, Throwable ex) {
+    private boolean fallbackUsuarioPossuiPermissao(String nomePermissao, Throwable ex) {
         log.error(
                 "Fallback do CircuitBreaker acionado ao verificar permissão [{}]. Causa: {}",
                 nomePermissao,
@@ -28,5 +28,16 @@ public class PermissaoService {
         );
 
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de busca da permissão temporariamente indisponível");
+    }
+
+    @CircuitBreaker(name = "ms-permissao", fallbackMethod = "fallbackBuscarRolePorId")
+    public RoleResumoResponse buscarRolePorId(Long id) {
+        return permissaoClient.buscarRolePorId(id);
+    }
+
+    private RoleResumoResponse fallbackBuscarRolePorId(Long id, Throwable ex) {
+        log.error("Fallback ao buscar role [{}]. Causa: {}", id, ex.getMessage(), ex);
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                "Serviço de busca da permissão temporariamente indisponível");
     }
 }

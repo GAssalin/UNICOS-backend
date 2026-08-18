@@ -4,6 +4,7 @@ import br.com.unicos.ms_pessoas.filter.PessoaRequestFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,6 +39,7 @@ public class SecurityConfig {
                     req.requestMatchers("/internal/**").permitAll();
                     req.requestMatchers(SWAGGER_WHITELIST).permitAll();
                     req.requestMatchers("/error").permitAll();
+                    req.requestMatchers(HttpMethod.PATCH, "/v1/verificacao-email/confirmar").permitAll();
                     req.anyRequest().authenticated();
                 })
                 .addFilterBefore(pessoaRequestFilter, UsernamePasswordAuthenticationFilter.class)

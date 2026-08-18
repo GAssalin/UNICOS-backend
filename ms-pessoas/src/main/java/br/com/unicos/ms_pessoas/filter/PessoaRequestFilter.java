@@ -92,6 +92,10 @@ public class PessoaRequestFilter extends OncePerRequestFilter {
             prefixo = "PESSOA_JURIDICA_";
         else if (path.startsWith("/v1/tipos-relacao-pessoa"))
             prefixo = "PESSOA_TIPO_RELACAO_PESSOA_";
+        else if (path.startsWith("/v1/usuarios"))
+            prefixo = "USUARIO_";
+        else if (path.startsWith("/v1/verificacao-email"))
+            prefixo = "USUARIO_EMAIL_";
         else
             return null;
 

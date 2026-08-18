@@ -184,7 +184,7 @@
         </dependency>
         <dependency>
             <groupId>br.com.unicos</groupId>
-            <artifactId>ms-usuario</artifactId>
+            <artifactId>ms-pessoas</artifactId>
             <version>1.0.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

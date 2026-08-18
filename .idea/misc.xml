@@ -28,6 +28,17 @@
         <option value="$PROJECT_DIR$/backend/ms-cliente/pom.xml" />
         <option value="$PROJECT_DIR$/backend/unicos-core/core-pessoas/pom.xml" />
         <option value="$PROJECT_DIR$/backend/unicos-core/core-permissao/pom.xml" />
+        <option value="$PROJECT_DIR$/unicos-core/pom.xml" />
+        <option value="$PROJECT_DIR$/config-server/pom.xml" />
+        <option value="$PROJECT_DIR$/service-registry/pom.xml" />
+        <option value="$PROJECT_DIR$/gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-produto/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-pessoas/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-permissao/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-estoque/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-empresa/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-cliente/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-autenticacao/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

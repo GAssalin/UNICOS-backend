@@ -16,7 +16,6 @@ public class DocumentationController {
 
         String autenticacaoUrl = resolveServiceUrl("ms-autenticacao");
         String permissaoUrl = resolveServiceUrl("ms-permissao");
-        String usuarioUrl = resolveServiceUrl("ms-usuario");
         String pessoasUrl = resolveServiceUrl("ms-pessoas");
         String produtoUrl = resolveServiceUrl("ms-produto");
         String empresaUrl = resolveServiceUrl("ms-empresa");
@@ -62,12 +61,6 @@ public class DocumentationController {
                     </div>
                     
                     <div class="card">
-                      <strong>MS-USUARIO</strong><br/>
-                      <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
-                      <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
-                    </div>
-                    
-                    <div class="card">
                       <strong>MS-PESSOAS</strong><br/>
                       <a href="%s/swagger-ui/index.html" target="_blank">Swagger UI</a><br/>
                       <a href="%s/v3/api-docs" target="_blank">OpenAPI JSON</a>
@@ -102,7 +95,6 @@ public class DocumentationController {
                 """.formatted(
                         autenticacaoUrl, autenticacaoUrl,
                         permissaoUrl, permissaoUrl,
-                        usuarioUrl, usuarioUrl,
                         pessoasUrl, pessoasUrl,
                         empresaUrl, empresaUrl,
                         estoqueUrl, estoqueUrl,
