@@ -54,5 +54,29 @@
     <file url="file://$PROJECT_DIR$/backend/unicos-core/core-usuario/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/unicos-core/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/unicos-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/config-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ms-autenticacao/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ms-cliente/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ms-empresa/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ms-estoque/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ms-permissao/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ms-pessoas/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ms-produto/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/service-registry/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/unicos-core/core-auth/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/unicos-core/core-auth/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/unicos-core/core-base/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/unicos-core/core-base/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/unicos-core/core-pessoas/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/unicos-core/core-pessoas/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/unicos-core/core-produto/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/unicos-core/core-produto/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/unicos-core/core-tenant/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/unicos-core/core-tenant/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/unicos-core/core-usuario/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/unicos-core/core-usuario/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/unicos-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/unicos-core/src/main/resources" charset="UTF-8" />
   </component>
 </project>
