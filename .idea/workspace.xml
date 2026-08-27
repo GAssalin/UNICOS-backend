@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="6de8628d-5999-4196-a74f-c27f1ee3a151" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/UNICOS.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-autenticacao/src/main/java/br/com/unicos/ms_autenticacao/client/PessoaClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-autenticacao/src/main/java/br/com/unicos/ms_autenticacao/client/PessoaClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-autenticacao/src/main/java/br/com/unicos/ms_autenticacao/client/UsuarioClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-autenticacao/src/main/java/br/com/unicos/ms_autenticacao/client/UsuarioClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-autenticacao/src/main/java/br/com/unicos/ms_autenticacao/loader/AutenticacaoLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-autenticacao/src/main/java/br/com/unicos/ms_autenticacao/loader/AutenticacaoLoader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-autenticacao/src/main/java/br/com/unicos/ms_autenticacao/service/UsuarioService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-autenticacao/src/main/java/br/com/unicos/ms_autenticacao/service/UsuarioService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PermissaoClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PermissaoClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PermissaoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PermissaoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/UsuarioClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/UsuarioClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/UsuarioService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/UsuarioService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/FeignContextInterceptorConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/FeignContextInterceptorConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/JpaAuditingConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/JpaAuditingConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/filter/ClienteRequestFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/filter/ClienteRequestFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/Cliente.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/Cliente.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/service/ClienteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/service/ClienteService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-empresa/src/main/java/br/com/unicos/ms_empresa/client/PermissaoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-empresa/src/main/java/br/com/unicos/ms_empresa/client/PermissaoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-empresa/src/main/java/br/com/unicos/ms_empresa/config/FeignContextInterceptorConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-empresa/src/main/java/br/com/unicos/ms_empresa/config/FeignContextInterceptorConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-empresa/src/main/java/br/com/unicos/ms_empresa/config/JpaAuditingConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-empresa/src/main/java/br/com/unicos/ms_empresa/config/JpaAuditingConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-empresa/src/main/java/br/com/unicos/ms_empresa/filter/EmpresaRequestFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-empresa/src/main/java/br/com/unicos/ms_empresa/filter/EmpresaRequestFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-estoque/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ms-estoque/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-estoque/src/main/java/br/com/unicos/ms_estoque/client/PermissaoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-estoque/src/main/java/br/com/unicos/ms_estoque/client/PermissaoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-estoque/src/main/java/br/com/unicos/ms_estoque/config/FeignContextInterceptorConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-estoque/src/main/java/br/com/unicos/ms_estoque/config/FeignContextInterceptorConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-estoque/src/main/java/br/com/unicos/ms_estoque/config/JpaAuditingConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-estoque/src/main/java/br/com/unicos/ms_estoque/config/JpaAuditingConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-estoque/src/main/java/br/com/unicos/ms_estoque/filter/EstoqueRequestFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-estoque/src/main/java/br/com/unicos/ms_estoque/filter/EstoqueRequestFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/client/UsuarioClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/client/UsuarioClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/client/UsuarioService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/client/UsuarioService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/config/FeignContextInterceptorConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/config/FeignContextInterceptorConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/config/JpaAuditingConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/config/JpaAuditingConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/controller/internal/PermissaoInternalController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/controller/internal/PermissaoInternalController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/filter/PermissaoRequestFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/filter/PermissaoRequestFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/repository/RolePermissaoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/repository/RolePermissaoRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/service/PermissaoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-permissao/src/main/java/br/com/unicos/ms_permissao/service/PermissaoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-pessoas/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ms-pessoas/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-pessoas/src/main/java/br/com/unicos/ms_pessoas/config/FeignContextInterceptorConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-pessoas/src/main/java/br/com/unicos/ms_pessoas/config/FeignContextInterceptorConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-pessoas/src/main/java/br/com/unicos/ms_pessoas/config/JpaAuditingConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-pessoas/src/main/java/br/com/unicos/ms_pessoas/config/JpaAuditingConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-pessoas/src/main/java/br/com/unicos/ms_pessoas/filter/PessoaRequestFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-pessoas/src/main/java/br/com/unicos/ms_pessoas/filter/PessoaRequestFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-pessoas/src/main/java/br/com/unicos/ms_pessoas/usuario/controller/internal/UsuarioInternalController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-pessoas/src/main/java/br/com/unicos/ms_pessoas/usuario/controller/internal/UsuarioInternalController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-pessoas/src/main/java/br/com/unicos/ms_pessoas/usuario/model/Usuario.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-pessoas/src/main/java/br/com/unicos/ms_pessoas/usuario/model/Usuario.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-pessoas/src/main/java/br/com/unicos/ms_pessoas/usuario/service/UsuarioService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-pessoas/src/main/java/br/com/unicos/ms_pessoas/usuario/service/UsuarioService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/client/PermissaoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/client/PermissaoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/config/FeignContextInterceptorConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/config/FeignContextInterceptorConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/config/JpaAuditingConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/config/JpaAuditingConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/filter/ProdutoRequestFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/filter/ProdutoRequestFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unicos-core/core-usuario/src/main/java/br/com/unicos/core/usuario/auth/UserContextInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/unicos-core/core-usuario/src/main/java/br/com/unicos/core/usuario/UserContextInitializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unicos-core/core-usuario/src/main/java/br/com/unicos/core/usuario/auth/context/UserContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/unicos-core/core-usuario/src/main/java/br/com/unicos/core/usuario/context/UserContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unicos-core/core-usuario/src/main/java/br/com/unicos/core/usuario/auth/dto/UsuarioAuthResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/unicos-core/core-usuario/src/main/java/br/com/unicos/core/usuario/dto/UsuarioAuthResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unicos-core/core-usuario/src/main/java/br/com/unicos/core/usuario/auth/dto/UsuarioRoleResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/unicos-core/core-usuario/src/main/java/br/com/unicos/core/usuario/dto/UsuarioRoleResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unicos-core/core-usuario/src/main/java/br/com/unicos/core/usuario/auth/exception/UserNotDefinedException.java" beforeDir="false" afterPath="$PROJECT_DIR$/unicos-core/core-usuario/src/main/java/br/com/unicos/core/usuario/exception/UserNotDefinedException.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "GAssalin"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/GAssalin/UNICOS-backend.git",
+    "accountId": "ab4fc61c-2f4c-4672-b7bc-b375fe991923"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 3
+}]]></component>
+  <component name="ProjectId" id="3ITXaJySBCDu3TvwwW1aYgzWbEQ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6de8628d-5999-4196-a74f-c27f1ee3a151" name="Changes" comment="" />
+      <created>1787789594408</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1787789594408</updated>
+    </task>
+    <servers />
+  </component>
+</project>

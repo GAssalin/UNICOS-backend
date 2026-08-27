@@ -2,13 +2,24 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
-      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="service-registry" />
         <module name="gateway" />
+        <module name="service-registry" />
+      </profile>
+      <profile name="Annotation profile for UNICOS :: MS-Pessoas" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
+        </processorPath>
+        <module name="ms-pessoas" />
+        <module name="ms-cliente" />
+        <module name="ms-empresa" />
       </profile>
       <profile name="Annotation profile for UNICOS :: MS-Produto" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -17,16 +28,12 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
         </processorPath>
-        <module name="ms-autenticacao" />
-        <module name="ms-usuario" />
-        <module name="ms-empresa" />
         <module name="ms-estoque" />
-        <module name="ms-cliente" />
-        <module name="ms-pessoas" />
         <module name="config-server" />
         <module name="ms-permissao" />
-        <module name="core-auth" />
         <module name="ms-produto" />
+        <module name="core-auth" />
+        <module name="ms-autenticacao" />
         <module name="core-produto" />
         <module name="core-usuario" />
         <module name="core-pessoas" />
@@ -34,48 +41,18 @@
         <module name="core-tenant" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="core-categoria" target="21" />
-      <module name="core-contas" target="21" />
-      <module name="core-financeiro" target="21" />
-      <module name="core-pedido" target="21" />
-      <module name="core-permissao" target="21" />
-      <module name="core-pessoas (1)" target="21" />
-      <module name="core-produto (1)" target="21" />
-      <module name="core-produto-api" target="21" />
-      <module name="core-produto-domain" target="21" />
-      <module name="core-produto-events" target="21" />
-      <module name="core-request" target="21" />
-      <module name="core-security-contract" target="21" />
-      <module name="core-tesouraria" target="21" />
-      <module name="ms-auth" target="21" />
-      <module name="ms-compras" target="21" />
-      <module name="ms-departamento" target="21" />
-      <module name="ms-filial" target="21" />
-      <module name="ms-notificacao" target="21" />
-      <module name="ms-produtos" target="21" />
-      <module name="ms-vendas" target="21" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="config-server" options="-parameters" />
       <module name="gateway" options="-parameters" />
       <module name="ms-autenticacao" options="-parameters" />
-      <module name="ms-auth" options="-parameters" />
       <module name="ms-cliente" options="-parameters" />
-      <module name="ms-compras" options="-parameters" />
-      <module name="ms-departamento" options="-parameters" />
       <module name="ms-empresa" options="-parameters" />
       <module name="ms-estoque" options="-parameters" />
-      <module name="ms-filial" options="-parameters" />
-      <module name="ms-notificacao" options="-parameters" />
       <module name="ms-permissao" options="-parameters" />
       <module name="ms-pessoas" options="-parameters" />
       <module name="ms-produto" options="-parameters" />
-      <module name="ms-produtos" options="-parameters" />
-      <module name="ms-usuario" options="-parameters" />
-      <module name="ms-vendas" options="-parameters" />
       <module name="service-registry" options="-parameters" />
     </option>
   </component>

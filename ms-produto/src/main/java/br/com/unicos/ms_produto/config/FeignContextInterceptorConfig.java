@@ -2,7 +2,7 @@ package br.com.unicos.ms_produto.config;
 
 import br.com.unicos.core.auth.context.AuthContext;
 import br.com.unicos.core.tenant.context.TenantContext;
-import br.com.unicos.core.usuario.auth.context.UserContext;
+import br.com.unicos.core.usuario.context.UserContext;
 import feign.RequestInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,6 +1,6 @@
-package br.com.unicos.core.usuario.auth.context;
+package br.com.unicos.core.usuario.context;
 
-import br.com.unicos.core.usuario.auth.exception.UserNotDefinedException;
+import br.com.unicos.core.usuario.exception.UserNotDefinedException;
 
 public class UserContext {
     private static final ThreadLocal<Long> USUARIO_ID = new ThreadLocal<>();

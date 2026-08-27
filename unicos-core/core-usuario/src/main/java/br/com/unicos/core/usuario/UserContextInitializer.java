@@ -1,4 +1,4 @@
-package br.com.unicos.core.usuario.auth;
+package br.com.unicos.core.usuario;
 
 import jakarta.servlet.http.HttpServletRequest;
 

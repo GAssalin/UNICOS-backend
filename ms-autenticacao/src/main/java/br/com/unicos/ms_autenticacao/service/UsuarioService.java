@@ -1,6 +1,6 @@
 package br.com.unicos.ms_autenticacao.service;
 
-import br.com.unicos.core.usuario.auth.dto.UsuarioAuthResponse;
+import br.com.unicos.core.usuario.dto.UsuarioAuthResponse;
 import br.com.unicos.ms_autenticacao.client.UsuarioClient;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;

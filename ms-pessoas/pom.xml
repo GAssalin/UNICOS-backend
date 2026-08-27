@@ -20,7 +20,7 @@
     <groupId>br.com.unicos</groupId>
 	<artifactId>ms-pessoas</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
-	<name>UNICOS :: MS-Pessoas e Usuários</name>
+	<name>UNICOS :: MS-Pessoas</name>
 	<description>Microserviço unificado responsável por pessoas físicas, pessoas jurídicas, usuários e verificação de e-mail.</description>
 
     <!-- =============================================== -->

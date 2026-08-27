@@ -1,59 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/backend/config-server/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/gateway/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-autenticacao/ms-autenticacao/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-autenticacao/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-auth/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-cliente/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-compras/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-departamento/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-empresa/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-estoque/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-filial/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-notificacao/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-permissao/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-pessoas/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-produto/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-produtos/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-usuario/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/ms-vendas/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/service-registry/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-auth/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-auth/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-base/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-base/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-categoria/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-categoria/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-contas/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-contas/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-financeiro/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-financeiro/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-pedido/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-pedido/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-permissao/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-permissao/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-pessoas/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-pessoas/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto-api/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto-api/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto-domain/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto-domain/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto-events/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto-events/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-produto/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-request/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-request/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-tenant/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-tenant/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-tesouraria/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-tesouraria/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-usuario/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/core-usuario/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/backend/unicos-core/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/config-server/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ms-autenticacao/src/main/java" charset="UTF-8" />

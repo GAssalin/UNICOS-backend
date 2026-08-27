@@ -1,4 +1,4 @@
-package br.com.unicos.core.usuario.auth.dto;
+package br.com.unicos.core.usuario.dto;
 
 import java.util.Set;
 

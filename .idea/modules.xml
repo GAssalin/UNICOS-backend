@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/UNICOS.iml" filepath="$PROJECT_DIR$/.idea/UNICOS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/UNICOS-backend.iml" filepath="$PROJECT_DIR$/.idea/UNICOS-backend.iml" />
     </modules>
   </component>
 </project>

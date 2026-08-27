@@ -1,7 +1,7 @@
 package br.com.unicos.ms_empresa.filter;
 
 import br.com.unicos.core.tenant.context.TenantContext;
-import br.com.unicos.core.usuario.auth.context.UserContext;
+import br.com.unicos.core.usuario.context.UserContext;
 import br.com.unicos.ms_empresa.client.PermissaoService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -1,7 +1,7 @@
 package br.com.unicos.ms_autenticacao.loader;
 
 import br.com.unicos.core.auth.model.AuthenticatedUser;
-import br.com.unicos.core.usuario.auth.dto.UsuarioAuthResponse;
+import br.com.unicos.core.usuario.dto.UsuarioAuthResponse;
 import br.com.unicos.ms_autenticacao.service.UsuarioService;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;

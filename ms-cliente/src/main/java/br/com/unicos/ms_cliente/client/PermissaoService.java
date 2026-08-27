@@ -1,7 +1,7 @@
 package br.com.unicos.ms_cliente.client;
 
-import br.com.unicos.core.usuario.auth.dto.UsuarioAuthResponse;
-import br.com.unicos.core.usuario.auth.dto.UsuarioRoleResponse;
+import br.com.unicos.core.usuario.dto.UsuarioAuthResponse;
+import br.com.unicos.core.usuario.dto.UsuarioRoleResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

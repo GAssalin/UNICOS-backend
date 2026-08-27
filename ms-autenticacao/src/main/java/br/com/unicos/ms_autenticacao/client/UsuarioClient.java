@@ -1,6 +1,6 @@
 package br.com.unicos.ms_autenticacao.client;
 
-import br.com.unicos.core.usuario.auth.dto.UsuarioAuthResponse;
+import br.com.unicos.core.usuario.dto.UsuarioAuthResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
