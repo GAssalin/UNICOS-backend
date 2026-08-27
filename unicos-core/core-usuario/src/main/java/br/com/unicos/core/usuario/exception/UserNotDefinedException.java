@@ -1,4 +1,4 @@
-package br.com.unicos.core.usuario.auth.exception;
+package br.com.unicos.core.usuario.exception;
 
 /**
  * Exceção lançada quando o usuario não está definido

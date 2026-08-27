@@ -1,7 +1,7 @@
 package br.com.unicos.ms_pessoas.usuario.controller.internal;
 
-import br.com.unicos.core.usuario.auth.dto.UsuarioAuthResponse;
-import br.com.unicos.core.usuario.auth.dto.UsuarioRoleIdsResponse;
+import br.com.unicos.core.usuario.dto.UsuarioAuthResponse;
+import br.com.unicos.core.usuario.dto.UsuarioRoleIdsResponse;
 import br.com.unicos.ms_pessoas.usuario.model.Usuario;
 import br.com.unicos.ms_pessoas.usuario.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Hidden;

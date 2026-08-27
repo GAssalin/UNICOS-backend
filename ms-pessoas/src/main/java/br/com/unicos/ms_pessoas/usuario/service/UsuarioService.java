@@ -2,7 +2,7 @@ package br.com.unicos.ms_pessoas.usuario.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
-import br.com.unicos.core.usuario.auth.dto.UsuarioAuthResponse;
+import br.com.unicos.core.usuario.dto.UsuarioAuthResponse;
 import br.com.unicos.ms_pessoas.client.PermissaoService;
 import br.com.unicos.ms_pessoas.usuario.dto.permissao.RoleResumoResponse;
 import br.com.unicos.ms_pessoas.usuario.dto.usuario.UsuarioRequest;

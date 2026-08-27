@@ -1,7 +1,7 @@
 package br.com.unicos.ms_permissao.controller.internal;
 
-import br.com.unicos.core.usuario.auth.context.UserContext;
-import br.com.unicos.core.usuario.auth.dto.UsuarioRoleIdsResponse;
+import br.com.unicos.core.usuario.context.UserContext;
+import br.com.unicos.core.usuario.dto.UsuarioRoleIdsResponse;
 import br.com.unicos.ms_permissao.dto.internal.RoleResumoResponse;
 import br.com.unicos.ms_permissao.dto.role.RoleResponse;
 import br.com.unicos.ms_permissao.service.PermissaoService;

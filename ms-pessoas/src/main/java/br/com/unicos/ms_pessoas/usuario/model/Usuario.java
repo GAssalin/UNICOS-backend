@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  *
  * <p>
  * Este microserviço é responsável apenas pelos dados cadastrais
- * do usuário. Informações de autenticação e permissões são compartilhadas com os serviços de identidade. A role do usuário é armazenada neste microserviço por meio do campo roleId.
+ * do usuário. Informações de autenticação e permissões são compartilhadas com os serviços de identidade. A role do usuário é armazenada neste microserviço por meio do campo idRole.
  * </p>
  */
 @Entity

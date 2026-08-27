@@ -1,6 +1,6 @@
 package br.com.unicos.ms_permissao.client;
 
-import br.com.unicos.core.usuario.auth.dto.UsuarioRoleIdsResponse;
+import br.com.unicos.core.usuario.dto.UsuarioRoleIdsResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

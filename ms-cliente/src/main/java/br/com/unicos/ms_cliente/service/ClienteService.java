@@ -2,8 +2,8 @@ package br.com.unicos.ms_cliente.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
-import br.com.unicos.core.usuario.auth.context.UserContext;
-import br.com.unicos.core.usuario.auth.dto.UsuarioRoleIdsResponse;
+import br.com.unicos.core.usuario.context.UserContext;
+import br.com.unicos.core.usuario.dto.UsuarioRoleIdsResponse;
 import br.com.unicos.ms_cliente.client.PermissaoService;
 import br.com.unicos.ms_cliente.client.UsuarioService;
 import br.com.unicos.ms_cliente.dto.ClienteRequestDTO;
@@ -122,7 +122,7 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
 
     private boolean isUsuarioUmVendedor() {
         UsuarioRoleIdsResponse response = usuarioService.buscarRoleIdsDoUsuario(UserContext.getUsuarioId());
-        return permissaoService.buscarNomeRoleById(response.roleId()).nomeRoleUsuario().toUpperCase().contains("VENDEDOR");
+        return permissaoService.buscarNomeRoleById(response.idRole()).nomeRoleUsuario().toUpperCase().contains("VENDEDOR");
     }
 
     private ClienteCategoria buscarCategoria(Long id) {

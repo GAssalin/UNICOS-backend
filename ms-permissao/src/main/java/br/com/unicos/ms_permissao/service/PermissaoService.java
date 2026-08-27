@@ -2,8 +2,8 @@ package br.com.unicos.ms_permissao.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
-import br.com.unicos.core.usuario.auth.context.UserContext;
-import br.com.unicos.core.usuario.auth.dto.UsuarioRoleIdsResponse;
+import br.com.unicos.core.usuario.context.UserContext;
+import br.com.unicos.core.usuario.dto.UsuarioRoleIdsResponse;
 import br.com.unicos.ms_permissao.client.UsuarioService;
 import br.com.unicos.ms_permissao.dto.permissao.PermissaoRequest;
 import br.com.unicos.ms_permissao.dto.permissao.PermissaoResponse;
@@ -86,12 +86,12 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
     @Transactional(readOnly = true)
     public boolean usuarioPossuiPermissao(String nomePermissao) {
         UsuarioRoleIdsResponse usuarioRole = usuarioService.buscarRoleIdsDoUsuario(UserContext.getUsuarioId());
-        if (usuarioRole == null || usuarioRole.roleId() == null)
+        if (usuarioRole == null || usuarioRole.idRole() == null)
             return false;
 
         return rolePermissaoRepository.rolePossuiPermissao(
                 TenantContext.getEmpresaId(),
-                usuarioRole.roleId(),
+                usuarioRole.idRole(),
                 nomePermissao
         );
     }
@@ -101,12 +101,12 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
         Long userId = UserContext.getUsuarioId();
 
         UsuarioRoleIdsResponse usuarioRole = usuarioService.buscarRoleIdsDoUsuario(userId);
-        if (usuarioRole == null || usuarioRole.roleId() == null)
+        if (usuarioRole == null || usuarioRole.idRole() == null)
             return List.of();
 
         return rolePermissaoRepository.listarNomesPermissoesDaRole(
                 TenantContext.getEmpresaId(),
-                usuarioRole.roleId()
+                usuarioRole.idRole()
         );
     }
 
