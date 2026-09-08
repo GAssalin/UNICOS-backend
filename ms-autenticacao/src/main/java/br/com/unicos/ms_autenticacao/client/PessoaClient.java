@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
-        name = "ms-pessoa",
+        name = "ms-pessoas",
         contextId = "pessoaClient",
         configuration = FeignConfig.class
 )
 public interface PessoaClient {
-    @GetMapping("/internal/pessoas/buscarPorEmail")
+    @GetMapping("/internal/auth/by-email")
     UsuarioAuthResponse buscarPorEmail(@RequestParam String email);
 }
