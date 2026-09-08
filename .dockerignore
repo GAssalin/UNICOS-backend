@@ -1,0 +1,13 @@
+**/.git
+**/.idea
+**/.vscode
+**/target
+**/.classpath
+**/.project
+**/.settings
+**/*.iml
+**/.env
+**/.env.*
+**/*.zip
+**/*.log
+README*

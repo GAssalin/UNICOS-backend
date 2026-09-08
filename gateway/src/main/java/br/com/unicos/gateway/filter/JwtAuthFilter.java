@@ -1,13 +1,10 @@
 package br.com.unicos.gateway.filter;
 
 import br.com.unicos.core.auth.service.TokenCoreService;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpHeaders;
@@ -29,13 +26,6 @@ public class JwtAuthFilter implements GatewayFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         log.info(">>> PASSOU PELO GATEWAY: {}", exchange.getRequest().getURI());
-
-        String path = exchange.getRequest().getURI().getPath();
-
-        // ==============================
-        // ROTAS SEM JWT
-        // ==============================
-        if (path.contains("/v1/auth/login")) { return chain.filter(exchange); }
 
         try {
             DecodedJWT jwt = tokenCoreService.validarToken(exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION));
