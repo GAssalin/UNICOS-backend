@@ -1,0 +1,185 @@
+services:
+  service-registry:
+    read_only: true
+    tmpfs:
+    - /tmp
+    security_opt:
+    - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+  gateway:
+    read_only: true
+    tmpfs:
+    - /tmp
+    security_opt:
+    - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+    - ${GATEWAY_BIND_ADDRESS:-127.0.0.1}:${GATEWAY_PORT:-8082}:8082
+  ms-autenticacao:
+    read_only: true
+    tmpfs:
+    - /tmp
+    security_opt:
+    - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+  ms-pessoas:
+    read_only: true
+    tmpfs:
+    - /tmp
+    security_opt:
+    - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_FLYWAY_ENABLED: 'false'
+  ms-cliente:
+    read_only: true
+    tmpfs:
+    - /tmp
+    security_opt:
+    - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+  ms-empresa:
+    read_only: true
+    tmpfs:
+    - /tmp
+    security_opt:
+    - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+  ms-estoque:
+    read_only: true
+    tmpfs:
+    - /tmp
+    security_opt:
+    - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+  ms-permissao:
+    read_only: true
+    tmpfs:
+    - /tmp
+    security_opt:
+    - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+  ms-produto:
+    read_only: true
+    tmpfs:
+    - /tmp
+    security_opt:
+    - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+    environment:
+      SPRING_PROFILES_ACTIVE: prod

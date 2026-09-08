@@ -1,0 +1,186 @@
+x-app: &app
+  restart: unless-stopped
+  networks: [unicos]
+  env_file: ${ENV_FILE}
+  environment: &common-env
+    SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+    EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8081/eureka/
+    EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+    MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,prometheus
+    MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
+  healthcheck: &app-health
+    test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health >/dev/null || exit 1"]
+    interval: 15s
+    timeout: 5s
+    retries: 12
+    start_period: 45s
+
+x-mysql: &mysql
+  image: mysql:8.4
+  restart: unless-stopped
+  networks: [unicos]
+  command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+  healthcheck: &mysql-health
+    test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+    interval: 10s
+    timeout: 5s
+    retries: 15
+    start_period: 30s
+
+services:
+  service-registry:
+    <<: *app
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args: { SERVICE_NAME: service-registry }
+    environment:
+      <<: *common-env
+      SERVER_PORT: 8081
+      EUREKA_CLIENT_REGISTER_WITH_EUREKA: "false"
+      EUREKA_CLIENT_FETCH_REGISTRY: "false"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8081/actuator/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+  gateway:
+    <<: *app
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args: { SERVICE_NAME: gateway }
+    environment:
+      <<: *common-env
+      SERVER_PORT: 8080
+    depends_on:
+      service-registry: { condition: service_healthy }
+
+  rabbitmq:
+    image: rabbitmq:4.1-management-alpine
+    restart: unless-stopped
+    networks: [unicos]
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:?defina RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}
+    volumes: [rabbitmq_data:/var/lib/rabbitmq]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  mysql-autenticacao:
+    <<: *mysql
+    environment:
+      MYSQL_DATABASE: "${AUTH_DB_NAME:?defina AUTH_DB_NAME}"
+      MYSQL_USER: "${AUTH_DB_USER:?defina AUTH_DB_USER}"
+      MYSQL_PASSWORD: "${AUTH_DB_PASSWORD:?defina AUTH_DB_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${AUTH_DB_PASSWORD:?defina AUTH_DB_PASSWORD}"
+    volumes:
+      - mysql_auth_data:/var/lib/mysql
+  mysql-empresa:
+    <<: *mysql
+    environment:
+      MYSQL_DATABASE: "${EMPRESA_DB_NAME:?defina EMPRESA_DB_NAME}"
+      MYSQL_USER: "${EMPRESA_DB_USER:?defina EMPRESA_DB_USER}"
+      MYSQL_PASSWORD: "${EMPRESA_DB_PASSWORD:?defina EMPRESA_DB_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${EMPRESA_DB_PASSWORD:?defina EMPRESA_DB_PASSWORD}"
+    volumes:
+      - mysql_empresa_data:/var/lib/mysql
+  mysql-pessoa:
+    <<: *mysql
+    environment:
+      MYSQL_DATABASE: "${PESSOA_DB_NAME:?defina PESSOA_DB_NAME}"
+      MYSQL_USER: "${PESSOA_DB_USER:?defina PESSOA_DB_USER}"
+      MYSQL_PASSWORD: "${PESSOA_DB_PASSWORD:?defina PESSOA_DB_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${PESSOA_DB_PASSWORD:?defina PESSOA_DB_PASSWORD}"
+    volumes:
+      - mysql_pessoa_data:/var/lib/mysql
+  mysql-permissao:
+    <<: *mysql
+    environment:
+      MYSQL_DATABASE: "${PERMISSAO_DB_NAME:?defina PERMISSAO_DB_NAME}"
+      MYSQL_USER: "${PERMISSAO_DB_USER:?defina PERMISSAO_DB_USER}"
+      MYSQL_PASSWORD: "${PERMISSAO_DB_PASSWORD:?defina PERMISSAO_DB_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${PERMISSAO_DB_PASSWORD:?defina PERMISSAO_DB_PASSWORD}"
+    volumes:
+      - mysql_permissao_data:/var/lib/mysql
+  mysql-cliente:
+    <<: *mysql
+    environment:
+      MYSQL_DATABASE: "${CLIENTE_DB_NAME:?defina CLIENTE_DB_NAME}"
+      MYSQL_USER: "${CLIENTE_DB_USER:?defina CLIENTE_DB_USER}"
+      MYSQL_PASSWORD: "${CLIENTE_DB_PASSWORD:?defina CLIENTE_DB_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${CLIENTE_DB_PASSWORD:?defina CLIENTE_DB_PASSWORD}"
+    volumes:
+      - mysql_cliente_data:/var/lib/mysql
+  mysql-estoque:
+    <<: *mysql
+    environment:
+      MYSQL_DATABASE: "${ESTOQUE_DB_NAME:?defina ESTOQUE_DB_NAME}"
+      MYSQL_USER: "${ESTOQUE_DB_USER:?defina ESTOQUE_DB_USER}"
+      MYSQL_PASSWORD: "${ESTOQUE_DB_PASSWORD:?defina ESTOQUE_DB_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${ESTOQUE_DB_PASSWORD:?defina ESTOQUE_DB_PASSWORD}"
+    volumes:
+      - mysql_estoque_data:/var/lib/mysql
+  mysql-produto:
+    <<: *mysql
+    environment:
+      MYSQL_DATABASE: "${PRODUTO_DB_NAME:?defina PRODUTO_DB_NAME}"
+      MYSQL_USER: "${PRODUTO_DB_USER:?defina PRODUTO_DB_USER}"
+      MYSQL_PASSWORD: "${PRODUTO_DB_PASSWORD:?defina PRODUTO_DB_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${PRODUTO_DB_PASSWORD:?defina PRODUTO_DB_PASSWORD}"
+    volumes:
+      - mysql_produto_data:/var/lib/mysql
+
+  ms-autenticacao:
+    <<: *app
+    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-autenticacao } }
+    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-autenticacao:3306/unicos_ms_autenticacao?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${AUTH_DB_PASSWORD:?defina AUTH_DB_PASSWORD}", JWT_SECRET: "${UNICOS_JWT_SECRET:?defina UNICOS_JWT_SECRET}" }
+    depends_on: { service-registry: { condition: service_healthy }, mysql-autenticacao: { condition: service_healthy } }
+  ms-empresa:
+    <<: *app
+    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-empresa } }
+    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-empresa:3306/unicos_ms_at?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${AT_DB_PASSWORD:?defina AT_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
+    depends_on: { service-registry: { condition: service_healthy }, mysql-empresa: { condition: service_healthy } }
+  ms-pessoa:
+    <<: *app
+    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-pessoa } }
+    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-pessoa:3306/unicos_ms_pessoa?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${PESSOA_DB_PASSWORD:?defina PESSOA_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
+    depends_on: { service-registry: { condition: service_healthy }, mysql-pessoa: { condition: service_healthy } }
+  ms-permissao:
+    <<: *app
+    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-permissao } }
+    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-permissao:3306/unicos_ms_permissao?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${PERMISSAO_DB_PASSWORD:?defina PERMISSAO_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
+    depends_on: { service-registry: { condition: service_healthy }, mysql-permissao: { condition: service_healthy } }
+  ms-cliente:
+    <<: *app
+    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-cliente } }
+    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-cliente:3306/unicos_ms_cliente?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${CLIENTE_DB_PASSWORD:?defina CLIENTE_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
+    depends_on: { service-registry: { condition: service_healthy }, mysql-cliente: { condition: service_healthy } }
+  ms-estoque:
+    <<: *app
+    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-estoque } }
+    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-estoque:3306/unicos_ms_estoque?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${ESTOQUE_DB_PASSWORD:?defina ESTOQUE_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
+    depends_on: { service-registry: { condition: service_healthy }, mysql-estoque: { condition: service_healthy } }
+  ms-produto:
+    <<: *app
+    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-produto } }
+    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-produto:3306/unicos_ms_produto?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${PRODUTO_DB_PASSWORD:?defina PRODUTO_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
+    depends_on: { service-registry: { condition: service_healthy }, mysql-produto: { condition: service_healthy } }
+
+networks:
+  unicos: { driver: bridge }
+volumes:
+  rabbitmq_data:
+  mysql_autenticacao_data:
+  mysql_empresa_data:
+  mysql_pessoa_data:
+  mysql_permissao_data:
+  mysql_cliente_data:
+  mysql_estoque_data:
+  mysql_produto_data:
+
