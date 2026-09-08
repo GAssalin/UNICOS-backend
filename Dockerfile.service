@@ -1,0 +1,26 @@
+# syntax=docker/dockerfile:1.7
+FROM maven:3.9.9-eclipse-temurin-21 AS build
+ARG SERVICE_NAME
+ARG MAVEN_PROFILES=""
+WORKDIR /workspace
+COPY . .
+RUN --mount=type=cache,target=/root/.m2 \
+    set -eu; \
+    case "$SERVICE_NAME" in service-registry|gateway|ms-autenticacao|ms-pessoas|ms-cliente|ms-empresa|ms-estoque|ms-permissao|ms-produto) ;; *) exit 2 ;; esac; \
+    set --; \
+    if [ -n "$MAVEN_PROFILES" ]; then set -- "-P$MAVEN_PROFILES"; fi; \
+    mvn -B -ntp "$@" -pl "$SERVICE_NAME" -am clean package -DskipTests; \
+    find "$SERVICE_NAME/target" -maxdepth 1 -type f -name '*.jar' \
+      ! -name '*-sources.jar' ! -name '*-javadoc.jar' ! -name '*-plain.jar' > /tmp/jars; \
+    test "$(wc -l < /tmp/jars)" -eq 1; \
+    cp "$(cat /tmp/jars)" /tmp/app.jar; \
+    test -s /tmp/app.jar
+
+FROM eclipse-temurin:21-jre-alpine
+RUN apk add --no-cache curl && addgroup -S spring && adduser -S spring -G spring
+WORKDIR /app
+COPY --from=build --chown=spring:spring /tmp/app.jar /app/app.jar
+USER spring:spring
+# A porta efetiva e fornecida por SERVER_PORT no Compose.
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError"
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

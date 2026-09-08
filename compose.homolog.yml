@@ -1,0 +1,7 @@
+services:
+  gateway:
+    ports:
+    - ${GATEWAY_BIND_ADDRESS:-127.0.0.1}:${GATEWAY_PORT:-8082}:8082
+  service-registry:
+    ports:
+    - ${EUREKA_BIND_ADDRESS:-127.0.0.1}:${EUREKA_PORT:-8081}:8081
