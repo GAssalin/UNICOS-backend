@@ -74,17 +74,21 @@ public class EmpresaRequestFilter extends OncePerRequestFilter {
     private String resolverPermissao(String metodoHttp, String path) {
         String prefixo;
 
-        if (path.startsWith("/v1/empresas/configuracoes"))
+        // Mantém o alias legado sob as mesmas permissões da rota versionada.
+        if (path.equals("/api/empresas") || path.startsWith("/api/empresas/"))
+            path = "/v1/empresas" + path.substring("/api/empresas".length());
+
+        if (path.matches("/v1/empresas/[^/]+/configuracoes(?:/.*)?"))
             prefixo = "EMPRESA_CONFIGURACAO_";
-        else if (path.startsWith("/v1/empresas/contatos"))
+        else if (path.matches("/v1/empresas/[^/]+/contatos(?:/.*)?"))
             prefixo = "EMPRESA_CONTATO_";
-        else if (path.startsWith("/v1/empresas/enderecos"))
+        else if (path.matches("/v1/empresas/[^/]+/enderecos(?:/.*)?"))
             prefixo = "EMPRESA_ENDERECO_";
-        else if (path.startsWith("/v1/empresas/parametros"))
+        else if (path.matches("/v1/empresas/[^/]+/parametros(?:/.*)?"))
             prefixo = "EMPRESA_PARAMETRO_";
-        else if (path.startsWith("/v1/empresas/usuarios"))
+        else if (path.matches("/v1/empresas/[^/]+/usuarios(?:/.*)?"))
             prefixo = "EMPRESA_USUARIO_";
-        else if (path.startsWith("/v1/empresas"))
+        else if (path.equals("/v1/empresas") || path.startsWith("/v1/empresas/"))
             prefixo = "EMPRESA_";
         else
             return null;

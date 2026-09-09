@@ -2,12 +2,11 @@ package br.com.unicos.ms_empresa.mapper;
 
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioResponse;
-import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioResumoResponse;
+import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioListDTO;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioUpdateRequest;
 import br.com.unicos.ms_empresa.model.EmpresaUsuario;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 
 /**
  * Mapper responsável pela conversão entre a entidade {@link EmpresaUsuario}
@@ -52,7 +51,7 @@ public class EmpresaUsuarioMapper {
      * @param request DTO de atualização
      * @param entity entidade a ser atualizada
      */
-    public void updateEntityFromDTO(EmpresaUsuarioUpdateRequest request, EmpresaUsuario entity) {
+    public void updateEntity(EmpresaUsuario entity, EmpresaUsuarioUpdateRequest request) {
         if (request == null || entity == null) {
             return;
         }
@@ -66,7 +65,7 @@ public class EmpresaUsuarioMapper {
      * @param entity entidade de vínculo usuário-empresa
      * @return DTO detalhado do vínculo
      */
-    public EmpresaUsuarioResponse toResponseDTO(EmpresaUsuario entity) {
+    public EmpresaUsuarioResponse toResponse(EmpresaUsuario entity) {
         if (entity == null) {
             return null;
         }
@@ -75,8 +74,8 @@ public class EmpresaUsuarioMapper {
                 entity.getId(),
                 entity.getUsuarioId(),
                 entity.getPerfil(),
-                mapLocalDateTime(entity.getCriadoEm()),
-                mapLocalDateTime(entity.getAtualizadoEm())
+                entity.getCriadoEm(),
+                entity.getAtualizadoEm()
         );
     }
 
@@ -86,64 +85,18 @@ public class EmpresaUsuarioMapper {
      * @param entity entidade de vínculo usuário-empresa
      * @return DTO resumido do vínculo
      */
-    public EmpresaUsuarioResumoResponse toResumoDTO(EmpresaUsuario entity) {
+    public EmpresaUsuarioListDTO toListDTO(EmpresaUsuario entity) {
         if (entity == null) {
             return null;
         }
 
-        return new EmpresaUsuarioResumoResponse(
+        return new EmpresaUsuarioListDTO(
                 entity.getUsuarioId(),
                 entity.getPerfil()
         );
     }
 
-    /**
-     * Conversão explícita de {@link LocalDateTime}.
-     *
-     * @param source data/hora de origem
-     * @return data/hora convertida
-     */
-    private LocalDateTime mapLocalDateTime(LocalDateTime source) {
-        return source == null
-                ? null
-                : LocalDateTime.of(
-                source.getYear(),
-                source.getMonthValue(),
-                source.getDayOfMonth(),
-                source.getHour(),
-                source.getMinute(),
-                source.getSecond(),
-                source.getNano()
-        );
-    }
 
-    /**
-     * Método de compatibilidade com código legado.
-     *
-     * @param request DTO de atualização
-     * @param entity entidade a ser atualizada
-     */
-    public void updateEntity(EmpresaUsuarioUpdateRequest request, EmpresaUsuario entity) {
-        updateEntityFromDTO(request, entity);
-    }
 
-    /**
-     * Método de compatibilidade com código legado.
-     *
-     * @param entity entidade de vínculo usuário-empresa
-     * @return DTO detalhado do vínculo
-     */
-    public EmpresaUsuarioResponse toResponse(EmpresaUsuario entity) {
-        return toResponseDTO(entity);
-    }
 
-    /**
-     * Método de compatibilidade com código legado.
-     *
-     * @param entity entidade de vínculo usuário-empresa
-     * @return DTO resumido do vínculo
-     */
-    public EmpresaUsuarioResumoResponse toResumoResponse(EmpresaUsuario entity) {
-        return toResumoDTO(entity);
-    }
 }

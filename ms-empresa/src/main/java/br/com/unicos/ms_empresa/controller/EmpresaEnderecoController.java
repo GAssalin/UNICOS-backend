@@ -2,7 +2,7 @@ package br.com.unicos.ms_empresa.controller;
 
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoResponse;
-import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoResumoResponse;
+import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoListDTO;
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoUpdateRequest;
 import br.com.unicos.ms_empresa.enums.TipoEnderecoEmpresa;
 import br.com.unicos.ms_empresa.service.EmpresaEnderecoService;
@@ -114,7 +114,7 @@ public class EmpresaEnderecoController {
                             description = "Consulta realizada com sucesso",
                             content = @Content(
                                     array = @ArraySchema(
-                                            schema = @Schema(implementation = EmpresaEnderecoResumoResponse.class)
+                                            schema = @Schema(implementation = EmpresaEnderecoListDTO.class)
                                     )
                             )
                     ),
@@ -123,7 +123,7 @@ public class EmpresaEnderecoController {
             }
     )
     @GetMapping
-    public ResponseEntity<Page<EmpresaEnderecoResumoResponse>> listar(@ParameterObject Pageable pageable) {
+    public ResponseEntity<Page<EmpresaEnderecoListDTO>> listar(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(empresaEnderecoService.listar(pageable));
     }
 
@@ -136,7 +136,7 @@ public class EmpresaEnderecoController {
                             description = "Consulta realizada com sucesso",
                             content = @Content(
                                     array = @ArraySchema(
-                                            schema = @Schema(implementation = EmpresaEnderecoResumoResponse.class)
+                                            schema = @Schema(implementation = EmpresaEnderecoListDTO.class)
                                     )
                             )
                     ),
@@ -145,7 +145,7 @@ public class EmpresaEnderecoController {
             }
     )
     @GetMapping("/tipo/{tipo}")
-    public ResponseEntity<Page<EmpresaEnderecoResumoResponse>> listarPorTipo(
+    public ResponseEntity<Page<EmpresaEnderecoListDTO>> listarPorTipo(
             @PathVariable TipoEnderecoEmpresa tipo,
             @ParameterObject Pageable pageable
     ) {

@@ -4,7 +4,7 @@ import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoResponse;
-import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoResumoResponse;
+import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoListDTO;
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoUpdateRequest;
 import br.com.unicos.ms_empresa.mapper.EmpresaConfiguracaoMapper;
 import br.com.unicos.ms_empresa.model.EmpresaConfiguracao;
@@ -43,7 +43,7 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
         if (!configuracao.getChave().equals(request.chave()))
             validarChaveDuplicada(request.chave(), TenantContext.getEmpresaId());
 
-        mapper.updateEntity(request, configuracao);
+        mapper.updateEntity(configuracao, request);
 
         return mapper.toResponse(repository.save(configuracao));
     }
@@ -54,9 +54,9 @@ public class EmpresaConfiguracaoService extends BaseTenantService<EmpresaConfigu
     }
 
     @Transactional(readOnly = true)
-    public Page<EmpresaConfiguracaoResumoResponse> listar(Pageable pageable) {
+    public Page<EmpresaConfiguracaoListDTO> listar(Pageable pageable) {
         return repository.findByEmpresaId(TenantContext.getEmpresaId(), pageable)
-                .map(mapper::toResumoResponse);
+                .map(mapper::toListDTO);
     }
 
     public void remover(String chave) {

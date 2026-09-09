@@ -2,7 +2,7 @@ package br.com.unicos.ms_empresa.controller;
 
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoResponse;
-import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoResumoResponse;
+import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoListDTO;
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoUpdateRequest;
 import br.com.unicos.ms_empresa.service.EmpresaConfiguracaoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -112,7 +112,7 @@ public class EmpresaConfiguracaoController {
                             description = "Consulta realizada com sucesso",
                             content = @Content(
                                     array = @ArraySchema(
-                                            schema = @Schema(implementation = EmpresaConfiguracaoResumoResponse.class)
+                                            schema = @Schema(implementation = EmpresaConfiguracaoListDTO.class)
                                     )
                             )
                     ),
@@ -121,7 +121,7 @@ public class EmpresaConfiguracaoController {
             }
     )
     @GetMapping
-    public ResponseEntity<Page<EmpresaConfiguracaoResumoResponse>> listar(@ParameterObject Pageable pageable) {
+    public ResponseEntity<Page<EmpresaConfiguracaoListDTO>> listar(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(empresaConfiguracaoService.listar(pageable));
     }
 

@@ -19,7 +19,6 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
         </processorPath>
         <module name="ms-cliente" />
-        <module name="ms-empresa" />
       </profile>
       <profile name="Annotation profile for UNICOS :: Core Modules" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -47,6 +46,15 @@
         <module name="ms-autenticacao" />
         <module name="ms-pessoas" />
         <module name="ms-permissao" />
+      </profile>
+      <profile name="Annotation profile for ms-empresa" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+        </processorPath>
+        <module name="ms-empresa" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
