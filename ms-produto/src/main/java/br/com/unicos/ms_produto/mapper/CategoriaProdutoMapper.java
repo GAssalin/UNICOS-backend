@@ -2,7 +2,7 @@ package br.com.unicos.ms_produto.mapper;
 
 import br.com.unicos.ms_produto.dto.categoria.CategoriaProdutoCreateRequest;
 import br.com.unicos.ms_produto.dto.categoria.CategoriaProdutoResponse;
-import br.com.unicos.ms_produto.dto.categoria.CategoriaProdutoResumoResponse;
+import br.com.unicos.ms_produto.dto.categoria.CategoriaProdutoListDTO;
 import br.com.unicos.ms_produto.dto.categoria.CategoriaProdutoUpdateRequest;
 import br.com.unicos.ms_produto.model.CategoriaProduto;
 import org.springframework.stereotype.Component;
@@ -36,7 +36,7 @@ public class CategoriaProdutoMapper {
      * @param request dados recebidos para atualização
      * @param entity  entidade que será atualizada
      */
-    public void updateEntity(CategoriaProdutoUpdateRequest request, CategoriaProduto entity) {
+    public void updateEntity(CategoriaProduto entity, CategoriaProdutoUpdateRequest request) {
         if (request == null || entity == null)
             return;
 
@@ -74,11 +74,11 @@ public class CategoriaProdutoMapper {
      * @param entity entidade de categoria de produto
      * @return response resumido
      */
-    public CategoriaProdutoResumoResponse toResumoResponse(CategoriaProduto entity) {
+    public CategoriaProdutoListDTO toListDTO(CategoriaProduto entity) {
         if (entity == null)
             return null;
 
-        return new CategoriaProdutoResumoResponse(
+        return new CategoriaProdutoListDTO(
                 entity.getId(),
                 entity.getNome(),
                 entity.getAtivo()

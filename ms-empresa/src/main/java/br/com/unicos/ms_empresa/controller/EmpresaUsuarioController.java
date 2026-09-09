@@ -2,7 +2,7 @@ package br.com.unicos.ms_empresa.controller;
 
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioResponse;
-import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioResumoResponse;
+import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioListDTO;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioUpdateRequest;
 import br.com.unicos.ms_empresa.enums.PerfilEmpresaUsuario;
 import br.com.unicos.ms_empresa.service.EmpresaUsuarioService;
@@ -115,7 +115,7 @@ public class EmpresaUsuarioController {
                             description = "Consulta realizada com sucesso",
                             content = @Content(
                                     array = @ArraySchema(
-                                            schema = @Schema(implementation = EmpresaUsuarioResumoResponse.class)
+                                            schema = @Schema(implementation = EmpresaUsuarioListDTO.class)
                                     )
                             )
                     ),
@@ -124,7 +124,7 @@ public class EmpresaUsuarioController {
             }
     )
     @GetMapping
-    public ResponseEntity<Page<EmpresaUsuarioResumoResponse>> listar(@ParameterObject Pageable pageable) {
+    public ResponseEntity<Page<EmpresaUsuarioListDTO>> listar(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(empresaUsuarioService.listar(pageable));
     }
 
@@ -137,7 +137,7 @@ public class EmpresaUsuarioController {
                             description = "Consulta realizada com sucesso",
                             content = @Content(
                                     array = @ArraySchema(
-                                            schema = @Schema(implementation = EmpresaUsuarioResumoResponse.class)
+                                            schema = @Schema(implementation = EmpresaUsuarioListDTO.class)
                                     )
                             )
                     ),
@@ -146,7 +146,7 @@ public class EmpresaUsuarioController {
             }
     )
     @GetMapping("/perfil/{perfil}")
-    public ResponseEntity<Page<EmpresaUsuarioResumoResponse>> listarPorPerfil(
+    public ResponseEntity<Page<EmpresaUsuarioListDTO>> listarPorPerfil(
             @PathVariable PerfilEmpresaUsuario perfil,
             @ParameterObject Pageable pageable
     ) {

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>br.com.unicos</groupId>
+    <artifactId>unicos-backend</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>UNICOS Backend</name>
+    <description>Agregador dos modulos UNICOS; cada aplicacao preserva seu parent Spring Boot.</description>
+    <modules>
+        <module>unicos-core</module>
+        <module>service-registry</module>
+        <module>gateway</module>
+        <module>ms-autenticacao</module>
+        <module>ms-pessoas</module>
+    </modules>
+    <profiles>
+        <profile>
+            <id>complementares</id>
+            <modules>
+                <module>ms-cliente</module>
+                <module>ms-empresa</module>
+                <module>ms-estoque</module>
+                <module>ms-permissao</module>
+                <module>ms-produto</module>
+            </modules>
+        </profile>
+    </profiles>
+</project>

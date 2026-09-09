@@ -2,7 +2,7 @@ package br.com.unicos.ms_produto.mapper;
 
 import br.com.unicos.ms_produto.dto.marca.MarcaProdutoCreateRequest;
 import br.com.unicos.ms_produto.dto.marca.MarcaProdutoResponse;
-import br.com.unicos.ms_produto.dto.marca.MarcaProdutoResumoResponse;
+import br.com.unicos.ms_produto.dto.marca.MarcaProdutoListDTO;
 import br.com.unicos.ms_produto.dto.marca.MarcaProdutoUpdateRequest;
 import br.com.unicos.ms_produto.model.MarcaProduto;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ public class MarcaProdutoMapper {
         return entity;
     }
 
-    public void updateEntity(MarcaProdutoUpdateRequest request, MarcaProduto entity) {
+    public void updateEntity(MarcaProduto entity, MarcaProdutoUpdateRequest request) {
         if (request == null || entity == null)
             return;
 
@@ -46,11 +46,11 @@ public class MarcaProdutoMapper {
         );
     }
 
-    public MarcaProdutoResumoResponse toResumoResponse(MarcaProduto entity) {
+    public MarcaProdutoListDTO toListDTO(MarcaProduto entity) {
         if (entity == null)
             return null;
 
-        return new MarcaProdutoResumoResponse(
+        return new MarcaProdutoListDTO(
                 entity.getId(),
                 entity.getNome(),
                 entity.getAtivo()

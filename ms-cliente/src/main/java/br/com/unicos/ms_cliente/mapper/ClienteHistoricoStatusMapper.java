@@ -1,6 +1,6 @@
 package br.com.unicos.ms_cliente.mapper;
 
-import br.com.unicos.ms_cliente.dto.ClienteHistoricoStatusResponseDTO;
+import br.com.unicos.ms_cliente.dto.cliente_historico_status.ClienteHistoricoStatusResponse;
 import br.com.unicos.ms_cliente.model.ClienteHistoricoStatus;
 import org.springframework.stereotype.Component;
 
@@ -10,23 +10,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClienteHistoricoStatusMapper {
 
-    public ClienteHistoricoStatusResponseDTO toResponse(ClienteHistoricoStatus entity) {
+    public ClienteHistoricoStatusResponse toResponse(ClienteHistoricoStatus entity) {
         if (entity == null) {
             return null;
         }
 
-        ClienteHistoricoStatusResponseDTO dto = new ClienteHistoricoStatusResponseDTO();
-
-        dto.setId(entity.getId());
-        dto.setEmpresaId(entity.getEmpresaId());
-        dto.setClienteId(entity.getClienteId());
-        dto.setStatusAnterior(entity.getStatusAnterior());
-        dto.setStatusNovo(entity.getStatusNovo());
-        dto.setMotivo(entity.getMotivo());
-        dto.setAtivo(entity.getAtivo());
-        dto.setCriadoEm(entity.getCriadoEm());
-        dto.setAtualizadoEm(entity.getAtualizadoEm());
-
-        return dto;
+        return new ClienteHistoricoStatusResponse(
+                entity.getId(),
+                entity.getEmpresaId(),
+                entity.getClienteId(),
+                entity.getStatusAnterior(),
+                entity.getStatusNovo(),
+                entity.getMotivo(),
+                entity.getAtivo(),
+                entity.getCriadoEm(),
+                entity.getAtualizadoEm()
+        );
     }
 }

@@ -2,7 +2,7 @@ package br.com.unicos.ms_produto.controller;
 
 import br.com.unicos.ms_produto.dto.produtoatributo.ProdutoAtributoCreateRequest;
 import br.com.unicos.ms_produto.dto.produtoatributo.ProdutoAtributoResponse;
-import br.com.unicos.ms_produto.dto.produtoatributo.ProdutoAtributoResumoResponse;
+import br.com.unicos.ms_produto.dto.produtoatributo.ProdutoAtributoListDTO;
 import br.com.unicos.ms_produto.dto.produtoatributo.ProdutoAtributoUpdateRequest;
 import br.com.unicos.ms_produto.service.ProdutoAtributoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -126,7 +126,7 @@ public class ProdutoAtributoController {
             }
     )
     @GetMapping
-    public ResponseEntity<Page<ProdutoAtributoResumoResponse>> listar(
+    public ResponseEntity<Page<ProdutoAtributoListDTO>> listar(
             @ParameterObject Pageable pageable
     ) {
         return ResponseEntity.ok(produtoAtributoService.listar(pageable));
@@ -146,7 +146,7 @@ public class ProdutoAtributoController {
             }
     )
     @GetMapping("/status/{ativo}")
-    public ResponseEntity<Page<ProdutoAtributoResumoResponse>> listarPorAtivo(
+    public ResponseEntity<Page<ProdutoAtributoListDTO>> listarPorAtivo(
             @PathVariable Boolean ativo,
             @ParameterObject Pageable pageable
     ) {

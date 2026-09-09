@@ -1,322 +1,133 @@
-# 🧩 UniCoS — Modular ERP Platform (Microservices Architecture)
+# UNICOS Backend
 
-![Java](https://img.shields.io/badge/Java-21-red)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green)
-![Architecture](https://img.shields.io/badge/Architecture-Microservices-blue)
-![Docker](https://img.shields.io/badge/Docker-Ready-blue)
-![License](https://img.shields.io/badge/License-TBD-lightgrey)
+Arquivos de raiz adaptados da referência ATCARE para os módulos UNICOS revisados nesta conversa. Use este pacote junto com as versões revisadas de `unicos-core`, `gateway`, `service-registry`, `ms-autenticacao` e `ms-pessoas`.
 
-## 📖 Overview
+## Aplicação
 
-**UniCoS (Unique Control System)** é uma plataforma **ERP modular baseada em microserviços**, projetada para empresas de pequeno e médio porte.
+Extraia os dez arquivos deste pacote **na raiz do UNICOS-backend**, ao lado das pastas dos serviços. Eles substituem os equivalentes da raiz; faça um commit ou backup antes. Não contém os fontes dos serviços.
 
-O sistema foi desenvolvido seguindo princípios de:
+O novo `pom.xml` é um agregador: não altere os parents dos POMs filhos para apontarem para ele. Mantém os parents Spring Boot de cada aplicação. A pasta `backend` da imagem não é agregada porque sua função/conteúdo não foi fornecido.
 
-- **Domain Driven Design (DDD)**
-- **Arquitetura de Microserviços**
-- **Configuração centralizada**
-- **Descoberta dinâmica de serviços**
-- **Escalabilidade horizontal**
+| Arquivo | Função |
+|---|---|
+| `.dockerignore` | Exclui ambientes, artefatos de build, ZIPs e metadados do contexto Docker |
+| `.gitignore` | Ignora ambientes reais e `target`; permite versionar `.env.example` |
+| `.env.example` | Modelo sem segredos, com campos obrigatórios vazios |
+| `.env.local` | Ambiente Docker local com credenciais novas geradas para desenvolvimento |
+| `compose.yml` | Serviços, rede, build, dependências e healthchecks |
+| `compose.homolog.yml` | Publicação do gateway e Eureka, em loopback por padrão; serve também para local |
+| `compose.prod.yml` | Perfil Spring prod, restrições de runtime e publicação somente do gateway |
+| `Dockerfile.service` | Build Java 21 com reactor Maven e runtime JRE sem root, com curl para healthchecks |
+| `pom.xml` | Agregador dos módulos revisados e perfil opcional dos demais |
+| `README.md` | Instruções e limites desta adaptação |
 
-Cada domínio da aplicação é implementado como um **microserviço independente**, permitindo evolução e deploy desacoplado.
+As credenciais do ATCARE não foram copiadas. Foram retirados Config Server, credenciais Git, caminhos Java/Maven do Windows e variáveis dos serviços exclusivos do ATCARE. RabbitMQ não foi incluído: não há dependência dele nos fontes UNICOS revisados. Se outros módulos o utilizarem, sua infraestrutura deverá ser adicionada após conferir esses fontes.
 
----
+## Módulos e alcance
 
-# 🧠 Arquitetura
+| Grupo | Módulos |
+|---|---|
+| Padrão, com fontes já revisados | unicos-core, service-registry, gateway, ms-autenticacao, ms-pessoas |
+| Perfil opcional `complementares` | ms-cliente, ms-empresa, ms-estoque, ms-permissao, ms-produto |
 
-A plataforma utiliza o ecossistema **Spring Cloud** para orquestração dos serviços.
+O core é compilado como biblioteca e não tem container. A composição padrão inclui somente um banco: `mysql-pessoas`. A autenticação obtém o usuário via Feign em ms-pessoas e não possui banco próprio.
 
-### Componentes principais
+A composição padrão é uma **base para os módulos revisados**, não a operação completa do backend: ms-permissao é necessário para várias operações de pessoas. Não há geração automática de usuários/roles iniciais. Em um banco novo, Hibernate cria o schema no perfil local, mas não carrega os seeds SQL nem cria automaticamente um usuário para login.
 
-| Componente | Função |
-|-------------|--------|
-| **Config Server** | Centraliza configurações dos serviços |
-| **Service Registry (Eureka)** | Registro e descoberta dinâmica |
-| **API Gateway** | Ponto único de entrada |
-| **Microservices** | Domínios independentes |
-| **UniCoS Core** | Biblioteca compartilhada entre serviços |
+## Executar localmente
 
----
+Requer Docker Desktop com Compose v2 e acesso aos repositórios de dependências/imagens. Os builds Docker fornecem JDK 21 e Maven, sem exigir instalação deles no host.
 
-## 📊 Arquitetura Simplificada
+O `.env.local` entregue já tem credenciais locais próprias. Ele usa issuer `unicos-local`, access token de 15 minutos e refresh de 10080 minutos (7 dias): são valores propostos para um ambiente novo, não os valores recuperados do Config Server. Todos os emissores/validadores precisam usar os mesmos valores JWT. Para integrar com tokens existentes, use o segredo e issuer reais atuais; trocar esses valores invalida a validação dos tokens antigos.
 
-```
-┌──────────────────────────BASE──────────────────────────────┐
-│                 ┌─────────────────────┐                    │
-│                 │    Config Server    │                    │
-│                 └──────────┬──────────┘                    │
-│                            │                               │
-│                 ┌──────────▼──────────┐                    │
-│                 │  Service Registry   │                    │
-│                 │      (Eureka)       │                    │
-│                 └──────────┬──────────┘                    │
-│                            │                               │
-│                  ┌─────────▼─────────┐                     │
-│                  │    API Gateway    │                     │
-│                  │  Spring Cloud GW  │                     │
-│                  └─────────┬─────────┘                     │
-└────────────────────────────────────────────────────────────┘
-                             │
-┌──────────────────────MICRO SERVICES────────────────────────┐
-│               ┌──────────LOGIN──────────┐                  │
-│               │     MS-AUTENTICACAO     │                  │
-│               │       MS-PESSOAS        │                  │
-│               │       MS-PERMISSAO      │                  │
-│               │       MS-USUARIO        │                  │
-│               └─────────────────────────┘                  │
-│                                                            │
-│                       MS-PRODUTO                           │
-│                       MS-EMPRESA                           │
-│                       MS-ESTOQUE                           │
-│                       MS-CLIENTE                           │
-│                                                            │
-└────────────────────────────────────────────────────────────┘
-                   ┌───────────────────┐
-                   │     UniCoS CORE   │
-                   │ Shared Libraries  │
-                   └───────────────────┘
+Na raiz do backend, PowerShell:
+
+```powershell
+docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local config --quiet
+docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local up -d --build
 ```
 
----
+O comando `config --quiet` valida sem imprimir segredos. `--env-file` fornece os valores usados para interpolar o Compose. Os serviços revisados recebem somente as variáveis explicitamente declaradas em `environment`; não recebem todo o arquivo.
 
-# 🧩 Microserviços
+| Serviço | Porta interna | Acesso pelo host |
+|---|---|---|
+| gateway | 8082 | http://localhost:8082 |
+| service-registry | 8081 | http://localhost:8081 |
+| ms-autenticacao | 8083 | Via gateway |
+| ms-pessoas | 8085 | Via gateway |
+| mysql-pessoas | 3306 | Rede Docker, sem porta publicada |
 
-| Serviço              | Responsabilidade |
-|----------------------|----------------|
-| **config-server**    | Centralização das configurações via Spring Cloud Config |
-| **service-registry** | Descoberta de serviços usando Eureka |
-| **gateway**          | API Gateway reativo baseado em Spring Cloud Gateway |
-| **ms-autenticacao**  | Autenticação e emissão de JWT |
-| **ms-permissao**     | Gerenciamento de permissões e perfis |
-| **ms-usuario**       | Gerenciamento de usuários |
-| **ms-pessoas**       | Cadastro de pessoas físicas e jurídicas |
-| **ms-produto**       | Cadastro de produtos |
-| **ms-empresa**       | Gestão de empresas, configurações, contatos, endereços, parâmetros e vínculos de usuários |
-| **ms-estoque**       | Gestão de estoque de produtos, controlando entradas, saídas, saldos e movimentações |
-| **ms-cliente**       | Gerenciamento de clientes, incluindo dados cadastrais, contatos, endereços, vínculos comerciais e histórico de relacionamento |
+Gateway e Eureka são publicados em `127.0.0.1` por padrão. Para acesso de outra máquina em homologação, ajuste `GATEWAY_BIND_ADDRESS`/`EUREKA_BIND_ADDRESS` conforme o ambiente e sua política de acesso.
 
----
+Login pelo gateway: `POST /ms-autenticacao/v1/autenticacao/login`, com email/senha de usuário existente. Operações protegidas de pessoas usam `/ms-pessoas/...` e JWT válido. A URL do Eureka dentro dos containers usa `service-registry`, não `localhost`.
 
-# 🧱 UniCoS Core
-
-O módulo **UniCoS Core** contém componentes reutilizáveis entre microserviços:
-
-- DTOs compartilhados
-- Estruturas de domínio
-- Exceptions
-- Helpers
-- Infraestrutura base
-
-Publicado via **GitHub Packages**.
-
-### Dependência Maven
-
-```xml
-<dependency>
-    <groupId>br.com.unicos</groupId>
-    <artifactId>core-base</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-</dependency>
+```powershell
+docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local ps
+docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local logs -f ms-autenticacao ms-pessoas
+docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local down
 ```
 
-### Repositório
+`down` preserva o volume. Evite acrescentar `-v` se quiser manter os dados. O novo volume `unicos-local_mysql_pessoas_data` não migra ou reutiliza automaticamente bancos dos Compose antigos. Para conservar dados existentes, faça backup/migração ou adapte o volume explicitamente antes do primeiro uso. Alterar as credenciais no arquivo não altera usuários de um MySQL já inicializado.
 
-```xml
-<repository>
-    <id>github</id>
-    <url>https://maven.pkg.github.com/GAssalin/UNICOS</url>
-</repository>
+## Banco e perfis
+
+O Compose constrói `PESSOA_DB_URL` a partir de `PESSOA_DB_NAME` e usa o mesmo nome ao inicializar o MySQL. Usuário da aplicação e senha root são separados. O healthcheck realiza uma consulta autenticada no banco da aplicação.
+
+- `local`: o ms-pessoas revisado usa Hibernate `update` e Flyway desligado.
+- `homolog`: o ms-pessoas revisado usa o padrão `validate` e Flyway desligado; exige schema existente.
+- `prod`: o override força Hibernate `validate` e Flyway desligado; exige schema existente.
+
+As migrations UNICOS existentes estão diretamente em `db/migration`; não foi copiada a organização `common/local/homolog/prod` do ATCARE. Planeje a evolução e inicialização do schema antes de subir homolog/prod. Esse Compose não aplica seeds nem transforma automaticamente o banco de desenvolvimento em produção.
+
+Para homologação, preencha um novo `.env.homolog` baseado no exemplo, com `SPRING_PROFILES_ACTIVE=homolog`, e utilize `-p unicos-homolog`. Isso cria uma composição e volume separados.
+
+## Perfil complementares — templates a conferir
+
+Os cinco serviços extras existem na estrutura mostrada, mas seus fontes e configurações ainda não foram enviados. O Compose fornece templates de build/rede/Eureka/JWT com porta interna 8080; **não presume banco, mensageria ou variáveis de domínio desses módulos**.
+
+Antes de ativar:
+
+1. Disponibilize as cinco pastas e POMs na raiz. O perfil Maven agrega todas elas, mesmo quando o build seleciona um serviço.
+2. Migre cada módulo para configuração local, removendo efetivamente Config Client/imports. Este pacote não altera esses fontes nem desativa a dependência por atalhos de ambiente.
+3. Configure `CLIENTE_ENV_FILE`, `EMPRESA_ENV_FILE`, `ESTOQUE_ENV_FILE`, `PERMISSAO_ENV_FILE` e `PRODUTO_ENV_FILE` para arquivos específicos de cada serviço. O valor `.env.local` é apenas um ponto de partida local, sem as configurações desconhecidas.
+4. Informe nesses arquivos as variáveis consumidas pelo módulo, conexões de banco e mensageria. Bancos/filas adicionais precisam existir em destinos alcançáveis pela rede Docker ou ser adicionados ao Compose.
+5. Confira Actuator `/actuator/health` acessível na porta interna 8080, dependências entre serviços e contratos de segurança. O template atualmente aguarda somente Eureka.
+
+Após esses ajustes:
+
+```powershell
+docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml --profile complementares -p unicos-local config --quiet
+docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml --profile complementares -p unicos-local up -d --build
 ```
 
----
+O Compose passa `MAVEN_PROFILES=complementares` ao build desses serviços. No Maven do host, o equivalente é `mvn -Pcomplementares -pl ms-permissao -am clean verify`.
 
-# 🛠️ Tecnologias
+## Produção
 
-| Tecnologia | Uso |
-|-------------|-----|
-| Java 21 | Linguagem |
-| Spring Boot 3 | Framework |
-| Spring Cloud | Arquitetura de microserviços |
-| Spring Cloud Gateway | API Gateway |
-| Eureka | Service Discovery |
-| MySQL | Banco de dados |
-| Flyway | Versionamento de banco |
-| Maven | Build |
-| Docker | Containerização |
+Use `.env.prod` próprio, com credenciais reais, issuer correto, `SPRING_PROFILES_ACTIVE=prod` e schema preparado. Não reutilize os segredos de desenvolvimento. Se utilizar complementares, configure arquivos de ambiente específicos desse ambiente.
 
----
-
-# 📂 Estrutura do Projeto
-
-```
-backend
-│
-├── config-server
-├── service-registry
-├── gateway
-│
-├── unicos-core
-│   ├── core-base
-│   ├── core-produto
-│   ├── core-request
-│   ├── core-tenant
-│   ├── core-usuario
-│   ├── core-produto
-│   ├── core-pessoas
-│
-├── ms-autenticacao
-├── ms-permissao
-├── ms-usuario
-├── ms-pessoas
-├── ms-produto
-├── ms-empresa
-├── ms-estoque
-├── ms-cliente
+```powershell
+docker compose --env-file .env.prod -f compose.yml -f compose.prod.yml -p unicos-prod config --quiet
 ```
 
----
+Após validação no seu ambiente, a inicialização segue com `up -d --build` nos mesmos arquivos. Acrescente `--profile complementares` somente após revisar os módulos extras. Não combine `compose.homolog.yml` com `compose.prod.yml`: a publicação do Eureka do primeiro poderia permanecer no resultado.
 
-# 🚀 Executando o Projeto
+O override usa filesystem somente leitura, `/tmp` temporário, limites de recursos e logs rotacionados para as aplicações. MySQL preserva seu volume gravável. Somente gateway publica porta e o bind padrão é loopback, para acesso por proxy no host. Proxy/TLS, backup e monitoramento não são provisionados por estes arquivos.
 
-# 🔧 Configuração de Ambiente
+Este override é uma configuração de infraestrutura, **não uma certificação de prontidão para produção**. Os fontes revisados de ms-pessoas ainda confiam em headers de identidade e liberam endpoints internos; essas pendências já foram identificadas no guia anterior e exigem correção coordenada. Healthchecks saudáveis também não garantem que todos os fluxos e serviços dependentes estejam disponíveis.
 
-O projeto utiliza arquivos `.env` para gerenciamento de variáveis de ambiente.
+## Build e validação
 
-## Arquivos utilizados
+O Dockerfile usa o POM agregador, `-pl SERVICO -am`, para compilar o serviço e seus cores no mesmo reactor. O POM não redefine versões dos filhos. As versões Spring Boot dos módulos ainda não foram unificadas. O empacotamento Docker pula testes; execute `clean verify` separadamente com JDK 21 antes de implantar.
 
-| Arquivo | Finalidade |
-|----------|-------------|
-| `.env.example` | Template versionado no GitHub |
+Exemplo usando o wrapper existente, na raiz:
 
----
-
-## 📦 Configuração inicial
-
-Copie o arquivo `.env.example`:
-
-```bash
-cp .env.example .env
+```powershell
+.\unicos-core\mvnw.cmd -f pom.xml -pl ms-autenticacao -am clean verify
 ```
 
-## 📦 Rodando com Docker (Recomendado)
+Se os fontes dependem de outros artefatos privados fora do reactor, configure o acesso Maven apropriadamente. Credenciais dos arquivos de ambiente não são copiadas para a imagem, e este Dockerfile não incorpora tokens Git/GitHub.
 
-```bash
-cd backend
-docker compose --env-file .env -f docker-compose.base.yml up --build -d
-```
+Validação feita nesta entrega: parsing XML/YAML, módulos padrão contra os diretórios revisados, interpolação estática das variáveis com `.env.local`, referências de rede/volume/dependências, portas dos healthchecks e conteúdo do ZIP. **Não foi executado `docker compose config`, build Docker nem inicialização**, pois Docker/Compose não está instalado neste ambiente. Os builds Java dos serviços também continuam pendentes, conforme as entregas anteriores.
 
-Isso iniciará:
-
-- MySQL
-- Config Server
-- Service Registry
-- API Gateway
-
----
-
-```bash
-cd backend
-docker compose --env-file .env -f docker-compose.login.yml up --build -d
-```
-
-Isso iniciará:
-
-- ms-autenticacao
-- ms-permissao
-- ms-pessoas
-- ms-usuario
-
----
-
-```bash
-cd backend
-docker compose --env-file .env -f docker-compose.{X} up --build -d
-```
-
-Isso iniciará o micro serviço desejado: {X}
-Exemplo: docker compose -f docker-compose.ms-estoque up --build -d
-
----
-
-## 📦 Parando com Docker (Recomendado)
-```bash
-docker compose --env-file .env -f docker-compose.base.yml down
-docker compose --env-file .env -f docker-compose.login.yml down
-docker compose --env-file .env -f docker-compose.{X}.yml down
-```
-
-# 📘 Documentação das APIs
-
-A documentação é centralizada via **API Gateway**.
-
-### Acesso
-
-```
-http://localhost:8082/docs
-```
-
-Esse endpoint lista automaticamente os Swagger de todos os microserviços registrados no Eureka.
-
----
-
-# ❤️ Health Check
-
-Todos os serviços expõem endpoints do **Spring Boot Actuator**.
-
-Exemplo:
-
-```
-/actuator/health
-```
-
-Utilizado pelo **Docker Compose** para verificar disponibilidade dos serviços.
-
----
-
-# 🔐 Segurança
-
-Autenticação baseada em:
-
-- **JWT**
-- **Gateway como filtro de autenticação**
-- **Microserviços de autenticação e permissão dedicados**
-
----
-
-# 🤝 Contribuição
-
-1️⃣ Crie uma branch
-
-```
-git checkout -b feature/nova-feature
-```
-
-2️⃣ Commit
-
-```
-git commit -m "feat: nova funcionalidade"
-```
-
-3️⃣ Push
-
-```
-git push origin feature/nova-feature
-```
-
----
-
-# 📄 Licença
-
-A definir.
-
----
-
-# 👨‍💻 Autor
-
-**Gustavo Soares Assalin**
-
-GitHub  
-https://github.com/GAssalin
-
-LinkedIn  
-https://www.linkedin.com/in/gustavo-assalin
+Referências: [variáveis e interpolação do Compose](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/) e [perfis opcionais](https://docs.docker.com/compose/how-tos/profiles/).

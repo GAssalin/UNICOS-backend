@@ -4,7 +4,7 @@ import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoResponse;
-import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoResumoResponse;
+import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoListDTO;
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoUpdateRequest;
 import br.com.unicos.ms_empresa.enums.TipoEnderecoEmpresa;
 import br.com.unicos.ms_empresa.mapper.EmpresaEnderecoMapper;
@@ -43,7 +43,7 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
         EmpresaEndereco endereco = mapper.toEntity(request);
         endereco.setEmpresaId(TenantContext.getEmpresaId());
 
-        return mapper.toResponseDTO(repository.save(endereco));
+        return mapper.toResponse(repository.save(endereco));
     }
 
     public EmpresaEnderecoResponse atualizar(Long id, EmpresaEnderecoUpdateRequest request) {
@@ -65,26 +65,26 @@ public class EmpresaEnderecoService extends BaseTenantService<EmpresaEndereco, L
         if (request.principal())
             removerEnderecoPrincipalAtual(TenantContext.getEmpresaId(), id);
 
-        mapper.updateEntityFromDTO(request, endereco);
+        mapper.updateEntity(endereco, request);
 
-        return mapper.toResponseDTO(repository.save(endereco));
+        return mapper.toResponse(repository.save(endereco));
     }
 
     @Transactional(readOnly = true)
     public EmpresaEnderecoResponse buscarPorId(Long id) {
-        return mapper.toResponseDTO(buscarEndereco(id, TenantContext.getEmpresaId()));
+        return mapper.toResponse(buscarEndereco(id, TenantContext.getEmpresaId()));
     }
 
     @Transactional(readOnly = true)
-    public Page<EmpresaEnderecoResumoResponse> listar(Pageable pageable) {
+    public Page<EmpresaEnderecoListDTO> listar(Pageable pageable) {
         return repository.findByEmpresaId(TenantContext.getEmpresaId(), pageable)
-                .map(mapper::toResumoDTO);
+                .map(mapper::toListDTO);
     }
 
     @Transactional(readOnly = true)
-    public Page<EmpresaEnderecoResumoResponse> listarPorTipo(TipoEnderecoEmpresa tipo, Pageable pageable) {
+    public Page<EmpresaEnderecoListDTO> listarPorTipo(TipoEnderecoEmpresa tipo, Pageable pageable) {
         return repository.findByTipoEnderecoAndEmpresaId(tipo, TenantContext.getEmpresaId(), pageable)
-                .map(mapper::toResumoDTO);
+                .map(mapper::toListDTO);
     }
 
     public void remover(Long id) {

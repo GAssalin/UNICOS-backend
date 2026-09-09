@@ -2,7 +2,7 @@ package br.com.unicos.ms_produto.mapper;
 
 import br.com.unicos.ms_produto.dto.produtotipo.ProdutoTipoCreateRequest;
 import br.com.unicos.ms_produto.dto.produtotipo.ProdutoTipoResponse;
-import br.com.unicos.ms_produto.dto.produtotipo.ProdutoTipoResumoResponse;
+import br.com.unicos.ms_produto.dto.produtotipo.ProdutoTipoListDTO;
 import br.com.unicos.ms_produto.dto.produtotipo.ProdutoTipoUpdateRequest;
 import br.com.unicos.ms_produto.model.ProdutoTipo;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ public class ProdutoTipoMapper {
         return entity;
     }
 
-    public void updateEntity(ProdutoTipoUpdateRequest request, ProdutoTipo entity) {
+    public void updateEntity(ProdutoTipo entity, ProdutoTipoUpdateRequest request) {
         if (request == null || entity == null)
             return;
 
@@ -46,11 +46,11 @@ public class ProdutoTipoMapper {
         );
     }
 
-    public ProdutoTipoResumoResponse toResumoResponse(ProdutoTipo entity) {
+    public ProdutoTipoListDTO toListDTO(ProdutoTipo entity) {
         if (entity == null)
             return null;
 
-        return new ProdutoTipoResumoResponse(
+        return new ProdutoTipoListDTO(
                 entity.getId(),
                 entity.getNome(),
                 entity.getAtivo()

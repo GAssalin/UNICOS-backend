@@ -2,7 +2,7 @@ package br.com.unicos.ms_produto.mapper;
 
 import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaCreateRequest;
 import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaResponse;
-import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaResumoResponse;
+import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaListDTO;
 import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaUpdateRequest;
 import br.com.unicos.ms_produto.model.UnidadeMedida;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ public class UnidadeMedidaMapper {
         return entity;
     }
 
-    public void updateEntity(UnidadeMedidaUpdateRequest request, UnidadeMedida entity) {
+    public void updateEntity(UnidadeMedida entity, UnidadeMedidaUpdateRequest request) {
         if (request == null || entity == null)
             return;
 
@@ -49,11 +49,11 @@ public class UnidadeMedidaMapper {
         );
     }
 
-    public UnidadeMedidaResumoResponse toResumoResponse(UnidadeMedida entity) {
+    public UnidadeMedidaListDTO toListDTO(UnidadeMedida entity) {
         if (entity == null)
             return null;
 
-        return new UnidadeMedidaResumoResponse(
+        return new UnidadeMedidaListDTO(
                 entity.getId(),
                 entity.getCodigo(),
                 entity.getDescricao(),

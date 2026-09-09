@@ -2,12 +2,11 @@ package br.com.unicos.ms_empresa.mapper;
 
 import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoResponse;
-import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoResumoResponse;
+import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoListDTO;
 import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoUpdateRequest;
 import br.com.unicos.ms_empresa.model.EmpresaContato;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 
 /**
  * Mapper responsável pela conversão entre a entidade {@link EmpresaContato}
@@ -53,7 +52,7 @@ public class EmpresaContatoMapper {
      * @param request DTO de atualização
      * @param entity entidade a ser atualizada
      */
-    public void updateEntityFromDTO(EmpresaContatoUpdateRequest request, EmpresaContato entity) {
+    public void updateEntity(EmpresaContato entity, EmpresaContatoUpdateRequest request) {
         if (request == null || entity == null) {
             return;
         }
@@ -68,7 +67,7 @@ public class EmpresaContatoMapper {
      * @param entity entidade de contato
      * @return DTO detalhado do contato
      */
-    public EmpresaContatoResponse toResponseDTO(EmpresaContato entity) {
+    public EmpresaContatoResponse toResponse(EmpresaContato entity) {
         if (entity == null) {
             return null;
         }
@@ -78,8 +77,8 @@ public class EmpresaContatoMapper {
                 entity.getTipoContato(),
                 entity.getValor(),
                 entity.isPrincipal(),
-                mapLocalDateTime(entity.getCriadoEm()),
-                mapLocalDateTime(entity.getAtualizadoEm())
+                entity.getCriadoEm(),
+                entity.getAtualizadoEm()
         );
     }
 
@@ -89,12 +88,12 @@ public class EmpresaContatoMapper {
      * @param entity entidade de contato
      * @return DTO resumido do contato
      */
-    public EmpresaContatoResumoResponse toResumoDTO(EmpresaContato entity) {
+    public EmpresaContatoListDTO toListDTO(EmpresaContato entity) {
         if (entity == null) {
             return null;
         }
 
-        return new EmpresaContatoResumoResponse(
+        return new EmpresaContatoListDTO(
                 entity.getId(),
                 entity.getTipoContato(),
                 entity.getValor(),
@@ -102,53 +101,7 @@ public class EmpresaContatoMapper {
         );
     }
 
-    /**
-     * Conversão explícita de {@link LocalDateTime}.
-     *
-     * @param source data/hora de origem
-     * @return data/hora convertida
-     */
-    private LocalDateTime mapLocalDateTime(LocalDateTime source) {
-        return source == null
-                ? null
-                : LocalDateTime.of(
-                source.getYear(),
-                source.getMonthValue(),
-                source.getDayOfMonth(),
-                source.getHour(),
-                source.getMinute(),
-                source.getSecond(),
-                source.getNano()
-        );
-    }
 
-    /**
-     * Método de compatibilidade com código legado.
-     *
-     * @param request DTO de atualização
-     * @param entity entidade a ser atualizada
-     */
-    public void updateEntity(EmpresaContatoUpdateRequest request, EmpresaContato entity) {
-        updateEntityFromDTO(request, entity);
-    }
 
-    /**
-     * Método de compatibilidade com código legado.
-     *
-     * @param entity entidade de contato
-     * @return DTO detalhado do contato
-     */
-    public EmpresaContatoResponse toResponse(EmpresaContato entity) {
-        return toResponseDTO(entity);
-    }
 
-    /**
-     * Método de compatibilidade com código legado.
-     *
-     * @param entity entidade de contato
-     * @return DTO resumido do contato
-     */
-    public EmpresaContatoResumoResponse toResumoResponse(EmpresaContato entity) {
-        return toResumoDTO(entity);
-    }
 }

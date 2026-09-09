@@ -1,9 +1,9 @@
 package br.com.unicos.ms_empresa.service;
 
-import br.com.unicos.ms_empresa.dto.empresa.EmpresaCreateRequestDTO;
-import br.com.unicos.ms_empresa.dto.empresa.EmpresaResponseDTO;
-import br.com.unicos.ms_empresa.dto.empresa.EmpresaResumoDTO;
-import br.com.unicos.ms_empresa.dto.empresa.EmpresaUpdateRequestDTO;
+import br.com.unicos.ms_empresa.dto.empresa.EmpresaCreateRequest;
+import br.com.unicos.ms_empresa.dto.empresa.EmpresaResponse;
+import br.com.unicos.ms_empresa.dto.empresa.EmpresaListDTO;
+import br.com.unicos.ms_empresa.dto.empresa.EmpresaUpdateRequest;
 import br.com.unicos.ms_empresa.enums.StatusEmpresa;
 import br.com.unicos.ms_empresa.enums.TipoEmpresa;
 import br.com.unicos.ms_empresa.mapper.EmpresaMapper;
@@ -33,7 +33,7 @@ public class EmpresaService {
      * @param request dados para criação da empresa
      * @return empresa cadastrada
      */
-    public EmpresaResponseDTO criar(EmpresaCreateRequestDTO request) {
+    public EmpresaResponse criar(EmpresaCreateRequest request) {
         validarCnpjDuplicado(request.cnpj());
 
         Empresa empresa = empresaMapper.toEntity(request);
@@ -48,7 +48,7 @@ public class EmpresaService {
             empresaSalva = empresaRepository.save(empresaSalva);
         }
 
-        return empresaMapper.toResponseDTO(empresaSalva);
+        return empresaMapper.toResponse(empresaSalva);
     }
 
     /**
@@ -58,9 +58,9 @@ public class EmpresaService {
      * @return empresa encontrada
      */
     @Transactional(readOnly = true)
-    public EmpresaResponseDTO buscarPorId(Long id) {
+    public EmpresaResponse buscarPorId(Long id) {
         Empresa empresa = buscarEntidadePorId(id);
-        return empresaMapper.toResponseDTO(empresa);
+        return empresaMapper.toResponse(empresa);
     }
 
     /**
@@ -70,12 +70,12 @@ public class EmpresaService {
      * @return empresa encontrada
      */
     @Transactional(readOnly = true)
-    public EmpresaResponseDTO buscarPorCnpj(String cnpj) {
+    public EmpresaResponse buscarPorCnpj(String cnpj) {
         Empresa empresa = empresaRepository.findByCnpj(cnpj)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Empresa não encontrada para o CNPJ informado: " + cnpj));
 
-        return empresaMapper.toResponseDTO(empresa);
+        return empresaMapper.toResponse(empresa);
     }
 
     /**
@@ -85,9 +85,9 @@ public class EmpresaService {
      * @return página com resumo das empresas
      */
     @Transactional(readOnly = true)
-    public Page<EmpresaResumoDTO> listarTodas(Pageable pageable) {
+    public Page<EmpresaListDTO> listarTodas(Pageable pageable) {
         return empresaRepository.findAll(pageable)
-                .map(empresaMapper::toResumoDTO);
+                .map(empresaMapper::toListDTO);
     }
 
     /**
@@ -98,9 +98,9 @@ public class EmpresaService {
      * @return página com resumo das empresas
      */
     @Transactional(readOnly = true)
-    public Page<EmpresaResumoDTO> listarPorStatus(StatusEmpresa statusEmpresa, Pageable pageable) {
+    public Page<EmpresaListDTO> listarPorStatus(StatusEmpresa statusEmpresa, Pageable pageable) {
         return empresaRepository.findByStatusEmpresa(statusEmpresa, pageable)
-                .map(empresaMapper::toResumoDTO);
+                .map(empresaMapper::toListDTO);
     }
 
     /**
@@ -111,9 +111,9 @@ public class EmpresaService {
      * @return página com resumo das empresas
      */
     @Transactional(readOnly = true)
-    public Page<EmpresaResumoDTO> listarPorTipo(TipoEmpresa tipoEmpresa, Pageable pageable) {
+    public Page<EmpresaListDTO> listarPorTipo(TipoEmpresa tipoEmpresa, Pageable pageable) {
         return empresaRepository.findByTipoEmpresa(tipoEmpresa, pageable)
-                .map(empresaMapper::toResumoDTO);
+                .map(empresaMapper::toListDTO);
     }
 
     /**
@@ -124,9 +124,9 @@ public class EmpresaService {
      * @return página com resumo das empresas
      */
     @Transactional(readOnly = true)
-    public Page<EmpresaResumoDTO> listarPorMatriz(Long matrizId, Pageable pageable) {
+    public Page<EmpresaListDTO> listarPorMatriz(Long matrizId, Pageable pageable) {
         return empresaRepository.findByMatrizId(matrizId, pageable)
-                .map(empresaMapper::toResumoDTO);
+                .map(empresaMapper::toListDTO);
     }
 
     /**
@@ -138,9 +138,9 @@ public class EmpresaService {
      * @return página com resumo das empresas
      */
     @Transactional(readOnly = true)
-    public Page<EmpresaResumoDTO> listarPorMatrizETipo(Long matrizId, TipoEmpresa tipoEmpresa, Pageable pageable) {
+    public Page<EmpresaListDTO> listarPorMatrizETipo(Long matrizId, TipoEmpresa tipoEmpresa, Pageable pageable) {
         return empresaRepository.findByMatrizIdAndTipoEmpresa(matrizId, tipoEmpresa, pageable)
-                .map(empresaMapper::toResumoDTO);
+                .map(empresaMapper::toListDTO);
     }
 
     /**
@@ -152,9 +152,9 @@ public class EmpresaService {
      * @return página com resumo das empresas
      */
     @Transactional(readOnly = true)
-    public Page<EmpresaResumoDTO> listarPorMatrizEStatus(Long matrizId, StatusEmpresa statusEmpresa, Pageable pageable) {
+    public Page<EmpresaListDTO> listarPorMatrizEStatus(Long matrizId, StatusEmpresa statusEmpresa, Pageable pageable) {
         return empresaRepository.findByMatrizIdAndStatusEmpresa(matrizId, statusEmpresa, pageable)
-                .map(empresaMapper::toResumoDTO);
+                .map(empresaMapper::toListDTO);
     }
 
     /**
@@ -164,16 +164,16 @@ public class EmpresaService {
      * @param request dados para atualização
      * @return empresa atualizada
      */
-    public EmpresaResponseDTO atualizar(Long id, EmpresaUpdateRequestDTO request) {
+    public EmpresaResponse atualizar(Long id, EmpresaUpdateRequest request) {
         Empresa empresa = buscarEntidadePorId(id);
 
-        empresaMapper.updateEntityFromDTO(request, empresa);
+        empresaMapper.updateEntity(empresa, request);
 
         if (TipoEmpresa.MATRIZ.equals(request.tipoEmpresa()))
             empresa.setMatrizId(empresa.getId());
 
         Empresa empresaAtualizada = empresaRepository.save(empresa);
-        return empresaMapper.toResponseDTO(empresaAtualizada);
+        return empresaMapper.toResponse(empresaAtualizada);
     }
 
     /**

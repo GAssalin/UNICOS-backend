@@ -1,7 +1,6 @@
 package br.com.unicos.ms_cliente.client;
 
-import br.com.unicos.core.usuario.dto.UsuarioAuthResponse;
-import br.com.unicos.core.usuario.dto.UsuarioRoleResponse;
+import br.com.unicos.ms_cliente.dto.internal.RoleResumoResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,13 +12,13 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 @RequiredArgsConstructor
 public class PermissaoService {
-    private PermissaoClient permissaoClient;
+    private final PermissaoClient permissaoClient;
 
     @CircuitBreaker(name = "ms-permissao", fallbackMethod = "fallbackUsuarioPossuiPermissao")
     public boolean usuarioPossuiPermissao(String nomePermissao) {
         return permissaoClient.usuarioPossuiPermissao(nomePermissao);
     }
-    private UsuarioAuthResponse fallbackUsuarioPossuiPermissao(String nomePermissao, Throwable ex) {
+    private boolean fallbackUsuarioPossuiPermissao(String nomePermissao, Throwable ex) {
         log.error(
                 "Fallback do CircuitBreaker acionado ao verificar permissão [{}]. Causa: {}",
                 nomePermissao,
@@ -31,10 +30,10 @@ public class PermissaoService {
     }
 
     @CircuitBreaker(name = "ms-permissao", fallbackMethod = "fallbackBuscarNomeRoleById")
-    public UsuarioRoleResponse buscarNomeRoleById(Long idRole) {
+    public RoleResumoResponse buscarNomeRoleById(Long idRole) {
         return permissaoClient.buscarNomeRoleById(idRole);
     }
-    private UsuarioAuthResponse fallbackBuscarNomeRoleById(Long idRole, Throwable ex) {
+    private RoleResumoResponse fallbackBuscarNomeRoleById(Long idRole, Throwable ex) {
         log.error(
                 "Fallback do CircuitBreaker acionado ao buscar nome da role [{}]. Causa: {}",
                 idRole,

@@ -2,7 +2,7 @@ package br.com.unicos.ms_produto.controller;
 
 import br.com.unicos.ms_produto.dto.categoria.CategoriaProdutoCreateRequest;
 import br.com.unicos.ms_produto.dto.categoria.CategoriaProdutoResponse;
-import br.com.unicos.ms_produto.dto.categoria.CategoriaProdutoResumoResponse;
+import br.com.unicos.ms_produto.dto.categoria.CategoriaProdutoListDTO;
 import br.com.unicos.ms_produto.dto.categoria.CategoriaProdutoUpdateRequest;
 import br.com.unicos.ms_produto.service.CategoriaProdutoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -126,7 +126,7 @@ public class CategoriaProdutoController {
             }
     )
     @GetMapping
-    public ResponseEntity<Page<CategoriaProdutoResumoResponse>> listar(
+    public ResponseEntity<Page<CategoriaProdutoListDTO>> listar(
             @ParameterObject Pageable pageable
     ) {
         return ResponseEntity.ok(categoriaProdutoService.listar(pageable));
@@ -146,7 +146,7 @@ public class CategoriaProdutoController {
             }
     )
     @GetMapping("/pai/{categoriaPaiId}")
-    public ResponseEntity<Page<CategoriaProdutoResumoResponse>> listarPorCategoriaPai(
+    public ResponseEntity<Page<CategoriaProdutoListDTO>> listarPorCategoriaPai(
             @PathVariable Long categoriaPaiId,
             @ParameterObject Pageable pageable
     ) {

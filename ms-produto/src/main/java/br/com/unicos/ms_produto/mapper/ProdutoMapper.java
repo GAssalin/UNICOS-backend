@@ -2,7 +2,7 @@ package br.com.unicos.ms_produto.mapper;
 
 import br.com.unicos.ms_produto.dto.produto.ProdutoCreateRequest;
 import br.com.unicos.ms_produto.dto.produto.ProdutoResponse;
-import br.com.unicos.ms_produto.dto.produto.ProdutoResumoResponse;
+import br.com.unicos.ms_produto.dto.produto.ProdutoListDTO;
 import br.com.unicos.ms_produto.dto.produto.ProdutoUpdateRequest;
 import br.com.unicos.ms_produto.model.CategoriaProduto;
 import br.com.unicos.ms_produto.model.Produto;
@@ -44,7 +44,7 @@ public class ProdutoMapper {
         return entity;
     }
 
-    public void updateEntity(ProdutoUpdateRequest request, Produto entity, Long empresaId) {
+    public void updateEntity(Produto entity, ProdutoUpdateRequest request, Long empresaId) {
         if (request == null || entity == null)
             return;
 
@@ -96,11 +96,11 @@ public class ProdutoMapper {
         );
     }
 
-    public ProdutoResumoResponse toResumoResponse(Produto entity) {
+    public ProdutoListDTO toListDTO(Produto entity) {
         if (entity == null)
             return null;
 
-        return new ProdutoResumoResponse(
+        return new ProdutoListDTO(
                 entity.getId(),
                 entity.getCodigo(),
                 entity.getNome(),

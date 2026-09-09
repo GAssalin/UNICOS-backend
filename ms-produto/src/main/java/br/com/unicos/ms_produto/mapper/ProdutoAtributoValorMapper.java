@@ -22,7 +22,7 @@ public class ProdutoAtributoValorMapper {
         return entity;
     }
 
-    public void updateEntity(ProdutoAtributoValorUpdateRequest request, ProdutoAtributoValor entity) {
+    public void updateEntity(ProdutoAtributoValor entity, ProdutoAtributoValorUpdateRequest request) {
         if (request == null || entity == null)
             return;
 

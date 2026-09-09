@@ -17,11 +17,6 @@ public class GatewayConfig {
     public RouteLocator customRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
 
-                .route("docs-page", r -> r
-                        .path("/docs")
-                        .uri("no://op") // rota interna, sem backend
-                )
-
                 // ===============================
                 // ROTA: MS-AUTENTICACAO (sem JWT)
                 // ===============================
@@ -91,6 +86,16 @@ public class GatewayConfig {
                                 .filter(jwtAuthFilter)
                         )
                         .uri("lb://ms-cliente")
+                )
+
+                // ROTA: MS-PRODUTO (COM JWT)
+                .route("ms-produto", r -> r
+                        .path("/ms-produto/**")
+                        .filters(f -> f
+                                .stripPrefix(1)
+                                .filter(jwtAuthFilter)
+                        )
+                        .uri("lb://ms-produto")
                 )
 
                 .build();

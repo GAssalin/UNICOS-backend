@@ -2,12 +2,11 @@ package br.com.unicos.ms_empresa.mapper;
 
 import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroResponse;
-import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroResumoResponse;
+import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroListDTO;
 import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroUpdateRequest;
 import br.com.unicos.ms_empresa.model.EmpresaParametro;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 
 /**
  * Mapper responsável pela conversão entre a entidade {@link EmpresaParametro}
@@ -52,7 +51,7 @@ public class EmpresaParametroMapper {
      * @param request DTO de atualização
      * @param entity entidade a ser atualizada
      */
-    public void updateEntityFromDTO(EmpresaParametroUpdateRequest request, EmpresaParametro entity) {
+    public void updateEntity(EmpresaParametro entity, EmpresaParametroUpdateRequest request) {
         if (request == null || entity == null) {
             return;
         }
@@ -66,7 +65,7 @@ public class EmpresaParametroMapper {
      * @param entity entidade de parâmetro
      * @return DTO detalhado do parâmetro
      */
-    public EmpresaParametroResponse toResponseDTO(EmpresaParametro entity) {
+    public EmpresaParametroResponse toResponse(EmpresaParametro entity) {
         if (entity == null) {
             return null;
         }
@@ -75,8 +74,8 @@ public class EmpresaParametroMapper {
                 entity.getId(),
                 entity.getChave(),
                 entity.getValor(),
-                mapLocalDateTime(entity.getCriadoEm()),
-                mapLocalDateTime(entity.getAtualizadoEm())
+                entity.getCriadoEm(),
+                entity.getAtualizadoEm()
         );
     }
 
@@ -86,65 +85,19 @@ public class EmpresaParametroMapper {
      * @param entity entidade de parâmetro
      * @return DTO resumido do parâmetro
      */
-    public EmpresaParametroResumoResponse toResumoDTO(EmpresaParametro entity) {
+    public EmpresaParametroListDTO toListDTO(EmpresaParametro entity) {
         if (entity == null) {
             return null;
         }
 
-        return new EmpresaParametroResumoResponse(
+        return new EmpresaParametroListDTO(
                 entity.getId(),
                 entity.getChave(),
                 entity.getValor()
         );
     }
 
-    /**
-     * Conversão explícita de {@link LocalDateTime}.
-     *
-     * @param source data/hora de origem
-     * @return data/hora convertida
-     */
-    private LocalDateTime mapLocalDateTime(LocalDateTime source) {
-        return source == null
-                ? null
-                : LocalDateTime.of(
-                source.getYear(),
-                source.getMonthValue(),
-                source.getDayOfMonth(),
-                source.getHour(),
-                source.getMinute(),
-                source.getSecond(),
-                source.getNano()
-        );
-    }
 
-    /**
-     * Método de compatibilidade com código legado.
-     *
-     * @param request DTO de atualização
-     * @param entity entidade a ser atualizada
-     */
-    public void updateEntity(EmpresaParametroUpdateRequest request, EmpresaParametro entity) {
-        updateEntityFromDTO(request, entity);
-    }
 
-    /**
-     * Método de compatibilidade com código legado.
-     *
-     * @param entity entidade de parâmetro
-     * @return DTO detalhado do parâmetro
-     */
-    public EmpresaParametroResponse toResponse(EmpresaParametro entity) {
-        return toResponseDTO(entity);
-    }
 
-    /**
-     * Método de compatibilidade com código legado.
-     *
-     * @param entity entidade de parâmetro
-     * @return DTO resumido do parâmetro
-     */
-    public EmpresaParametroResumoResponse toResumoResponse(EmpresaParametro entity) {
-        return toResumoDTO(entity);
-    }
 }
