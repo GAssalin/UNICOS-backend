@@ -2,12 +2,11 @@ package br.com.unicos.ms_empresa.mapper;
 
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoResponse;
-import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoResumoResponse;
+import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoListDTO;
 import br.com.unicos.ms_empresa.dto.empresa_configuracao.EmpresaConfiguracaoUpdateRequest;
 import br.com.unicos.ms_empresa.model.EmpresaConfiguracao;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 
 /**
  * Mapper responsável pela conversão entre a entidade {@link EmpresaConfiguracao}
@@ -47,7 +46,7 @@ public class EmpresaConfiguracaoMapper {
      * @param request DTO de atualização
      * @param entity entidade a ser atualizada
      */
-    public void updateEntityFromDTO(EmpresaConfiguracaoUpdateRequest request, EmpresaConfiguracao entity) {
+    public void updateEntity(EmpresaConfiguracao entity, EmpresaConfiguracaoUpdateRequest request) {
         if (request == null || entity == null) {
             return;
         }
@@ -62,7 +61,7 @@ public class EmpresaConfiguracaoMapper {
      * @param entity entidade de configuração
      * @return DTO detalhado da configuração
      */
-    public EmpresaConfiguracaoResponse toResponseDTO(EmpresaConfiguracao entity) {
+    public EmpresaConfiguracaoResponse toResponse(EmpresaConfiguracao entity) {
         if (entity == null) {
             return null;
         }
@@ -71,8 +70,8 @@ public class EmpresaConfiguracaoMapper {
                 entity.getId(),
                 entity.getChave(),
                 entity.getValor(),
-                mapLocalDateTime(entity.getCriadoEm()),
-                mapLocalDateTime(entity.getAtualizadoEm())
+                entity.getCriadoEm(),
+                entity.getAtualizadoEm()
         );
     }
 
@@ -82,65 +81,19 @@ public class EmpresaConfiguracaoMapper {
      * @param entity entidade de configuração
      * @return DTO resumido da configuração
      */
-    public EmpresaConfiguracaoResumoResponse toResumoDTO(EmpresaConfiguracao entity) {
+    public EmpresaConfiguracaoListDTO toListDTO(EmpresaConfiguracao entity) {
         if (entity == null) {
             return null;
         }
 
-        return new EmpresaConfiguracaoResumoResponse(
+        return new EmpresaConfiguracaoListDTO(
                 entity.getId(),
                 entity.getChave(),
                 entity.getValor()
         );
     }
 
-    /**
-     * Conversão explícita de {@link LocalDateTime}.
-     *
-     * @param source data/hora de origem
-     * @return data/hora convertida
-     */
-    private LocalDateTime mapLocalDateTime(LocalDateTime source) {
-        return source == null
-                ? null
-                : LocalDateTime.of(
-                source.getYear(),
-                source.getMonthValue(),
-                source.getDayOfMonth(),
-                source.getHour(),
-                source.getMinute(),
-                source.getSecond(),
-                source.getNano()
-        );
-    }
 
-    /**
-     * Método de compatibilidade com código legado.
-     *
-     * @param request DTO de atualização
-     * @param entity entidade a ser atualizada
-     */
-    public void updateEntity(EmpresaConfiguracaoUpdateRequest request, EmpresaConfiguracao entity) {
-        updateEntityFromDTO(request, entity);
-    }
 
-    /**
-     * Método de compatibilidade com código legado.
-     *
-     * @param entity entidade de configuração
-     * @return DTO detalhado da configuração
-     */
-    public EmpresaConfiguracaoResponse toResponse(EmpresaConfiguracao entity) {
-        return toResponseDTO(entity);
-    }
 
-    /**
-     * Método de compatibilidade com código legado.
-     *
-     * @param entity entidade de configuração
-     * @return DTO resumido da configuração
-     */
-    public EmpresaConfiguracaoResumoResponse toResumoResponse(EmpresaConfiguracao entity) {
-        return toResumoDTO(entity);
-    }
 }

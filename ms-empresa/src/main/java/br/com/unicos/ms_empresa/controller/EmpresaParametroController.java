@@ -2,7 +2,7 @@ package br.com.unicos.ms_empresa.controller;
 
 import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroResponse;
-import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroResumoResponse;
+import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroListDTO;
 import br.com.unicos.ms_empresa.dto.empresa_parametro.EmpresaParametroUpdateRequest;
 import br.com.unicos.ms_empresa.service.EmpresaParametroService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -113,7 +113,7 @@ public class EmpresaParametroController {
                             description = "Consulta realizada com sucesso",
                             content = @Content(
                                     array = @ArraySchema(
-                                            schema = @Schema(implementation = EmpresaParametroResumoResponse.class)
+                                            schema = @Schema(implementation = EmpresaParametroListDTO.class)
                                     )
                             )
                     ),
@@ -122,7 +122,7 @@ public class EmpresaParametroController {
             }
     )
     @GetMapping
-    public ResponseEntity<Page<EmpresaParametroResumoResponse>> listar(@ParameterObject Pageable pageable) {
+    public ResponseEntity<Page<EmpresaParametroListDTO>> listar(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(empresaParametroService.listar(pageable));
     }
 

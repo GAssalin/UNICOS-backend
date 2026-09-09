@@ -74,11 +74,11 @@ public class ClienteRequestFilter extends OncePerRequestFilter {
     private String resolverPermissao(String metodoHttp, String path) {
         String prefixo;
 
-        if (path.startsWith("/v1/clientes/categorias"))
+        if ((path.equals("/v1/clientes/categorias") || path.startsWith("/v1/clientes/categorias/")))
             prefixo = "CLIENTE_CATEGORIA_";
-        else if (path.startsWith("/v1/clientes/observacoes"))
+        else if ((path.equals("/v1/clientes/observacoes") || path.startsWith("/v1/clientes/observacoes/")))
             prefixo = "CLIENTE_OBSERVACAO_";
-        else if (path.startsWith("/v1/clientes"))
+        else if ((path.equals("/v1/clientes") || path.startsWith("/v1/clientes/")))
             prefixo = "CLIENTE_";
         else
             return null;

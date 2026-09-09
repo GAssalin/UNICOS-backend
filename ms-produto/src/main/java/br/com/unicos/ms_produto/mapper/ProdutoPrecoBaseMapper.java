@@ -23,7 +23,7 @@ public class ProdutoPrecoBaseMapper {
         return entity;
     }
 
-    public void updateEntity(ProdutoPrecoBaseUpdateRequest request, ProdutoPrecoBase entity) {
+    public void updateEntity(ProdutoPrecoBase entity, ProdutoPrecoBaseUpdateRequest request) {
         if (request == null || entity == null)
             return;
 

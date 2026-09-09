@@ -1,7 +1,7 @@
 package br.com.unicos.ms_cliente.controller;
 
-import br.com.unicos.ms_cliente.dto.ClienteCategoriaRequestDTO;
-import br.com.unicos.ms_cliente.dto.ClienteCategoriaResponseDTO;
+import br.com.unicos.ms_cliente.dto.cliente_categoria.ClienteCategoriaRequest;
+import br.com.unicos.ms_cliente.dto.cliente_categoria.ClienteCategoriaResponse;
 import br.com.unicos.ms_cliente.service.ClienteCategoriaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,7 +32,7 @@ public class ClienteCategoriaController {
                     @ApiResponse(
                             responseCode = "201",
                             description = "Categoria criada com sucesso",
-                            content = @Content(schema = @Schema(implementation = ClienteCategoriaResponseDTO.class))
+                            content = @Content(schema = @Schema(implementation = ClienteCategoriaResponse.class))
                     ),
                     @ApiResponse(responseCode = "400", description = "Dados inválidos"),
                     @ApiResponse(responseCode = "403", description = "Sem permissão para criar"),
@@ -40,8 +40,8 @@ public class ClienteCategoriaController {
             }
     )
     @PostMapping
-    public ResponseEntity<ClienteCategoriaResponseDTO> criar(
-            @RequestBody @Validated ClienteCategoriaRequestDTO request
+    public ResponseEntity<ClienteCategoriaResponse> criar(
+            @RequestBody @Validated ClienteCategoriaRequest request
     ) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)

@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
+                    req.requestMatchers("/actuator/health", "/actuator/health/**").permitAll();
                     req.requestMatchers("/internal/**").permitAll();
                     req.requestMatchers(SWAGGER_WHITELIST).permitAll();
                     req.requestMatchers("/error").permitAll();

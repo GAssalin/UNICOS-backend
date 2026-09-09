@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class PessoasService {
     private final PessoasClient pessoasClient;
 
-    @CircuitBreaker(name = "ms-permissao", fallbackMethod = "fallbackBuscarPorId")
+    @CircuitBreaker(name = "ms-pessoas", fallbackMethod = "fallbackBuscarPorId")
     public PessoaResponseClient buscarPorId(Long idPessoa) {
         return pessoasClient.buscarPorId(idPessoa);
     }

@@ -37,12 +37,6 @@
             <artifactId>core-tenant</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>br.com.atcare</groupId>
-            <artifactId>core-auth</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
 
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -52,12 +46,6 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
-
-        <!-- 🧩 Spring Cloud Config Client -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
-        </dependency>
 
         <!-- 🧩 Lombok -->
         <dependency>
