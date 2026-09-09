@@ -4,7 +4,7 @@ import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_produto.dto.produtotipo.ProdutoTipoCreateRequest;
 import br.com.unicos.ms_produto.dto.produtotipo.ProdutoTipoResponse;
-import br.com.unicos.ms_produto.dto.produtotipo.ProdutoTipoResumoResponse;
+import br.com.unicos.ms_produto.dto.produtotipo.ProdutoTipoListDTO;
 import br.com.unicos.ms_produto.dto.produtotipo.ProdutoTipoUpdateRequest;
 import br.com.unicos.ms_produto.mapper.ProdutoTipoMapper;
 import br.com.unicos.ms_produto.model.ProdutoTipo;
@@ -43,7 +43,7 @@ public class ProdutoTipoService extends BaseTenantService<ProdutoTipo, Long> {
         if (!tipo.getNome().equalsIgnoreCase(request.nome()))
             validarNomeDuplicado(request.nome());
 
-        mapper.updateEntity(request, tipo);
+        mapper.updateEntity(tipo, request);
 
         return mapper.toResponse(repository.save(tipo));
     }
@@ -54,15 +54,15 @@ public class ProdutoTipoService extends BaseTenantService<ProdutoTipo, Long> {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProdutoTipoResumoResponse> listar(Pageable pageable) {
+    public Page<ProdutoTipoListDTO> listar(Pageable pageable) {
         return repository.findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
-                .map(mapper::toResumoResponse);
+                .map(mapper::toListDTO);
     }
 
     @Transactional(readOnly = true)
-    public Page<ProdutoTipoResumoResponse> listarPorAtivo(Boolean ativo, Pageable pageable) {
+    public Page<ProdutoTipoListDTO> listarPorAtivo(Boolean ativo, Pageable pageable) {
         return repository.findByAtivoAndEmpresaId(ativo, TenantContext.getEmpresaId(), pageable)
-                .map(mapper::toResumoResponse);
+                .map(mapper::toListDTO);
     }
 
     public ProdutoTipoResponse ativar(Long id) {

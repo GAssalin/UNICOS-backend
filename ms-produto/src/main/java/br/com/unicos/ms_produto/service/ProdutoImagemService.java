@@ -43,7 +43,7 @@ public class ProdutoImagemService extends BaseTenantService<ProdutoImagem, Long>
         if (request.principal())
             removerPrincipalAtual(imagem.getProdutoId());
 
-        mapper.updateEntity(request, imagem);
+        mapper.updateEntity(imagem, request);
 
         return mapper.toResponse(repository.save(imagem));
     }

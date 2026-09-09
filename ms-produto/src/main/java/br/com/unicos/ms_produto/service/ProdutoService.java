@@ -4,7 +4,7 @@ import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_produto.dto.produto.ProdutoCreateRequest;
 import br.com.unicos.ms_produto.dto.produto.ProdutoResponse;
-import br.com.unicos.ms_produto.dto.produto.ProdutoResumoResponse;
+import br.com.unicos.ms_produto.dto.produto.ProdutoListDTO;
 import br.com.unicos.ms_produto.dto.produto.ProdutoUpdateRequest;
 import br.com.unicos.ms_produto.mapper.ProdutoMapper;
 import br.com.unicos.ms_produto.model.Produto;
@@ -44,7 +44,7 @@ public class ProdutoService extends BaseTenantService<Produto, Long> {
     public ProdutoResponse atualizar(Long id, ProdutoUpdateRequest request) {
         Produto produto = buscarProduto(id);
 
-        mapper.updateEntity(request, produto, TenantContext.getEmpresaId());
+        mapper.updateEntity(produto, request, TenantContext.getEmpresaId());
 
         return mapper.toResponse(repository.save(produto), TenantContext.getEmpresaId(), categoriaProdutoRepository.getReferenceById(request.categoriaId()));
     }
@@ -64,21 +64,21 @@ public class ProdutoService extends BaseTenantService<Produto, Long> {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProdutoResumoResponse> listar(Pageable pageable) {
+    public Page<ProdutoListDTO> listar(Pageable pageable) {
         return repository.findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
-                .map(mapper::toResumoResponse);
+                .map(mapper::toListDTO);
     }
 
     @Transactional(readOnly = true)
-    public Page<ProdutoResumoResponse> listarPorAtivo(Boolean ativo, Pageable pageable) {
+    public Page<ProdutoListDTO> listarPorAtivo(Boolean ativo, Pageable pageable) {
         return repository.findByAtivoAndEmpresaId(ativo, TenantContext.getEmpresaId(), pageable)
-                .map(mapper::toResumoResponse);
+                .map(mapper::toListDTO);
     }
 
     @Transactional(readOnly = true)
-    public Page<ProdutoResumoResponse> pesquisarPorNome(String nome, Pageable pageable) {
+    public Page<ProdutoListDTO> pesquisarPorNome(String nome, Pageable pageable) {
         return repository.findByNomeContainingIgnoreCaseAndEmpresaId(nome, TenantContext.getEmpresaId(), pageable)
-                .map(mapper::toResumoResponse);
+                .map(mapper::toListDTO);
     }
 
     public ProdutoResponse ativar(Long id) {

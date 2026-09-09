@@ -39,7 +39,7 @@ public class ProdutoPrecoBaseService extends BaseTenantService<ProdutoPrecoBase,
     public ProdutoPrecoBaseResponse atualizar(Long id, ProdutoPrecoBaseUpdateRequest request) {
         ProdutoPrecoBase preco = buscarPreco(id);
 
-        mapper.updateEntity(request, preco);
+        mapper.updateEntity(preco, request);
 
         return mapper.toResponse(repository.save(preco));
     }

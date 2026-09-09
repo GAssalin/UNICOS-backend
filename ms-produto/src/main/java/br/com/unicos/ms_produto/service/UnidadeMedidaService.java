@@ -4,7 +4,7 @@ import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaCreateRequest;
 import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaResponse;
-import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaResumoResponse;
+import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaListDTO;
 import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaUpdateRequest;
 import br.com.unicos.ms_produto.mapper.UnidadeMedidaMapper;
 import br.com.unicos.ms_produto.model.UnidadeMedida;
@@ -43,7 +43,7 @@ public class UnidadeMedidaService extends BaseTenantService<UnidadeMedida, Long>
         if (!unidade.getCodigo().equalsIgnoreCase(request.codigo()))
             validarCodigoDuplicado(request.codigo());
 
-        mapper.updateEntity(request, unidade);
+        mapper.updateEntity(unidade, request);
 
         return mapper.toResponse(repository.save(unidade));
     }
@@ -62,15 +62,15 @@ public class UnidadeMedidaService extends BaseTenantService<UnidadeMedida, Long>
     }
 
     @Transactional(readOnly = true)
-    public Page<UnidadeMedidaResumoResponse> listar(Pageable pageable) {
+    public Page<UnidadeMedidaListDTO> listar(Pageable pageable) {
         return repository.findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
-                .map(mapper::toResumoResponse);
+                .map(mapper::toListDTO);
     }
 
     @Transactional(readOnly = true)
-    public Page<UnidadeMedidaResumoResponse> listarPorAtivo(Boolean ativo, Pageable pageable) {
+    public Page<UnidadeMedidaListDTO> listarPorAtivo(Boolean ativo, Pageable pageable) {
         return repository.findByAtivoAndEmpresaId(ativo, TenantContext.getEmpresaId(), pageable)
-                .map(mapper::toResumoResponse);
+                .map(mapper::toListDTO);
     }
 
     public UnidadeMedidaResponse ativar(Long id) {

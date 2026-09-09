@@ -24,7 +24,7 @@ public class ProdutoImagemMapper {
         return entity;
     }
 
-    public void updateEntity(ProdutoImagemUpdateRequest request, ProdutoImagem entity) {
+    public void updateEntity(ProdutoImagem entity, ProdutoImagemUpdateRequest request) {
         if (request == null || entity == null)
             return;
 
