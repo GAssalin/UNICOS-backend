@@ -1,7 +1,7 @@
 package br.com.unicos.ms_cliente.mapper;
 
-import br.com.unicos.ms_cliente.dto.ClienteRequestDTO;
-import br.com.unicos.ms_cliente.dto.ClienteResponseDTO;
+import br.com.unicos.ms_cliente.dto.cliente.ClienteRequest;
+import br.com.unicos.ms_cliente.dto.cliente.ClienteResponse;
 import br.com.unicos.ms_cliente.model.Cliente;
 import br.com.unicos.ms_cliente.client.PessoasService;
 import org.springframework.stereotype.Component;
@@ -18,63 +18,58 @@ public class ClienteMapper {
         this.pessoasService = pessoasService;
     }
 
-    public ClienteResponseDTO toResponse(Cliente entity) {
+    public ClienteResponse toResponse(Cliente entity) {
         if (entity == null)
             return null;
 
-        ClienteResponseDTO dto = new ClienteResponseDTO();
-
-        dto.setId(entity.getId());
-        dto.setEmpresaId(entity.getEmpresaId());
-        dto.setPessoaId(entity.getPessoaId());
-        dto.setVendedorId(entity.getVendedorId());
-        dto.setNomeVendedor(pessoasService.buscarPorId(entity.getVendedorId()).nome());
-        dto.setFilialId(entity.getFilialId());
-        dto.setCodigoInterno(entity.getCodigoInterno());
-        dto.setStatus(entity.getStatus());
-
-        if (entity.getCategoria() != null) {
-            dto.setCategoriaId(entity.getCategoria().getId());
-            dto.setCategoriaNome(entity.getCategoria().getNome());
-        }
-
-        dto.setObservacaoGeral(entity.getObservacaoGeral());
-        dto.setPermiteVendaAPrazo(entity.getPermiteVendaAPrazo());
-        dto.setLimiteCredito(entity.getLimiteCredito());
-        dto.setAtivo(entity.getAtivo());
-        dto.setCriadoEm(entity.getCriadoEm());
-        dto.setAtualizadoEm(entity.getAtualizadoEm());
-
-        return dto;
+        return new ClienteResponse(
+                entity.getId(),
+                entity.getEmpresaId(),
+                entity.getPessoaId(),
+                entity.getVendedorId(),
+                entity.getVendedorId() == null ? null : pessoasService.buscarPorId(entity.getVendedorId()).nome(),
+                entity.getFilialId(),
+                entity.getCodigoInterno(),
+                entity.getStatus(),
+                entity.getCategoria() == null ? null : entity.getCategoria().getId(),
+                entity.getCategoria() == null ? null : entity.getCategoria().getNome(),
+                entity.getObservacaoGeral(),
+                entity.getPermiteVendaAPrazo(),
+                entity.getLimiteCredito(),
+                entity.getAtivo(),
+                entity.getCriadoEm(),
+                entity.getAtualizadoEm()
+        );
     }
 
-    public Cliente toEntity(ClienteRequestDTO request) {
+    public Cliente toEntity(ClienteRequest request) {
         if (request == null)
             return null;
 
         return Cliente.builder()
-                .pessoaId(request.getPessoaId())
-                .vendedorId(request.getVendedorId())
-                .filialId(request.getFilialId())
-                .codigoInterno(request.getCodigoInterno())
-                .status(request.getStatus())
-                .observacaoGeral(request.getObservacaoGeral())
-                .permiteVendaAPrazo(request.getPermiteVendaAPrazo())
-                .limiteCredito(request.getLimiteCredito())
+                .pessoaId(request.pessoaId())
+                .vendedorId(request.vendedorId())
+                .filialId(request.filialId())
+                .codigoInterno(request.codigoInterno())
+                .status(request.status())
+                .observacaoGeral(request.observacaoGeral())
+                .permiteVendaAPrazo(request.permiteVendaAPrazo())
+                .limiteCredito(request.limiteCredito())
                 .build();
     }
 
-    public void updateEntity(ClienteRequestDTO request, Cliente entity) {
+    public void updateEntity(Cliente entity, ClienteRequest request) {
         if (request == null || entity == null)
             return;
 
-        entity.setPessoaId(request.getPessoaId());
-        entity.setVendedorId(request.getVendedorId());
-        entity.setFilialId(request.getFilialId());
-        entity.setCodigoInterno(request.getCodigoInterno());
-        entity.setStatus(request.getStatus());
-        entity.setObservacaoGeral(request.getObservacaoGeral());
-        entity.setPermiteVendaAPrazo(request.getPermiteVendaAPrazo());
-        entity.setLimiteCredito(request.getLimiteCredito());
+        entity.setPessoaId(request.pessoaId());
+        if (request.vendedorId() != null)
+            entity.setVendedorId(request.vendedorId());
+        entity.setFilialId(request.filialId());
+        entity.setCodigoInterno(request.codigoInterno());
+        entity.setStatus(request.status());
+        entity.setObservacaoGeral(request.observacaoGeral());
+        entity.setPermiteVendaAPrazo(request.permiteVendaAPrazo());
+        entity.setLimiteCredito(request.limiteCredito());
     }
 }

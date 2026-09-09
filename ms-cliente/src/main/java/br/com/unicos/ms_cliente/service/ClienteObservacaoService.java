@@ -2,12 +2,11 @@ package br.com.unicos.ms_cliente.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
-import br.com.unicos.ms_cliente.dto.ClienteObservacaoRequestDTO;
-import br.com.unicos.ms_cliente.dto.ClienteObservacaoResponseDTO;
+import br.com.unicos.ms_cliente.dto.cliente_observacao.ClienteObservacaoRequest;
+import br.com.unicos.ms_cliente.dto.cliente_observacao.ClienteObservacaoResponse;
 import br.com.unicos.ms_cliente.mapper.ClienteObservacaoMapper;
 import br.com.unicos.ms_cliente.model.ClienteObservacao;
 import br.com.unicos.ms_cliente.repository.ClienteObservacaoRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +20,7 @@ public class ClienteObservacaoService extends BaseTenantService<ClienteObservaca
         this.mapper = mapper;
     }
 
-    public ClienteObservacaoResponseDTO salvar(ClienteObservacaoRequestDTO request) {
+    public ClienteObservacaoResponse salvar(ClienteObservacaoRequest request) {
         ClienteObservacao entity = mapper.toEntity(request);
         entity.setEmpresaId(TenantContext.getEmpresaId());
 

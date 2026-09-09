@@ -6,8 +6,8 @@ import br.com.unicos.core.usuario.context.UserContext;
 import br.com.unicos.core.usuario.dto.UsuarioRoleIdsResponse;
 import br.com.unicos.ms_cliente.client.PermissaoService;
 import br.com.unicos.ms_cliente.client.UsuarioService;
-import br.com.unicos.ms_cliente.dto.ClienteRequestDTO;
-import br.com.unicos.ms_cliente.dto.ClienteResponseDTO;
+import br.com.unicos.ms_cliente.dto.cliente.ClienteRequest;
+import br.com.unicos.ms_cliente.dto.cliente.ClienteResponse;
 import br.com.unicos.ms_cliente.enums.StatusCliente;
 import br.com.unicos.ms_cliente.mapper.ClienteMapper;
 import br.com.unicos.ms_cliente.model.Cliente;
@@ -42,28 +42,30 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
         this.permissaoService = permissaoService;
     }
 
-    public ClienteResponseDTO salvar(ClienteRequestDTO request) {
-        validarClienteDuplicado(request.getPessoaId());
+    public ClienteResponse salvar(ClienteRequest request) {
+        validarClienteDuplicado(request.pessoaId());
 
         Cliente entity = mapper.toEntity(request);
+        if (entity.getVendedorId() == null)
+            entity.setVendedorId(UserContext.getUsuarioId());
         entity.setEmpresaId(TenantContext.getEmpresaId());
 
-        if (request.getCategoriaId() != null)
-            entity.setCategoria(buscarCategoria(request.getCategoriaId()));
+        if (request.categoriaId() != null)
+            entity.setCategoria(buscarCategoria(request.categoriaId()));
 
         return mapper.toResponse(save(entity));
     }
 
-    public ClienteResponseDTO atualizar(Long id, ClienteRequestDTO request) {
+    public ClienteResponse atualizar(Long id, ClienteRequest request) {
         Cliente entity = buscar(id);
 
-        if (!entity.getPessoaId().equals(request.getPessoaId()))
-            validarClienteDuplicado(request.getPessoaId());
+        if (!entity.getPessoaId().equals(request.pessoaId()))
+            validarClienteDuplicado(request.pessoaId());
 
-        mapper.updateEntity(request, entity);
+        mapper.updateEntity(entity, request);
 
-        if (request.getCategoriaId() != null)
-            entity.setCategoria(buscarCategoria(request.getCategoriaId()));
+        if (request.categoriaId() != null)
+            entity.setCategoria(buscarCategoria(request.categoriaId()));
         else
             entity.setCategoria(null);
 
@@ -71,12 +73,12 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
     }
 
     @Transactional(readOnly = true)
-    public ClienteResponseDTO buscarPorId(Long id) {
+    public ClienteResponse buscarPorId(Long id) {
         return mapper.toResponse(buscar(id));
     }
 
     @Transactional(readOnly = true)
-    public Page<ClienteResponseDTO> listar(Pageable pageable) {
+    public Page<ClienteResponse> listar(Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
         Long usuarioId = UserContext.getUsuarioId();
 
@@ -95,7 +97,7 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
     }
 
     @Transactional(readOnly = true)
-    public Page<ClienteResponseDTO> listarPorStatus(StatusCliente status, Pageable pageable) {
+    public Page<ClienteResponse> listarPorStatus(StatusCliente status, Pageable pageable) {
         return repository
                 .findByStatusAndEmpresaId(status, TenantContext.getEmpresaId(), pageable)
                 .map(mapper::toResponse);
@@ -122,7 +124,7 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
 
     private boolean isUsuarioUmVendedor() {
         UsuarioRoleIdsResponse response = usuarioService.buscarRoleIdsDoUsuario(UserContext.getUsuarioId());
-        return permissaoService.buscarNomeRoleById(response.idRole()).nomeRoleUsuario().toUpperCase().contains("VENDEDOR");
+        return permissaoService.buscarNomeRoleById(response.idRole()).nome().toUpperCase().contains("VENDEDOR");
     }
 
     private ClienteCategoria buscarCategoria(Long id) {

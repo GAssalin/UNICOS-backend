@@ -4,100 +4,51 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6de8628d-5999-4196-a74f-c27f1ee3a151" name="Changes" comment="Ajustes e melhorias ms-empresa">
+    <list default="true" id="6de8628d-5999-4196-a74f-c27f1ee3a151" name="Changes" comment="Ajustes e melhorias ms-produto">
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/MsProdutoApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/MsProdutoApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/client/PermissaoClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/client/PermissaoClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/client/PermissaoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/client/PermissaoService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/config/FeignContextInterceptorConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/config/FeignContextInterceptorConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/config/JpaAuditingConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/config/JpaAuditingConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/config/SpringDocConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/config/SpringDocConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/CategoriaProdutoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/CategoriaProdutoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/MarcaProdutoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/MarcaProdutoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/ProdutoAtributoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/ProdutoAtributoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/ProdutoAtributoValorController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/ProdutoAtributoValorController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/ProdutoCodigoBarrasController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/ProdutoCodigoBarrasController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/ProdutoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/ProdutoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/ProdutoImagemController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/ProdutoImagemController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/ProdutoPrecoBaseController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/ProdutoPrecoBaseController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/ProdutoTipoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/ProdutoTipoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/UnidadeMedidaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/controller/UnidadeMedidaController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/categoria/CategoriaProdutoCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/categoria/CategoriaProdutoCreateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/categoria/CategoriaProdutoResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/categoria/CategoriaProdutoResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/categoria/CategoriaProdutoUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/categoria/CategoriaProdutoUpdateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/marca/MarcaProdutoCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/marca/MarcaProdutoCreateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/marca/MarcaProdutoResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/marca/MarcaProdutoResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/marca/MarcaProdutoUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/marca/MarcaProdutoUpdateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produto/ProdutoCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produto/ProdutoCreateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produto/ProdutoResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produto/ProdutoResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produto/ProdutoUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produto/ProdutoUpdateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoatributo/ProdutoAtributoCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoatributo/ProdutoAtributoCreateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoatributo/ProdutoAtributoResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoatributo/ProdutoAtributoResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoatributo/ProdutoAtributoUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoatributo/ProdutoAtributoUpdateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoatributovalor/ProdutoAtributoValorCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoatributovalor/ProdutoAtributoValorCreateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoatributovalor/ProdutoAtributoValorResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoatributovalor/ProdutoAtributoValorResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoatributovalor/ProdutoAtributoValorUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoatributovalor/ProdutoAtributoValorUpdateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtocodigobarras/ProdutoCodigoBarrasCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtocodigobarras/ProdutoCodigoBarrasCreateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtocodigobarras/ProdutoCodigoBarrasResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtocodigobarras/ProdutoCodigoBarrasResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtocodigobarras/ProdutoCodigoBarrasUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtocodigobarras/ProdutoCodigoBarrasUpdateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoimagem/ProdutoImagemCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoimagem/ProdutoImagemCreateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoimagem/ProdutoImagemResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoimagem/ProdutoImagemResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoimagem/ProdutoImagemUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoimagem/ProdutoImagemUpdateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoprecobase/ProdutoPrecoBaseCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoprecobase/ProdutoPrecoBaseCreateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoprecobase/ProdutoPrecoBaseResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoprecobase/ProdutoPrecoBaseResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoprecobase/ProdutoPrecoBaseUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtoprecobase/ProdutoPrecoBaseUpdateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtotipo/ProdutoTipoCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtotipo/ProdutoTipoCreateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtotipo/ProdutoTipoResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtotipo/ProdutoTipoResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtotipo/ProdutoTipoUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/produtotipo/ProdutoTipoUpdateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/unidademedida/UnidadeMedidaCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/unidademedida/UnidadeMedidaCreateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/unidademedida/UnidadeMedidaResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/unidademedida/UnidadeMedidaResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/unidademedida/UnidadeMedidaUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/dto/unidademedida/UnidadeMedidaUpdateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/enums/TipoProduto.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/enums/TipoProduto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/filter/ProdutoRequestFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/filter/ProdutoRequestFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/CategoriaProdutoMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/CategoriaProdutoMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/MarcaProdutoMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/MarcaProdutoMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/ProdutoAtributoMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/ProdutoAtributoMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/ProdutoAtributoValorMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/ProdutoAtributoValorMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/ProdutoCodigoBarrasMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/ProdutoCodigoBarrasMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/ProdutoImagemMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/ProdutoImagemMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/ProdutoMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/ProdutoMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/ProdutoPrecoBaseMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/ProdutoPrecoBaseMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/ProdutoTipoMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/ProdutoTipoMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/UnidadeMedidaMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/mapper/UnidadeMedidaMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/CategoriaProduto.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/CategoriaProduto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/MarcaProduto.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/MarcaProduto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/Produto.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/Produto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/ProdutoAtributo.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/ProdutoAtributo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/ProdutoAtributoValor.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/ProdutoAtributoValor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/ProdutoCodigoBarras.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/ProdutoCodigoBarras.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/ProdutoImagem.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/ProdutoImagem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/ProdutoPrecoBase.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/ProdutoPrecoBase.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/ProdutoTipo.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/ProdutoTipo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/UnidadeMedida.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/model/UnidadeMedida.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/CategoriaProdutoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/CategoriaProdutoRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/MarcaProdutoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/MarcaProdutoRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/ProdutoAtributoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/ProdutoAtributoRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/ProdutoAtributoValorRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/ProdutoAtributoValorRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/ProdutoCodigoBarrasRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/ProdutoCodigoBarrasRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/ProdutoImagemRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/ProdutoImagemRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/ProdutoPrecoBaseRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/ProdutoPrecoBaseRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/ProdutoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/ProdutoRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/ProdutoTipoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/ProdutoTipoRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/UnidadeMedidaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/repository/UnidadeMedidaRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/CategoriaProdutoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/CategoriaProdutoService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/MarcaProdutoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/MarcaProdutoService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/ProdutoAtributoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/ProdutoAtributoService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/ProdutoAtributoValorService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/ProdutoAtributoValorService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/ProdutoCodigoBarrasService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/ProdutoCodigoBarrasService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/ProdutoImagemService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/ProdutoImagemService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/ProdutoPrecoBaseService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/ProdutoPrecoBaseService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/ProdutoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/ProdutoService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/ProdutoTipoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/ProdutoTipoService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/UnidadeMedidaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/java/br/com/unicos/ms_produto/service/UnidadeMedidaService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-produto/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/ms-produto/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/MsClienteApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/MsClienteApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PermissaoClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PermissaoClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PermissaoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PermissaoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PessoasClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PessoasClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PessoasService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PessoasService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/UsuarioClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/UsuarioClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/UsuarioService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/UsuarioService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/FeignContextInterceptorConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/FeignContextInterceptorConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/JpaAuditingConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/JpaAuditingConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/SpringDocConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/SpringDocConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/controller/ClienteCategoriaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/controller/ClienteCategoriaController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/controller/ClienteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/controller/ClienteController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/controller/ClienteObservacaoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/controller/ClienteObservacaoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/enums/StatusCliente.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/enums/StatusCliente.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/enums/TipoObservacaoCliente.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/enums/TipoObservacaoCliente.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/exception/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/filter/ClienteRequestFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/filter/ClienteRequestFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteCategoriaMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteCategoriaMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteHistoricoStatusMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteHistoricoStatusMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteObservacaoMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteObservacaoMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/Cliente.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/Cliente.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/ClienteCategoria.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/ClienteCategoria.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/ClienteHistoricoStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/ClienteHistoricoStatus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/ClienteObservacao.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/ClienteObservacao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteCategoriaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteCategoriaRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteHistoricoStatusRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteHistoricoStatusRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteObservacaoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteObservacaoRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/service/ClienteCategoriaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/service/ClienteCategoriaService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/service/ClienteObservacaoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/service/ClienteObservacaoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/service/ClienteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/service/ClienteService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/db/migration/V1__create_ms_cliente_tables.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/db/migration/V2__insert_cliente_categorias.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/db/migration/V3__insert_clientes.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/db/migration/V4__insert_cliente_historico_status.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/db/migration/V5__insert_cliente_observacoes.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/db/migration/common/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/db/migration/local/.gitkeep" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -156,7 +107,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "RefactorMain",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/UNICOS-backend/ms-cliente/src/main/resources/db/migration/homolog",
+    "last_opened_file_path": "D:/UNICOS-backend/ms-cliente/src/main/resources/db/migration/common",
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
@@ -165,8 +116,8 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\UNICOS-backend\ms-cliente\src\main\resources\db\migration\homolog" />
       <recent name="D:\UNICOS-backend\ms-cliente\src\main\resources\db\migration\common" />
+      <recent name="D:\UNICOS-backend\ms-cliente\src\main\resources\db\migration\homolog" />
       <recent name="D:\UNICOS-backend\ms-cliente\src\main\resources\db\migration\local" />
       <recent name="D:\UNICOS-backend\ms-cliente\src\main\resources\db\migration\prod" />
       <recent name="D:\UNICOS-backend\ms-empresa\src\main\resources\db\migration\prod" />
@@ -178,7 +129,7 @@
       <recent name="D:\UNICOS-backend\ms-pessoas\src\main\resources\db\migration\local" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.MsProdutoApplication">
+  <component name="RunManager" selected="Application.MsClienteApplication">
     <configuration name="GatewayApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="br.com.unicos.gateway.GatewayApplication" />
       <module name="gateway" />
@@ -303,9 +254,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.MsClienteApplication" />
         <item itemvalue="Application.GatewayApplication" />
         <item itemvalue="Application.MsPermissaoApplication" />
-        <item itemvalue="Application.MsClienteApplication" />
         <item itemvalue="Application.MsAutenticacaoApplication" />
       </list>
     </recent_temporary>
@@ -342,13 +293,22 @@
       <option name="project" value="LOCAL" />
       <updated>1788912909474</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Ajustes e melhorias ms-produto">
+      <option name="closed" value="true" />
+      <created>1788913211358</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1788913211358</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Ajustes e melhorias" />
     <MESSAGE value="Ajustes e melhorias docker" />
     <MESSAGE value="Ajustes e melhorias ms-empresa" />
-    <option name="LAST_COMMIT_MESSAGE" value="Ajustes e melhorias ms-empresa" />
+    <MESSAGE value="Ajustes e melhorias ms-produto" />
+    <option name="LAST_COMMIT_MESSAGE" value="Ajustes e melhorias ms-produto" />
   </component>
 </project>
