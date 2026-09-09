@@ -1,7 +1,7 @@
 package br.com.unicos.ms_cliente.controller;
 
-import br.com.unicos.ms_cliente.dto.ClienteRequestDTO;
-import br.com.unicos.ms_cliente.dto.ClienteResponseDTO;
+import br.com.unicos.ms_cliente.dto.cliente.ClienteRequest;
+import br.com.unicos.ms_cliente.dto.cliente.ClienteResponse;
 import br.com.unicos.ms_cliente.enums.StatusCliente;
 import br.com.unicos.ms_cliente.service.ClienteService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,7 +37,7 @@ public class ClienteController {
                     @ApiResponse(
                             responseCode = "201",
                             description = "Cliente criado com sucesso",
-                            content = @Content(schema = @Schema(implementation = ClienteResponseDTO.class))
+                            content = @Content(schema = @Schema(implementation = ClienteResponse.class))
                     ),
                     @ApiResponse(responseCode = "400", description = "Dados inválidos"),
                     @ApiResponse(responseCode = "403", description = "Sem permissão para criar"),
@@ -45,8 +45,8 @@ public class ClienteController {
             }
     )
     @PostMapping
-    public ResponseEntity<ClienteResponseDTO> criar(
-            @RequestBody @Validated ClienteRequestDTO request
+    public ResponseEntity<ClienteResponse> criar(
+            @RequestBody @Validated ClienteRequest request
     ) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -59,7 +59,7 @@ public class ClienteController {
                     @ApiResponse(
                             responseCode = "200",
                             description = "Cliente atualizado com sucesso",
-                            content = @Content(schema = @Schema(implementation = ClienteResponseDTO.class))
+                            content = @Content(schema = @Schema(implementation = ClienteResponse.class))
                     ),
                     @ApiResponse(responseCode = "400", description = "Dados inválidos"),
                     @ApiResponse(responseCode = "403", description = "Sem permissão para editar"),
@@ -68,9 +68,9 @@ public class ClienteController {
             }
     )
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteResponseDTO> atualizar(
+    public ResponseEntity<ClienteResponse> atualizar(
             @PathVariable Long id,
-            @RequestBody @Validated ClienteRequestDTO request
+            @RequestBody @Validated ClienteRequest request
     ) {
         return ResponseEntity.ok(clienteService.atualizar(id, request));
     }
@@ -81,7 +81,7 @@ public class ClienteController {
                     @ApiResponse(
                             responseCode = "200",
                             description = "Consulta realizada com sucesso",
-                            content = @Content(schema = @Schema(implementation = ClienteResponseDTO.class))
+                            content = @Content(schema = @Schema(implementation = ClienteResponse.class))
                     ),
                     @ApiResponse(responseCode = "403", description = "Sem permissão para consultar"),
                     @ApiResponse(responseCode = "404", description = "Cliente não encontrado"),
@@ -89,7 +89,7 @@ public class ClienteController {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<ClienteResponseDTO> buscarPorId(
+    public ResponseEntity<ClienteResponse> buscarPorId(
             @PathVariable Long id
     ) {
         return ResponseEntity.ok(clienteService.buscarPorId(id));
@@ -109,7 +109,7 @@ public class ClienteController {
             }
     )
     @GetMapping
-    public ResponseEntity<Page<ClienteResponseDTO>> listar(
+    public ResponseEntity<Page<ClienteResponse>> listar(
             @ParameterObject Pageable pageable
     ) {
         return ResponseEntity.ok(clienteService.listar(pageable));
@@ -129,7 +129,7 @@ public class ClienteController {
             }
     )
     @GetMapping("/status/{status}")
-    public ResponseEntity<Page<ClienteResponseDTO>> listarPorStatus(
+    public ResponseEntity<Page<ClienteResponse>> listarPorStatus(
             @PathVariable StatusCliente status,
             @ParameterObject Pageable pageable
     ) {

@@ -41,8 +41,7 @@ CREATE TABLE clientes (
     atualizado_em TIMESTAMP,
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
 
-    CONSTRAINT fk_clientes_pessoa
-        FOREIGN KEY (pessoa_id) REFERENCES pessoa(id),
+    -- pessoa_id referencia logicamente o ms-pessoas, sem FK entre servicos.
 
     CONSTRAINT fk_clientes_categoria
         FOREIGN KEY (categoria_id) REFERENCES cliente_categorias(id)

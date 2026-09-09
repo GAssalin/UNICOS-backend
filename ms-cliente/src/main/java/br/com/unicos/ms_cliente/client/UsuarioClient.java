@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(
-        name = "ms-usuario",
+        name = "ms-pessoas",
         contextId = "UsuarioClient"
 )
 public interface UsuarioClient {
 
-    @GetMapping("/internal/usuarios/{id}/roleIds")
+    @GetMapping("/internal/usuarios/{id}/role")
     UsuarioRoleIdsResponse buscarRoleIdsDoUsuario(@PathVariable Long id);
 
 }

@@ -1,7 +1,7 @@
 package br.com.unicos.ms_cliente.mapper;
 
-import br.com.unicos.ms_cliente.dto.ClienteObservacaoRequestDTO;
-import br.com.unicos.ms_cliente.dto.ClienteObservacaoResponseDTO;
+import br.com.unicos.ms_cliente.dto.cliente_observacao.ClienteObservacaoRequest;
+import br.com.unicos.ms_cliente.dto.cliente_observacao.ClienteObservacaoResponse;
 import br.com.unicos.ms_cliente.model.ClienteObservacao;
 import org.springframework.stereotype.Component;
 
@@ -11,46 +11,44 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClienteObservacaoMapper {
 
-    public ClienteObservacaoResponseDTO toResponse(ClienteObservacao entity) {
+    public ClienteObservacaoResponse toResponse(ClienteObservacao entity) {
         if (entity == null) {
             return null;
         }
 
-        ClienteObservacaoResponseDTO dto = new ClienteObservacaoResponseDTO();
-
-        dto.setId(entity.getId());
-        dto.setEmpresaId(entity.getEmpresaId());
-        dto.setClienteId(entity.getClienteId());
-        dto.setTitulo(entity.getTitulo());
-        dto.setDescricao(entity.getDescricao());
-        dto.setTipo(entity.getTipo());
-        dto.setAtivo(entity.getAtivo());
-        dto.setCriadoEm(entity.getCriadoEm());
-        dto.setAtualizadoEm(entity.getAtualizadoEm());
-
-        return dto;
+        return new ClienteObservacaoResponse(
+                entity.getId(),
+                entity.getEmpresaId(),
+                entity.getClienteId(),
+                entity.getTitulo(),
+                entity.getDescricao(),
+                entity.getTipo(),
+                entity.getAtivo(),
+                entity.getCriadoEm(),
+                entity.getAtualizadoEm()
+        );
     }
 
-    public ClienteObservacao toEntity(ClienteObservacaoRequestDTO request) {
+    public ClienteObservacao toEntity(ClienteObservacaoRequest request) {
         if (request == null) {
             return null;
         }
 
         return ClienteObservacao.builder()
-                .clienteId(request.getClienteId())
-                .titulo(request.getTitulo())
-                .descricao(request.getDescricao())
-                .tipo(request.getTipo())
+                .clienteId(request.clienteId())
+                .titulo(request.titulo())
+                .descricao(request.descricao())
+                .tipo(request.tipo())
                 .build();
     }
 
-    public void updateEntity(ClienteObservacaoRequestDTO request, ClienteObservacao entity) {
+    public void updateEntity(ClienteObservacao entity, ClienteObservacaoRequest request) {
         if (request == null || entity == null) {
             return;
         }
 
-        entity.setTitulo(request.getTitulo());
-        entity.setDescricao(request.getDescricao());
-        entity.setTipo(request.getTipo());
+        entity.setTitulo(request.titulo());
+        entity.setDescricao(request.descricao());
+        entity.setTipo(request.tipo());
     }
 }

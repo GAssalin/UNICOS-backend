@@ -1,7 +1,7 @@
 package br.com.unicos.ms_cliente.controller;
 
-import br.com.unicos.ms_cliente.dto.ClienteObservacaoRequestDTO;
-import br.com.unicos.ms_cliente.dto.ClienteObservacaoResponseDTO;
+import br.com.unicos.ms_cliente.dto.cliente_observacao.ClienteObservacaoRequest;
+import br.com.unicos.ms_cliente.dto.cliente_observacao.ClienteObservacaoResponse;
 import br.com.unicos.ms_cliente.service.ClienteObservacaoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,7 +32,7 @@ public class ClienteObservacaoController {
                     @ApiResponse(
                             responseCode = "201",
                             description = "Observação criada com sucesso",
-                            content = @Content(schema = @Schema(implementation = ClienteObservacaoResponseDTO.class))
+                            content = @Content(schema = @Schema(implementation = ClienteObservacaoResponse.class))
                     ),
                     @ApiResponse(responseCode = "400", description = "Dados inválidos"),
                     @ApiResponse(responseCode = "403", description = "Sem permissão para criar"),
@@ -40,8 +40,8 @@ public class ClienteObservacaoController {
             }
     )
     @PostMapping
-    public ResponseEntity<ClienteObservacaoResponseDTO> criar(
-            @RequestBody @Validated ClienteObservacaoRequestDTO request
+    public ResponseEntity<ClienteObservacaoResponse> criar(
+            @RequestBody @Validated ClienteObservacaoRequest request
     ) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
