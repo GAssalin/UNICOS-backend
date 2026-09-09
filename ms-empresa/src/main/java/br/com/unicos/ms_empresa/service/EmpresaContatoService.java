@@ -4,7 +4,7 @@ import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoResponse;
-import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoResumoResponse;
+import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoListDTO;
 import br.com.unicos.ms_empresa.dto.empresa_contato.EmpresaContatoUpdateRequest;
 import br.com.unicos.ms_empresa.enums.TipoContatoEmpresa;
 import br.com.unicos.ms_empresa.mapper.EmpresaContatoMapper;
@@ -49,7 +49,7 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
         if (request.principal())
             removerContatoPrincipalAtual(TenantContext.getEmpresaId(), id);
 
-        mapper.updateEntity(request, contato);
+        mapper.updateEntity(contato, request);
 
         return mapper.toResponse(repository.save(contato));
     }
@@ -60,15 +60,15 @@ public class EmpresaContatoService extends BaseTenantService<EmpresaContato, Lon
     }
 
     @Transactional(readOnly = true)
-    public Page<EmpresaContatoResumoResponse> listar(Pageable pageable) {
+    public Page<EmpresaContatoListDTO> listar(Pageable pageable) {
         return repository.findByEmpresaId(TenantContext.getEmpresaId(), pageable)
-                .map(mapper::toResumoResponse);
+                .map(mapper::toListDTO);
     }
 
     @Transactional(readOnly = true)
-    public Page<EmpresaContatoResumoResponse> listarPorTipo(TipoContatoEmpresa tipo, Pageable pageable) {
+    public Page<EmpresaContatoListDTO> listarPorTipo(TipoContatoEmpresa tipo, Pageable pageable) {
         return repository.findByTipoContatoAndEmpresaId(tipo, TenantContext.getEmpresaId(), pageable)
-                .map(mapper::toResumoResponse);
+                .map(mapper::toListDTO);
     }
 
     public void remover(Long id) {

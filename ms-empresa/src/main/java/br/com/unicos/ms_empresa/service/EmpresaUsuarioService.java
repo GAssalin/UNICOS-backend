@@ -4,20 +4,17 @@ import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioResponse;
-import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioResumoResponse;
+import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioListDTO;
 import br.com.unicos.ms_empresa.dto.empresa_usuario.EmpresaUsuarioUpdateRequest;
 import br.com.unicos.ms_empresa.enums.PerfilEmpresaUsuario;
 import br.com.unicos.ms_empresa.mapper.EmpresaUsuarioMapper;
 import br.com.unicos.ms_empresa.model.EmpresaUsuario;
 import br.com.unicos.ms_empresa.repository.EmpresaUsuarioRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional
@@ -48,7 +45,7 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
 
         protegerUltimoAdmin(vinculo, request.perfil(), TenantContext.getEmpresaId());
 
-        mapper.updateEntity(request, vinculo);
+        mapper.updateEntity(vinculo, request);
 
         return mapper.toResponse(repository.save(vinculo));
     }
@@ -59,15 +56,15 @@ public class EmpresaUsuarioService extends BaseTenantService<EmpresaUsuario, Lon
     }
 
     @Transactional(readOnly = true)
-    public Page<EmpresaUsuarioResumoResponse> listar(Pageable pageable) {
+    public Page<EmpresaUsuarioListDTO> listar(Pageable pageable) {
         return repository.findByEmpresaId(TenantContext.getEmpresaId(), pageable)
-                .map(mapper::toResumoResponse);
+                .map(mapper::toListDTO);
     }
 
     @Transactional(readOnly = true)
-    public Page<EmpresaUsuarioResumoResponse> listarPorPerfil(PerfilEmpresaUsuario perfil, Pageable pageable) {
+    public Page<EmpresaUsuarioListDTO> listarPorPerfil(PerfilEmpresaUsuario perfil, Pageable pageable) {
         return repository.findByPerfilAndEmpresaId(perfil, TenantContext.getEmpresaId(), pageable)
-                .map(mapper::toResumoResponse);
+                .map(mapper::toListDTO);
     }
 
     public void remover(Long usuarioId) {

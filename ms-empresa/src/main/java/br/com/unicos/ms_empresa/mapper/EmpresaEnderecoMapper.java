@@ -2,12 +2,11 @@ package br.com.unicos.ms_empresa.mapper;
 
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoResponse;
-import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoResumoResponse;
+import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoListDTO;
 import br.com.unicos.ms_empresa.dto.empresa_endereco.EmpresaEnderecoUpdateRequest;
 import br.com.unicos.ms_empresa.model.EmpresaEndereco;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 
 /**
  * Mapper responsável pela conversão entre a entidade {@link EmpresaEndereco}
@@ -59,7 +58,7 @@ public class EmpresaEnderecoMapper {
      * @param request DTO de atualização
      * @param entity entidade a ser atualizada
      */
-    public void updateEntityFromDTO(EmpresaEnderecoUpdateRequest request, EmpresaEndereco entity) {
+    public void updateEntity(EmpresaEndereco entity, EmpresaEnderecoUpdateRequest request) {
         if (request == null || entity == null) {
             return;
         }
@@ -80,7 +79,7 @@ public class EmpresaEnderecoMapper {
      * @param entity entidade de endereço
      * @return DTO detalhado do endereço
      */
-    public EmpresaEnderecoResponse toResponseDTO(EmpresaEndereco entity) {
+    public EmpresaEnderecoResponse toResponse(EmpresaEndereco entity) {
         if (entity == null) {
             return null;
         }
@@ -96,8 +95,8 @@ public class EmpresaEnderecoMapper {
                 entity.getUf(),
                 entity.getCep(),
                 entity.isPrincipal(),
-                mapLocalDateTime(entity.getCriadoEm()),
-                mapLocalDateTime(entity.getAtualizadoEm())
+                entity.getCriadoEm(),
+                entity.getAtualizadoEm()
         );
     }
 
@@ -107,12 +106,12 @@ public class EmpresaEnderecoMapper {
      * @param entity entidade de endereço
      * @return DTO resumido do endereço
      */
-    public EmpresaEnderecoResumoResponse toResumoDTO(EmpresaEndereco entity) {
+    public EmpresaEnderecoListDTO toListDTO(EmpresaEndereco entity) {
         if (entity == null) {
             return null;
         }
 
-        return new EmpresaEnderecoResumoResponse(
+        return new EmpresaEnderecoListDTO(
                 entity.getId(),
                 entity.getTipoEndereco(),
                 entity.getMunicipio(),
@@ -121,23 +120,4 @@ public class EmpresaEnderecoMapper {
         );
     }
 
-    /**
-     * Conversão explícita de {@link LocalDateTime}.
-     *
-     * @param source data/hora de origem
-     * @return data/hora convertida
-     */
-    private LocalDateTime mapLocalDateTime(LocalDateTime source) {
-        return source == null
-                ? null
-                : LocalDateTime.of(
-                source.getYear(),
-                source.getMonthValue(),
-                source.getDayOfMonth(),
-                source.getHour(),
-                source.getMinute(),
-                source.getSecond(),
-                source.getNano()
-        );
-    }
 }

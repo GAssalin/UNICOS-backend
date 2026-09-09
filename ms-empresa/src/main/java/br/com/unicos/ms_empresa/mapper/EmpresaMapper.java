@@ -1,13 +1,12 @@
 package br.com.unicos.ms_empresa.mapper;
 
-import br.com.unicos.ms_empresa.dto.empresa.EmpresaCreateRequestDTO;
-import br.com.unicos.ms_empresa.dto.empresa.EmpresaResponseDTO;
-import br.com.unicos.ms_empresa.dto.empresa.EmpresaResumoDTO;
-import br.com.unicos.ms_empresa.dto.empresa.EmpresaUpdateRequestDTO;
+import br.com.unicos.ms_empresa.dto.empresa.EmpresaCreateRequest;
+import br.com.unicos.ms_empresa.dto.empresa.EmpresaResponse;
+import br.com.unicos.ms_empresa.dto.empresa.EmpresaListDTO;
+import br.com.unicos.ms_empresa.dto.empresa.EmpresaUpdateRequest;
 import br.com.unicos.ms_empresa.model.Empresa;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 
 /**
  * Mapper responsável pela conversão entre a entidade {@link Empresa}
@@ -22,12 +21,12 @@ import java.time.LocalDate;
 @Component
 public class EmpresaMapper {
 
-    public EmpresaResponseDTO toResponseDTO(Empresa entity) {
+    public EmpresaResponse toResponse(Empresa entity) {
         if (entity == null) {
             return null;
         }
 
-        return new EmpresaResponseDTO(
+        return new EmpresaResponse(
                 entity.getId(),
                 null, // REMOVIDO conceito de empresaId
                 entity.getRazaoSocial(),
@@ -36,17 +35,17 @@ public class EmpresaMapper {
                 entity.getTipoEmpresa(),
                 entity.getStatusEmpresa(),
                 entity.getRegimeTributario(),
-                mapLocalDate(entity.getDataAbertura()),
+                entity.getDataAbertura(),
                 entity.getPessoaJuridicaId()
         );
     }
 
-    public EmpresaResumoDTO toResumoDTO(Empresa entity) {
+    public EmpresaListDTO toListDTO(Empresa entity) {
         if (entity == null) {
             return null;
         }
 
-        return new EmpresaResumoDTO(
+        return new EmpresaListDTO(
                 entity.getId(),
                 null, // REMOVIDO conceito de empresaId
                 entity.getRazaoSocial(),
@@ -55,7 +54,7 @@ public class EmpresaMapper {
         );
     }
 
-    public Empresa toEntity(EmpresaCreateRequestDTO request) {
+    public Empresa toEntity(EmpresaCreateRequest request) {
         if (request == null) {
             return null;
         }
@@ -68,13 +67,13 @@ public class EmpresaMapper {
         entity.setTipoEmpresa(request.tipoEmpresa());
         entity.setStatusEmpresa(request.statusEmpresa());
         entity.setRegimeTributario(request.regimeTributario());
-        entity.setDataAbertura(mapLocalDate(request.dataAbertura()));
+        entity.setDataAbertura(request.dataAbertura());
         entity.setPessoaJuridicaId(request.pessoaJuridicaId());
 
         return entity;
     }
 
-    public void updateEntityFromDTO(EmpresaUpdateRequestDTO request, Empresa entity) {
+    public void updateEntity(Empresa entity, EmpresaUpdateRequest request) {
         if (request == null || entity == null) {
             return;
         }
@@ -84,15 +83,8 @@ public class EmpresaMapper {
         entity.setTipoEmpresa(request.tipoEmpresa());
         entity.setStatusEmpresa(request.statusEmpresa());
         entity.setRegimeTributario(request.regimeTributario());
-        entity.setDataAbertura(mapLocalDate(request.dataAbertura()));
+        entity.setDataAbertura(request.dataAbertura());
         entity.setPessoaJuridicaId(request.pessoaJuridicaId());
     }
 
-    private LocalDate mapLocalDate(LocalDate source) {
-        return source == null ? null : LocalDate.of(
-                source.getYear(),
-                source.getMonthValue(),
-                source.getDayOfMonth()
-        );
-    }
 }
