@@ -74,25 +74,25 @@ public class ProdutoRequestFilter extends OncePerRequestFilter {
     private String resolverPermissao(String metodoHttp, String path) {
         String prefixo;
 
-        if (path.startsWith("/v1/produtos/categorias"))
+        if ((path.equals("/v1/produtos/categorias") || path.startsWith("/v1/produtos/categorias/")))
             prefixo = "PRODUTO_CATEGORIA_";
-        else if (path.startsWith("/v1/produtos/marcas-produto"))
+        else if ((path.equals("/v1/produtos/marcas-produto") || path.startsWith("/v1/produtos/marcas-produto/")))
             prefixo = "PRODUTO_MARCAS_PRODUTO_";
-        else if (path.startsWith("/v1/produtos/atributos-valores"))
+        else if ((path.equals("/v1/produtos/atributos-valores") || path.startsWith("/v1/produtos/atributos-valores/")))
             prefixo = "PRODUTO_ATRIBUTOS_VALORES_";
-        else if (path.startsWith("/v1/produtos/atributos"))
+        else if ((path.equals("/v1/produtos/atributos") || path.startsWith("/v1/produtos/atributos/")))
             prefixo = "PRODUTO_ATRIBUTOS_";
-        else if (path.startsWith("/v1/produtos/codigo-barras"))
+        else if ((path.equals("/v1/produtos/codigo-barras") || path.startsWith("/v1/produtos/codigo-barras/")))
             prefixo = "PRODUTO_CODIGO_BARRAS_";
-        else if (path.startsWith("/v1/produtos/imagens"))
+        else if ((path.equals("/v1/produtos/imagens") || path.startsWith("/v1/produtos/imagens/")))
             prefixo = "PRODUTO_IMAGENS_";
-        else if (path.startsWith("/v1/produtos/precos-base"))
+        else if ((path.equals("/v1/produtos/precos-base") || path.startsWith("/v1/produtos/precos-base/")))
             prefixo = "PRODUTO_PRECO_BASE_";
-        else if (path.startsWith("/v1/produtos/tipos"))
+        else if ((path.equals("/v1/produtos/tipos") || path.startsWith("/v1/produtos/tipos/")))
             prefixo = "PRODUTO_TIPOS_";
-        else if (path.startsWith("/v1/produtos/unidades-medida"))
+        else if ((path.equals("/v1/produtos/unidades-medida") || path.startsWith("/v1/produtos/unidades-medida/")))
             prefixo = "PRODUTO_UNIDADE_MEDIDA_";
-        else if (path.startsWith("/v1/produtos"))
+        else if ((path.equals("/v1/produtos") || path.startsWith("/v1/produtos/")))
             prefixo = "PRODUTO_";
         else
             return null;

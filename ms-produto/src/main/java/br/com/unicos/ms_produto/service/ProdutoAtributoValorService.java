@@ -41,7 +41,7 @@ public class ProdutoAtributoValorService extends BaseTenantService<ProdutoAtribu
     public ProdutoAtributoValorResponse atualizar(Long id, ProdutoAtributoValorUpdateRequest request) {
         ProdutoAtributoValor valor = buscarValor(id);
 
-        mapper.updateEntity(request, valor);
+        mapper.updateEntity(valor, request);
 
         return mapper.toResponse(repository.save(valor));
     }

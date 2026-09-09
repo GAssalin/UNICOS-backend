@@ -2,7 +2,7 @@ package br.com.unicos.ms_produto.mapper;
 
 import br.com.unicos.ms_produto.dto.produtoatributo.ProdutoAtributoCreateRequest;
 import br.com.unicos.ms_produto.dto.produtoatributo.ProdutoAtributoResponse;
-import br.com.unicos.ms_produto.dto.produtoatributo.ProdutoAtributoResumoResponse;
+import br.com.unicos.ms_produto.dto.produtoatributo.ProdutoAtributoListDTO;
 import br.com.unicos.ms_produto.dto.produtoatributo.ProdutoAtributoUpdateRequest;
 import br.com.unicos.ms_produto.model.ProdutoAtributo;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ public class ProdutoAtributoMapper {
         return entity;
     }
 
-    public void updateEntity(ProdutoAtributoUpdateRequest request, ProdutoAtributo entity) {
+    public void updateEntity(ProdutoAtributo entity, ProdutoAtributoUpdateRequest request) {
         if (request == null || entity == null)
             return;
 
@@ -46,11 +46,11 @@ public class ProdutoAtributoMapper {
         );
     }
 
-    public ProdutoAtributoResumoResponse toResumoResponse(ProdutoAtributo entity) {
+    public ProdutoAtributoListDTO toListDTO(ProdutoAtributo entity) {
         if (entity == null)
             return null;
 
-        return new ProdutoAtributoResumoResponse(
+        return new ProdutoAtributoListDTO(
                 entity.getId(),
                 entity.getNome(),
                 entity.getAtivo()

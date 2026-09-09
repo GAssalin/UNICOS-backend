@@ -2,7 +2,7 @@ package br.com.unicos.ms_produto.controller;
 
 import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaCreateRequest;
 import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaResponse;
-import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaResumoResponse;
+import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaListDTO;
 import br.com.unicos.ms_produto.dto.unidademedida.UnidadeMedidaUpdateRequest;
 import br.com.unicos.ms_produto.service.UnidadeMedidaService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -146,7 +146,7 @@ public class UnidadeMedidaController {
             }
     )
     @GetMapping
-    public ResponseEntity<Page<UnidadeMedidaResumoResponse>> listar(
+    public ResponseEntity<Page<UnidadeMedidaListDTO>> listar(
             @ParameterObject Pageable pageable
     ) {
         return ResponseEntity.ok(unidadeMedidaService.listar(pageable));
@@ -166,7 +166,7 @@ public class UnidadeMedidaController {
             }
     )
     @GetMapping("/status/{ativo}")
-    public ResponseEntity<Page<UnidadeMedidaResumoResponse>> listarPorAtivo(
+    public ResponseEntity<Page<UnidadeMedidaListDTO>> listarPorAtivo(
             @PathVariable Boolean ativo,
             @ParameterObject Pageable pageable
     ) {

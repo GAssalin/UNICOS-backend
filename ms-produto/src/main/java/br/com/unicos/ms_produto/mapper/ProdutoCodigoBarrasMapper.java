@@ -22,7 +22,7 @@ public class ProdutoCodigoBarrasMapper {
         return entity;
     }
 
-    public void updateEntity(ProdutoCodigoBarrasUpdateRequest request, ProdutoCodigoBarras entity) {
+    public void updateEntity(ProdutoCodigoBarras entity, ProdutoCodigoBarrasUpdateRequest request) {
         if (request == null || entity == null)
             return;
 

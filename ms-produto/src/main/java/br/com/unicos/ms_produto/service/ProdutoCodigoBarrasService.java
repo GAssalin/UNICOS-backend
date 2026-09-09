@@ -48,7 +48,7 @@ public class ProdutoCodigoBarrasService extends BaseTenantService<ProdutoCodigoB
         if (request.principal())
             removerPrincipalAtual(codigo.getProdutoId());
 
-        mapper.updateEntity(request, codigo);
+        mapper.updateEntity(codigo, request);
 
         return mapper.toResponse(repository.save(codigo));
     }
