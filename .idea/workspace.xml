@@ -4,51 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6de8628d-5999-4196-a74f-c27f1ee3a151" name="Changes" comment="Ajustes e melhorias ms-produto">
+    <list default="true" id="6de8628d-5999-4196-a74f-c27f1ee3a151" name="Changes" comment="Ajustes e melhorias ms-cliente">
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/MsClienteApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/MsClienteApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PermissaoClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PermissaoClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PermissaoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PermissaoService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PessoasClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PessoasClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PessoasService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/PessoasService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/UsuarioClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/UsuarioClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/UsuarioService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/client/UsuarioService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/FeignContextInterceptorConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/FeignContextInterceptorConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/JpaAuditingConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/JpaAuditingConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/SpringDocConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/config/SpringDocConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/controller/ClienteCategoriaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/controller/ClienteCategoriaController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/controller/ClienteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/controller/ClienteController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/controller/ClienteObservacaoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/controller/ClienteObservacaoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/enums/StatusCliente.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/enums/StatusCliente.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/enums/TipoObservacaoCliente.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/enums/TipoObservacaoCliente.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/exception/GlobalExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/filter/ClienteRequestFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/filter/ClienteRequestFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteCategoriaMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteCategoriaMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteHistoricoStatusMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteHistoricoStatusMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteObservacaoMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/mapper/ClienteObservacaoMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/Cliente.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/Cliente.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/ClienteCategoria.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/ClienteCategoria.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/ClienteHistoricoStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/ClienteHistoricoStatus.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/ClienteObservacao.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/model/ClienteObservacao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteCategoriaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteCategoriaRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteHistoricoStatusRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteHistoricoStatusRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteObservacaoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteObservacaoRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/repository/ClienteRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/service/ClienteCategoriaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/service/ClienteCategoriaService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/service/ClienteObservacaoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/service/ClienteObservacaoService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/service/ClienteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/java/br/com/unicos/ms_cliente/service/ClienteService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/ms-cliente/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/db/migration/V1__create_ms_cliente_tables.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/db/migration/V2__insert_cliente_categorias.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/db/migration/V3__insert_clientes.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/db/migration/V4__insert_cliente_historico_status.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/db/migration/V5__insert_cliente_observacoes.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/db/migration/common/.gitkeep" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-cliente/src/main/resources/db/migration/local/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose.homolog.yml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.homolog.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose.prod.yml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.prod.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-autenticacao/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ms-autenticacao/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-autenticacao/src/main/java/br/com/unicos/ms_autenticacao/config/JpaAuditingConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-autenticacao/src/main/java/br/com/unicos/ms_autenticacao/config/JpaAuditingConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-autenticacao/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/ms-autenticacao/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,33 +51,33 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.GatewayApplication.executor": "Run",
-    "Application.MsAutenticacaoApplication.executor": "Run",
-    "Application.MsClienteApplication.executor": "Run",
-    "Application.MsEmpresaApplication.executor": "Run",
-    "Application.MsPermissaoApplication.executor": "Run",
-    "Application.MsPessoasApplication.executor": "Run",
-    "Application.MsProdutoApplication.executor": "Run",
-    "Application.ServiceRegistryApplication.executor": "Run",
-    "Maven.ms-autenticacao [clean].executor": "Run",
-    "Maven.ms-autenticacao [install].executor": "Run",
-    "Maven.unicos-core [clean].executor": "Run",
-    "Maven.unicos-core [install].executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "RefactorMain",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/UNICOS-backend/ms-cliente/src/main/resources/db/migration/common",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "project.propCompiler"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.GatewayApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MsAutenticacaoApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MsClienteApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MsEmpresaApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MsPermissaoApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MsPessoasApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MsProdutoApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ServiceRegistryApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.ms-autenticacao [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.ms-autenticacao [install].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.unicos-core [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.unicos-core [install].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;RefactorMain&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/UNICOS-backend/ms-cliente/src/main/resources/db/migration/common&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.propCompiler&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\UNICOS-backend\ms-cliente\src\main\resources\db\migration\common" />
@@ -301,7 +265,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788913211358</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Ajustes e melhorias ms-cliente">
+      <option name="closed" value="true" />
+      <created>1788915886761</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1788915886761</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -309,6 +281,7 @@
     <MESSAGE value="Ajustes e melhorias docker" />
     <MESSAGE value="Ajustes e melhorias ms-empresa" />
     <MESSAGE value="Ajustes e melhorias ms-produto" />
-    <option name="LAST_COMMIT_MESSAGE" value="Ajustes e melhorias ms-produto" />
+    <MESSAGE value="Ajustes e melhorias ms-cliente" />
+    <option name="LAST_COMMIT_MESSAGE" value="Ajustes e melhorias ms-cliente" />
   </component>
 </project>
