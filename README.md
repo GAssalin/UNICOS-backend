@@ -1,133 +1,428 @@
 # UNICOS Backend
 
-Arquivos de raiz adaptados da referência ATCARE para os módulos UNICOS revisados nesta conversa. Use este pacote junto com as versões revisadas de `unicos-core`, `gateway`, `service-registry`, `ms-autenticacao` e `ms-pessoas`.
+Backend do projeto **UNICOS** organizado como um projeto Maven multi-módulo e executável em containers com Docker Compose.
 
-## Aplicação
+A infraestrutura disponibilizada na raiz inclui Service Registry (Eureka), API Gateway, microsserviços, bancos MySQL isolados por domínio e RabbitMQ para mensageria.
 
-Extraia os dez arquivos deste pacote **na raiz do UNICOS-backend**, ao lado das pastas dos serviços. Eles substituem os equivalentes da raiz; faça um commit ou backup antes. Não contém os fontes dos serviços.
+## Estrutura da raiz
 
-O novo `pom.xml` é um agregador: não altere os parents dos POMs filhos para apontarem para ele. Mantém os parents Spring Boot de cada aplicação. A pasta `backend` da imagem não é agregada porque sua função/conteúdo não foi fornecido.
-
-| Arquivo | Função |
+| Arquivo | Responsabilidade |
 |---|---|
-| `.dockerignore` | Exclui ambientes, artefatos de build, ZIPs e metadados do contexto Docker |
-| `.gitignore` | Ignora ambientes reais e `target`; permite versionar `.env.example` |
-| `.env.example` | Modelo sem segredos, com campos obrigatórios vazios |
-| `.env.local` | Ambiente Docker local com credenciais novas geradas para desenvolvimento |
-| `compose.yml` | Serviços, rede, build, dependências e healthchecks |
-| `compose.homolog.yml` | Publicação do gateway e Eureka, em loopback por padrão; serve também para local |
-| `compose.prod.yml` | Perfil Spring prod, restrições de runtime e publicação somente do gateway |
-| `Dockerfile.service` | Build Java 21 com reactor Maven e runtime JRE sem root, com curl para healthchecks |
-| `pom.xml` | Agregador dos módulos revisados e perfil opcional dos demais |
-| `README.md` | Instruções e limites desta adaptação |
+| `.dockerignore` | Exclui metadados, builds, arquivos de ambiente, logs e outros arquivos do contexto de build Docker |
+| `.gitignore` | Ignora arquivos de ambiente reais, artefatos Maven e configurações locais de IDE; permite versionar arquivos `*.example` |
+| `.env.example` | Modelo das variáveis de ambiente necessárias ao projeto |
+| `compose.yml` | Definição principal da infraestrutura, serviços, rede, volumes, bancos e healthchecks |
+| `compose.homolog.yml` | Override para publicar Gateway e Eureka no host |
+| `compose.prod.yml` | Override de produção com perfil `prod`, restrições de runtime e publicação apenas do Gateway |
+| `Dockerfile.service` | Build multi-stage dos serviços Java com Maven/JDK 21 e runtime JRE 21 |
+| `pom.xml` | POM agregador dos módulos Maven |
 
-As credenciais do ATCARE não foram copiadas. Foram retirados Config Server, credenciais Git, caminhos Java/Maven do Windows e variáveis dos serviços exclusivos do ATCARE. RabbitMQ não foi incluído: não há dependência dele nos fontes UNICOS revisados. Se outros módulos o utilizarem, sua infraestrutura deverá ser adicionada após conferir esses fontes.
+## Módulos Maven
 
-## Módulos e alcance
+O `pom.xml` da raiz é um agregador com os seguintes módulos padrão:
 
-| Grupo | Módulos |
-|---|---|
-| Padrão, com fontes já revisados | unicos-core, service-registry, gateway, ms-autenticacao, ms-pessoas |
-| Perfil opcional `complementares` | ms-cliente, ms-empresa, ms-estoque, ms-permissao, ms-produto |
-
-O core é compilado como biblioteca e não tem container. A composição padrão inclui somente um banco: `mysql-pessoas`. A autenticação obtém o usuário via Feign em ms-pessoas e não possui banco próprio.
-
-A composição padrão é uma **base para os módulos revisados**, não a operação completa do backend: ms-permissao é necessário para várias operações de pessoas. Não há geração automática de usuários/roles iniciais. Em um banco novo, Hibernate cria o schema no perfil local, mas não carrega os seeds SQL nem cria automaticamente um usuário para login.
-
-## Executar localmente
-
-Requer Docker Desktop com Compose v2 e acesso aos repositórios de dependências/imagens. Os builds Docker fornecem JDK 21 e Maven, sem exigir instalação deles no host.
-
-O `.env.local` entregue já tem credenciais locais próprias. Ele usa issuer `unicos-local`, access token de 15 minutos e refresh de 10080 minutos (7 dias): são valores propostos para um ambiente novo, não os valores recuperados do Config Server. Todos os emissores/validadores precisam usar os mesmos valores JWT. Para integrar com tokens existentes, use o segredo e issuer reais atuais; trocar esses valores invalida a validação dos tokens antigos.
-
-Na raiz do backend, PowerShell:
-
-```powershell
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local config --quiet
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local up -d --build
+```text
+unicos-core
+service-registry
+gateway
+ms-autenticacao
+ms-pessoas
 ```
 
-O comando `config --quiet` valida sem imprimir segredos. `--env-file` fornece os valores usados para interpolar o Compose. Os serviços revisados recebem somente as variáveis explicitamente declaradas em `environment`; não recebem todo o arquivo.
+Os módulos abaixo são adicionados pelo perfil Maven `complementares`:
 
-| Serviço | Porta interna | Acesso pelo host |
-|---|---|---|
-| gateway | 8082 | http://localhost:8082 |
-| service-registry | 8081 | http://localhost:8081 |
-| ms-autenticacao | 8083 | Via gateway |
-| ms-pessoas | 8085 | Via gateway |
-| mysql-pessoas | 3306 | Rede Docker, sem porta publicada |
+```text
+ms-cliente
+ms-empresa
+ms-estoque
+ms-permissao
+ms-produto
+```
 
-Gateway e Eureka são publicados em `127.0.0.1` por padrão. Para acesso de outra máquina em homologação, ajuste `GATEWAY_BIND_ADDRESS`/`EUREKA_BIND_ADDRESS` conforme o ambiente e sua política de acesso.
+Para compilar todos os módulos complementares:
 
-Login pelo gateway: `POST /ms-autenticacao/v1/autenticacao/login`, com email/senha de usuário existente. Operações protegidas de pessoas usam `/ms-pessoas/...` e JWT válido. A URL do Eureka dentro dos containers usa `service-registry`, não `localhost`.
+```bash
+mvn -Pcomplementares clean verify
+```
+
+Para compilar apenas um módulo e suas dependências do reactor:
+
+```bash
+mvn -Pcomplementares -pl ms-permissao -am clean verify
+```
+
+> O perfil `complementares` é um **perfil Maven**. O `compose.yml` atual não declara `profiles:` do Docker Compose; portanto os serviços complementares fazem parte da composição normalmente e não dependem de `docker compose --profile complementares`.
+
+## Arquitetura da composição
+
+O `compose.yml` define os seguintes componentes.
+
+### Infraestrutura
+
+| Serviço Compose | Tecnologia | Porta interna | Porta publicada pelo Compose base |
+|---|---|---:|---|
+| `service-registry` | Eureka / Spring Boot | `8081` | Não |
+| `gateway` | Spring Cloud Gateway | `8080` | Não |
+| `rabbitmq` | RabbitMQ `4.1-management-alpine` | `5672` / `15672` | Não |
+
+As portas do Gateway e do Eureka são publicadas quando `compose.homolog.yml` é aplicado. Em produção, `compose.prod.yml` publica apenas o Gateway.
+
+### Microsserviços
+
+| Serviço Compose | Módulo usado no build | Porta interna | Banco |
+|---|---|---:|---|
+| `ms-autenticacao` | `ms-autenticacao` | `8080` | `mysql-autenticacao` |
+| `ms-pessoa` | `ms-pessoas` | `8080` | `mysql-pessoa` |
+| `ms-empresa` | `ms-empresa` | `8080` | `mysql-empresa` |
+| `ms-permissao` | `ms-permissao` | `8080` | `mysql-permissao` |
+| `ms-cliente` | `ms-cliente` | `8080` | `mysql-cliente` |
+| `ms-estoque` | `ms-estoque` | `8080` | `mysql-estoque` |
+| `ms-produto` | `ms-produto` | `8080` | `mysql-produto` |
+
+Todos os serviços de aplicação entram na rede Docker `unicos` e recebem a URL interna do Eureka:
+
+```text
+http://service-registry:8081/eureka/
+```
+
+O Gateway aguarda o `service-registry` ficar saudável antes de iniciar. Cada microsserviço aguarda o respectivo MySQL e o Service Registry conforme definido em `depends_on`.
+
+Os serviços `ms-pessoa`, `ms-empresa`, `ms-permissao`, `ms-cliente`, `ms-estoque` e `ms-produto` também recebem configuração de conexão com RabbitMQ usando o hostname interno `rabbitmq` e a porta `5672`.
+
+> Embora RabbitMQ possua healthcheck, os microsserviços não possuem `depends_on` explícito para ele no Compose atual.
+
+## Bancos de dados
+
+A composição utiliza **MySQL 8.4**, com um container e um volume persistente para cada domínio:
+
+| Serviço MySQL | Volume |
+|---|---|
+| `mysql-autenticacao` | `mysql_auth_data` |
+| `mysql-empresa` | `mysql_empresa_data` |
+| `mysql-pessoa` | `mysql_pessoa_data` |
+| `mysql-permissao` | `mysql_permissao_data` |
+| `mysql-cliente` | `mysql_cliente_data` |
+| `mysql-estoque` | `mysql_estoque_data` |
+| `mysql-produto` | `mysql_produto_data` |
+
+Os bancos ficam acessíveis aos microsserviços pela rede Docker e **não possuem portas publicadas no host** nos arquivos fornecidos.
+
+O Compose monta as URLs JDBC diretamente com os nomes dos serviços Docker e a porta `3306`, por exemplo:
+
+```text
+jdbc:mysql://mysql-pessoa:3306/${PESSOA_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+```
+
+### Usuários dos bancos
+
+As variáveis `*_DB_USER` são usadas para criar o usuário no container MySQL. Entretanto, as configurações `SPRING_DATASOURCE_USERNAME` dos microsserviços estão atualmente fixadas como:
+
+```text
+unicos
+```
+
+Por isso, com o Compose atual, mantenha `AUTH_DB_USER`, `EMPRESA_DB_USER`, `PESSOA_DB_USER`, `PERMISSAO_DB_USER`, `CLIENTE_DB_USER`, `ESTOQUE_DB_USER` e `PRODUTO_DB_USER` com o valor `unicos`, ou ajuste o `compose.yml` para utilizar as respectivas variáveis também no datasource.
+
+O `MYSQL_ROOT_PASSWORD` de cada banco utiliza atualmente a mesma variável de senha do usuário da aplicação daquele domínio. Não existe uma variável separada para senha de root nos arquivos atuais.
+
+## Variáveis de ambiente
+
+Use `.env.example` como base para criar o arquivo do ambiente desejado.
+
+Exemplo:
+
+```bash
+cp .env.example .env.local
+```
+
+No PowerShell:
 
 ```powershell
+Copy-Item .env.example .env.local
+```
+
+No mínimo, o Compose principal depende de:
+
+- `ENV_FILE`;
+- `SPRING_PROFILES_ACTIVE`;
+- credenciais do RabbitMQ (`RABBITMQ_USER` e `RABBITMQ_PASSWORD`);
+- nome, usuário e senha de cada banco (`*_DB_NAME`, `*_DB_USER`, `*_DB_PASSWORD`);
+- `UNICOS_JWT_SECRET`, usado explicitamente pelo `ms-autenticacao`.
+
+Como os serviços de aplicação usam:
+
+```yaml
+env_file: ${ENV_FILE}
+```
+
+as demais variáveis presentes no arquivo indicado por `ENV_FILE` também são carregadas no ambiente dos containers de aplicação.
+
+### Variáveis de rede presentes no `.env`
+
+O `.env.example` também define `*_DB_HOST`, `*_DB_PORT`, `RABBITMQ_HOST`, `RABBITMQ_PORT`, `RABBITMQ_MANAGEMENT_PORT` e `EUREKA_URL`. O `compose.yml` atual, entretanto, monta as conexões internas diretamente com os nomes dos serviços Docker (`mysql-*`, `rabbitmq` e `service-registry`). Portanto essas variáveis não são usadas pelo Compose para construir essas conexões, embora continuem disponíveis aos containers via `env_file`.
+
+### Bind do Gateway e Eureka
+
+Os overrides aceitam duas variáveis opcionais que não aparecem atualmente no `.env.example`:
+
+```text
+GATEWAY_BIND_ADDRESS
+EUREKA_BIND_ADDRESS
+```
+
+Quando não informadas, ambas usam `127.0.0.1`.
+
+## Executando localmente
+
+Pré-requisitos:
+
+- Docker com Docker Compose v2;
+- acesso aos repositórios Maven e registries das imagens Docker.
+
+O build dos containers utiliza Maven e Java 21 dentro do próprio Docker, portanto Maven/JDK no host não são necessários para `docker compose ... --build`.
+
+O `.env.local` fornecido aponta `ENV_FILE=.env.local` e utiliza as portas de host:
+
+```text
+Gateway: 8082
+Eureka:  8081
+```
+
+No arquivo atual, `SPRING_PROFILES_ACTIVE` está vazio. Portanto a execução local não ativa explicitamente um profile Spring por meio do Compose. Se a aplicação exigir o profile `local`, configure:
+
+```dotenv
+SPRING_PROFILES_ACTIVE=local
+```
+
+### Validar a composição
+
+```bash
+docker compose \
+  --env-file .env.local \
+  -f compose.yml \
+  -f compose.homolog.yml \
+  -p unicos-local \
+  config --quiet
+```
+
+### Subir o ambiente
+
+```bash
+docker compose \
+  --env-file .env.local \
+  -f compose.yml \
+  -f compose.homolog.yml \
+  -p unicos-local \
+  up -d --build
+```
+
+Com o override de homologação aplicado:
+
+| Componente | Acesso pelo host |
+|---|---|
+| Gateway | `http://localhost:8082` |
+| Eureka | `http://localhost:8081` |
+| Microsserviços | apenas pela rede Docker / Gateway |
+| MySQL | apenas pela rede Docker |
+| RabbitMQ | apenas pela rede Docker |
+
+O `compose.homolog.yml` publica Gateway e Eureka em `127.0.0.1` por padrão.
+
+### Status e logs
+
+```bash
 docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local ps
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local logs -f ms-autenticacao ms-pessoas
+```
+
+```bash
+docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local logs -f
+```
+
+Para acompanhar serviços específicos:
+
+```bash
+docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local logs -f ms-autenticacao ms-pessoa
+```
+
+### Parar o ambiente
+
+```bash
 docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local down
 ```
 
-`down` preserva o volume. Evite acrescentar `-v` se quiser manter os dados. O novo volume `unicos-local_mysql_pessoas_data` não migra ou reutiliza automaticamente bancos dos Compose antigos. Para conservar dados existentes, faça backup/migração ou adapte o volume explicitamente antes do primeiro uso. Alterar as credenciais no arquivo não altera usuários de um MySQL já inicializado.
+O comando acima preserva os volumes. Para remover também os dados persistidos:
 
-## Banco e perfis
-
-O Compose constrói `PESSOA_DB_URL` a partir de `PESSOA_DB_NAME` e usa o mesmo nome ao inicializar o MySQL. Usuário da aplicação e senha root são separados. O healthcheck realiza uma consulta autenticada no banco da aplicação.
-
-- `local`: o ms-pessoas revisado usa Hibernate `update` e Flyway desligado.
-- `homolog`: o ms-pessoas revisado usa o padrão `validate` e Flyway desligado; exige schema existente.
-- `prod`: o override força Hibernate `validate` e Flyway desligado; exige schema existente.
-
-As migrations UNICOS existentes estão diretamente em `db/migration`; não foi copiada a organização `common/local/homolog/prod` do ATCARE. Planeje a evolução e inicialização do schema antes de subir homolog/prod. Esse Compose não aplica seeds nem transforma automaticamente o banco de desenvolvimento em produção.
-
-Para homologação, preencha um novo `.env.homolog` baseado no exemplo, com `SPRING_PROFILES_ACTIVE=homolog`, e utilize `-p unicos-homolog`. Isso cria uma composição e volume separados.
-
-## Perfil complementares — templates a conferir
-
-Os cinco serviços extras existem na estrutura mostrada, mas seus fontes e configurações ainda não foram enviados. O Compose fornece templates de build/rede/Eureka/JWT com porta interna 8080; **não presume banco, mensageria ou variáveis de domínio desses módulos**.
-
-Antes de ativar:
-
-1. Disponibilize as cinco pastas e POMs na raiz. O perfil Maven agrega todas elas, mesmo quando o build seleciona um serviço.
-2. Migre cada módulo para configuração local, removendo efetivamente Config Client/imports. Este pacote não altera esses fontes nem desativa a dependência por atalhos de ambiente.
-3. Configure `CLIENTE_ENV_FILE`, `EMPRESA_ENV_FILE`, `ESTOQUE_ENV_FILE`, `PERMISSAO_ENV_FILE` e `PRODUTO_ENV_FILE` para arquivos específicos de cada serviço. O valor `.env.local` é apenas um ponto de partida local, sem as configurações desconhecidas.
-4. Informe nesses arquivos as variáveis consumidas pelo módulo, conexões de banco e mensageria. Bancos/filas adicionais precisam existir em destinos alcançáveis pela rede Docker ou ser adicionados ao Compose.
-5. Confira Actuator `/actuator/health` acessível na porta interna 8080, dependências entre serviços e contratos de segurança. O template atualmente aguarda somente Eureka.
-
-Após esses ajustes:
-
-```powershell
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml --profile complementares -p unicos-local config --quiet
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml --profile complementares -p unicos-local up -d --build
+```bash
+docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local down -v
 ```
 
-O Compose passa `MAVEN_PROFILES=complementares` ao build desses serviços. No Maven do host, o equivalente é `mvn -Pcomplementares -pl ms-permissao -am clean verify`.
+> `down -v` remove os volumes nomeados da composição e deve ser usado somente quando a perda dos dados for intencional.
+
+## Homologação
+
+O `compose.homolog.yml` é um override pequeno: ele apenas publica no host as portas do Gateway e do Service Registry.
+
+Crie um arquivo `.env.homolog` baseado no `.env.example` e configure, entre outras variáveis:
+
+```dotenv
+ENV_FILE=.env.homolog
+SPRING_PROFILES_ACTIVE=homolog
+```
+
+Validação:
+
+```bash
+docker compose \
+  --env-file .env.homolog \
+  -f compose.yml \
+  -f compose.homolog.yml \
+  -p unicos-homolog \
+  config --quiet
+```
+
+Inicialização:
+
+```bash
+docker compose \
+  --env-file .env.homolog \
+  -f compose.yml \
+  -f compose.homolog.yml \
+  -p unicos-homolog \
+  up -d --build
+```
+
+Para aceitar conexões de outras máquinas, configure conscientemente os binds, por exemplo `GATEWAY_BIND_ADDRESS` e `EUREKA_BIND_ADDRESS`, de acordo com a política de rede do ambiente.
 
 ## Produção
 
-Use `.env.prod` próprio, com credenciais reais, issuer correto, `SPRING_PROFILES_ACTIVE=prod` e schema preparado. Não reutilize os segredos de desenvolvimento. Se utilizar complementares, configure arquivos de ambiente específicos desse ambiente.
+Use um arquivo `.env.prod` próprio e nunca reutilize segredos do ambiente local.
 
-```powershell
-docker compose --env-file .env.prod -f compose.yml -f compose.prod.yml -p unicos-prod config --quiet
+O `compose.prod.yml`:
+
+- força `SPRING_PROFILES_ACTIVE=prod` nos serviços de aplicação definidos no override;
+- deixa o filesystem desses containers como somente leitura;
+- cria `/tmp` como `tmpfs`;
+- habilita `no-new-privileges`;
+- limita cada aplicação a `768M` e `1.0` CPU, com reserva de `256M` de memória;
+- configura rotação de logs `json-file` (`10m`, 3 arquivos);
+- publica somente o Gateway no host;
+- força `SPRING_JPA_HIBERNATE_DDL_AUTO=validate` e `SPRING_FLYWAY_ENABLED=false` especificamente em `ms-pessoa`.
+
+Valide a composição antes de subir:
+
+```bash
+docker compose \
+  --env-file .env.prod \
+  -f compose.yml \
+  -f compose.prod.yml \
+  -p unicos-prod \
+  config --quiet
 ```
 
-Após validação no seu ambiente, a inicialização segue com `up -d --build` nos mesmos arquivos. Acrescente `--profile complementares` somente após revisar os módulos extras. Não combine `compose.homolog.yml` com `compose.prod.yml`: a publicação do Eureka do primeiro poderia permanecer no resultado.
+Depois:
 
-O override usa filesystem somente leitura, `/tmp` temporário, limites de recursos e logs rotacionados para as aplicações. MySQL preserva seu volume gravável. Somente gateway publica porta e o bind padrão é loopback, para acesso por proxy no host. Proxy/TLS, backup e monitoramento não são provisionados por estes arquivos.
-
-Este override é uma configuração de infraestrutura, **não uma certificação de prontidão para produção**. Os fontes revisados de ms-pessoas ainda confiam em headers de identidade e liberam endpoints internos; essas pendências já foram identificadas no guia anterior e exigem correção coordenada. Healthchecks saudáveis também não garantem que todos os fluxos e serviços dependentes estejam disponíveis.
-
-## Build e validação
-
-O Dockerfile usa o POM agregador, `-pl SERVICO -am`, para compilar o serviço e seus cores no mesmo reactor. O POM não redefine versões dos filhos. As versões Spring Boot dos módulos ainda não foram unificadas. O empacotamento Docker pula testes; execute `clean verify` separadamente com JDK 21 antes de implantar.
-
-Exemplo usando o wrapper existente, na raiz:
-
-```powershell
-.\unicos-core\mvnw.cmd -f pom.xml -pl ms-autenticacao -am clean verify
+```bash
+docker compose \
+  --env-file .env.prod \
+  -f compose.yml \
+  -f compose.prod.yml \
+  -p unicos-prod \
+  up -d --build
 ```
 
-Se os fontes dependem de outros artefatos privados fora do reactor, configure o acesso Maven apropriadamente. Credenciais dos arquivos de ambiente não são copiadas para a imagem, e este Dockerfile não incorpora tokens Git/GitHub.
+Não combine `compose.homolog.yml` e `compose.prod.yml` sem intenção explícita, pois o override de homologação publica também o Service Registry.
 
-Validação feita nesta entrega: parsing XML/YAML, módulos padrão contra os diretórios revisados, interpolação estática das variáveis com `.env.local`, referências de rede/volume/dependências, portas dos healthchecks e conteúdo do ZIP. **Não foi executado `docker compose config`, build Docker nem inicialização**, pois Docker/Compose não está instalado neste ambiente. Os builds Java dos serviços também continuam pendentes, conforme as entregas anteriores.
+> Os arquivos fornecidos não configuram proxy reverso, TLS, backups, observabilidade externa ou política de exposição pública. Esses itens devem ser tratados pela infraestrutura do ambiente.
 
-Referências: [variáveis e interpolação do Compose](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/) e [perfis opcionais](https://docs.docker.com/compose/how-tos/profiles/).
+## Build Docker
+
+`Dockerfile.service` utiliza build multi-stage:
+
+1. `maven:3.9.9-eclipse-temurin-21` para compilar;
+2. `eclipse-temurin:21-jre-alpine` para executar a aplicação.
+
+O build recebe:
+
+```text
+SERVICE_NAME
+MAVEN_PROFILES
+```
+
+e executa, conceitualmente:
+
+```bash
+mvn -B -ntp [-Pperfil] -pl "$SERVICE_NAME" -am clean package -DskipTests
+```
+
+A imagem final instala `curl` para os healthchecks e executa a aplicação com um usuário não-root chamado `spring`.
+
+O `SERVICE_NAME` é validado pelo Dockerfile e deve ser um dos módulos de aplicação suportados.
+
+## Healthchecks
+
+As aplicações expõem healthcheck via Actuator:
+
+```text
+/actuator/health
+```
+
+- `service-registry`: `http://localhost:8081/actuator/health` dentro do container;
+- demais aplicações: `http://localhost:8080/actuator/health` dentro do container;
+- MySQL: `mysqladmin ping`;
+- RabbitMQ: `rabbitmq-diagnostics -q ping`.
+
+O Compose também configura a exposição dos endpoints Actuator:
+
+```text
+health,info,prometheus
+```
+
+## Persistência
+
+Os dados de MySQL e RabbitMQ ficam em volumes Docker nomeados. O nome final dos volumes no host normalmente recebe o prefixo do projeto informado por `-p`, por exemplo:
+
+```text
+unicos-local_mysql_pessoa_data
+unicos-local_rabbitmq_data
+```
+
+Trocar o nome do projeto (`-p`) cria outro conjunto lógico de recursos e volumes.
+
+## Segurança e arquivos locais
+
+`.gitignore` ignora `.env` e `.env.*`, mantendo versionáveis apenas `.env.example` e arquivos no formato `.env.*.example`.
+
+`.dockerignore` também exclui arquivos `.env*` do contexto de build, além de `target`, metadados de IDE, logs, ZIPs e READMEs.
+
+Não versione credenciais ou tokens reais. O `.env.local` fornecido contém valores de desenvolvimento e deve permanecer restrito ao ambiente local.
+
+### Atenções sobre os arquivos atuais
+
+1. `SPRING_PROFILES_ACTIVE` está vazio no `.env.local`; nenhum profile Spring local é ativado explicitamente.
+2. Não há `profiles:` de Docker Compose. O perfil `complementares` existente é Maven, não Compose.
+3. RabbitMQ existe na composição, porém suas portas não são publicadas no host.
+4. Os bancos são separados por domínio e todos são definidos no `compose.yml`.
+5. `SPRING_DATASOURCE_USERNAME` está fixado como `unicos`; mantenha os `*_DB_USER` consistentes ou ajuste o Compose.
+6. O usuário root de cada MySQL reutiliza a senha do usuário da aplicação.
+7. `RABBITMQ_HOST`, `RABBITMQ_PORT`, `RABBITMQ_MANAGEMENT_PORT`, `*_DB_HOST`, `*_DB_PORT` e `EUREKA_URL` existem nos arquivos de ambiente, mas não são usados pelo Compose para montar as conexões internas atuais.
+8. As variáveis Windows (`JAVA_HOME`, `MAVEN_HOME`, `OS`, `TEMP`, etc.) presentes no `.env.local` são carregadas nos containers de aplicação por causa de `env_file`; elas não são necessárias para o build Docker e podem ser removidas do arquivo de runtime se não forem utilizadas pela aplicação.
+
+## Validação dos arquivos
+
+Os arquivos YAML e o `pom.xml` podem ser validados estaticamente antes da execução. A validação efetiva do merge dos arquivos Compose deve ser feita no ambiente com Docker Compose instalado:
+
+```bash
+docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml config --quiet
+```
+
+Para validar o build Java fora do Docker, com JDK 21 e Maven instalados:
+
+```bash
+mvn clean verify
+```
+
+ou, incluindo os módulos complementares:
+
+```bash
+mvn -Pcomplementares clean verify
+```
