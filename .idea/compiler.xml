@@ -25,15 +25,15 @@
         <module name="core-base" />
         <module name="core-tenant" />
       </profile>
-      <profile name="Annotation profile for UNICOS :: MS-Cliente" enabled="true">
+      <profile name="Annotation profile for UNICOS :: MS-Autenticacao" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
         </processorPath>
-        <module name="ms-cliente" />
         <module name="ms-autenticacao" />
+        <module name="ms-cliente" />
         <module name="ms-pessoas" />
         <module name="ms-permissao" />
         <module name="ms-produto" />

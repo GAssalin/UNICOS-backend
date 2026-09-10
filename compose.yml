@@ -139,44 +139,44 @@ services:
   ms-autenticacao:
     <<: *app
     build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-autenticacao } }
-    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-autenticacao:3306/unicos_ms_autenticacao?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${AUTH_DB_PASSWORD:?defina AUTH_DB_PASSWORD}", JWT_SECRET: "${UNICOS_JWT_SECRET:?defina UNICOS_JWT_SECRET}" }
+    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-autenticacao:3306/${AUTH_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${AUTH_DB_PASSWORD:?defina AUTH_DB_PASSWORD}", JWT_SECRET: "${UNICOS_JWT_SECRET:?defina UNICOS_JWT_SECRET}" }
     depends_on: { service-registry: { condition: service_healthy }, mysql-autenticacao: { condition: service_healthy } }
   ms-empresa:
     <<: *app
-    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-empresa } }
-    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-empresa:3306/unicos_ms_at?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${AT_DB_PASSWORD:?defina AT_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
+    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-empresa, MAVEN_PROFILES: complementares } }
+    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-empresa:3306/${EMPRESA_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${EMPRESA_DB_PASSWORD:?defina EMPRESA_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
     depends_on: { service-registry: { condition: service_healthy }, mysql-empresa: { condition: service_healthy } }
   ms-pessoa:
     <<: *app
-    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-pessoa } }
-    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-pessoa:3306/unicos_ms_pessoa?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${PESSOA_DB_PASSWORD:?defina PESSOA_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
+    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-pessoas } }
+    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-pessoa:3306/${PESSOA_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${PESSOA_DB_PASSWORD:?defina PESSOA_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
     depends_on: { service-registry: { condition: service_healthy }, mysql-pessoa: { condition: service_healthy } }
   ms-permissao:
     <<: *app
-    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-permissao } }
-    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-permissao:3306/unicos_ms_permissao?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${PERMISSAO_DB_PASSWORD:?defina PERMISSAO_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
+    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-permissao, MAVEN_PROFILES: complementares } }
+    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-permissao:3306/${PERMISSAO_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${PERMISSAO_DB_PASSWORD:?defina PERMISSAO_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
     depends_on: { service-registry: { condition: service_healthy }, mysql-permissao: { condition: service_healthy } }
   ms-cliente:
     <<: *app
-    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-cliente } }
-    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-cliente:3306/unicos_ms_cliente?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${CLIENTE_DB_PASSWORD:?defina CLIENTE_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
+    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-cliente, MAVEN_PROFILES: complementares } }
+    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-cliente:3306/${CLIENTE_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${CLIENTE_DB_PASSWORD:?defina CLIENTE_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
     depends_on: { service-registry: { condition: service_healthy }, mysql-cliente: { condition: service_healthy } }
   ms-estoque:
     <<: *app
-    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-estoque } }
-    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-estoque:3306/unicos_ms_estoque?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${ESTOQUE_DB_PASSWORD:?defina ESTOQUE_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
+    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-estoque, MAVEN_PROFILES: complementares } }
+    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-estoque:3306/${ESTOQUE_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${ESTOQUE_DB_PASSWORD:?defina ESTOQUE_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
     depends_on: { service-registry: { condition: service_healthy }, mysql-estoque: { condition: service_healthy } }
   ms-produto:
     <<: *app
-    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-produto } }
-    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-produto:3306/unicos_ms_produto?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${PRODUTO_DB_PASSWORD:?defina PRODUTO_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
+    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-produto, MAVEN_PROFILES: complementares } }
+    environment: { <<: *common-env, SERVER_PORT: 8080, SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-produto:3306/${PRODUTO_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", SPRING_DATASOURCE_USERNAME: unicos, SPRING_DATASOURCE_PASSWORD: "${PRODUTO_DB_PASSWORD:?defina PRODUTO_DB_PASSWORD}", SPRING_RABBITMQ_HOST: rabbitmq, SPRING_RABBITMQ_PORT: 5672, SPRING_RABBITMQ_USERNAME: "${RABBITMQ_USER:?defina RABBITMQ_USER}", SPRING_RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD}" }
     depends_on: { service-registry: { condition: service_healthy }, mysql-produto: { condition: service_healthy } }
 
 networks:
   unicos: { driver: bridge }
 volumes:
   rabbitmq_data:
-  mysql_autenticacao_data:
+  mysql_auth_data:
   mysql_empresa_data:
   mysql_pessoa_data:
   mysql_permissao_data:

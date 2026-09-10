@@ -40,7 +40,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
     ports:
-    - ${GATEWAY_BIND_ADDRESS:-127.0.0.1}:${GATEWAY_PORT:-8082}:8082
+    - ${GATEWAY_BIND_ADDRESS:-127.0.0.1}:${GATEWAY_PORT:-8082}:8080
   ms-autenticacao:
     read_only: true
     tmpfs:
@@ -61,7 +61,7 @@ services:
           memory: 256M
     environment:
       SPRING_PROFILES_ACTIVE: prod
-  ms-pessoas:
+  ms-pessoa:
     read_only: true
     tmpfs:
     - /tmp
