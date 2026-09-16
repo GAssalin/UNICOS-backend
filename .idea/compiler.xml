@@ -10,7 +10,7 @@
         <module name="gateway" />
         <module name="service-registry" />
       </profile>
-      <profile name="Annotation profile for UNICOS :: Core Modules" enabled="true">
+      <profile name="Annotation profile for UNICOS :: MS-Estoque" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -25,18 +25,19 @@
         <module name="core-base" />
         <module name="core-tenant" />
       </profile>
-      <profile name="Annotation profile for UNICOS :: MS-Autenticacao" enabled="true">
+      <profile name="Annotation profile for UNICOS :: MS-Funcionario" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
         </processorPath>
-        <module name="ms-autenticacao" />
-        <module name="ms-cliente" />
+        <module name="ms-funcionario" />
         <module name="ms-pessoas" />
+        <module name="ms-cliente" />
         <module name="ms-permissao" />
         <module name="ms-produto" />
+        <module name="ms-autenticacao" />
         <module name="ms-empresa" />
       </profile>
     </annotationProcessing>
@@ -52,6 +53,7 @@
       <module name="ms-cliente" options="-parameters" />
       <module name="ms-empresa" options="-parameters" />
       <module name="ms-estoque" options="-parameters" />
+      <module name="ms-funcionario" options="-parameters" />
       <module name="ms-permissao" options="-parameters" />
       <module name="ms-pessoas" options="-parameters" />
       <module name="ms-produto" options="-parameters" />

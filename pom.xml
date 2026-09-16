@@ -11,21 +11,16 @@
     <description>Agregador dos modulos UNICOS; cada aplicacao preserva seu parent Spring Boot.</description>
     <modules>
         <module>unicos-core</module>
+
         <module>service-registry</module>
         <module>gateway</module>
+
         <module>ms-autenticacao</module>
         <module>ms-pessoas</module>
+        <module>ms-cliente</module>
+        <module>ms-empresa</module>
+        <module>ms-estoque</module>
+        <module>ms-permissao</module>
+        <module>ms-produto</module>
     </modules>
-    <profiles>
-        <profile>
-            <id>complementares</id>
-            <modules>
-                <module>ms-cliente</module>
-                <module>ms-empresa</module>
-                <module>ms-estoque</module>
-                <module>ms-permissao</module>
-                <module>ms-produto</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>
