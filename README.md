@@ -132,13 +132,13 @@ Use `.env.example` como base para criar o arquivo do ambiente desejado.
 Exemplo:
 
 ```bash
-cp .env.example .env.local
+cp .env.example .env.docker.local
 ```
 
 No PowerShell:
 
 ```powershell
-Copy-Item .env.example .env.local
+Copy-Item .env.example .env.docker.local
 ```
 
 No mínimo, o Compose principal depende de:
@@ -178,10 +178,11 @@ Pré-requisitos:
 
 - Docker com Docker Compose v2;
 - acesso aos repositórios Maven e registries das imagens Docker.
+- Arquivo .env.docker.local presente na mesma hierarquia de pastas do projeto.
 
 O build dos containers utiliza Maven e Java 21 dentro do próprio Docker, portanto Maven/JDK no host não são necessários para `docker compose ... --build`.
 
-O `.env.local` fornecido aponta `ENV_FILE=.env.local` e utiliza as portas de host:
+O `.env.docker.local` fornecido aponta `ENV_FILE=.env.docker.local` e utiliza as portas de host:
 
 ```text
 Gateway: 8082
@@ -198,7 +199,7 @@ SPRING_PROFILES_ACTIVE=local
 
 ```bash
 docker compose \
-  --env-file .env.local \
+  --env-file .env.docker.local \
   -f compose.yml \
   -f compose.homolog.yml \
   -p unicos-local \
@@ -209,7 +210,7 @@ docker compose \
 
 ```bash
 docker compose \
-  --env-file .env.local \
+  --env-file .env.docker.local \
   -f compose.yml \
   -f compose.homolog.yml \
   -p unicos-local \
@@ -231,29 +232,29 @@ O `compose.homolog.yml` publica Gateway e Eureka em `127.0.0.1` por padrão.
 ### Status e logs
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local ps
+docker compose --env-file .env.docker.local -f compose.yml -f compose.homolog.yml -p unicos-local ps
 ```
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local logs -f
+docker compose --env-file .env.docker.local -f compose.yml -f compose.homolog.yml -p unicos-local logs -f
 ```
 
 Para acompanhar serviços específicos:
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local logs -f ms-autenticacao ms-pessoa
+docker compose --env-file .env.docker.local -f compose.yml -f compose.homolog.yml -p unicos-local logs -f ms-autenticacao ms-pessoa
 ```
 
 ### Parar o ambiente
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local down
+docker compose --env-file .env.docker.local -f compose.yml -f compose.homolog.yml -p unicos-local down
 ```
 
 O comando acima preserva os volumes. Para remover também os dados persistidos:
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local down -v
+docker compose --env-file .env.docker.local -f compose.yml -f compose.homolog.yml -p unicos-local down -v
 ```
 
 > `down -v` remove os volumes nomeados da composição e deve ser usado somente quando a perda dos dados for intencional.
@@ -394,25 +395,25 @@ Trocar o nome do projeto (`-p`) cria outro conjunto lógico de recursos e volume
 
 `.dockerignore` também exclui arquivos `.env*` do contexto de build, além de `target`, metadados de IDE, logs, ZIPs e READMEs.
 
-Não versione credenciais ou tokens reais. O `.env.local` fornecido contém valores de desenvolvimento e deve permanecer restrito ao ambiente local.
+Não versione credenciais ou tokens reais. O `.env.docker.local` fornecido contém valores de desenvolvimento e deve permanecer restrito ao ambiente local.
 
 ### Atenções sobre os arquivos atuais
 
-1. `SPRING_PROFILES_ACTIVE` está vazio no `.env.local`; nenhum profile Spring local é ativado explicitamente.
+1. `SPRING_PROFILES_ACTIVE` está vazio no `.env.docker.local`; nenhum profile Spring local é ativado explicitamente.
 2. Não há `profiles:` de Docker Compose. O perfil `complementares` existente é Maven, não Compose.
 3. RabbitMQ existe na composição, porém suas portas não são publicadas no host.
 4. Os bancos são separados por domínio e todos são definidos no `compose.yml`.
 5. `SPRING_DATASOURCE_USERNAME` está fixado como `unicos`; mantenha os `*_DB_USER` consistentes ou ajuste o Compose.
 6. O usuário root de cada MySQL reutiliza a senha do usuário da aplicação.
 7. `RABBITMQ_HOST`, `RABBITMQ_PORT`, `RABBITMQ_MANAGEMENT_PORT`, `*_DB_HOST`, `*_DB_PORT` e `EUREKA_URL` existem nos arquivos de ambiente, mas não são usados pelo Compose para montar as conexões internas atuais.
-8. As variáveis Windows (`JAVA_HOME`, `MAVEN_HOME`, `OS`, `TEMP`, etc.) presentes no `.env.local` são carregadas nos containers de aplicação por causa de `env_file`; elas não são necessárias para o build Docker e podem ser removidas do arquivo de runtime se não forem utilizadas pela aplicação.
+8. As variáveis Windows (`JAVA_HOME`, `MAVEN_HOME`, `OS`, `TEMP`, etc.) presentes no `.env.docker.local` são carregadas nos containers de aplicação por causa de `env_file`; elas não são necessárias para o build Docker e podem ser removidas do arquivo de runtime se não forem utilizadas pela aplicação.
 
 ## Validação dos arquivos
 
 Os arquivos YAML e o `pom.xml` podem ser validados estaticamente antes da execução. A validação efetiva do merge dos arquivos Compose deve ser feita no ambiente com Docker Compose instalado:
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml config --quiet
+docker compose --env-file .env.docker.local -f compose.yml -f compose.homolog.yml config --quiet
 ```
 
 Para validar o build Java fora do Docker, com JDK 21 e Maven instalados:
