@@ -6,7 +6,7 @@ WORKDIR /workspace
 COPY . .
 RUN --mount=type=cache,target=/root/.m2 \
     set -eu; \
-    case "$SERVICE_NAME" in service-registry|gateway|ms-autenticacao|ms-pessoas|ms-cliente|ms-empresa|ms-estoque|ms-permissao|ms-produto) ;; *) exit 2 ;; esac; \
+    case "$SERVICE_NAME" in service-registry|gateway|ms-autenticacao|ms-pessoas|ms-cliente|ms-empresa|ms-permissao|ms-produto) ;; *) exit 2 ;; esac; \
     set --; \
     if [ -n "$MAVEN_PROFILES" ]; then set -- "-P$MAVEN_PROFILES"; fi; \
     mvn -B -ntp "$@" -pl "$SERVICE_NAME" -am clean package -DskipTests; \

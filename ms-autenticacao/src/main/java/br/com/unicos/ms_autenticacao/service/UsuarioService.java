@@ -1,7 +1,7 @@
 package br.com.unicos.ms_autenticacao.service;
 
 import br.com.unicos.core.usuario.dto.UsuarioAuthResponse;
-import br.com.unicos.ms_autenticacao.client.UsuarioClient;
+import br.com.unicos.ms_autenticacao.client.PessoaClient;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +14,11 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 @RequiredArgsConstructor
 public class UsuarioService {
-    private final UsuarioClient usuarioClient;
+    private final PessoaClient pessoaClient;
 
     @CircuitBreaker(name = "ms-pessoas", fallbackMethod = "fallbackBuscarUsuarioPorEmail")
     public UsuarioAuthResponse buscarUsuarioPorEmail(String email) {
-        return usuarioClient.buscarPorEmail(email);
+        return pessoaClient.buscarPorEmail(email);
     }
 
     private UsuarioAuthResponse fallbackBuscarUsuarioPorEmail(String email, Throwable ex) {

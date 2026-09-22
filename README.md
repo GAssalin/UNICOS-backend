@@ -231,29 +231,29 @@ O `compose.homolog.yml` publica Gateway e Eureka em `127.0.0.1` por padrão.
 ### Status e logs
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local ps
+docker compose --env-file .env.local -f compose.yml -p unicos-local ps
 ```
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local logs -f
+docker compose --env-file .env.local -f compose.yml -p unicos-local logs -f
 ```
 
 Para acompanhar serviços específicos:
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local logs -f ms-autenticacao ms-pessoa
+docker compose --env-file .env.local -f compose.yml -p unicos-local logs -f ms-autenticacao ms-pessoa
 ```
 
 ### Parar o ambiente
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local down
+docker compose --env-file .env.local -f compose.yml -p unicos-local down
 ```
 
 O comando acima preserva os volumes. Para remover também os dados persistidos:
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml -p unicos-local down -v
+docker compose --env-file .env.local -f compose.yml -p unicos-local down -v
 ```
 
 > `down -v` remove os volumes nomeados da composição e deve ser usado somente quando a perda dos dados for intencional.
@@ -412,7 +412,7 @@ Não versione credenciais ou tokens reais. O `.env.local` fornecido contém valo
 Os arquivos YAML e o `pom.xml` podem ser validados estaticamente antes da execução. A validação efetiva do merge dos arquivos Compose deve ser feita no ambiente com Docker Compose instalado:
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -f compose.homolog.yml config --quiet
+docker compose --env-file .env.docker.local -f compose.yml config --quiet
 ```
 
 Para validar o build Java fora do Docker, com JDK 21 e Maven instalados:
