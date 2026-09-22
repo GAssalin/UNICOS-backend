@@ -132,13 +132,13 @@ Use `.env.example` como base para criar o arquivo do ambiente desejado.
 Exemplo:
 
 ```bash
-cp .env.example .env.local
+cp .env.example .env.docker.local
 ```
 
 No PowerShell:
 
 ```powershell
-Copy-Item .env.example .env.local
+Copy-Item .env.example .env.docker.local
 ```
 
 No mínimo, o Compose principal depende de:
@@ -178,10 +178,11 @@ Pré-requisitos:
 
 - Docker com Docker Compose v2;
 - acesso aos repositórios Maven e registries das imagens Docker.
+- Arquivo .env.docker.local presente na mesma hierarquia de pastas do projeto.
 
 O build dos containers utiliza Maven e Java 21 dentro do próprio Docker, portanto Maven/JDK no host não são necessários para `docker compose ... --build`.
 
-O `.env.local` fornecido aponta `ENV_FILE=.env.local` e utiliza as portas de host:
+O `.env.docker.local` fornecido aponta `ENV_FILE=.env.docker.local` e utiliza as portas de host:
 
 ```text
 Gateway: 8082
@@ -198,9 +199,8 @@ SPRING_PROFILES_ACTIVE=local
 
 ```bash
 docker compose \
-  --env-file .env.local \
+  --env-file .env.docker.local \
   -f compose.yml \
-  -f compose.homolog.yml \
   -p unicos-local \
   config --quiet
 ```
@@ -209,9 +209,8 @@ docker compose \
 
 ```bash
 docker compose \
-  --env-file .env.local \
+  --env-file .env.docker.local \
   -f compose.yml \
-  -f compose.homolog.yml \
   -p unicos-local \
   up -d --build
 ```
@@ -231,11 +230,11 @@ O `compose.homolog.yml` publica Gateway e Eureka em `127.0.0.1` por padrão.
 ### Status e logs
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -p unicos-local ps
+docker compose --env-file .env.docker.local -f compose.yml -p unicos-local ps
 ```
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -p unicos-local logs -f
+docker compose --env-file .env.docker.local -f compose.yml -p unicos-local logs -f
 ```
 
 Para acompanhar serviços específicos:
@@ -275,7 +274,7 @@ Validação:
 docker compose \
   --env-file .env.homolog \
   -f compose.yml \
-  -f compose.homolog.yml \
+  \
   -p unicos-homolog \
   config --quiet
 ```
@@ -286,7 +285,7 @@ Inicialização:
 docker compose \
   --env-file .env.homolog \
   -f compose.yml \
-  -f compose.homolog.yml \
+  \
   -p unicos-homolog \
   up -d --build
 ```
@@ -412,7 +411,8 @@ Não versione credenciais ou tokens reais. O `.env.local` fornecido contém valo
 Os arquivos YAML e o `pom.xml` podem ser validados estaticamente antes da execução. A validação efetiva do merge dos arquivos Compose deve ser feita no ambiente com Docker Compose instalado:
 
 ```bash
-docker compose --env-file .env.docker.local -f compose.yml config --quiet
+docker compose --env-file .env.local -f compose.yml config --quiet
+docker compose --env-file .env.docker.local -f compose.yml -p unicos-local logs -f ms-autenticacao ms-pessoa
 ```
 
 Para validar o build Java fora do Docker, com JDK 21 e Maven instalados:
