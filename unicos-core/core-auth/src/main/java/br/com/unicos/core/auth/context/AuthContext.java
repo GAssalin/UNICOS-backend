@@ -28,10 +28,10 @@ public final class AuthContext {
     }
 
     public static String getToken() {
-        String usuarioId = TOKEN.get();
-        if (usuarioId == null)
+        String token = TOKEN.get();
+        if (token == null)
             throw new TokenNotDefinedException();
-        return usuarioId;
+        return token;
     }
 
     public static boolean isTokenDefined() {

@@ -1,5 +1,6 @@
 package br.com.unicos.ms_pessoas.service;
 
+import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_pessoas.dto.relacao.TipoRelacaoPessoaListDTO;
 import br.com.unicos.ms_pessoas.dto.relacao.TipoRelacaoPessoaRequest;
@@ -15,8 +16,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementação das regras de negócio para o gerenciamento dos tipos de
- * relação entre pessoas dentro do UniCoS.
+ * Regras de negócio aplicadas aos tipos de relação entre pessoas.
+ *
+ * <p>
+ * Os tipos de relação são dados de referência compartilhados (nome único em toda a base):
+ * qualquer empresa pode consultá-los e utilizá-los, mas apenas a empresa que cadastrou o
+ * registro pode alterá-lo ou excluí-lo.
+ * </p>
  */
 @Service
 public class TipoRelacaoPessoaService extends BaseTenantService<TipoRelacaoPessoa, Long> {
@@ -32,37 +38,27 @@ public class TipoRelacaoPessoaService extends BaseTenantService<TipoRelacaoPesso
 
     @Transactional
     public TipoRelacaoPessoaResponse criar(TipoRelacaoPessoaRequest request) {
-        repository.findByNome(request.nome()).ifPresent(existing -> {
-            throw new IllegalArgumentException("Já existe um tipo de relação com este nome.");
-        });
+        validarNomeDisponivel(request.nome(), null);
 
         TipoRelacaoPessoa entity = mapper.toEntity(request);
-        repository.save(entity);
+        entity.setEmpresaId(TenantContext.getEmpresaId());
 
-        return mapper.toResponse(entity);
+        return mapper.toResponse(repository.save(entity));
     }
 
     @Transactional
     public TipoRelacaoPessoaResponse atualizar(Long id, TipoRelacaoPessoaRequest request) {
-        TipoRelacaoPessoa entity = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Tipo de relação não encontrado."));
+        TipoRelacaoPessoa entity = buscarDaEmpresa(id);
 
-        repository.findByNome(request.nome()).ifPresent(existing -> {
-            if (!existing.getId().equals(id))
-                throw new IllegalArgumentException("Já existe outro tipo de relação com este nome.");
-        });
+        validarNomeDisponivel(request.nome(), id);
+        mapper.updateEntity(entity, request);
 
-        mapper.toEntity(request);
-        repository.save(entity);
-
-        return mapper.toResponse(entity);
+        return mapper.toResponse(repository.save(entity));
     }
 
     @Transactional
     public void excluir(Long id) {
-        if (!repository.existsById(id))
-            throw new EntityNotFoundException("Tipo de relação não encontrado.");
-        repository.deleteById(id);
+        repository.delete(buscarDaEmpresa(id));
     }
 
     @Transactional(readOnly = true)
@@ -73,7 +69,7 @@ public class TipoRelacaoPessoaService extends BaseTenantService<TipoRelacaoPesso
 
     @Transactional(readOnly = true)
     public List<TipoRelacaoPessoaListDTO> listarTodos() {
-        return repository.findAll()
+        return repository.findAllByOrderByNomeAsc()
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -89,8 +85,19 @@ public class TipoRelacaoPessoaService extends BaseTenantService<TipoRelacaoPesso
 
     @Transactional(readOnly = true)
     public Optional<TipoRelacaoPessoaResponse> buscarPorNomeExato(String nome) {
-        return repository.findByNome(nome)
+        return repository.findByNomeIgnoreCase(nome)
                 .map(mapper::toResponse);
     }
 
+    private TipoRelacaoPessoa buscarDaEmpresa(Long id) {
+        return findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Tipo de relação não encontrado."));
+    }
+
+    private void validarNomeDisponivel(String nome, Long idAtual) {
+        repository.findByNomeIgnoreCase(nome).ifPresent(existing -> {
+            if (!existing.getId().equals(idAtual))
+                throw new IllegalArgumentException("Já existe um tipo de relação com este nome.");
+        });
+    }
 }

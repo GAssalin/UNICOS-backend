@@ -1,13 +1,14 @@
 package br.com.unicos.ms_pessoas.service;
 
+import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaListDTO;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaRequest;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaJuridicaResponse;
+import br.com.unicos.ms_pessoas.enums.TipoPessoa;
 import br.com.unicos.ms_pessoas.mapper.PessoaJuridicaMapper;
 import br.com.unicos.ms_pessoas.model.PessoaJuridica;
 import br.com.unicos.ms_pessoas.repository.PessoaJuridicaRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,8 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementação das regras de negócio para cadastro e consulta
- * de Pessoas Jurídicas no UniCoS.
+ * Regras de negócio aplicadas à entidade {@link PessoaJuridica}.
  */
 @Service
 public class PessoaJuridicaService extends BaseTenantService<PessoaJuridica, Long> {
@@ -32,56 +32,46 @@ public class PessoaJuridicaService extends BaseTenantService<PessoaJuridica, Lon
     }
 
     @Transactional
-    @CircuitBreaker(name = "pessoa-juridica-admin", fallbackMethod = "fallbackAdmin")
     public PessoaJuridicaResponse criar(PessoaJuridicaRequest request) {
-        repository.findByCnpj(request.cnpj()).ifPresent(existing -> {
-            throw new IllegalArgumentException("Já existe uma pessoa jurídica cadastrada com este CNPJ.");
-        });
+        validarCnpjDisponivel(request.cnpj(), null);
 
         PessoaJuridica pessoa = mapper.toEntity(request);
-        repository.save(pessoa);
+        pessoa.setTipoPessoa(TipoPessoa.JURIDICA);
+        pessoa.setEmpresaId(TenantContext.getEmpresaId());
 
-        return mapper.toResponse(pessoa);
+        return mapper.toResponse(repository.save(pessoa));
     }
 
     @Transactional
     public PessoaJuridicaResponse atualizar(Long id, PessoaJuridicaRequest request) {
-        PessoaJuridica pessoa = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pessoa Jurídica não encontrada."));
+        PessoaJuridica pessoa = buscarEntidade(id);
 
-        repository.findByCnpj(request.cnpj()).ifPresent(existing -> {
-            if (!existing.getId().equals(id))
-                throw new IllegalArgumentException("Já existe outra pessoa jurídica com este CNPJ.");
-        });
+        validarCnpjDisponivel(request.cnpj(), id);
+        mapper.updateEntity(pessoa, request);
 
-        mapper.toEntity(request);
-        repository.save(pessoa);
-
-        return mapper.toResponse(pessoa);
+        return mapper.toResponse(repository.save(pessoa));
     }
 
     @Transactional
     public void excluir(Long id) {
-        if (!repository.existsById(id))
-            throw new EntityNotFoundException("Pessoa Jurídica não encontrada.");
-        repository.deleteById(id);
+        repository.delete(buscarEntidade(id));
     }
 
     @Transactional(readOnly = true)
     public Optional<PessoaJuridicaResponse> buscarPorId(Long id) {
-        return repository.findById(id)
+        return findById(id)
                 .map(mapper::toResponse);
     }
 
     @Transactional(readOnly = true)
     public Optional<PessoaJuridicaResponse> buscarPorCnpj(String cnpj) {
-        return repository.findByCnpj(cnpj)
+        return repository.findByCnpjAndEmpresaId(cnpj, TenantContext.getEmpresaId())
                 .map(mapper::toResponse);
     }
 
     @Transactional(readOnly = true)
     public List<PessoaJuridicaListDTO> listarTodas() {
-        return repository.findAll()
+        return repository.findByEmpresaId(TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -89,7 +79,7 @@ public class PessoaJuridicaService extends BaseTenantService<PessoaJuridica, Lon
 
     @Transactional(readOnly = true)
     public List<PessoaJuridicaListDTO> listarPorNomeFantasia(String nomeFantasia) {
-        return repository.findByNomeFantasia(nomeFantasia)
+        return repository.findByNomeFantasiaAndEmpresaId(nomeFantasia, TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -97,10 +87,24 @@ public class PessoaJuridicaService extends BaseTenantService<PessoaJuridica, Lon
 
     @Transactional(readOnly = true)
     public List<PessoaJuridicaListDTO> listarPorNome(String nome) {
-        return repository.findByNomeContainingIgnoreCase(nome)
+        return repository.findByNomeContainingIgnoreCaseAndEmpresaId(nome, TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
     }
 
+    private PessoaJuridica buscarEntidade(Long id) {
+        return findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Pessoa Jurídica não encontrada."));
+    }
+
+    /**
+     * O CNPJ é único em toda a base (restrição do banco), independentemente da empresa.
+     */
+    private void validarCnpjDisponivel(String cnpj, Long idAtual) {
+        repository.findByCnpj(cnpj).ifPresent(existing -> {
+            if (!existing.getId().equals(idAtual))
+                throw new IllegalArgumentException("Já existe uma pessoa jurídica cadastrada com este CNPJ.");
+        });
+    }
 }

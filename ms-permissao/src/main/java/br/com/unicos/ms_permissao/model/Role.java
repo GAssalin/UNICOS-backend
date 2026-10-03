@@ -13,7 +13,10 @@ import lombok.experimental.SuperBuilder;
  * Define os papéis (grupos de permissões) atribuíveis aos usuários.
  */
 @Entity
-@Table(name = "role")
+@Table(
+        name = "role",
+        uniqueConstraints = @UniqueConstraint(name = "uk_role_empresa_nome", columnNames = {"empresa_id", "nome"})
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,7 +29,7 @@ public class Role extends BaseTenantEntity {
     private Long id;
 
     @NotBlank
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, length = 50)
     private String nome;
 
     @Column(length = 255)

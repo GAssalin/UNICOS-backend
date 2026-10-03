@@ -17,6 +17,5 @@ public interface PermissaoClient {
     boolean usuarioPossuiPermissao(@RequestParam("nomePermissao") String nomePermissao);
 
     @GetMapping("/internal/roles/{id}")
-    RoleResumoResponse buscarNomeRoleById(@PathVariable Long id);
-
+    RoleResumoResponse buscarNomeRoleById(@PathVariable("id") Long id);
 }

@@ -41,7 +41,7 @@ public class UsuarioEmailVerificacaoController {
 
     @GetMapping("/pendentes")
     public ResponseEntity<Page<UsuarioEmailVerificacaoListDTO>> listarPendentes(
-            @RequestParam("empresaId") Long empresaId,
+            @RequestParam(value = "empresaId", required = false) Long empresaId,
             Pageable pageable
     ) {
         Page<UsuarioEmailVerificacaoListDTO> response =
@@ -52,7 +52,7 @@ public class UsuarioEmailVerificacaoController {
 
     @GetMapping("/expirados")
     public ResponseEntity<Page<UsuarioEmailVerificacaoListDTO>> listarExpirados(
-            @RequestParam("empresaId") Long empresaId,
+            @RequestParam(value = "empresaId", required = false) Long empresaId,
             Pageable pageable
     ) {
         Page<UsuarioEmailVerificacaoListDTO> response =

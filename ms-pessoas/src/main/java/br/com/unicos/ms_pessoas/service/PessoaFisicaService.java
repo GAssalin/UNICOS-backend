@@ -1,9 +1,11 @@
 package br.com.unicos.ms_pessoas.service;
 
+import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaFisicaListDTO;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaFisicaRequest;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaFisicaResponse;
+import br.com.unicos.ms_pessoas.enums.TipoPessoa;
 import br.com.unicos.ms_pessoas.mapper.PessoaFisicaMapper;
 import br.com.unicos.ms_pessoas.model.PessoaFisica;
 import br.com.unicos.ms_pessoas.repository.PessoaFisicaRepository;
@@ -15,8 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementação das regras de negócio para cadastro e consulta
- * de Pessoas Físicas no UniCoS.
+ * Regras de negócio aplicadas à entidade {@link PessoaFisica}.
  */
 @Service
 public class PessoaFisicaService extends BaseTenantService<PessoaFisica, Long> {
@@ -32,55 +33,45 @@ public class PessoaFisicaService extends BaseTenantService<PessoaFisica, Long> {
 
     @Transactional
     public PessoaFisicaResponse criar(PessoaFisicaRequest request) {
-        repository.findByCpf(request.cpf()).ifPresent(existing -> {
-            throw new IllegalArgumentException("Já existe uma pessoa física cadastrada com este CPF.");
-        });
+        validarCpfDisponivel(request.cpf(), null);
 
         PessoaFisica pessoa = mapper.toEntity(request);
-        repository.save(pessoa);
+        pessoa.setTipoPessoa(TipoPessoa.FISICA);
+        pessoa.setEmpresaId(TenantContext.getEmpresaId());
 
-        return mapper.toResponse(pessoa);
+        return mapper.toResponse(repository.save(pessoa));
     }
 
     @Transactional
     public PessoaFisicaResponse atualizar(Long id, PessoaFisicaRequest request) {
-        PessoaFisica pessoa = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pessoa Física não encontrada."));
+        PessoaFisica pessoa = buscarEntidade(id);
 
-        repository.findByCpf(request.cpf()).ifPresent(existing -> {
-            if (!existing.getId().equals(id))
-                throw new IllegalArgumentException("Já existe outra pessoa física com este CPF.");
-        });
+        validarCpfDisponivel(request.cpf(), id);
+        mapper.updateEntity(pessoa, request);
 
-        mapper.toEntity(request);
-        repository.save(pessoa);
-
-        return mapper.toResponse(pessoa);
+        return mapper.toResponse(repository.save(pessoa));
     }
 
     @Transactional
     public void excluir(Long id) {
-        if (!repository.existsById(id))
-            throw new EntityNotFoundException("Pessoa Física não encontrada.");
-
-        repository.deleteById(id);
+        repository.delete(buscarEntidade(id));
     }
 
     @Transactional(readOnly = true)
     public Optional<PessoaFisicaResponse> buscarPorId(Long id) {
-        return repository.findById(id)
+        return findById(id)
                 .map(mapper::toResponse);
     }
 
     @Transactional(readOnly = true)
     public Optional<PessoaFisicaResponse> buscarPorCpf(String cpf) {
-        return repository.findByCpf(cpf)
+        return repository.findByCpfAndEmpresaId(cpf, TenantContext.getEmpresaId())
                 .map(mapper::toResponse);
     }
 
     @Transactional(readOnly = true)
     public List<PessoaFisicaListDTO> listarTodas() {
-        return repository.findAll()
+        return repository.findByEmpresaId(TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -88,7 +79,7 @@ public class PessoaFisicaService extends BaseTenantService<PessoaFisica, Long> {
 
     @Transactional(readOnly = true)
     public List<PessoaFisicaListDTO> listarPorNomeSocial(String nomeSocial) {
-        return repository.findByNomeSocial(nomeSocial)
+        return repository.findByNomeSocialAndEmpresaId(nomeSocial, TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -96,10 +87,24 @@ public class PessoaFisicaService extends BaseTenantService<PessoaFisica, Long> {
 
     @Transactional(readOnly = true)
     public List<PessoaFisicaListDTO> listarPorNome(String nome) {
-        return repository.findByNomeContainingIgnoreCase(nome)
+        return repository.findByNomeContainingIgnoreCaseAndEmpresaId(nome, TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
     }
 
+    private PessoaFisica buscarEntidade(Long id) {
+        return findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Pessoa Física não encontrada."));
+    }
+
+    /**
+     * O CPF é único em toda a base (restrição do banco), independentemente da empresa.
+     */
+    private void validarCpfDisponivel(String cpf, Long idAtual) {
+        repository.findByCpf(cpf).ifPresent(existing -> {
+            if (!existing.getId().equals(idAtual))
+                throw new IllegalArgumentException("Já existe uma pessoa física cadastrada com este CPF.");
+        });
+    }
 }
