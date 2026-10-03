@@ -6,9 +6,14 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>br.com.unicos</groupId>
+    <parent>
+        <groupId>br.com.unicos</groupId>
+        <artifactId>unicos-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../unicos-parent/pom.xml</relativePath>
+    </parent>
+
     <artifactId>unicos-core</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>UNICOS :: Core Modules</name>
@@ -20,148 +25,22 @@
         mantendo coesão de entidades, regras de domínio e contratos de dados entre contextos.
 
         Submódulos:
-        - core-auth
         - core-base
+        - core-auth
         - core-tenant
         - core-usuario
-        - core-produto
         - core-pessoas
+        - core-web
     </description>
 
     <modules>
-        <module>core-auth</module>
         <module>core-base</module>
+        <module>core-auth</module>
         <module>core-tenant</module>
         <module>core-usuario</module>
-        <module>core-produto</module>
         <module>core-pessoas</module>
+        <module>core-web</module>
     </modules>
-
-    <properties>
-        <java.version>21</java.version>
-        <spring.boot.version>3.5.7</spring.boot.version>
-        <spring.data.version>3.4.1</spring.data.version>
-
-        <maven.compiler.release>${java.version}</maven.compiler.release>
-
-        <spring.framework.version>6.2.12</spring.framework.version>
-
-        <jackson.version>2.18.5</jackson.version>
-        <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
-        <jakarta.validation.version>3.0.2</jakarta.validation.version>
-        <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
-
-        <lombok.version>1.18.32</lombok.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <!-- Importa o BOM do Spring Boot -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring.boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- BOM do Jackson -->
-            <dependency>
-                <groupId>com.fasterxml.jackson</groupId>
-                <artifactId>jackson-bom</artifactId>
-                <version>${jackson.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-commons</artifactId>
-                <version>${spring.data.version}</version>
-            </dependency>
-
-            <!-- Lombok -->
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-            </dependency>
-
-            <!-- Entradas explícitas (externas) -->
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-web</artifactId>
-                <version>${spring.framework.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>jakarta.servlet</groupId>
-                <artifactId>jakarta.servlet-api</artifactId>
-                <version>${jakarta.servlet.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>jakarta.persistence</groupId>
-                <artifactId>jakarta.persistence-api</artifactId>
-                <version>${jakarta.persistence.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>jakarta.validation</groupId>
-                <artifactId>jakarta.validation-api</artifactId>
-                <version>${jakarta.validation.version}</version>
-            </dependency>
-
-            <!-- ✅ MUITO IMPORTANTE: versões dos seus módulos internos -->
-            <dependency>
-                <groupId>br.com.unicos</groupId>
-                <artifactId>core-base</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>br.com.unicos</groupId>
-                <artifactId>core-tenant</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>br.com.unicos</groupId>
-                <artifactId>core-usuario</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>br.com.unicos</groupId>
-                <artifactId>core-auth</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>br.com.unicos</groupId>
-                <artifactId>core-produto</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>br.com.unicos</groupId>
-                <artifactId>core-pessoas</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>br.com.unicos</groupId>
-                <artifactId>core-produto-domain</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>br.com.unicos</groupId>
-                <artifactId>core-produto-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <distributionManagement>
         <repository>
@@ -170,28 +49,5 @@
             <url>https://maven.pkg.github.com/GAssalin/UNICOS</url>
         </repository>
     </distributionManagement>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.11.0</version>
-                    <configuration>
-                        <release>${maven.compiler.release}</release>
-                        <encoding>${project.build.sourceEncoding}</encoding>
-                        <annotationProcessorPaths>
-                            <path>
-                                <groupId>org.projectlombok</groupId>
-                                <artifactId>lombok</artifactId>
-                                <version>${lombok.version}</version>
-                            </path>
-                        </annotationProcessorPaths>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 
 </project>

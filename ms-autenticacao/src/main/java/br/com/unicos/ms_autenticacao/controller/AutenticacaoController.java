@@ -1,6 +1,7 @@
 package br.com.unicos.ms_autenticacao.controller;
 
 import br.com.unicos.ms_autenticacao.dto.login.DadosLoginDto;
+import br.com.unicos.ms_autenticacao.dto.token.DadosRefreshToken;
 import br.com.unicos.ms_autenticacao.dto.token.DadosTokenDto;
 import br.com.unicos.ms_autenticacao.service.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,4 +48,23 @@ public class AutenticacaoController {
         return ResponseEntity.ok(tokenService.autenticar(dados));
     }
 
+    @Operation(
+            summary = "Renovar tokens",
+            description = "Gera um novo token de acesso e um novo refresh token a partir de um refresh token válido.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Tokens renovados com sucesso",
+                            content = @Content(schema = @Schema(implementation = DadosTokenDto.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+                    @ApiResponse(responseCode = "401", description = "Refresh token inválido ou expirado"),
+                    @ApiResponse(responseCode = "403", description = "Usuário desabilitado"),
+                    @ApiResponse(responseCode = "503", description = "Serviço temporariamente indisponível")
+            }
+    )
+    @PostMapping("/atualizar-token")
+    public ResponseEntity<DadosTokenDto> atualizarToken(@Valid @RequestBody DadosRefreshToken dados) {
+        return ResponseEntity.ok(tokenService.atualizarToken(dados.refreshToken()));
+    }
 }

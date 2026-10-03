@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
  */
 public record RolePermissaoRequest(
 
-        @NotNull(message = "Empresa é obrigatória")
+        // Opcional: a empresa do vínculo é sempre a do usuário autenticado.
         Long empresaId,
 
         @NotNull(message = "Role é obrigatória")

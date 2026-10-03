@@ -68,11 +68,6 @@ public class ProdutoMapper {
         if (entity == null)
             return null;
 
-        Long unidadeMedidaId = unidadeMedidaRepository
-                .findByCodigoAndEmpresaId(entity.getUnidadeMedida(), empresaId)
-                .map(UnidadeMedida::getId)
-                .orElse(null);
-
         return new ProdutoResponse(
                 entity.getId(),
                 entity.getCodigo(),
@@ -80,8 +75,8 @@ public class ProdutoMapper {
                 entity.getDescricao(),
                 entity.getTipoProduto(),
 
-                categoriaProduto.getId(),
-                categoriaProduto.getNome(),
+                categoriaProduto != null ? categoriaProduto.getId() : null,
+                categoriaProduto != null ? categoriaProduto.getNome() : null,
 
                 entity.getCodigoBarras(),
                 entity.getPrecoBase(),

@@ -8,6 +8,7 @@ import br.com.unicos.ms_produto.dto.produtoatributovalor.ProdutoAtributoValorUpd
 import br.com.unicos.ms_produto.mapper.ProdutoAtributoValorMapper;
 import br.com.unicos.ms_produto.model.ProdutoAtributoValor;
 import br.com.unicos.ms_produto.repository.ProdutoAtributoValorRepository;
+import br.com.unicos.ms_produto.repository.ProdutoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,15 +22,19 @@ import java.util.List;
 public class ProdutoAtributoValorService extends BaseTenantService<ProdutoAtributoValor, Long> {
 
     private final ProdutoAtributoValorRepository repository;
+    private final ProdutoRepository produtoRepository;
     private final ProdutoAtributoValorMapper mapper;
 
-    public ProdutoAtributoValorService(ProdutoAtributoValorRepository repository, ProdutoAtributoValorMapper mapper) {
+    public ProdutoAtributoValorService(ProdutoAtributoValorRepository repository, ProdutoRepository produtoRepository, ProdutoAtributoValorMapper mapper) {
         super(repository);
         this.repository = repository;
+        this.produtoRepository = produtoRepository;
         this.mapper = mapper;
     }
 
     public ProdutoAtributoValorResponse criar(ProdutoAtributoValorCreateRequest request) {
+        validarProduto(request.produtoId());
+
         validarDuplicidade(request.produtoId(), request.atributoId());
 
         ProdutoAtributoValor valor = mapper.toEntity(request, TenantContext.getEmpresaId());
@@ -85,5 +90,10 @@ public class ProdutoAtributoValorService extends BaseTenantService<ProdutoAtribu
     private void validarDuplicidade(Long produtoId, Long atributoId) {
         if (repository.existsByProdutoIdAndAtributoIdAndEmpresaId(produtoId, atributoId, TenantContext.getEmpresaId()))
             throw new IllegalArgumentException("Já existe um valor cadastrado para este atributo neste produto.");
+    }
+
+    private void validarProduto(Long produtoId) {
+        if (!produtoRepository.existsByIdAndEmpresaId(produtoId, TenantContext.getEmpresaId()))
+            throw new EntityNotFoundException("Produto não encontrado: " + produtoId);
     }
 }

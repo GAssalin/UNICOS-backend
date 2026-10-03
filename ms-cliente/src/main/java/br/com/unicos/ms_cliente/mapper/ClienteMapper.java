@@ -3,7 +3,7 @@ package br.com.unicos.ms_cliente.mapper;
 import br.com.unicos.ms_cliente.dto.cliente.ClienteRequest;
 import br.com.unicos.ms_cliente.dto.cliente.ClienteResponse;
 import br.com.unicos.ms_cliente.model.Cliente;
-import br.com.unicos.ms_cliente.client.PessoasService;
+import br.com.unicos.ms_cliente.client.UsuarioService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClienteMapper {
 
-    private final PessoasService pessoasService;
+    private final UsuarioService usuarioService;
 
-    public ClienteMapper(PessoasService pessoasService) {
-        this.pessoasService = pessoasService;
+    public ClienteMapper(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
     }
 
     public ClienteResponse toResponse(Cliente entity) {
@@ -27,7 +27,7 @@ public class ClienteMapper {
                 entity.getEmpresaId(),
                 entity.getPessoaId(),
                 entity.getVendedorId(),
-                entity.getVendedorId() == null ? null : pessoasService.buscarPorId(entity.getVendedorId()).nome(),
+                entity.getVendedorId() == null ? null : usuarioService.buscarNome(entity.getVendedorId()),
                 entity.getFilialId(),
                 entity.getCodigoInterno(),
                 entity.getStatus(),

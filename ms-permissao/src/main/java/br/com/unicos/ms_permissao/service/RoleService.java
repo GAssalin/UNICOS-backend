@@ -14,8 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Implementação do serviço responsável pelas regras de negócio
- * relacionadas à entidade {@link Role}.
+ * Regras de negócio das roles (papéis), sempre restritas à empresa do usuário autenticado.
  */
 @Service
 public class RoleService extends BaseTenantService<Role, Long> {
@@ -31,11 +30,12 @@ public class RoleService extends BaseTenantService<Role, Long> {
 
     @Transactional
     public RoleResponse salvar(RoleRequest request) {
-        validarNomeDuplicado(request.nome());
+        validarNomeDisponivel(request.nome());
 
         Role role = Role.builder()
                 .nome(request.nome())
                 .descricao(request.descricao())
+                .empresaId(TenantContext.getEmpresaId())
                 .build();
 
         return roleMapper.toResponse(roleRepository.save(role));
@@ -45,11 +45,10 @@ public class RoleService extends BaseTenantService<Role, Long> {
     public RoleResponse atualizar(Long id, RoleRequest request) {
         Role entity = buscarEntidadePorId(id);
 
-        if (!entity.getNome().equalsIgnoreCase(request.nome())) {
-            validarNomeDuplicado(request.nome());
-            entity.setNome(request.nome());
-        }
+        if (!entity.getNome().equalsIgnoreCase(request.nome()))
+            validarNomeDisponivel(request.nome());
 
+        entity.setNome(request.nome());
         entity.setDescricao(request.descricao());
 
         return roleMapper.toResponse(roleRepository.save(entity));
@@ -62,16 +61,15 @@ public class RoleService extends BaseTenantService<Role, Long> {
 
     @Transactional(readOnly = true)
     public List<RoleResponse> listarTodos() {
-        return roleRepository.findAll()
+        return roleRepository.findByEmpresaIdOrderByNomeAsc(TenantContext.getEmpresaId())
                 .stream()
                 .map(roleMapper::toResponse)
                 .toList();
     }
 
+    @Transactional
     public void deletar(Long id) {
-        if (!roleRepository.existsById(id))
-            throw new EntityNotFoundException("Role não encontrada: " + id);
-        roleRepository.deleteById(id);
+        roleRepository.delete(buscarEntidadePorId(id));
     }
 
     // ============================================================
@@ -80,19 +78,16 @@ public class RoleService extends BaseTenantService<Role, Long> {
 
     @Transactional(readOnly = true)
     public boolean existePorNome(String nome) {
-        return roleRepository.existsByNomeContainingIgnoreCaseAndEmpresaId(
-                nome,
-                TenantContext.getEmpresaId()
-        );
+        return roleRepository.existsByNomeIgnoreCaseAndEmpresaId(nome, TenantContext.getEmpresaId());
     }
 
     private Role buscarEntidadePorId(Long id) {
-        return roleRepository.findById(id)
+        return findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Role não encontrada: " + id));
     }
 
-    private void validarNomeDuplicado(String nome) {
-        if (roleRepository.existsByNomeContainingIgnoreCaseAndEmpresaId(nome, TenantContext.getEmpresaId()))
+    private void validarNomeDisponivel(String nome) {
+        if (existePorNome(nome))
             throw new IllegalArgumentException("Já existe um papel cadastrado com o nome informado.");
     }
 }

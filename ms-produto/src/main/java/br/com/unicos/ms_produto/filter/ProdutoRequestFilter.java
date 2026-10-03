@@ -1,100 +1,61 @@
 package br.com.unicos.ms_produto.filter;
 
-import br.com.unicos.core.tenant.context.TenantContext;
-import br.com.unicos.core.usuario.context.UserContext;
+import br.com.unicos.core.auth.interno.TokenInternoService;
+import br.com.unicos.core.auth.service.TokenCoreService;
+import br.com.unicos.core.web.filter.ContextoRequisicaoFilter;
 import br.com.unicos.ms_produto.client.PermissaoService;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
-@Slf4j
-public class ProdutoRequestFilter extends OncePerRequestFilter {
+public class ProdutoRequestFilter extends ContextoRequisicaoFilter {
+
+    /**
+     * Prefixo da permissão exigida por recurso. Sub-recursos de {@code /v1/produtos} são avaliados
+     * antes da rota principal.
+     */
+    private static final Map<String, String> PREFIXOS = new LinkedHashMap<>();
+
+    static {
+        PREFIXOS.put("/v1/produtos/categorias", "PRODUTO_CATEGORIA_");
+        PREFIXOS.put("/v1/produtos/marcas-produto", "PRODUTO_MARCAS_PRODUTO_");
+        PREFIXOS.put("/v1/produtos/atributos-valores", "PRODUTO_ATRIBUTOS_VALORES_");
+        PREFIXOS.put("/v1/produtos/atributos", "PRODUTO_ATRIBUTOS_");
+        PREFIXOS.put("/v1/produtos/codigo-barras", "PRODUTO_CODIGO_BARRAS_");
+        PREFIXOS.put("/v1/produtos/imagens", "PRODUTO_IMAGENS_");
+        PREFIXOS.put("/v1/produtos/precos-base", "PRODUTO_PRECO_BASE_");
+        PREFIXOS.put("/v1/produtos/tipos", "PRODUTO_TIPOS_");
+        PREFIXOS.put("/v1/produtos/unidades-medida", "PRODUTO_UNIDADE_MEDIDA_");
+        PREFIXOS.put("/v1/produtos", "PRODUTO_");
+    }
 
     private final PermissaoService permissaoService;
 
+    public ProdutoRequestFilter(
+            TokenCoreService tokenCoreService,
+            TokenInternoService tokenInternoService,
+            PermissaoService permissaoService
+    ) {
+        super(tokenCoreService, tokenInternoService);
+        this.permissaoService = permissaoService;
+    }
+
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
-        try {
-            String usuarioId = request.getHeader("X-Usuario-Id");
-            String tenantId = request.getHeader("X-Tenant-Id");
-
-            if (usuarioId != null && tenantId != null) {
-
-                UserContext.setUsuarioId(Long.valueOf(usuarioId));
-                TenantContext.setEmpresaId(Long.valueOf(tenantId));
-
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                Long.valueOf(usuarioId),
-                                null,
-                                List.of()
-                        );
-
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authentication);
-
-                validarPermissaoPorRota(request);
-            }
-
-            filterChain.doFilter(request, response);
-        } finally {
-            UserContext.clear();
-            TenantContext.clear();
-            SecurityContextHolder.clearContext();
-        }
+    protected boolean usuarioPossuiPermissao(String permissao) {
+        return permissaoService.usuarioPossuiPermissao(permissao);
     }
 
-    private void validarPermissaoPorRota(HttpServletRequest request) {
-        String permissao = resolverPermissao(request.getMethod(), request.getServletPath());
+    @Override
+    protected String resolverPermissao(String metodoHttp, String path) {
+        String prefixo = PREFIXOS.entrySet().stream()
+                .filter(entry -> path.equals(entry.getKey()) || path.startsWith(entry.getKey() + "/"))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
 
-        if (permissao == null)
-            return;
-        if (!permissaoService.usuarioPossuiPermissao(permissao))
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não possui permissão para acessar este recurso.");
-    }
-
-    private String resolverPermissao(String metodoHttp, String path) {
-        String prefixo;
-
-        if ((path.equals("/v1/produtos/categorias") || path.startsWith("/v1/produtos/categorias/")))
-            prefixo = "PRODUTO_CATEGORIA_";
-        else if ((path.equals("/v1/produtos/marcas-produto") || path.startsWith("/v1/produtos/marcas-produto/")))
-            prefixo = "PRODUTO_MARCAS_PRODUTO_";
-        else if ((path.equals("/v1/produtos/atributos-valores") || path.startsWith("/v1/produtos/atributos-valores/")))
-            prefixo = "PRODUTO_ATRIBUTOS_VALORES_";
-        else if ((path.equals("/v1/produtos/atributos") || path.startsWith("/v1/produtos/atributos/")))
-            prefixo = "PRODUTO_ATRIBUTOS_";
-        else if ((path.equals("/v1/produtos/codigo-barras") || path.startsWith("/v1/produtos/codigo-barras/")))
-            prefixo = "PRODUTO_CODIGO_BARRAS_";
-        else if ((path.equals("/v1/produtos/imagens") || path.startsWith("/v1/produtos/imagens/")))
-            prefixo = "PRODUTO_IMAGENS_";
-        else if ((path.equals("/v1/produtos/precos-base") || path.startsWith("/v1/produtos/precos-base/")))
-            prefixo = "PRODUTO_PRECO_BASE_";
-        else if ((path.equals("/v1/produtos/tipos") || path.startsWith("/v1/produtos/tipos/")))
-            prefixo = "PRODUTO_TIPOS_";
-        else if ((path.equals("/v1/produtos/unidades-medida") || path.startsWith("/v1/produtos/unidades-medida/")))
-            prefixo = "PRODUTO_UNIDADE_MEDIDA_";
-        else if ((path.equals("/v1/produtos") || path.startsWith("/v1/produtos/")))
-            prefixo = "PRODUTO_";
-        else
+        if (prefixo == null)
             return null;
 
         return switch (metodoHttp) {
@@ -105,5 +66,4 @@ public class ProdutoRequestFilter extends OncePerRequestFilter {
             default -> null;
         };
     }
-
 }

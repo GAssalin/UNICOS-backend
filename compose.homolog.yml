@@ -1,7 +1,6 @@
+# Override de homologacao: alem do Gateway (publicado pelo compose.yml),
+# publica o painel do Eureka no host.
 services:
-  gateway:
-    ports:
-    - ${GATEWAY_BIND_ADDRESS:-127.0.0.1}:${GATEWAY_PORT:-8082}:8080
   service-registry:
     ports:
-    - ${EUREKA_BIND_ADDRESS:-127.0.0.1}:${EUREKA_PORT:-8081}:8081
+      - "${EUREKA_BIND_ADDRESS:-127.0.0.1}:${EUREKA_PORT:-8081}:8081"

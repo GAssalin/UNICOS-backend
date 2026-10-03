@@ -1,86 +1,54 @@
 package br.com.unicos.ms_cliente.filter;
 
-import br.com.unicos.core.tenant.context.TenantContext;
-import br.com.unicos.core.usuario.context.UserContext;
+import br.com.unicos.core.auth.interno.TokenInternoService;
+import br.com.unicos.core.auth.service.TokenCoreService;
+import br.com.unicos.core.web.filter.ContextoRequisicaoFilter;
 import br.com.unicos.ms_cliente.client.PermissaoService;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
-@Slf4j
-public class ClienteRequestFilter extends OncePerRequestFilter {
+public class ClienteRequestFilter extends ContextoRequisicaoFilter {
+
+    /**
+     * Prefixo da permissão exigida por recurso. Sub-recursos de {@code /v1/clientes} são avaliados
+     * antes da rota principal.
+     */
+    private static final Map<String, String> PREFIXOS = new LinkedHashMap<>();
+
+    static {
+        PREFIXOS.put("/v1/clientes/categorias", "CLIENTE_CATEGORIA_");
+        PREFIXOS.put("/v1/clientes/observacoes", "CLIENTE_OBSERVACAO_");
+        PREFIXOS.put("/v1/clientes", "CLIENTE_");
+    }
 
     private final PermissaoService permissaoService;
 
+    public ClienteRequestFilter(
+            TokenCoreService tokenCoreService,
+            TokenInternoService tokenInternoService,
+            PermissaoService permissaoService
+    ) {
+        super(tokenCoreService, tokenInternoService);
+        this.permissaoService = permissaoService;
+    }
+
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
-        try {
-            String usuarioId = request.getHeader("X-Usuario-Id");
-            String tenantId = request.getHeader("X-Tenant-Id");
-
-            if (usuarioId != null && tenantId != null) {
-
-                UserContext.setUsuarioId(Long.valueOf(usuarioId));
-                TenantContext.setEmpresaId(Long.valueOf(tenantId));
-
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                Long.valueOf(usuarioId),
-                                null,
-                                List.of()
-                        );
-
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authentication);
-
-                validarPermissaoPorRota(request);
-            }
-
-            filterChain.doFilter(request, response);
-        } finally {
-            UserContext.clear();
-            TenantContext.clear();
-            SecurityContextHolder.clearContext();
-        }
+    protected boolean usuarioPossuiPermissao(String permissao) {
+        return permissaoService.usuarioPossuiPermissao(permissao);
     }
 
-    private void validarPermissaoPorRota(HttpServletRequest request) {
-        String permissao = resolverPermissao(request.getMethod(), request.getServletPath());
+    @Override
+    protected String resolverPermissao(String metodoHttp, String path) {
+        String prefixo = PREFIXOS.entrySet().stream()
+                .filter(entry -> path.equals(entry.getKey()) || path.startsWith(entry.getKey() + "/"))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
 
-        if (permissao == null)
-            return;
-        if (!permissaoService.usuarioPossuiPermissao(permissao))
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não possui permissão para acessar este recurso.");
-    }
-
-    private String resolverPermissao(String metodoHttp, String path) {
-        String prefixo;
-
-        if ((path.equals("/v1/clientes/categorias") || path.startsWith("/v1/clientes/categorias/")))
-            prefixo = "CLIENTE_CATEGORIA_";
-        else if ((path.equals("/v1/clientes/observacoes") || path.startsWith("/v1/clientes/observacoes/")))
-            prefixo = "CLIENTE_OBSERVACAO_";
-        else if ((path.equals("/v1/clientes") || path.startsWith("/v1/clientes/")))
-            prefixo = "CLIENTE_";
-        else
+        if (prefixo == null)
             return null;
 
         return switch (metodoHttp) {
@@ -91,5 +59,4 @@ public class ClienteRequestFilter extends OncePerRequestFilter {
             default -> null;
         };
     }
-
 }

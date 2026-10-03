@@ -2,6 +2,8 @@ package br.com.unicos.ms_permissao.repository;
 
 import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_permissao.model.RolePermissao;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -13,7 +15,7 @@ public interface RolePermissaoRepository extends BaseTenantRepository<RolePermis
 
     boolean existsByRoleIdAndPermissaoIdAndEmpresaId(Long roleId, Long permissaoId, Long empresaId);
 
-    List<RolePermissao> findByAtivoTrueAndEmpresaId(Long empresaId);
+    Page<RolePermissao> findByAtivoTrueAndEmpresaId(Long empresaId, Pageable pageable);
 
     @Query("""
         select count(rp) > 0

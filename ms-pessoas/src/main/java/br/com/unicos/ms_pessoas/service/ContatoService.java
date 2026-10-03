@@ -11,7 +11,6 @@ import br.com.unicos.ms_pessoas.model.Contato;
 import br.com.unicos.ms_pessoas.model.Pessoa;
 import br.com.unicos.ms_pessoas.repository.ContatoRepository;
 import br.com.unicos.ms_pessoas.repository.PessoaRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,14 +40,15 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
         Pessoa pessoa = buscarPessoa(request.pessoaId());
         validarContatoDuplicado(pessoa, request.valor());
 
-        if (request.principal())
-            removerContatoPrincipalAtual(pessoa);
+        boolean principal = Boolean.TRUE.equals(request.principal());
+        if (principal)
+            removerContatoPrincipalAtual(pessoa, null);
 
         Contato contato = Contato.builder()
                 .pessoa(pessoa)
                 .tipo(request.tipo())
                 .valor(request.valor())
-                .principal(request.principal())
+                .principal(principal)
                 .empresaId(TenantContext.getEmpresaId())
                 .build();
 
@@ -64,19 +64,17 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
         Contato contato = buscarContato(id);
         Pessoa pessoa = buscarPessoa(request.pessoaId());
 
-        if (!contato.getValor().equalsIgnoreCase(request.valor())) {
+        if (!contato.getPessoa().getId().equals(pessoa.getId()) || !contato.getValor().equalsIgnoreCase(request.valor()))
             validarContatoDuplicado(pessoa, request.valor());
-            contato.setValor(request.valor());
-        }
 
+        boolean principal = Boolean.TRUE.equals(request.principal());
+        if (principal)
+            removerContatoPrincipalAtual(pessoa, id);
+
+        contato.setPessoa(pessoa);
+        contato.setValor(request.valor());
         contato.setTipo(request.tipo());
-
-        if (request.principal()) {
-            removerContatoPrincipalAtual(pessoa);
-            contato.setPrincipal(true);
-        } else {
-            contato.setPrincipal(false);
-        }
+        contato.setPrincipal(principal);
 
         return contatoMapper.toResponse(contatoRepository.save(contato));
     }
@@ -102,7 +100,6 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "pessoa-contato-admin", fallbackMethod = "fallbackAdminPageTipo")
     public Page<ContatoListDTO> listarPorPessoaETipo(Long pessoaId, TipoContato tipo, Pageable pageable) {
         return contatoRepository
                 .findByPessoaAndTipoAndEmpresaId(
@@ -124,12 +121,12 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
     // ============================================================
 
     private Contato buscarContato(Long id) {
-        return contatoRepository.findById(id)
+        return findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Contato não encontrado: " + id));
     }
 
     private Pessoa buscarPessoa(Long pessoaId) {
-        return pessoaRepository.findById(pessoaId)
+        return pessoaRepository.findByIdAndEmpresaId(pessoaId, TenantContext.getEmpresaId())
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada: " + pessoaId));
     }
 
@@ -138,9 +135,10 @@ public class ContatoService extends BaseTenantService<Contato, Long> {
             throw new IllegalArgumentException("Já existe um contato com o valor informado para esta pessoa.");
     }
 
-    private void removerContatoPrincipalAtual(Pessoa pessoa) {
+    private void removerContatoPrincipalAtual(Pessoa pessoa, Long idAtual) {
         contatoRepository
                 .findByPessoaAndPrincipalTrueAndEmpresaId(pessoa, TenantContext.getEmpresaId())
+                .filter(contato -> !contato.getId().equals(idAtual))
                 .ifPresent(contato -> {
                     contato.setPrincipal(false);
                     contatoRepository.save(contato);

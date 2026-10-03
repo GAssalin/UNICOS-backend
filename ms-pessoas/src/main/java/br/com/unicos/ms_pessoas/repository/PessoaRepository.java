@@ -8,38 +8,16 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * Repositório responsável pelo acesso aos dados da entidade {@link Pessoa}.
- * <p>
- * Fornece operações CRUD padrão e consultas customizadas que permitem
- * localizar pessoas por nome, tipo ou outras classificações relevantes
- * dentro do UniCoS.
+ * Repositório da entidade base {@link Pessoa} (física ou jurídica), sempre restrito à empresa (tenant).
  */
 @Repository
 public interface PessoaRepository extends BaseTenantRepository<Pessoa, Long> {
 
-    /**
-     * Busca pessoas pelo nome exato.
-     *
-     * @param nome Nome da pessoa.
-     * @return Lista de pessoas com o nome informado.
-     */
-    List<Pessoa> findByNome(String nome);
+    List<Pessoa> findByEmpresaId(Long empresaId);
 
-    /**
-     * Busca pessoas cujo nome contenha o termo informado,
-     * ignorando diferenciação de maiúsculas/minúsculas.
-     *
-     * @param nome Parte do nome da pessoa.
-     * @return Lista de pessoas que contenham o termo informado.
-     */
-    List<Pessoa> findByNomeContainingIgnoreCase(String nome);
+    List<Pessoa> findByNomeAndEmpresaId(String nome, Long empresaId);
 
-    /**
-     * Lista todas as pessoas de um determinado tipo
-     * (Pessoa Física ou Pessoa Jurídica).
-     *
-     * @param tipo Tipo da pessoa.
-     * @return Lista de pessoas do tipo informado.
-     */
-    List<Pessoa> findByTipoPessoa(TipoPessoa tipo);
+    List<Pessoa> findByNomeContainingIgnoreCaseAndEmpresaId(String nome, Long empresaId);
+
+    List<Pessoa> findByTipoPessoaAndEmpresaId(TipoPessoa tipo, Long empresaId);
 }

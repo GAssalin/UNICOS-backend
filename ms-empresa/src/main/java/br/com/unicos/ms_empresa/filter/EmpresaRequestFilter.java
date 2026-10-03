@@ -1,96 +1,61 @@
 package br.com.unicos.ms_empresa.filter;
 
+import br.com.unicos.core.auth.interno.TokenInternoService;
+import br.com.unicos.core.auth.service.TokenCoreService;
 import br.com.unicos.core.tenant.context.TenantContext;
-import br.com.unicos.core.usuario.context.UserContext;
+import br.com.unicos.core.web.filter.ContextoRequisicaoFilter;
 import br.com.unicos.ms_empresa.client.PermissaoService;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
-@RequiredArgsConstructor
-@Slf4j
-public class EmpresaRequestFilter extends OncePerRequestFilter {
+public class EmpresaRequestFilter extends ContextoRequisicaoFilter {
+
+    /**
+     * Sub-recursos de {@code /v1/empresas/{empresaRefId}/...} e o prefixo da permissão de cada um.
+     */
+    private static final Map<String, String> SUB_RECURSOS = new LinkedHashMap<>();
+
+    private static final Pattern SUB_RECURSO = Pattern.compile("/v1/empresas/([^/]+)/([^/]+)(?:/.*)?");
+
+    static {
+        SUB_RECURSOS.put("configuracoes", "EMPRESA_CONFIGURACAO_");
+        SUB_RECURSOS.put("contatos", "EMPRESA_CONTATO_");
+        SUB_RECURSOS.put("enderecos", "EMPRESA_ENDERECO_");
+        SUB_RECURSOS.put("parametros", "EMPRESA_PARAMETRO_");
+        SUB_RECURSOS.put("usuarios", "EMPRESA_USUARIO_");
+    }
 
     private final PermissaoService permissaoService;
 
+    public EmpresaRequestFilter(
+            TokenCoreService tokenCoreService,
+            TokenInternoService tokenInternoService,
+            PermissaoService permissaoService
+    ) {
+        super(tokenCoreService, tokenInternoService);
+        this.permissaoService = permissaoService;
+    }
+
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
-        try {
-            String usuarioId = request.getHeader("X-Usuario-Id");
-            String tenantId = request.getHeader("X-Tenant-Id");
-
-            if (usuarioId != null && tenantId != null) {
-
-                UserContext.setUsuarioId(Long.valueOf(usuarioId));
-                TenantContext.setEmpresaId(Long.valueOf(tenantId));
-
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                Long.valueOf(usuarioId),
-                                null,
-                                List.of()
-                        );
-
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authentication);
-
-                validarPermissaoPorRota(request);
-            }
-
-            filterChain.doFilter(request, response);
-        } finally {
-            UserContext.clear();
-            TenantContext.clear();
-            SecurityContextHolder.clearContext();
-        }
+    protected boolean usuarioPossuiPermissao(String permissao) {
+        return permissaoService.usuarioPossuiPermissao(permissao);
     }
 
-    private void validarPermissaoPorRota(HttpServletRequest request) {
-        String permissao = resolverPermissao(request.getMethod(), request.getServletPath());
-
-        if (permissao == null)
-            return;
-        if (!permissaoService.usuarioPossuiPermissao(permissao))
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não possui permissão para acessar este recurso.");
-    }
-
-    private String resolverPermissao(String metodoHttp, String path) {
-        String prefixo;
-
+    @Override
+    protected String resolverPermissao(String metodoHttp, String path) {
         // Mantém o alias legado sob as mesmas permissões da rota versionada.
         if (path.equals("/api/empresas") || path.startsWith("/api/empresas/"))
             path = "/v1/empresas" + path.substring("/api/empresas".length());
 
-        if (path.matches("/v1/empresas/[^/]+/configuracoes(?:/.*)?"))
-            prefixo = "EMPRESA_CONFIGURACAO_";
-        else if (path.matches("/v1/empresas/[^/]+/contatos(?:/.*)?"))
-            prefixo = "EMPRESA_CONTATO_";
-        else if (path.matches("/v1/empresas/[^/]+/enderecos(?:/.*)?"))
-            prefixo = "EMPRESA_ENDERECO_";
-        else if (path.matches("/v1/empresas/[^/]+/parametros(?:/.*)?"))
-            prefixo = "EMPRESA_PARAMETRO_";
-        else if (path.matches("/v1/empresas/[^/]+/usuarios(?:/.*)?"))
-            prefixo = "EMPRESA_USUARIO_";
-        else if (path.equals("/v1/empresas") || path.startsWith("/v1/empresas/"))
-            prefixo = "EMPRESA_";
-        else
+        String prefixo = resolverPrefixo(path);
+
+        if (prefixo == null)
             return null;
 
         return switch (metodoHttp) {
@@ -102,4 +67,26 @@ public class EmpresaRequestFilter extends OncePerRequestFilter {
         };
     }
 
+    private static String resolverPrefixo(String path) {
+        Matcher matcher = SUB_RECURSO.matcher(path);
+
+        if (matcher.matches() && SUB_RECURSOS.containsKey(matcher.group(2))) {
+            validarEmpresaDoCaminho(matcher.group(1));
+            return SUB_RECURSOS.get(matcher.group(2));
+        }
+
+        if (path.equals("/v1/empresas") || path.startsWith("/v1/empresas/"))
+            return "EMPRESA_";
+
+        return null;
+    }
+
+    /**
+     * Os sub-recursos sempre operam sobre a empresa do usuário autenticado; o identificador do
+     * caminho precisa corresponder a ela.
+     */
+    private static void validarEmpresaDoCaminho(String empresaRefId) {
+        if (!TenantContext.getEmpresaId().toString().equals(empresaRefId))
+            throw new AccessDeniedException("Acesso negado aos dados de outra empresa.");
+    }
 }

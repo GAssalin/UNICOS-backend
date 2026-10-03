@@ -1,6 +1,7 @@
 package br.com.unicos.core.base.model;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -13,6 +14,7 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -20,8 +22,15 @@ import java.time.LocalDateTime;
  * Classe base para auditoria das entidades do sistema.
  *
  * <p>Fornece os campos padrão de criação, atualização e exclusão lógica.</p>
+ *
+ * <p>
+ * Os campos {@code criadoPor} e {@code atualizadoPor} são preenchidos pelo
+ * {@link AuditingEntityListener}, que depende de {@code @EnableJpaAuditing}
+ * e de um {@code AuditorAware} configurados no microserviço.
+ * </p>
  */
 @MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor

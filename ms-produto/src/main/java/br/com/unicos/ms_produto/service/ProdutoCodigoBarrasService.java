@@ -8,6 +8,7 @@ import br.com.unicos.ms_produto.dto.produtocodigobarras.ProdutoCodigoBarrasUpdat
 import br.com.unicos.ms_produto.mapper.ProdutoCodigoBarrasMapper;
 import br.com.unicos.ms_produto.model.ProdutoCodigoBarras;
 import br.com.unicos.ms_produto.repository.ProdutoCodigoBarrasRepository;
+import br.com.unicos.ms_produto.repository.ProdutoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,15 +20,19 @@ import java.util.List;
 public class ProdutoCodigoBarrasService extends BaseTenantService<ProdutoCodigoBarras, Long> {
 
     private final ProdutoCodigoBarrasRepository repository;
+    private final ProdutoRepository produtoRepository;
     private final ProdutoCodigoBarrasMapper mapper;
 
-    public ProdutoCodigoBarrasService(ProdutoCodigoBarrasRepository repository, ProdutoCodigoBarrasMapper mapper) {
+    public ProdutoCodigoBarrasService(ProdutoCodigoBarrasRepository repository, ProdutoRepository produtoRepository, ProdutoCodigoBarrasMapper mapper) {
         super(repository);
         this.repository = repository;
+        this.produtoRepository = produtoRepository;
         this.mapper = mapper;
     }
 
     public ProdutoCodigoBarrasResponse criar(ProdutoCodigoBarrasCreateRequest request) {
+        validarProduto(request.produtoId());
+
         validarCodigoDuplicado(request.codigoBarras());
 
         if (request.principal())
@@ -102,5 +107,10 @@ public class ProdutoCodigoBarrasService extends BaseTenantService<ProdutoCodigoB
                     c.setPrincipal(false);
                     repository.save(c);
                 });
+    }
+
+    private void validarProduto(Long produtoId) {
+        if (!produtoRepository.existsByIdAndEmpresaId(produtoId, TenantContext.getEmpresaId()))
+            throw new EntityNotFoundException("Produto não encontrado: " + produtoId);
     }
 }

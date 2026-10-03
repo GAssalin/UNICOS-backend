@@ -8,6 +8,7 @@ import br.com.unicos.ms_produto.dto.produtoimagem.ProdutoImagemUpdateRequest;
 import br.com.unicos.ms_produto.mapper.ProdutoImagemMapper;
 import br.com.unicos.ms_produto.model.ProdutoImagem;
 import br.com.unicos.ms_produto.repository.ProdutoImagemRepository;
+import br.com.unicos.ms_produto.repository.ProdutoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,15 +20,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProdutoImagemService extends BaseTenantService<ProdutoImagem, Long> {
 
     private final ProdutoImagemRepository repository;
+    private final ProdutoRepository produtoRepository;
     private final ProdutoImagemMapper mapper;
 
-    public ProdutoImagemService(ProdutoImagemRepository repository, ProdutoImagemMapper mapper) {
+    public ProdutoImagemService(ProdutoImagemRepository repository, ProdutoRepository produtoRepository, ProdutoImagemMapper mapper) {
         super(repository);
         this.repository = repository;
+        this.produtoRepository = produtoRepository;
         this.mapper = mapper;
     }
 
     public ProdutoImagemResponse criar(ProdutoImagemCreateRequest request) {
+        validarProduto(request.produtoId());
+
         if (request.principal())
             removerPrincipalAtual(request.produtoId());
 
@@ -82,5 +87,10 @@ public class ProdutoImagemService extends BaseTenantService<ProdutoImagem, Long>
                     img.setPrincipal(false);
                     repository.save(img);
                 });
+    }
+
+    private void validarProduto(Long produtoId) {
+        if (!produtoRepository.existsByIdAndEmpresaId(produtoId, TenantContext.getEmpresaId()))
+            throw new EntityNotFoundException("Produto não encontrado: " + produtoId);
     }
 }

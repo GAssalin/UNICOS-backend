@@ -6,98 +6,69 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 
+import java.util.List;
+
+/**
+ * Rotas do gateway. Cada microserviço é exposto em {@code /{nome-do-servico}/**}, com o prefixo
+ * removido antes do encaminhamento via Eureka ({@code lb://}).
+ *
+ * <p>
+ * As rotas são avaliadas na ordem em que são declaradas: exceções públicas (sem JWT) precisam vir
+ * antes da rota protegida do mesmo serviço. Caminhos {@code /internal/**} e {@code /actuator/**}
+ * dos microserviços são bloqueados pelo {@code ProtecaoBordaFilter}.
+ * </p>
+ */
 @RequiredArgsConstructor
 @Configuration
 public class GatewayConfig {
+
+    /**
+     * Microserviços cujas rotas exigem access token válido.
+     */
+    static final List<String> SERVICOS_PROTEGIDOS = List.of(
+            "ms-permissao",
+            "ms-pessoas",
+            "ms-empresa",
+            "ms-estoque",
+            "ms-cliente",
+            "ms-produto"
+    );
 
     private final JwtAuthFilter jwtAuthFilter;
 
     @Bean
     public RouteLocator customRoutes(RouteLocatorBuilder builder) {
-        return builder.routes()
+        RouteLocatorBuilder.Builder routes = builder.routes()
 
-                // ===============================
-                // ROTA: MS-AUTENTICACAO (sem JWT)
-                // ===============================
+                // Login e renovação de token: sem JWT.
                 .route("ms-autenticacao", r -> r
                         .path("/ms-autenticacao/**")
-                        .filters(f -> f
-                                .stripPrefix(1)
-                        )
+                        .filters(f -> f.stripPrefix(1))
                         .uri("lb://ms-autenticacao")
                 )
 
-                // ===============================
-                // ROTA: MS-PERMISSAO (COM JWT)
-                // ===============================
-                .route("ms-permissao", r -> r
-                        .path("/ms-permissao/**")
-                        .filters(f -> f
-                                .stripPrefix(1)
-                                .filter(jwtAuthFilter)
-                        )
-                        .uri("lb://ms-permissao")
-                )
-
-                // ===============================
-                // ROTA: MS-PESSOAS (COM JWT)
-                // ===============================
-                .route("ms-pessoas", r -> r
-                        .path("/ms-pessoas/**")
-                        .filters(f -> f
-                                .stripPrefix(1)
-                                .filter(jwtAuthFilter)
-                        )
+                // Confirmação de e-mail: o usuário ainda não possui token.
+                .route("ms-pessoas-confirmacao-email", r -> r
+                        .path("/ms-pessoas/v1/verificacao-email/confirmar")
+                        .and()
+                        .method(HttpMethod.PATCH)
+                        .filters(f -> f.stripPrefix(1))
                         .uri("lb://ms-pessoas")
-                )
+                );
 
-                // ===============================
-                // ROTA: MS-EMPRESA (COM JWT)
-                // ===============================
-                .route("ms-empresa", r -> r
-                        .path("/ms-empresa/**")
-                        .filters(f -> f
-                                .stripPrefix(1)
-                                .filter(jwtAuthFilter)
-                        )
-                        .uri("lb://ms-empresa")
-                )
+        for (String servico : SERVICOS_PROTEGIDOS) {
+            routes = routes.route(servico, r -> r
+                    .path("/" + servico + "/**")
+                    .filters(f -> f
+                            .stripPrefix(1)
+                            .filter(jwtAuthFilter)
+                    )
+                    .uri("lb://" + servico)
+            );
+        }
 
-                // ===============================
-                // ROTA: MS-ESTOQUE (COM JWT)
-                // ===============================
-                .route("ms-estoque", r -> r
-                        .path("/ms-estoque/**")
-                        .filters(f -> f
-                                .stripPrefix(1)
-                                .filter(jwtAuthFilter)
-                        )
-                        .uri("lb://ms-estoque")
-                )
-
-                // ===============================
-                // ROTA: MS-CLIENTE (COM JWT)
-                // ===============================
-                .route("ms-cliente", r -> r
-                        .path("/ms-cliente/**")
-                        .filters(f -> f
-                                .stripPrefix(1)
-                                .filter(jwtAuthFilter)
-                        )
-                        .uri("lb://ms-cliente")
-                )
-
-                // ROTA: MS-PRODUTO (COM JWT)
-                .route("ms-produto", r -> r
-                        .path("/ms-produto/**")
-                        .filters(f -> f
-                                .stripPrefix(1)
-                                .filter(jwtAuthFilter)
-                        )
-                        .uri("lb://ms-produto")
-                )
-
-                .build();
+        return routes.build();
     }
 }

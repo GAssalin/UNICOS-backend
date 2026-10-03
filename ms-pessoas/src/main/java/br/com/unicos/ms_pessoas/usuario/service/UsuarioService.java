@@ -2,8 +2,12 @@ package br.com.unicos.ms_pessoas.usuario.service;
 
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
+import br.com.unicos.core.usuario.context.UserContext;
 import br.com.unicos.core.usuario.dto.UsuarioAuthResponse;
+import br.com.unicos.core.usuario.dto.UsuarioResumoResponse;
 import br.com.unicos.ms_pessoas.client.PermissaoService;
+import br.com.unicos.ms_pessoas.model.Pessoa;
+import br.com.unicos.ms_pessoas.repository.PessoaRepository;
 import br.com.unicos.ms_pessoas.usuario.dto.permissao.RoleResumoResponse;
 import br.com.unicos.ms_pessoas.usuario.dto.usuario.UsuarioRequest;
 import br.com.unicos.ms_pessoas.usuario.dto.usuario.UsuarioResponse;
@@ -14,45 +18,79 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Slf4j
 public class UsuarioService extends BaseTenantService<Usuario, Long> {
 
     private final UsuarioRepository usuarioRepository;
+    private final PessoaRepository pessoaRepository;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioMapper usuarioMapper;
     private final PermissaoService permissaoService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, UsuarioMapper usuarioMapper, PermissaoService permissaoService) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PessoaRepository pessoaRepository, PasswordEncoder passwordEncoder, UsuarioMapper usuarioMapper, PermissaoService permissaoService) {
         super(usuarioRepository);
         this.usuarioRepository = usuarioRepository;
+        this.pessoaRepository = pessoaRepository;
         this.passwordEncoder = passwordEncoder;
         this.usuarioMapper = usuarioMapper;
         this.permissaoService = permissaoService;
     }
 
+    // ============================================================
+    // CONSULTAS INTERNAS (ms-autenticacao)
+    // ============================================================
+
+    /**
+     * Dados para autenticação por e-mail. A busca é global, pois a empresa só é conhecida após o login.
+     */
     @Transactional(readOnly = true)
     public UsuarioAuthResponse buscarParaAutenticacao(String email) {
-        Usuario usuario = usuarioRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
-
-        return new UsuarioAuthResponse(
-                usuario.getId(),
-                usuario.getLogin(),
-                usuario.getPassword(),
-                usuario.getEmpresaId()
-        );
+        return toAuthResponse(usuarioRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado")));
     }
+
+    /**
+     * Dados para renovação de token, a partir do identificador presente no refresh token.
+     */
+    @Transactional(readOnly = true)
+    public UsuarioAuthResponse buscarParaAutenticacao(Long id) {
+        return toAuthResponse(usuarioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado")));
+    }
+
+    /**
+     * Nome de exibição do usuário: o nome da pessoa vinculada ou, na ausência dela, o login.
+     */
+    @Transactional(readOnly = true)
+    public UsuarioResumoResponse buscarResumo(Long id) {
+        Usuario usuario = buscarUsuario(id);
+
+        String nome = usuario.getPessoaId() == null
+                ? usuario.getLogin()
+                : pessoaRepository.findByIdAndEmpresaId(usuario.getPessoaId(), usuario.getEmpresaId())
+                        .map(Pessoa::getNome)
+                        .orElse(usuario.getLogin());
+
+        return new UsuarioResumoResponse(usuario.getId(), nome);
+    }
+
+    // ============================================================
+    // CRUD
+    // ============================================================
 
     @Transactional
     public UsuarioResponse salvar(UsuarioRequest request) {
-        validarLoginDuplicado(request.login());
-        validarEmailDuplicado(request.email());
+        validarLoginDisponivel(request.login());
+        validarEmailDisponivel(request.email());
+        validarPessoa(request.pessoaId());
 
         RoleResumoResponse role = permissaoService.buscarRolePorId(request.roleId());
 
@@ -75,18 +113,23 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     public UsuarioResponse atualizar(Long id, UsuarioRequest request) {
         Usuario usuario = buscarUsuario(id);
 
-        if (!usuario.getLogin().equalsIgnoreCase(request.login())) {
-            validarLoginDuplicado(request.login());
-            usuario.setLogin(request.login());
-        }
+        if (!usuario.getLogin().equalsIgnoreCase(request.login()))
+            validarLoginDisponivel(request.login());
+        usuario.setLogin(request.login());
 
-        if (request.email() != null && !request.email().equalsIgnoreCase(usuario.getEmail())) {
-            validarEmailDuplicado(request.email());
+        if (!usuario.getEmail().equalsIgnoreCase(request.email())) {
+            validarEmailDisponivel(request.email());
             usuario.setEmail(request.email());
+            usuario.setEmailVerificado(false);
         }
 
+        validarPessoa(request.pessoaId());
         usuario.setPessoaId(request.pessoaId());
-        usuario.setAtivo(request.ativo() != null ? request.ativo() : usuario.getAtivo());
+
+        if (request.ativo() != null) {
+            validarAlteracaoDoProprioStatus(usuario, request.ativo());
+            usuario.setAtivo(request.ativo());
+        }
 
         RoleResumoResponse role = permissaoService.buscarRolePorId(request.roleId());
         usuario.setRoleId(role.id());
@@ -106,7 +149,7 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     @Transactional(readOnly = true)
     public UsuarioResponse buscarPorLogin(String login) {
         Usuario usuario = usuarioRepository
-                .findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(login, TenantContext.getEmpresaId())
+                .findByLoginIgnoreCaseAndEmpresaId(login, TenantContext.getEmpresaId())
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + login));
 
         return toResponseComRole(usuario);
@@ -114,23 +157,19 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponse> listarTodos(Pageable pageable) {
-        return usuarioRepository
-                .findAllByEmpresaId(TenantContext.getEmpresaId(), pageable)
-                .map(this::toResponseComRole);
+        return comRoles(usuarioRepository.findAllByEmpresaId(TenantContext.getEmpresaId(), pageable));
     }
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponse> listarAtivos(Pageable pageable) {
-        return usuarioRepository
-                .findByAtivoTrueAndEmailVerificadoTrueAndEmpresaId(TenantContext.getEmpresaId(), pageable)
-                .map(this::toResponseComRole);
+        return comRoles(usuarioRepository
+                .findByAtivoTrueAndEmailVerificadoTrueAndEmpresaId(TenantContext.getEmpresaId(), pageable));
     }
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponse> listarInativos(Pageable pageable) {
-        return usuarioRepository
-                .findByAtivoFalseAndEmailVerificadoTrueAndEmpresaId(TenantContext.getEmpresaId(), pageable)
-                .map(this::toResponseComRole);
+        return comRoles(usuarioRepository
+                .findByAtivoFalseAndEmailVerificadoTrueAndEmpresaId(TenantContext.getEmpresaId(), pageable));
     }
 
     @Transactional
@@ -151,6 +190,7 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
         if (Boolean.FALSE.equals(usuario.getAtivo()))
             return;
 
+        validarAlteracaoDoProprioStatus(usuario, false);
         usuario.setAtivo(false);
         usuarioRepository.save(usuario);
     }
@@ -158,6 +198,10 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     @Transactional
     public void deletar(Long id) {
         Usuario usuario = buscarUsuario(id);
+
+        if (usuario.getId().equals(UserContext.getUsuarioId()))
+            throw new IllegalStateException("O usuário não pode excluir a própria conta.");
+
         usuarioRepository.delete(usuario);
     }
 
@@ -166,8 +210,18 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     // ============================================================
 
     private Usuario buscarUsuario(Long id) {
-        return usuarioRepository.findById(id)
+        return findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + id));
+    }
+
+    private UsuarioAuthResponse toAuthResponse(Usuario usuario) {
+        return new UsuarioAuthResponse(
+                usuario.getId(),
+                usuario.getLogin(),
+                usuario.getPassword(),
+                usuario.getEmpresaId(),
+                Boolean.TRUE.equals(usuario.getAtivo())
+        );
     }
 
     private UsuarioResponse toResponseComRole(Usuario usuario) {
@@ -175,22 +229,39 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
         return usuarioMapper.toResponse(usuario, roleNome);
     }
 
-    private void validarLoginDuplicado(String login) {
-        if (usuarioRepository
-                .findByLoginIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(login, TenantContext.getEmpresaId())
-                .isPresent()) {
-            throw new IllegalArgumentException("Já existe um usuário com o login informado.");
-        }
+    /**
+     * Resolve o nome de cada role uma única vez por página, evitando uma chamada ao
+     * ms-permissao para cada usuário.
+     */
+    private Page<UsuarioResponse> comRoles(Page<Usuario> usuarios) {
+        Map<Long, String> nomesRoles = new HashMap<>();
+
+        return usuarios.map(usuario -> usuarioMapper.toResponse(
+                usuario,
+                nomesRoles.computeIfAbsent(usuario.getRoleId(), roleId -> permissaoService.buscarRolePorId(roleId).nome())
+        ));
     }
 
-    private void validarEmailDuplicado(String email) {
-        if (email == null)
-            return;
+    /**
+     * Login e e-mail são únicos em toda a base, pois identificam o usuário antes de se conhecer a empresa.
+     */
+    private void validarLoginDisponivel(String login) {
+        if (usuarioRepository.existsByLoginIgnoreCase(login))
+            throw new IllegalArgumentException("Já existe um usuário com o login informado.");
+    }
 
-        if (usuarioRepository
-                .findByEmailIgnoreCaseAndEmailVerificadoTrueAndEmpresaId(email, TenantContext.getEmpresaId())
-                .isPresent()) {
+    private void validarEmailDisponivel(String email) {
+        if (usuarioRepository.existsByEmailIgnoreCase(email))
             throw new IllegalArgumentException("Já existe um usuário com o e-mail informado.");
-        }
+    }
+
+    private void validarPessoa(Long pessoaId) {
+        if (pessoaId != null && !pessoaRepository.existsByIdAndEmpresaId(pessoaId, TenantContext.getEmpresaId()))
+            throw new EntityNotFoundException("Pessoa não encontrada: " + pessoaId);
+    }
+
+    private void validarAlteracaoDoProprioStatus(Usuario usuario, boolean novoStatus) {
+        if (!novoStatus && usuario.getId().equals(UserContext.getUsuarioId()))
+            throw new IllegalStateException("O usuário não pode desativar a própria conta.");
     }
 }
