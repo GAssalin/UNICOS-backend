@@ -1,10 +1,14 @@
 package br.com.unicos.core.usuario.dto;
 
-import java.util.Set;
-
+/**
+ * Dados do usuário necessários ao ms-autenticacao para validar credenciais e emitir tokens.
+ *
+ * <p>Trafega apenas entre serviços, por endpoints {@code /internal/**}.</p>
+ */
 public record UsuarioAuthResponse(
         Long userId,
         String login,
         String passwordHash,
-        Long empresaId
+        Long empresaId,
+        boolean ativo
 ) {}

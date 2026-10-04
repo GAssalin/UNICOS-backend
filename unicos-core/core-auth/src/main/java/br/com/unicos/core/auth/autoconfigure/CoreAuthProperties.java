@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *
  * <p>Exemplo:</p>
  * <pre>
- * jwt.secret=minha-chave-secreta
+ * jwt.secret=minha-chave-secreta-com-pelo-menos-32-caracteres
  * jwt.issuer=unicos
  * </pre>
  */

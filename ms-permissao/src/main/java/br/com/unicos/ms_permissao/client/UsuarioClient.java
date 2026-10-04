@@ -12,5 +12,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface UsuarioClient {
 
     @GetMapping("/internal/usuarios/{id}/role")
-    UsuarioRoleIdsResponse buscarRoleDoUsuario(@PathVariable Long id);
+    UsuarioRoleIdsResponse buscarRoleDoUsuario(@PathVariable("id") Long id);
 }

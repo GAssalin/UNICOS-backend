@@ -1,5 +1,6 @@
 package br.com.unicos.ms_pessoas.service;
 
+import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaListDTO;
 import br.com.unicos.ms_pessoas.dto.pessoa.PessoaResponse;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -31,13 +33,13 @@ public class PessoaService extends BaseTenantService<Pessoa, Long> {
 
     @Transactional(readOnly = true)
     public Optional<PessoaResponse> buscarPorId(Long id) {
-        return repository.findById(id)
+        return findById(id)
                 .map(mapper::toResponse);
     }
 
     @Transactional(readOnly = true)
     public List<PessoaListDTO> listarTodas() {
-        return repository.findAll()
+        return repository.findByEmpresaId(TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -45,7 +47,7 @@ public class PessoaService extends BaseTenantService<Pessoa, Long> {
 
     @Transactional(readOnly = true)
     public List<PessoaListDTO> listarPorNome(String nome) {
-        return repository.findByNomeContainingIgnoreCase(nome)
+        return repository.findByNomeContainingIgnoreCaseAndEmpresaId(nome, TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -53,7 +55,7 @@ public class PessoaService extends BaseTenantService<Pessoa, Long> {
 
     @Transactional(readOnly = true)
     public List<PessoaListDTO> listarPorNomeExato(String nome) {
-        return repository.findByNome(nome)
+        return repository.findByNomeAndEmpresaId(nome, TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -61,10 +63,17 @@ public class PessoaService extends BaseTenantService<Pessoa, Long> {
 
     @Transactional(readOnly = true)
     public List<PessoaListDTO> listarPorTipo(String tipoPessoa) {
-        return repository.findByTipoPessoa(TipoPessoa.valueOf(tipoPessoa.toUpperCase()))
+        return repository.findByTipoPessoaAndEmpresaId(converterTipo(tipoPessoa), TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
     }
 
+    private static TipoPessoa converterTipo(String tipoPessoa) {
+        try {
+            return TipoPessoa.valueOf(tipoPessoa.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException | NullPointerException ex) {
+            throw new IllegalArgumentException("Tipo de pessoa inválido: " + tipoPessoa);
+        }
+    }
 }

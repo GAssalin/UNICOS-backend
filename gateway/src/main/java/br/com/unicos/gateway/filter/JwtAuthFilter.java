@@ -1,21 +1,26 @@
 package br.com.unicos.gateway.filter;
 
 import br.com.unicos.core.auth.service.TokenCoreService;
+import br.com.unicos.gateway.error.RespostaErroGateway;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import static br.com.unicos.core.base.error.ErrorUtils.respostaErro;
-
+/**
+ * Rejeita na borda requisições sem access token válido.
+ *
+ * <p>
+ * O header {@code Authorization} segue para o microserviço, que valida novamente o token e
+ * dele extrai usuário e empresa; o gateway não injeta headers de identidade.
+ * </p>
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -25,28 +30,13 @@ public class JwtAuthFilter implements GatewayFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        log.info(">>> PASSOU PELO GATEWAY: {}", exchange.getRequest().getURI());
-
         try {
-            DecodedJWT jwt = tokenCoreService.validarToken(exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION));
-
-            Long usuarioId = jwt.getClaim("usuarioId").asLong();
-            Long tenantId = jwt.getClaim("tenantId").asLong();
-
-            if (usuarioId == null || tenantId == null)
-                throw new JWTVerificationException("usuarioId || tenantId não identificado.");
-
-            ServerHttpRequest mutatedRequest = exchange.getRequest()
-                    .mutate()
-                    .header("X-Usuario-Id", usuarioId.toString())
-                    .header("X-Tenant-Id", tenantId.toString())
-                    .build();
-
-            return chain.filter(exchange.mutate().request(mutatedRequest).build());
+            tokenCoreService.validarToken(exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION));
         } catch (JWTVerificationException e) {
-            log.error(e.getMessage());
-            return respostaErro(exchange, HttpStatus.UNAUTHORIZED, "Unauthorized", "Token ausente, inválido ou expirado.");
+            log.debug("Requisição rejeitada no gateway [{}]: {}", exchange.getRequest().getPath(), e.getMessage());
+            return RespostaErroGateway.escrever(exchange, HttpStatus.UNAUTHORIZED, "Token ausente, inválido ou expirado.");
         }
-    }
 
+        return chain.filter(exchange);
+    }
 }
