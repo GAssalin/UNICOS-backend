@@ -22,7 +22,12 @@ public class TratadorExcecoesJpa {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ProblemDetail tratarEntidadeNaoEncontrada(EntityNotFoundException ex, HttpServletRequest request) {
-        return Problemas.criar(HttpStatus.NOT_FOUND, "Recurso não encontrado", ex.getMessage(), request);
+        return Problemas.criar(
+                HttpStatus.NOT_FOUND,
+                "Recurso não encontrado",
+                Problemas.detalheSeguro(ex, "O recurso solicitado não foi encontrado."),
+                request
+        );
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

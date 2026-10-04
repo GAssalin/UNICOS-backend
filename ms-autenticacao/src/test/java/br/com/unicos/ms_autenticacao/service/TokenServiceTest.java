@@ -15,9 +15,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Duration;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class TokenServiceTest {
@@ -33,7 +37,35 @@ class TokenServiceTest {
 
     @BeforeEach
     void setUp() {
-        tokenService = new TokenService(ISSUER, 15, 1440, autenticacaoLoader, usuarioService, tokenCoreService);
+        tokenService = new TokenService(ISSUER, 15, 1440, autenticacaoLoader, usuarioService, tokenCoreService,
+                new ProtecaoForcaBrutaService(3, Duration.ofMinutes(15)));
+    }
+
+    @Test
+    void deveBloquearLoginAposTentativasInvalidasMesmoComSenhaCorreta() {
+        when(autenticacaoLoader.authenticate("alvo@unicos.com", "errada"))
+                .thenThrow(new BadCredentialsException("x"));
+
+        for (int i = 0; i < 3; i++)
+            assertStatus(() -> tokenService.autenticar(new DadosLoginDto("alvo@unicos.com", "errada")), HttpStatus.UNAUTHORIZED);
+
+        assertStatus(() -> tokenService.autenticar(new DadosLoginDto("ALVO@unicos.com", "correta")), HttpStatus.TOO_MANY_REQUESTS);
+        verify(autenticacaoLoader, never()).authenticate("ALVO@unicos.com", "correta");
+    }
+
+    @Test
+    void loginComSucessoDeveZerarAsTentativasInvalidas() {
+        when(autenticacaoLoader.authenticate("admin@unicos.com", "errada"))
+                .thenThrow(new BadCredentialsException("x"));
+        when(autenticacaoLoader.authenticate("admin@unicos.com", "senha"))
+                .thenReturn(new AuthenticatedUser(1L, "admin", "hash", 7L));
+
+        for (int ciclo = 0; ciclo < 2; ciclo++) {
+            for (int i = 0; i < 2; i++)
+                assertStatus(() -> tokenService.autenticar(new DadosLoginDto("admin@unicos.com", "errada")), HttpStatus.UNAUTHORIZED);
+
+            assertThat(tokenService.autenticar(new DadosLoginDto("admin@unicos.com", "senha"))).isNotNull();
+        }
     }
 
     @Test

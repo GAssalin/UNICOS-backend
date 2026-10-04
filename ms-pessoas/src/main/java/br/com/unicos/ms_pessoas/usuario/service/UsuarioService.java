@@ -13,6 +13,8 @@ import br.com.unicos.ms_pessoas.usuario.dto.usuario.UsuarioRequest;
 import br.com.unicos.ms_pessoas.usuario.dto.usuario.UsuarioResponse;
 import br.com.unicos.ms_pessoas.usuario.mapper.UsuarioMapper;
 import br.com.unicos.ms_pessoas.usuario.model.Usuario;
+import br.com.unicos.ms_pessoas.usuario.model.UsuarioEmailVerificacao;
+import br.com.unicos.ms_pessoas.usuario.repository.UsuarioEmailVerificacaoRepository;
 import br.com.unicos.ms_pessoas.usuario.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -30,14 +33,16 @@ import java.util.Map;
 public class UsuarioService extends BaseTenantService<Usuario, Long> {
 
     private final UsuarioRepository usuarioRepository;
+    private final UsuarioEmailVerificacaoRepository verificacaoRepository;
     private final PessoaRepository pessoaRepository;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioMapper usuarioMapper;
     private final PermissaoService permissaoService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PessoaRepository pessoaRepository, PasswordEncoder passwordEncoder, UsuarioMapper usuarioMapper, PermissaoService permissaoService) {
+    public UsuarioService(UsuarioRepository usuarioRepository, UsuarioEmailVerificacaoRepository verificacaoRepository, PessoaRepository pessoaRepository, PasswordEncoder passwordEncoder, UsuarioMapper usuarioMapper, PermissaoService permissaoService) {
         super(usuarioRepository);
         this.usuarioRepository = usuarioRepository;
+        this.verificacaoRepository = verificacaoRepository;
         this.pessoaRepository = pessoaRepository;
         this.passwordEncoder = passwordEncoder;
         this.usuarioMapper = usuarioMapper;
@@ -121,6 +126,7 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
             validarEmailDisponivel(request.email());
             usuario.setEmail(request.email());
             usuario.setEmailVerificado(false);
+            invalidarVerificacoesPendentes(usuario);
         }
 
         validarPessoa(request.pessoaId());
@@ -131,6 +137,7 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
             usuario.setAtivo(request.ativo());
         }
 
+        validarAlteracaoDaPropriaRole(usuario, request.roleId());
         RoleResumoResponse role = permissaoService.buscarRolePorId(request.roleId());
         usuario.setRoleId(role.id());
 
@@ -263,5 +270,23 @@ public class UsuarioService extends BaseTenantService<Usuario, Long> {
     private void validarAlteracaoDoProprioStatus(Usuario usuario, boolean novoStatus) {
         if (!novoStatus && usuario.getId().equals(UserContext.getUsuarioId()))
             throw new IllegalStateException("O usuário não pode desativar a própria conta.");
+    }
+
+    /**
+     * Impede a autoelevação de privilégios: quem pode editar usuários não pode trocar a própria role.
+     */
+    private void validarAlteracaoDaPropriaRole(Usuario usuario, Long novaRoleId) {
+        if (usuario.getId().equals(UserContext.getUsuarioId()) && !usuario.getRoleId().equals(novaRoleId))
+            throw new IllegalStateException("O usuário não pode alterar a própria role.");
+    }
+
+    /**
+     * Links de verificação emitidos para o e-mail anterior não podem confirmar o novo endereço.
+     */
+    private void invalidarVerificacoesPendentes(Usuario usuario) {
+        List<UsuarioEmailVerificacao> pendentes = verificacaoRepository
+                .findByUsuarioIdAndUtilizadoFalseAndEmpresaId(usuario.getId(), usuario.getEmpresaId());
+        pendentes.forEach(verificacao -> verificacao.setUtilizado(true));
+        verificacaoRepository.saveAll(pendentes);
     }
 }

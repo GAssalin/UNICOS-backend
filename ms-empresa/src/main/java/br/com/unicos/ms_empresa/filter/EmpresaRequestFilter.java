@@ -54,17 +54,7 @@ public class EmpresaRequestFilter extends ContextoRequisicaoFilter {
             path = "/v1/empresas" + path.substring("/api/empresas".length());
 
         String prefixo = resolverPrefixo(path);
-
-        if (prefixo == null)
-            return null;
-
-        return switch (metodoHttp) {
-            case "GET" -> prefixo.concat("LISTAR");
-            case "POST" -> prefixo.concat("CRIAR");
-            case "PUT", "PATCH" -> prefixo.concat("EDITAR");
-            case "DELETE" -> prefixo.concat("EXCLUIR");
-            default -> null;
-        };
+        return prefixo == null ? null : permissaoPorMetodo(prefixo, metodoHttp);
     }
 
     private static String resolverPrefixo(String path) {

@@ -75,6 +75,19 @@ class TokenCoreServiceTest {
     }
 
     @Test
+    void deveRejeitarTokenSemExpiracao() {
+        String semExpiracao = JWT.create()
+                .withIssuer(ISSUER)
+                .withClaim(JwtClaims.TIPO, JwtClaims.TIPO_ACCESS)
+                .withClaim(JwtClaims.USUARIO_ID, 10L)
+                .withClaim(JwtClaims.TENANT_ID, 20L)
+                .sign(Algorithm.HMAC256(SEGREDO));
+
+        assertThatThrownBy(() -> service.validarToken("Bearer " + semExpiracao))
+                .isInstanceOf(JWTVerificationException.class);
+    }
+
+    @Test
     void deveRejeitarTokenSemIdentidade() {
         String semTenant = JWT.create()
                 .withIssuer(ISSUER)

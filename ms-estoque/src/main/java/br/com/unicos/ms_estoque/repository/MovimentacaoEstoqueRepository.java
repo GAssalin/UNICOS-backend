@@ -6,6 +6,7 @@ import br.com.unicos.ms_estoque.enums.TipoMovimentacaoEstoque;
 import br.com.unicos.ms_estoque.model.MovimentacaoEstoque;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -18,7 +19,7 @@ import java.util.Optional;
  * respeitando o contexto multi-tenant.
  */
 @Repository
-public interface MovimentacaoEstoqueRepository extends BaseTenantRepository<MovimentacaoEstoque, Long> {
+public interface MovimentacaoEstoqueRepository extends BaseTenantRepository<MovimentacaoEstoque, Long>, JpaSpecificationExecutor<MovimentacaoEstoque> {
 
     /**
      * Lista movimentações por tipo dentro do tenant.

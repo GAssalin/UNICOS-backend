@@ -12,17 +12,17 @@ import br.com.unicos.ms_estoque.mapper.MovimentacaoEstoqueMapper;
 import br.com.unicos.ms_estoque.model.MovimentacaoEstoque;
 import br.com.unicos.ms_estoque.repository.MovimentacaoEstoqueRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -32,19 +32,27 @@ import java.util.Optional;
 @Transactional
 public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEstoque, Long> {
 
+    /**
+     * Caractere de escape usado nas buscas por trecho ({@code LIKE}).
+     */
+    private static final char ESCAPE_LIKE = '!';
+
     private final MovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
     private final MovimentacaoEstoqueMapper movimentacaoEstoqueMapper;
+    private final EstoqueService estoqueService;
 
     /**
      * Construtor da service de movimentação de estoque.
      *
      * @param movimentacaoEstoqueRepository repositório da movimentação
      * @param movimentacaoEstoqueMapper mapper de conversão entre entidade e DTOs
+     * @param estoqueService service de estoque, usado para validar os estoques de origem e destino
      */
-    public MovimentacaoEstoqueService(MovimentacaoEstoqueRepository movimentacaoEstoqueRepository, MovimentacaoEstoqueMapper movimentacaoEstoqueMapper) {
+    public MovimentacaoEstoqueService(MovimentacaoEstoqueRepository movimentacaoEstoqueRepository, MovimentacaoEstoqueMapper movimentacaoEstoqueMapper, EstoqueService estoqueService) {
         super(movimentacaoEstoqueRepository);
         this.movimentacaoEstoqueRepository = movimentacaoEstoqueRepository;
         this.movimentacaoEstoqueMapper = movimentacaoEstoqueMapper;
+        this.estoqueService = estoqueService;
     }
 
     /**
@@ -205,13 +213,7 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
     }
 
     /**
-     * Pesquisa movimentações com base no DTO de filtros.
-     *
-     * <p>
-     * Como o repositório atual não possui suporte a Specification/Criteria,
-     * esta implementação aplica os filtros em memória sobre os registros do tenant.
-     * Para grande volume de dados, o ideal é evoluir o repository para consultas dinâmicas.
-     * </p>
+     * Pesquisa movimentações com base no DTO de filtros (filtros nulos são ignorados).
      *
      * @param request filtros da pesquisa
      * @param pageable paginação
@@ -224,40 +226,19 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
         if (request.dataInicial() != null && request.dataFinal() != null)
             validarPeriodo(request.dataInicial(), request.dataFinal());
 
-        List<MovimentacaoEstoque> filtrados = findAllByEmpresaId(TenantContext.getEmpresaId(), Pageable.unpaged())
-                .stream()
-                .filter(entity -> request.tipoMovimentacao() == null
-                        || request.tipoMovimentacao().equals(entity.getTipoMovimentacao()))
-                .filter(entity -> request.estoqueOrigemId() == null
-                        || request.estoqueOrigemId().equals(entity.getEstoqueOrigemId()))
-                .filter(entity -> request.estoqueDestinoId() == null
-                        || request.estoqueDestinoId().equals(entity.getEstoqueDestinoId()))
-                .filter(entity -> request.documentoReferencia() == null
-                        || request.documentoReferencia().isBlank()
-                        || (entity.getDocumentoReferencia() != null
-                        && entity.getDocumentoReferencia().toLowerCase()
-                        .contains(request.documentoReferencia().toLowerCase())))
-                .filter(entity -> request.usuarioResponsavelId() == null
-                        || request.usuarioResponsavelId().equals(entity.getUsuarioResponsavelId()))
-                .filter(entity -> request.statusMovimentacao() == null
-                        || request.statusMovimentacao().equals(entity.getStatusMovimentacao()))
-                .filter(entity -> request.dataInicial() == null
-                        || !entity.getDataMovimentacao().isBefore(request.dataInicial()))
-                .filter(entity -> request.dataFinal() == null
-                        || !entity.getDataMovimentacao().isAfter(request.dataFinal()))
-                .toList();
+        return movimentacaoEstoqueRepository.findAll(filtros(TenantContext.getEmpresaId(), request), pageable)
+                .map(movimentacaoEstoqueMapper::toResponse);
+    }
 
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), filtrados.size());
-
-        List<MovimentacaoEstoqueResponseDto> content = start >= filtrados.size()
-                ? List.of()
-                : filtrados.subList(start, end)
-                .stream()
-                .map(movimentacaoEstoqueMapper::toResponse)
-                .toList();
-
-        return new PageImpl<>(content, pageable, filtrados.size());
+    /**
+     * Garante que a movimentação referenciada por um item existe na empresa corrente.
+     *
+     * @param movimentacaoId identificador da movimentação
+     */
+    @Transactional(readOnly = true)
+    public void validarMovimentacaoDaEmpresa(Long movimentacaoId) {
+        if (movimentacaoId == null || !existsById(movimentacaoId))
+            throw new EntityNotFoundException("Movimentação de estoque não encontrada: " + movimentacaoId);
     }
 
     /**
@@ -271,19 +252,54 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
     }
 
     /**
-     * Busca uma movimentação e garante que ela pertence ao tenant corrente.
+     * Busca uma movimentação da empresa corrente. Registros de outras empresas respondem como inexistentes.
      *
      * @param id identificador da movimentação
      * @return entidade encontrada
      */
     private MovimentacaoEstoque buscarMovimentacao(Long id) {
-        MovimentacaoEstoque entity = movimentacaoEstoqueRepository.findById(id)
+        return findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Movimentação de estoque não encontrada: " + id));
+    }
 
-        if (!TenantContext.getEmpresaId().equals(entity.getEmpresaId()))
-            throw new AccessDeniedException("Acesso negado à movimentação fora do tenant.");
+    /**
+     * Filtros da pesquisa de movimentações, sempre restritos à empresa informada.
+     */
+    private static Specification<MovimentacaoEstoque> filtros(Long empresaId, MovimentacaoEstoqueSearchRequestDto request) {
+        return (root, query, cb) -> {
+            List<Predicate> predicados = new ArrayList<>();
+            predicados.add(cb.equal(root.get("empresaId"), empresaId));
 
-        return entity;
+            if (request.tipoMovimentacao() != null)
+                predicados.add(cb.equal(root.get("tipoMovimentacao"), request.tipoMovimentacao()));
+            if (request.estoqueOrigemId() != null)
+                predicados.add(cb.equal(root.get("estoqueOrigemId"), request.estoqueOrigemId()));
+            if (request.estoqueDestinoId() != null)
+                predicados.add(cb.equal(root.get("estoqueDestinoId"), request.estoqueDestinoId()));
+            if (request.documentoReferencia() != null && !request.documentoReferencia().isBlank())
+                predicados.add(cb.like(cb.lower(root.get("documentoReferencia")),
+                        "%" + escaparLike(request.documentoReferencia().toLowerCase(Locale.ROOT)) + "%", ESCAPE_LIKE));
+            if (request.usuarioResponsavelId() != null)
+                predicados.add(cb.equal(root.get("usuarioResponsavelId"), request.usuarioResponsavelId()));
+            if (request.statusMovimentacao() != null)
+                predicados.add(cb.equal(root.get("statusMovimentacao"), request.statusMovimentacao()));
+            if (request.dataInicial() != null)
+                predicados.add(cb.greaterThanOrEqualTo(root.get("dataMovimentacao"), request.dataInicial()));
+            if (request.dataFinal() != null)
+                predicados.add(cb.lessThanOrEqualTo(root.get("dataMovimentacao"), request.dataFinal()));
+
+            return cb.and(predicados.toArray(Predicate[]::new));
+        };
+    }
+
+    /**
+     * Trata {@code %} e {@code _} digitados pelo usuário como texto literal na busca por trecho.
+     */
+    private static String escaparLike(String valor) {
+        String escape = String.valueOf(ESCAPE_LIKE);
+        return valor.replace(escape, escape + escape)
+                .replace("%", escape + "%")
+                .replace("_", escape + "_");
     }
 
     /**
@@ -324,12 +340,32 @@ public class MovimentacaoEstoqueService extends BaseTenantService<MovimentacaoEs
      * @param estoqueDestinoId estoque de destino
      */
     private void validarConsistenciaMovimentacao(TipoMovimentacaoEstoque tipoMovimentacao, Long estoqueOrigemId, Long estoqueDestinoId) {
-        if (estoqueOrigemId == null || estoqueDestinoId == null)
-            throw new IllegalArgumentException("O estoque de origem ou estoque de destino deve ser informado.");
-        if (estoqueOrigemId.equals(estoqueDestinoId))
-            throw new IllegalArgumentException("O estoque de origem e o estoque de destino não podem ser iguais.");
         if (tipoMovimentacao == null)
             throw new IllegalArgumentException("Tipo de movimentação deve ser informada.");
+
+        switch (tipoMovimentacao) {
+            case ENTRADA, AJUSTE_ENTRADA -> exigirEstoque(estoqueDestinoId, "O estoque de destino é obrigatório para entradas.");
+            case SAIDA, AJUSTE_SAIDA -> exigirEstoque(estoqueOrigemId, "O estoque de origem é obrigatório para saídas.");
+            case TRANSFERENCIA -> {
+                exigirEstoque(estoqueOrigemId, "O estoque de origem é obrigatório para transferências.");
+                exigirEstoque(estoqueDestinoId, "O estoque de destino é obrigatório para transferências.");
+            }
+            default -> {
+                if (estoqueOrigemId == null && estoqueDestinoId == null)
+                    throw new IllegalArgumentException("O estoque de origem ou o estoque de destino deve ser informado.");
+            }
+        }
+
+        if (estoqueOrigemId != null && estoqueOrigemId.equals(estoqueDestinoId))
+            throw new IllegalArgumentException("O estoque de origem e o estoque de destino não podem ser iguais.");
+
+        estoqueService.validarEstoqueDaEmpresa(estoqueOrigemId);
+        estoqueService.validarEstoqueDaEmpresa(estoqueDestinoId);
+    }
+
+    private static void exigirEstoque(Long estoqueId, String mensagem) {
+        if (estoqueId == null)
+            throw new IllegalArgumentException(mensagem);
     }
 
     /**

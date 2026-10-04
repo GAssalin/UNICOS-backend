@@ -12,7 +12,7 @@ public record UsuarioRequest(
         @NotBlank @Size(min = 4, max = 100) String login,
         Long pessoaId,
         // BCrypt considera no máximo 72 bytes da senha.
-        @NotBlank @Size(max = 72) String password,
+        @NotBlank @Size(min = 8, max = 72) String password,
         @NotBlank @Email @Size(max = 150) String email,
         Boolean ativo,
         @NotNull Long roleId
