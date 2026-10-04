@@ -22,12 +22,23 @@ public class ClienteMapper {
         if (entity == null)
             return null;
 
+        return toResponse(entity, entity.getVendedorId() == null ? null : usuarioService.buscarNome(entity.getVendedorId()));
+    }
+
+    /**
+     * Conversão com o nome do vendedor já resolvido (usada nas listagens, que consultam cada
+     * vendedor uma única vez por página).
+     */
+    public ClienteResponse toResponse(Cliente entity, String nomeVendedor) {
+        if (entity == null)
+            return null;
+
         return new ClienteResponse(
                 entity.getId(),
                 entity.getEmpresaId(),
                 entity.getPessoaId(),
                 entity.getVendedorId(),
-                entity.getVendedorId() == null ? null : usuarioService.buscarNome(entity.getVendedorId()),
+                nomeVendedor,
                 entity.getFilialId(),
                 entity.getCodigoInterno(),
                 entity.getStatus(),

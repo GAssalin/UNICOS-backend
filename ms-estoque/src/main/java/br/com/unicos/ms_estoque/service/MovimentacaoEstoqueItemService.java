@@ -10,14 +10,15 @@ import br.com.unicos.ms_estoque.mapper.MovimentacaoEstoqueItemMapper;
 import br.com.unicos.ms_estoque.model.MovimentacaoEstoqueItem;
 import br.com.unicos.ms_estoque.repository.MovimentacaoEstoqueItemRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,17 +30,20 @@ public class MovimentacaoEstoqueItemService extends BaseTenantService<Movimentac
 
     private final MovimentacaoEstoqueItemRepository movimentacaoEstoqueItemRepository;
     private final MovimentacaoEstoqueItemMapper movimentacaoEstoqueItemMapper;
+    private final MovimentacaoEstoqueService movimentacaoEstoqueService;
 
     /**
      * Construtor da service de item de movimentação de estoque.
      *
      * @param movimentacaoEstoqueItemRepository repositório do item
      * @param movimentacaoEstoqueItemMapper mapper de conversão entre entidade e DTOs
+     * @param movimentacaoEstoqueService service da movimentação, usado para validar a movimentação do item
      */
-    public MovimentacaoEstoqueItemService(MovimentacaoEstoqueItemRepository movimentacaoEstoqueItemRepository, MovimentacaoEstoqueItemMapper movimentacaoEstoqueItemMapper) {
+    public MovimentacaoEstoqueItemService(MovimentacaoEstoqueItemRepository movimentacaoEstoqueItemRepository, MovimentacaoEstoqueItemMapper movimentacaoEstoqueItemMapper, MovimentacaoEstoqueService movimentacaoEstoqueService) {
         super(movimentacaoEstoqueItemRepository);
         this.movimentacaoEstoqueItemRepository = movimentacaoEstoqueItemRepository;
         this.movimentacaoEstoqueItemMapper = movimentacaoEstoqueItemMapper;
+        this.movimentacaoEstoqueService = movimentacaoEstoqueService;
     }
 
     /**
@@ -49,6 +53,7 @@ public class MovimentacaoEstoqueItemService extends BaseTenantService<Movimentac
      * @return item criado
      */
     public MovimentacaoEstoqueItemResponseDto salvar(MovimentacaoEstoqueItemCreateRequestDto request) {
+        movimentacaoEstoqueService.validarMovimentacaoDaEmpresa(request.movimentacaoId());
         validarItemDuplicado(request.movimentacaoId(), request.produtoId());
         validarQuantidade(request.quantidade());
         validarValorUnitario(request.valorUnitario());
@@ -69,8 +74,10 @@ public class MovimentacaoEstoqueItemService extends BaseTenantService<Movimentac
     public MovimentacaoEstoqueItemResponseDto atualizar(Long id, MovimentacaoEstoqueItemUpdateRequestDto request) {
         MovimentacaoEstoqueItem entity = buscarItem(id);
 
-        if (chaveLogicaAlterada(entity, request.movimentacaoId(), request.produtoId()))
+        if (chaveLogicaAlterada(entity, request.movimentacaoId(), request.produtoId())) {
+            movimentacaoEstoqueService.validarMovimentacaoDaEmpresa(request.movimentacaoId());
             validarItemDuplicado(request.movimentacaoId(), request.produtoId());
+        }
 
         validarQuantidade(request.quantidade());
         validarValorUnitario(request.valorUnitario());
@@ -152,12 +159,7 @@ public class MovimentacaoEstoqueItemService extends BaseTenantService<Movimentac
     }
 
     /**
-     * Pesquisa itens com base nos filtros informados.
-     *
-     * <p>
-     * Como o repositório atual não possui consultas dinâmicas, os filtros são aplicados
-     * em memória sobre os registros do tenant corrente.
-     * </p>
+     * Pesquisa itens com base nos filtros informados (filtros nulos são ignorados).
      *
      * @param request filtros da pesquisa
      * @param pageable paginação
@@ -168,25 +170,21 @@ public class MovimentacaoEstoqueItemService extends BaseTenantService<Movimentac
         if (request == null)
             return listar(pageable);
 
-        List<MovimentacaoEstoqueItem> filtrados = findAllByEmpresaId(TenantContext.getEmpresaId(), Pageable.unpaged())
-                .stream()
-                .filter(entity -> request.movimentacaoId() == null
-                        || request.movimentacaoId().equals(entity.getMovimentacaoId()))
-                .filter(entity -> request.produtoId() == null
-                        || request.produtoId().equals(entity.getProdutoId()))
-                .toList();
+        Long empresaId = TenantContext.getEmpresaId();
+        Specification<MovimentacaoEstoqueItem> filtros = (root, query, cb) -> {
+            List<Predicate> predicados = new ArrayList<>();
+            predicados.add(cb.equal(root.get("empresaId"), empresaId));
 
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), filtrados.size());
+            if (request.movimentacaoId() != null)
+                predicados.add(cb.equal(root.get("movimentacaoId"), request.movimentacaoId()));
+            if (request.produtoId() != null)
+                predicados.add(cb.equal(root.get("produtoId"), request.produtoId()));
 
-        List<MovimentacaoEstoqueItemResponseDto> content = start >= filtrados.size()
-                ? List.of()
-                : filtrados.subList(start, end)
-                .stream()
-                .map(movimentacaoEstoqueItemMapper::toResponse)
-                .toList();
+            return cb.and(predicados.toArray(Predicate[]::new));
+        };
 
-        return new PageImpl<>(content, pageable, filtrados.size());
+        return movimentacaoEstoqueItemRepository.findAll(filtros, pageable)
+                .map(movimentacaoEstoqueItemMapper::toResponse);
     }
 
     /**
@@ -200,19 +198,14 @@ public class MovimentacaoEstoqueItemService extends BaseTenantService<Movimentac
     }
 
     /**
-     * Busca um item e garante que ele pertence ao tenant corrente.
+     * Busca um item da empresa corrente. Registros de outras empresas respondem como inexistentes.
      *
      * @param id identificador do item
      * @return entidade encontrada
      */
     private MovimentacaoEstoqueItem buscarItem(Long id) {
-        MovimentacaoEstoqueItem entity = movimentacaoEstoqueItemRepository.findById(id)
+        return findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Item de movimentação de estoque não encontrado: " + id));
-
-        if (!TenantContext.getEmpresaId().equals(entity.getEmpresaId()))
-            throw new AccessDeniedException("Acesso negado ao item de movimentação fora do tenant.");
-
-        return entity;
     }
 
     /**

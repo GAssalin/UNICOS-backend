@@ -34,6 +34,7 @@ public class TokenService {
     private final AutenticacaoLoader autenticacaoLoader;
     private final UsuarioService usuarioService;
     private final TokenCoreService tokenCoreService;
+    private final ProtecaoForcaBrutaService protecaoForcaBruta;
 
     public TokenService(
             @Value("${jwt.issuer}") String issuer,
@@ -41,7 +42,8 @@ public class TokenService {
             @Value("${jwt.tempo.exp.refresh.token}") long tempoExpRefreshTokenMinutos,
             AutenticacaoLoader autenticacaoLoader,
             UsuarioService usuarioService,
-            TokenCoreService tokenCoreService
+            TokenCoreService tokenCoreService,
+            ProtecaoForcaBrutaService protecaoForcaBruta
     ) {
         if (tempoExpTokenMinutos <= 0 || tempoExpRefreshTokenMinutos <= 0)
             throw new IllegalStateException("Os tempos de expiração dos tokens devem ser maiores que zero.");
@@ -52,11 +54,15 @@ public class TokenService {
         this.autenticacaoLoader = autenticacaoLoader;
         this.usuarioService = usuarioService;
         this.tokenCoreService = tokenCoreService;
+        this.protecaoForcaBruta = protecaoForcaBruta;
     }
 
     public DadosTokenDto autenticar(DadosLoginDto dados) {
+        protecaoForcaBruta.verificarBloqueio(dados.email());
+
         try {
             AuthenticatedUser user = autenticacaoLoader.authenticate(dados.email(), dados.senha());
+            protecaoForcaBruta.registrarSucesso(dados.email());
 
             return gerarTokens(new TokenUserDataDto(
                     user.getUserId(),
@@ -66,6 +72,7 @@ public class TokenService {
         } catch (DisabledException ex) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, ex.getMessage());
         } catch (BadCredentialsException ex) {
+            protecaoForcaBruta.registrarFalha(dados.email());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário ou senha inválidos");
         }
     }

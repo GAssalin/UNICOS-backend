@@ -37,6 +37,8 @@ public interface ClienteRepository extends BaseTenantRepository<Cliente, Long> {
      */
     Page<Cliente> findByStatusAndEmpresaId(StatusCliente status, Long tenantId, Pageable pageable);
 
+    Page<Cliente> findByStatusAndEmpresaIdAndVendedorId(StatusCliente status, Long tenantId, Long vendedorId, Pageable pageable);
+
     /**
      * Verifica se já existe cliente para uma pessoa dentro do tenant.
      *

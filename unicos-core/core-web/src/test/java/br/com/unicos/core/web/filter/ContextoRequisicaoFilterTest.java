@@ -14,15 +14,19 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ContextoRequisicaoFilterTest {
 
@@ -178,6 +182,48 @@ class ContextoRequisicaoFilterTest {
         assertThat(ContextoRequisicaoFilter.isCaminhoInterno("/internal/x")).isTrue();
         assertThat(ContextoRequisicaoFilter.isCaminhoInterno("/internalx")).isFalse();
         assertThat(ContextoRequisicaoFilter.isCaminhoInterno("/v1/internal/x")).isFalse();
+    }
+
+    @Test
+    void deveResolverPrefixoPorSegmentoDeCaminho() {
+        Map<String, String> prefixos = new LinkedHashMap<>();
+        prefixos.put("/v1/pessoas", "PESSOA_");
+        prefixos.put("/v1/pessoas-fisicas", "PESSOA_FISICA_");
+
+        assertThat(ContextoRequisicaoFilter.prefixoDoRecurso(prefixos, "/v1/pessoas")).isEqualTo("PESSOA_");
+        assertThat(ContextoRequisicaoFilter.prefixoDoRecurso(prefixos, "/v1/pessoas/1")).isEqualTo("PESSOA_");
+        assertThat(ContextoRequisicaoFilter.prefixoDoRecurso(prefixos, "/v1/pessoas-fisicas/1")).isEqualTo("PESSOA_FISICA_");
+        assertThat(ContextoRequisicaoFilter.prefixoDoRecurso(prefixos, "/v1/outros")).isNull();
+    }
+
+    @Test
+    void deveExigirPermissaoParaHeadERecusarMetodosNaoMapeados() {
+        assertThat(ContextoRequisicaoFilter.permissaoPorMetodo("RECURSO_", "GET")).isEqualTo("RECURSO_LISTAR");
+        assertThat(ContextoRequisicaoFilter.permissaoPorMetodo("RECURSO_", "HEAD")).isEqualTo("RECURSO_LISTAR");
+        assertThat(ContextoRequisicaoFilter.permissaoPorMetodo("RECURSO_", "PATCH")).isEqualTo("RECURSO_EDITAR");
+        assertThatThrownBy(() -> ContextoRequisicaoFilter.permissaoPorMetodo("RECURSO_", "OPTIONS"))
+                .isInstanceOf(AccessDeniedException.class);
+        assertThatThrownBy(() -> ContextoRequisicaoFilter.permissaoPorMetodo("RECURSO_", "TRACE"))
+                .isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
+    void deveResponder403ParaMetodoNaoMapeadoEmRecursoProtegido() throws Exception {
+        FiltroDeTeste filtro = new FiltroDeTeste(true) {
+            @Override
+            protected String resolverPermissao(String metodoHttp, String path) {
+                return permissaoPorMetodo("RECURSO_", metodoHttp);
+            }
+        };
+        MockHttpServletRequest request = request("OPTIONS", "/v1/recursos");
+        request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken(10L, 20L));
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        ChainRegistradora chain = new ChainRegistradora();
+
+        filtro.doFilter(request, response, chain);
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+        assertThat(chain.chamada).isFalse();
     }
 
     private static MockHttpServletRequest request(String metodo, String uri) {

@@ -12,7 +12,6 @@ import br.com.unicos.ms_estoque.repository.VinculoEstoqueFilialRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,17 +26,20 @@ public class VinculoEstoqueFilialService extends BaseTenantService<VinculoEstoqu
 
     private final VinculoEstoqueFilialRepository vinculoRepository;
     private final VinculoEstoqueFilialMapper vinculoMapper;
+    private final EstoqueService estoqueService;
 
     /**
      * Construtor da service de vínculo entre estoque e filial.
      *
      * @param vinculoRepository repositório de vínculos
      * @param vinculoMapper mapper de conversão entre entidade e DTOs
+     * @param estoqueService service de estoque, usado para validar o estoque referenciado
      */
-    public VinculoEstoqueFilialService(VinculoEstoqueFilialRepository vinculoRepository, VinculoEstoqueFilialMapper vinculoMapper) {
+    public VinculoEstoqueFilialService(VinculoEstoqueFilialRepository vinculoRepository, VinculoEstoqueFilialMapper vinculoMapper, EstoqueService estoqueService) {
         super(vinculoRepository);
         this.vinculoRepository = vinculoRepository;
         this.vinculoMapper = vinculoMapper;
+        this.estoqueService = estoqueService;
     }
 
     /**
@@ -47,6 +49,7 @@ public class VinculoEstoqueFilialService extends BaseTenantService<VinculoEstoqu
      * @return vínculo criado
      */
     public VinculoEstoqueFilialResponseDto salvar(VinculoEstoqueFilialCreateRequestDto request) {
+        estoqueService.validarEstoqueDaEmpresa(request.estoqueId());
         validarDuplicidadeParEstoqueFilial(request.estoqueId(), request.filialId(), null);
         validarVigencia(request.vigenciaInicio(), request.vigenciaFim());
 
@@ -66,8 +69,10 @@ public class VinculoEstoqueFilialService extends BaseTenantService<VinculoEstoqu
     public VinculoEstoqueFilialResponseDto atualizar(Long id, VinculoEstoqueFilialUpdateRequestDto request) {
         VinculoEstoqueFilial entity = buscarVinculo(id);
 
-        if (!entity.getEstoqueId().equals(request.estoqueId()) || !entity.getFilialId().equals(request.filialId()))
+        if (!entity.getEstoqueId().equals(request.estoqueId()) || !entity.getFilialId().equals(request.filialId())) {
+            estoqueService.validarEstoqueDaEmpresa(request.estoqueId());
             validarDuplicidadeParEstoqueFilial(request.estoqueId(), request.filialId(), id);
+        }
 
         validarVigencia(request.vigenciaInicio(), request.vigenciaFim());
         vinculoMapper.updateEntity(request, entity);
@@ -130,19 +135,14 @@ public class VinculoEstoqueFilialService extends BaseTenantService<VinculoEstoqu
     }
 
     /**
-     * Busca um vínculo e garante que ele pertence ao tenant corrente.
+     * Busca um vínculo da empresa corrente. Registros de outras empresas respondem como inexistentes.
      *
      * @param id identificador do vínculo
      * @return entidade encontrada
      */
     private VinculoEstoqueFilial buscarVinculo(Long id) {
-        VinculoEstoqueFilial entity = vinculoRepository.findById(id)
+        return findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Vínculo estoque x filial não encontrado: " + id));
-
-        if (!TenantContext.getEmpresaId().equals(entity.getEmpresaId()))
-            throw new AccessDeniedException("Acesso negado ao vínculo fora do tenant.");
-
-        return entity;
     }
 
     /**

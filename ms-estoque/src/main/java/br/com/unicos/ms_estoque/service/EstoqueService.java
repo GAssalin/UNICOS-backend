@@ -9,16 +9,12 @@ import br.com.unicos.ms_estoque.enums.StatusEstoque;
 import br.com.unicos.ms_estoque.mapper.EstoqueMapper;
 import br.com.unicos.ms_estoque.model.Estoque;
 import br.com.unicos.ms_estoque.repository.EstoqueRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Service responsável pelas regras de negócio e operações do agregado {@link Estoque}.
@@ -28,6 +24,11 @@ import org.springframework.web.server.ResponseStatusException;
 public class EstoqueService extends BaseTenantService<Estoque, Long> {
 
     private static final String DUPLICATE_CODE_MESSAGE = "Já existe um estoque com o código informado neste tenant.";
+
+    /**
+     * Profundidade máxima percorrida ao validar a hierarquia de estoques.
+     */
+    private static final int MAX_NIVEIS_HIERARQUIA = 50;
 
     private final EstoqueRepository estoqueRepository;
     private final EstoqueMapper estoqueMapper;
@@ -145,19 +146,26 @@ public class EstoqueService extends BaseTenantService<Estoque, Long> {
     }
 
     /**
-     * Busca um estoque e garante que ele pertence ao tenant corrente.
+     * Garante que o estoque referenciado por outro registro (saldo, movimentação, responsável,
+     * vínculo) existe na empresa corrente. Identificadores nulos são ignorados.
+     *
+     * @param estoqueId identificador do estoque
+     */
+    @Transactional(readOnly = true)
+    public void validarEstoqueDaEmpresa(Long estoqueId) {
+        if (estoqueId != null && !existsById(estoqueId))
+            throw new EntityNotFoundException("Estoque não encontrado: " + estoqueId);
+    }
+
+    /**
+     * Busca um estoque da empresa corrente. Estoques de outras empresas respondem como inexistentes.
      *
      * @param id identificador do estoque
      * @return entidade encontrada
      */
     private Estoque buscarEstoque(Long id) {
-        Estoque entity = estoqueRepository.findById(id)
+        return findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Estoque não encontrado: " + id));
-
-        if (!TenantContext.getEmpresaId().equals(entity.getEmpresaId()))
-            throw new AccessDeniedException("Acesso negado ao estoque fora do tenant.");
-
-        return entity;
     }
 
     /**
@@ -182,7 +190,17 @@ public class EstoqueService extends BaseTenantService<Estoque, Long> {
         if (idEstoqueAtual != null && idEstoqueAtual.equals(estoquePaiId))
             throw new IllegalArgumentException("Um estoque não pode ser pai de si mesmo.");
 
-        buscarEstoque(estoquePaiId);
+        Estoque ancestral = buscarEstoque(estoquePaiId);
+
+        // Impede ciclos na hierarquia (A -> B -> A), que tornariam a estrutura inconsistente.
+        for (int nivel = 0; idEstoqueAtual != null && ancestral.getEstoquePaiId() != null; nivel++) {
+            if (ancestral.getEstoquePaiId().equals(idEstoqueAtual))
+                throw new IllegalArgumentException("O estoque pai informado é subordinado a este estoque.");
+            if (nivel >= MAX_NIVEIS_HIERARQUIA)
+                throw new IllegalArgumentException("A hierarquia de estoques excede o limite de níveis.");
+
+            ancestral = buscarEstoque(ancestral.getEstoquePaiId());
+        }
     }
 
     /**

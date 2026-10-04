@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -77,16 +78,17 @@ public interface ResponsavelEstoqueRepository extends BaseTenantRepository<Respo
     );
 
     /**
-     * Recupera o responsável principal de um estoque dentro do tenant.
+     * Lista os responsáveis principais de um estoque com o status informado, dentro do tenant.
+     * O histórico pode conter vários principais (por exemplo, um inativo e um ativo).
      *
      * @param estoqueId Identificador do estoque.
-     * @param principal      Flag de responsável principal.
-     * @param tenantId       Identificador do tenant (empresaId do BaseTenantEntity).
-     * @return Optional com o responsável principal.
+     * @param status    Status do vínculo do responsável.
+     * @param tenantId  Identificador do tenant (empresaId do BaseTenantEntity).
+     * @return responsáveis principais encontrados.
      */
-    Optional<ResponsavelEstoque> findByEstoqueIdAndPrincipalAndEmpresaId(
+    List<ResponsavelEstoque> findByEstoqueIdAndPrincipalTrueAndStatusResponsavelEstoqueAndEmpresaId(
             Long estoqueId,
-            Boolean principal,
+            StatusResponsavelEstoque status,
             Long tenantId
     );
 

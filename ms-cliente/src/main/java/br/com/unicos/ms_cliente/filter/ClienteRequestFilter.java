@@ -42,21 +42,7 @@ public class ClienteRequestFilter extends ContextoRequisicaoFilter {
 
     @Override
     protected String resolverPermissao(String metodoHttp, String path) {
-        String prefixo = PREFIXOS.entrySet().stream()
-                .filter(entry -> path.equals(entry.getKey()) || path.startsWith(entry.getKey() + "/"))
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElse(null);
-
-        if (prefixo == null)
-            return null;
-
-        return switch (metodoHttp) {
-            case "GET" -> prefixo.concat("LISTAR");
-            case "POST" -> prefixo.concat("CRIAR");
-            case "PUT", "PATCH" -> prefixo.concat("EDITAR");
-            case "DELETE" -> prefixo.concat("EXCLUIR");
-            default -> null;
-        };
+        String prefixo = prefixoDoRecurso(PREFIXOS, path);
+        return prefixo == null ? null : permissaoPorMetodo(prefixo, metodoHttp);
     }
 }

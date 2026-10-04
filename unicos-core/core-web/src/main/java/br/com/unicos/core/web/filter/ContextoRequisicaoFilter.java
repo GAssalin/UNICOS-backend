@@ -25,6 +25,7 @@ import org.springframework.web.util.UrlPathHelper;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Filtro base que estabelece o contexto de segurança de cada requisição nos microserviços.
@@ -115,6 +116,42 @@ public abstract class ContextoRequisicaoFilter extends OncePerRequestFilter {
 
     static boolean isCaminhoInterno(String path) {
         return path.equals("/internal") || path.startsWith(PREFIXO_INTERNO);
+    }
+
+    /**
+     * Prefixo de permissão do primeiro recurso (na ordem de inserção) que contém o caminho.
+     *
+     * <p>A comparação é feita por segmento: {@code /v1/pessoas} captura {@code /v1/pessoas/1},
+     * mas não {@code /v1/pessoas-fisicas}.</p>
+     *
+     * @param prefixos caminho base do recurso → prefixo da permissão (ex.: {@code PESSOA_})
+     * @return prefixo encontrado ou {@code null} quando o caminho não pertence a nenhum recurso
+     */
+    protected static String prefixoDoRecurso(Map<String, String> prefixos, String path) {
+        for (Map.Entry<String, String> entry : prefixos.entrySet()) {
+            if (path.equals(entry.getKey()) || path.startsWith(entry.getKey() + "/"))
+                return entry.getValue();
+        }
+        return null;
+    }
+
+    /**
+     * Permissão CRUD padrão de um recurso: {@code <prefixo>LISTAR|CRIAR|EDITAR|EXCLUIR}.
+     *
+     * <p>Métodos sem permissão correspondente são recusados. Sem isso, um {@code HEAD}
+     * (atendido pelos handlers de {@code GET}) ou outro método não mapeado seguiria
+     * sem nenhuma verificação de permissão.</p>
+     *
+     * @throws AccessDeniedException para métodos HTTP não mapeados
+     */
+    protected static String permissaoPorMetodo(String prefixo, String metodoHttp) {
+        return switch (metodoHttp) {
+            case "GET", "HEAD" -> prefixo + "LISTAR";
+            case "POST" -> prefixo + "CRIAR";
+            case "PUT", "PATCH" -> prefixo + "EDITAR";
+            case "DELETE" -> prefixo + "EXCLUIR";
+            default -> throw new AccessDeniedException("Método HTTP não permitido para este recurso.");
+        };
     }
 
     private boolean autenticar(String authorization) {

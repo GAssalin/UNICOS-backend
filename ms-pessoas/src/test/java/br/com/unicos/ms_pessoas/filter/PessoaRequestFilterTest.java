@@ -4,8 +4,10 @@ import br.com.unicos.core.auth.interno.TokenInternoService;
 import br.com.unicos.core.auth.service.TokenCoreService;
 import br.com.unicos.ms_pessoas.client.PermissaoService;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.access.AccessDeniedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 class PessoaRequestFilterTest {
@@ -36,6 +38,12 @@ class PessoaRequestFilterTest {
     void naoDeveExigirPermissaoParaRotasNaoMapeadas() {
         assertThat(filter.resolverPermissao("GET", "/actuator/health")).isNull();
         assertThat(filter.resolverPermissao("GET", "/v1/pessoasx")).isNull();
-        assertThat(filter.resolverPermissao("OPTIONS", "/v1/pessoas")).isNull();
+    }
+
+    @Test
+    void naoDeveLiberarMetodosSemPermissaoCorrespondenteEmRecursosProtegidos() {
+        assertThat(filter.resolverPermissao("HEAD", "/v1/usuarios")).isEqualTo("USUARIO_LISTAR");
+        assertThatThrownBy(() -> filter.resolverPermissao("OPTIONS", "/v1/pessoas"))
+                .isInstanceOf(AccessDeniedException.class);
     }
 }
