@@ -30,6 +30,7 @@
         - core-tenant
         - core-usuario
         - core-pessoas
+        - core-funcionario
         - core-web
     </description>
 
@@ -39,6 +40,7 @@
         <module>core-tenant</module>
         <module>core-usuario</module>
         <module>core-pessoas</module>
+        <module>core-funcionario</module>
         <module>core-web</module>
     </modules>
 

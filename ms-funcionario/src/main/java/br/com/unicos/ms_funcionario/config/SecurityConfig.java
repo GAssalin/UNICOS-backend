@@ -1,0 +1,21 @@
+package br.com.unicos.ms_funcionario.config;
+
+import br.com.unicos.core.web.security.SegurancaPadrao;
+import br.com.unicos.ms_funcionario.filter.FuncionarioRequestFilter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filtrosSeguranca(HttpSecurity http, FuncionarioRequestFilter funcionarioRequestFilter) throws Exception {
+        return SegurancaPadrao.configurar(http, funcionarioRequestFilter);
+    }
+}
