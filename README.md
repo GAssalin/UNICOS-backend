@@ -10,7 +10,7 @@ A plataforma é composta por um Service Registry (Eureka), um API Gateway (Sprin
 |---|---|
 | `pom.xml` | Agregador (reactor) de todos os módulos |
 | `unicos-parent/` | POM pai: versões de Spring Boot, Spring Cloud, SpringDoc, JWT e configuração de compilação |
-| `unicos-core/` | Bibliotecas compartilhadas (`core-base`, `core-auth`, `core-tenant`, `core-usuario`, `core-pessoas`, `core-web`) |
+| `unicos-core/` | Bibliotecas compartilhadas (`core-base`, `core-auth`, `core-tenant`, `core-usuario`, `core-pessoas`, `core-funcionario`, `core-web`) |
 | `service-registry/` | Eureka Server |
 | `gateway/` | API Gateway: roteamento, validação de JWT na borda, CORS e portal `/docs` |
 | `ms-*/` | Microsserviços de domínio |
@@ -40,6 +40,7 @@ Todas as versões são definidas apenas em `unicos-parent/pom.xml`.
 | `ms-permissao` | Roles, permissões e vínculos role × permissão | `mysql-permissao` |
 | `ms-empresa` | Empresas (tenants), contatos, endereços, configurações, parâmetros e vínculos de usuários | `mysql-empresa` |
 | `ms-cliente` | Clientes, categorias e observações | `mysql-cliente` |
+| `ms-funcionario` | Funcionários, cargos, hierarquia (superior imediato) e escopo de acesso à carteira de clientes | `mysql-funcionario` |
 | `ms-estoque` | Estoques, saldos por produto, movimentações, responsáveis e vínculos com filiais | `mysql-estoque` |
 | `ms-produto` | Catálogo de produtos, categorias, marcas, atributos, preços, imagens e códigos de barras | `mysql-produto` |
 
@@ -52,6 +53,7 @@ Todas as versões são definidas apenas em `unicos-parent/pom.xml`.
 | `core-tenant` | `TenantContext`, entidade/repositório/serviço base multi-tenant |
 | `core-usuario` | `UserContext` e contratos de usuário trocados entre serviços |
 | `core-pessoas` | Contratos do `ms-pessoas` consumidos por outros serviços |
+| `core-funcionario` | Contratos do `ms-funcionario` consumidos por outros serviços (escopo da carteira de clientes) |
 | `core-web` | Filtro de contexto da requisição, segurança padrão, tratamento global de erros e interceptor Feign |
 
 ## Segurança
@@ -85,6 +87,29 @@ Todo dado de negócio pertence a uma empresa (`empresa_id`). Os serviços filtra
 * login e e-mail de usuário, CPF, CNPJ e número de documento são únicos em toda a base (restrição do banco).
 
 No `ms-empresa`, a própria empresa é o tenant. `/v1/empresas` enxerga apenas a empresa do token e as filiais vinculadas a ela (`matrizId`). Por essa rota é possível cadastrar apenas filiais da empresa do token (somente quando ela é uma matriz); novas matrizes são novos tenants e devem ser cadastradas pela administração da plataforma. O tipo (matriz/filial) não pode ser alterado e a empresa do token não pode ser excluída.
+
+### Carteira de clientes
+
+O acesso aos clientes combina duas regras independentes:
+
+* **o que** o usuário pode fazer vem das permissões da role (`CLIENTE_LISTAR`, `CLIENTE_EDITAR`...);
+* **quais** clientes ele acessa vem do papel do cargo do funcionário vinculado ao usuário no `ms-funcionario`.
+
+| Situação do usuário | Clientes acessíveis |
+|---|---|
+| Funcionário com cargo de papel `VENDEDOR` | Apenas os da própria carteira (`vendedorId` igual ao usuário) |
+| Funcionário com cargo de papel `SUPERVISOR`, `GERENTE`, `DIRETOR` ou `ADMINISTRATIVO` | Todos os clientes da empresa |
+| Usuário sem cadastro de funcionário (ex.: administradores) | Todos os clientes da empresa |
+| Funcionário `DESLIGADO` | No máximo a própria carteira |
+
+Regras:
+
+* Para o vendedor, clientes de outra carteira respondem `404`, inclusive no registro de observações. Clientes cadastrados por ele entram sempre na própria carteira e não podem ser transferidos por ele.
+* Os demais usuários filtram a carteira de um vendedor com `GET /v1/clientes?vendedorId=...` (também em `/v1/clientes/status/{status}`) e transferem clientes informando outro `vendedorId`. O vendedor indicado precisa ser funcionário da empresa e não estar desligado.
+* O `ms-cliente` consulta o escopo no `ms-funcionario` a cada requisição. Se ele estiver indisponível, a requisição é recusada com `503`, nunca liberada sem restrição.
+* O nome da role não define mais quem é vendedor: usuários que vendem precisam estar cadastrados como funcionários de um cargo com papel `VENDEDOR`.
+* Ninguém altera o cargo, o status ou o usuário do próprio cadastro de funcionário, nem o papel do próprio cargo; o próprio cadastro também não pode ser excluído.
+* `GET /ms-funcionario/v1/funcionarios/me` devolve o cadastro, o papel e o escopo da carteira do usuário autenticado, sem exigir permissão específica.
 
 ### Formato de erros
 
@@ -256,4 +281,4 @@ mvn test
 
 Os testes unitários cobrem a validação de tokens, o token interno, o filtro de contexto/permissões (inclusive métodos HTTP não mapeados), o tratamento seguro de mensagens de erro, o gateway (bloqueio de rotas internas, inclusive com barras duplicadas ou codificadas, remoção de headers, 401), login/renovação de tokens, a proteção contra força bruta e o mapeamento rota → permissão.
 
-Cada serviço possui também um teste de contexto (`ContextoAplicacaoTest`) que sobe a aplicação completa com H2 em memória (profile `test`, sem Flyway e sem Eureka) e valida pela API a cadeia de segurança, o isolamento por empresa, o tratamento de erros e as consultas dos repositórios. Esses testes não substituem a validação das migrações em MySQL, que deve ser feita subindo o ambiente com Docker Compose.
+Cada serviço possui também um teste de contexto (`ContextoAplicacaoTest`) que sobe a aplicação completa com H2 em memória (profile `test`, sem Flyway e sem Eureka) e valida pela API a cadeia de segurança, o isolamento por empresa, o tratamento de erros e as consultas dos repositórios. No `ms-funcionario` e no `ms-cliente`, esses testes cobrem também a hierarquia de funcionários e o acesso à carteira de clientes (vendedor × gestores). Esses testes não substituem a validação das migrações em MySQL, que deve ser feita subindo o ambiente com Docker Compose.

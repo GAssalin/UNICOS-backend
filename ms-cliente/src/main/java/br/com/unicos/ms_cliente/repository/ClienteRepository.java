@@ -19,11 +19,11 @@ import org.springframework.stereotype.Repository;
 public interface ClienteRepository extends BaseTenantRepository<Cliente, Long> {
 
     /**
-     * Busca cliente por vendedor responsável dentro do tenant.
+     * Lista a carteira de clientes de um vendedor dentro do tenant.
      *
      * @param tenantId identificador da empresa (tenant)
      * @param vendedorId identificador do vendedor
-     * @return cliente encontrado
+     * @return página de clientes
      */
     Page<Cliente> findByEmpresaIdAndVendedorId(Long tenantId, Long vendedorId, Pageable pageable);
 
@@ -38,6 +38,11 @@ public interface ClienteRepository extends BaseTenantRepository<Cliente, Long> {
     Page<Cliente> findByStatusAndEmpresaId(StatusCliente status, Long tenantId, Pageable pageable);
 
     Page<Cliente> findByStatusAndEmpresaIdAndVendedorId(StatusCliente status, Long tenantId, Long vendedorId, Pageable pageable);
+
+    /**
+     * Verifica se o cliente pertence à carteira do vendedor dentro do tenant.
+     */
+    boolean existsByIdAndEmpresaIdAndVendedorId(Long id, Long tenantId, Long vendedorId);
 
     /**
      * Verifica se já existe cliente para uma pessoa dentro do tenant.

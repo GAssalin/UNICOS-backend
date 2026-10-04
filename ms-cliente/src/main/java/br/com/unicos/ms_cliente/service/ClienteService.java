@@ -3,8 +3,6 @@ package br.com.unicos.ms_cliente.service;
 import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.core.usuario.context.UserContext;
-import br.com.unicos.core.usuario.dto.UsuarioRoleIdsResponse;
-import br.com.unicos.ms_cliente.client.PermissaoService;
 import br.com.unicos.ms_cliente.client.UsuarioService;
 import br.com.unicos.ms_cliente.dto.cliente.ClienteRequest;
 import br.com.unicos.ms_cliente.dto.cliente.ClienteResponse;
@@ -34,24 +32,26 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
     private final ClienteCategoriaRepository categoriaRepository;
     private final ClienteMapper mapper;
     private final UsuarioService usuarioService;
-    private final PermissaoService permissaoService;
+    private final CarteiraService carteiraService;
 
-    public ClienteService(ClienteRepository repository, ClienteCategoriaRepository categoriaRepository, ClienteMapper mapper, UsuarioService usuarioClient, PermissaoService permissaoService) {
+    public ClienteService(ClienteRepository repository, ClienteCategoriaRepository categoriaRepository, ClienteMapper mapper, UsuarioService usuarioService, CarteiraService carteiraService) {
         super(repository);
         this.repository = repository;
         this.categoriaRepository = categoriaRepository;
         this.mapper = mapper;
-        this.usuarioService = usuarioClient;
-        this.permissaoService = permissaoService;
+        this.usuarioService = usuarioService;
+        this.carteiraService = carteiraService;
     }
 
     public ClienteResponse salvar(ClienteRequest request) {
         validarClienteDuplicado(request.pessoaId());
 
         Cliente entity = mapper.toEntity(request);
-        // Vendedores só cadastram clientes para si mesmos.
-        if (entity.getVendedorId() == null || isUsuarioUmVendedor())
+        // Vendedores só cadastram clientes na própria carteira.
+        if (entity.getVendedorId() == null || carteiraService.isRestritaAoUsuarioAtual())
             entity.setVendedorId(UserContext.getUsuarioId());
+        else
+            carteiraService.validarVendedor(entity.getVendedorId());
         entity.setEmpresaId(TenantContext.getEmpresaId());
 
         if (request.categoriaId() != null)
@@ -61,8 +61,9 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
     }
 
     public ClienteResponse atualizar(Long id, ClienteRequest request) {
-        boolean vendedor = isUsuarioUmVendedor();
-        Cliente entity = buscar(id, vendedor);
+        boolean carteiraRestrita = carteiraService.isRestritaAoUsuarioAtual();
+        Cliente entity = buscar(id, carteiraRestrita);
+        Long vendedorAnterior = entity.getVendedorId();
 
         if (!entity.getPessoaId().equals(request.pessoaId()))
             validarClienteDuplicado(request.pessoaId());
@@ -70,8 +71,10 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
         mapper.updateEntity(entity, request);
 
         // Vendedores não transferem seus clientes para outros vendedores.
-        if (vendedor)
+        if (carteiraRestrita)
             entity.setVendedorId(UserContext.getUsuarioId());
+        else if (!entity.getVendedorId().equals(vendedorAnterior))
+            carteiraService.validarVendedor(entity.getVendedorId());
 
         if (request.categoriaId() != null)
             entity.setCategoria(buscarCategoria(request.categoriaId()));
@@ -86,24 +89,33 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
         return mapper.toResponse(buscar(id));
     }
 
+    /**
+     * @param vendedorId filtro opcional pela carteira de um vendedor; ignorado para vendedores,
+     *                   que sempre recebem apenas a própria carteira
+     */
     @Transactional(readOnly = true)
-    public Page<ClienteResponse> listar(Pageable pageable) {
+    public Page<ClienteResponse> listar(Long vendedorId, Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
-        Long usuarioId = UserContext.getUsuarioId();
+        Long vendedor = vendedorDaConsulta(vendedorId);
 
-        Page<Cliente> clientes = isUsuarioUmVendedor()
-                ? repository.findByEmpresaIdAndVendedorId(empresaId, usuarioId, pageable)
+        Page<Cliente> clientes = vendedor != null
+                ? repository.findByEmpresaIdAndVendedorId(empresaId, vendedor, pageable)
                 : findAllByEmpresaId(empresaId, pageable);
 
         return comNomesDosVendedores(clientes);
     }
 
+    /**
+     * @param vendedorId filtro opcional pela carteira de um vendedor; ignorado para vendedores,
+     *                   que sempre recebem apenas a própria carteira
+     */
     @Transactional(readOnly = true)
-    public Page<ClienteResponse> listarPorStatus(StatusCliente status, Pageable pageable) {
+    public Page<ClienteResponse> listarPorStatus(StatusCliente status, Long vendedorId, Pageable pageable) {
         Long empresaId = TenantContext.getEmpresaId();
+        Long vendedor = vendedorDaConsulta(vendedorId);
 
-        Page<Cliente> clientes = isUsuarioUmVendedor()
-                ? repository.findByStatusAndEmpresaIdAndVendedorId(status, empresaId, UserContext.getUsuarioId(), pageable)
+        Page<Cliente> clientes = vendedor != null
+                ? repository.findByStatusAndEmpresaIdAndVendedorId(status, empresaId, vendedor, pageable)
                 : repository.findByStatusAndEmpresaId(status, empresaId, pageable);
 
         return comNomesDosVendedores(clientes);
@@ -119,16 +131,24 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
     // ============================================================
 
     private Cliente buscar(Long id) {
-        return buscar(id, isUsuarioUmVendedor());
+        return buscar(id, carteiraService.isRestritaAoUsuarioAtual());
     }
 
     /**
-     * Vendedores acessam apenas os próprios clientes; os demais respondem como inexistentes.
+     * Vendedores acessam apenas os clientes da própria carteira; os demais respondem como inexistentes.
      */
-    private Cliente buscar(Long id, boolean vendedor) {
+    private Cliente buscar(Long id, boolean carteiraRestrita) {
         return findById(id)
-                .filter(cliente -> !vendedor || UserContext.getUsuarioId().equals(cliente.getVendedorId()))
+                .filter(cliente -> !carteiraRestrita || UserContext.getUsuarioId().equals(cliente.getVendedorId()))
                 .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado: " + id));
+    }
+
+    /**
+     * Vendedor cuja carteira será consultada: o próprio usuário quando a carteira é restrita; caso
+     * contrário, o filtro informado ({@code null} para todos os clientes).
+     */
+    private Long vendedorDaConsulta(Long vendedorId) {
+        return carteiraService.isRestritaAoUsuarioAtual() ? UserContext.getUsuarioId() : vendedorId;
     }
 
     /**
@@ -144,15 +164,6 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
                         .computeIfAbsent(cliente.getVendedorId(), id -> Optional.ofNullable(usuarioService.buscarNome(id)))
                         .orElse(null)
         ));
-    }
-
-    private boolean isUsuarioUmVendedor() {
-        UsuarioRoleIdsResponse response = usuarioService.buscarRoleIdsDoUsuario(UserContext.getUsuarioId());
-
-        if (response == null || response.idRole() == null)
-            return false;
-
-        return permissaoService.buscarNomeRoleById(response.idRole()).nome().toUpperCase().contains("VENDEDOR");
     }
 
     private ClienteCategoria buscarCategoria(Long id) {

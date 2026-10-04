@@ -124,6 +124,15 @@ services:
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
     volumes: [mysql_cliente_data:/var/lib/mysql]
 
+  mysql-funcionario:
+    <<: *mysql
+    environment:
+      MYSQL_DATABASE: "${FUNCIONARIO_DB_NAME:?defina FUNCIONARIO_DB_NAME}"
+      MYSQL_USER: "${FUNCIONARIO_DB_USER:?defina FUNCIONARIO_DB_USER}"
+      MYSQL_PASSWORD: "${FUNCIONARIO_DB_PASSWORD:?defina FUNCIONARIO_DB_PASSWORD}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    volumes: [mysql_funcionario_data:/var/lib/mysql]
+
   mysql-estoque:
     <<: *mysql
     environment:
@@ -206,6 +215,18 @@ services:
       service-registry: { condition: service_healthy }
       mysql-cliente: { condition: service_healthy }
 
+  ms-funcionario:
+    <<: *app
+    build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-funcionario } }
+    environment:
+      <<: [*common-env, *jwt-env, *internal-env]
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-funcionario:3306/${FUNCIONARIO_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "${FUNCIONARIO_DB_USER}"
+      SPRING_DATASOURCE_PASSWORD: "${FUNCIONARIO_DB_PASSWORD}"
+    depends_on:
+      service-registry: { condition: service_healthy }
+      mysql-funcionario: { condition: service_healthy }
+
   ms-estoque:
     <<: *app
     build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-estoque } }
@@ -239,5 +260,6 @@ volumes:
   mysql_permissao_data:
   mysql_empresa_data:
   mysql_cliente_data:
+  mysql_funcionario_data:
   mysql_estoque_data:
   mysql_produto_data:

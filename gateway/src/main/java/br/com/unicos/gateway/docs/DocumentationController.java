@@ -32,7 +32,8 @@ public class DocumentationController {
             "ms-empresa",
             "ms-estoque",
             "ms-produto",
-            "ms-cliente"
+            "ms-cliente",
+            "ms-funcionario"
     );
 
     private final DiscoveryClient discoveryClient;

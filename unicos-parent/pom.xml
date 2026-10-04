@@ -83,6 +83,11 @@
             </dependency>
             <dependency>
                 <groupId>br.com.unicos</groupId>
+                <artifactId>core-funcionario</artifactId>
+                <version>${unicos-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>br.com.unicos</groupId>
                 <artifactId>core-web</artifactId>
                 <version>${unicos-core.version}</version>
             </dependency>

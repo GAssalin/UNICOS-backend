@@ -1,0 +1,26 @@
+package br.com.unicos.ms_funcionario.client;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class PermissaoService {
+
+    private final PermissaoClient permissaoClient;
+
+    @CircuitBreaker(name = "ms-permissao", fallbackMethod = "fallbackUsuarioPossuiPermissao")
+    public boolean usuarioPossuiPermissao(String nomePermissao) {
+        return permissaoClient.usuarioPossuiPermissao(nomePermissao);
+    }
+
+    private boolean fallbackUsuarioPossuiPermissao(String nomePermissao, Throwable ex) {
+        log.error("Falha ao verificar a permissão [{}] no ms-permissao. Causa: {}", nomePermissao, ex.getMessage(), ex);
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de busca da permissão temporariamente indisponível");
+    }
+}
