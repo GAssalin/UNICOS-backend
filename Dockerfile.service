@@ -1,15 +1,17 @@
 # syntax=docker/dockerfile:1.7
+# Build unico para todos os servicos Spring Boot do reactor Maven.
+# Uso: docker build -f Dockerfile.service --build-arg SERVICE_NAME=ms-pessoas .
 FROM maven:3.9.9-eclipse-temurin-21 AS build
 ARG SERVICE_NAME
-ARG MAVEN_PROFILES=""
 WORKDIR /workspace
 COPY . .
 RUN --mount=type=cache,target=/root/.m2 \
     set -eu; \
-    case "$SERVICE_NAME" in service-registry|gateway|ms-autenticacao|ms-pessoas|ms-cliente|ms-empresa|ms-permissao|ms-produto) ;; *) exit 2 ;; esac; \
-    set --; \
-    if [ -n "$MAVEN_PROFILES" ]; then set -- "-P$MAVEN_PROFILES"; fi; \
-    mvn -B -ntp "$@" -pl "$SERVICE_NAME" -am clean package -DskipTests; \
+    case "$SERVICE_NAME" in \
+      service-registry|gateway|ms-autenticacao|ms-pessoas|ms-cliente|ms-empresa|ms-estoque|ms-permissao|ms-produto) ;; \
+      *) echo "SERVICE_NAME invalido: '$SERVICE_NAME'" >&2; exit 2 ;; \
+    esac; \
+    mvn -B -ntp -pl "$SERVICE_NAME" -am clean package -DskipTests; \
     find "$SERVICE_NAME/target" -maxdepth 1 -type f -name '*.jar' \
       ! -name '*-sources.jar' ! -name '*-javadoc.jar' ! -name '*-plain.jar' > /tmp/jars; \
     test "$(wc -l < /tmp/jars)" -eq 1; \
@@ -21,6 +23,7 @@ RUN apk add --no-cache curl && addgroup -S spring && adduser -S spring -G spring
 WORKDIR /app
 COPY --from=build --chown=spring:spring /tmp/app.jar /app/app.jar
 USER spring:spring
-# A porta efetiva e fornecida por SERVER_PORT no Compose.
+# A porta efetiva e definida por SERVER_PORT no Compose (8080; 8081 no service-registry).
+EXPOSE 8080
 ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError"
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

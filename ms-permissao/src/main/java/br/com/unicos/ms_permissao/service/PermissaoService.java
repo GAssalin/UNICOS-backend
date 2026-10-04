@@ -20,6 +20,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Regras de negócio das permissões.
+ *
+ * <p>
+ * As permissões formam um catálogo global: qualquer empresa pode consultá-las e vinculá-las
+ * às suas roles, mas apenas a empresa que cadastrou uma permissão pode alterá-la ou excluí-la.
+ * </p>
+ */
 @Service
 @Slf4j
 public class PermissaoService extends BaseTenantService<Permissao, Long> {
@@ -39,85 +47,83 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
 
     @Transactional
     public PermissaoResponse salvar(PermissaoRequest request) {
-        validarNomeDuplicado(request.nome());
+        validarNomeDisponivel(request.nome());
 
         Permissao entity = Permissao.builder()
                 .nome(request.nome())
                 .descricao(request.descricao())
+                .empresaId(TenantContext.getEmpresaId())
                 .build();
 
-        return mapper.toResponse(save(entity));
+        return mapper.toResponse(repository.save(entity));
     }
 
     @Transactional
     public PermissaoResponse atualizar(Long id, PermissaoRequest request) {
-        Permissao entity = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Permissão não encontrada: " + id));
+        Permissao entity = buscarDaEmpresa(id);
 
-        if (!entity.getNome().equalsIgnoreCase(request.nome())) {
-            validarNomeDuplicado(request.nome());
-            entity.setNome(request.nome());
-        }
+        if (!entity.getNome().equalsIgnoreCase(request.nome()))
+            validarNomeDisponivel(request.nome());
 
+        entity.setNome(request.nome());
         entity.setDescricao(request.descricao());
 
-        return mapper.toResponse(save(entity));
+        return mapper.toResponse(repository.save(entity));
     }
 
     @Transactional(readOnly = true)
     public PermissaoResponse buscarPorId(Long id) {
-        Permissao entity = repository.findById(id)
+        return repository.findById(id)
+                .map(mapper::toResponse)
                 .orElseThrow(() -> new EntityNotFoundException("Permissão não encontrada: " + id));
-        return mapper.toResponse(entity);
     }
 
     @Transactional(readOnly = true)
     public Page<PermissaoResponse> listar(String nome, Pageable pageable) {
-        Page<Permissao> page;
-
-        if (nome == null || nome.isBlank())
-            page = findAllByEmpresaId(TenantContext.getEmpresaId(), pageable);
-        else
-            page = repository.findByNomeContainingIgnoreCaseAndEmpresaId(nome, TenantContext.getEmpresaId(), pageable);
+        Page<Permissao> page = (nome == null || nome.isBlank())
+                ? repository.findAll(pageable)
+                : repository.findByNomeContainingIgnoreCase(nome, pageable);
 
         return page.map(mapper::toResponse);
     }
 
     @Transactional(readOnly = true)
     public boolean usuarioPossuiPermissao(String nomePermissao) {
-        UsuarioRoleIdsResponse usuarioRole = usuarioService.buscarRoleIdsDoUsuario(UserContext.getUsuarioId());
-        if (usuarioRole == null || usuarioRole.idRole() == null)
+        Long roleId = buscarRoleDoUsuarioLogado();
+
+        if (roleId == null)
             return false;
 
-        return rolePermissaoRepository.rolePossuiPermissao(
-                TenantContext.getEmpresaId(),
-                usuarioRole.idRole(),
-                nomePermissao
-        );
+        return rolePermissaoRepository.rolePossuiPermissao(TenantContext.getEmpresaId(), roleId, nomePermissao);
     }
 
     @Transactional(readOnly = true)
     public List<String> listarPermissoesDoUsuarioLogado() {
-        Long userId = UserContext.getUsuarioId();
+        Long roleId = buscarRoleDoUsuarioLogado();
 
-        UsuarioRoleIdsResponse usuarioRole = usuarioService.buscarRoleIdsDoUsuario(userId);
-        if (usuarioRole == null || usuarioRole.idRole() == null)
+        if (roleId == null)
             return List.of();
 
-        return rolePermissaoRepository.listarNomesPermissoesDaRole(
-                TenantContext.getEmpresaId(),
-                usuarioRole.idRole()
-        );
+        return rolePermissaoRepository.listarNomesPermissoesDaRole(TenantContext.getEmpresaId(), roleId);
     }
 
+    @Transactional
     public void deletar(Long id) {
-        if (!existsById(id))
-            throw new EntityNotFoundException("Permissão não encontrada: " + id);
-        repository.deleteById(id);
+        repository.delete(buscarDaEmpresa(id));
     }
 
-    private void validarNomeDuplicado(String nome) {
-        if (repository.existsByNomeContainingIgnoreCaseAndEmpresaId(nome, TenantContext.getEmpresaId()))
+    private Long buscarRoleDoUsuarioLogado() {
+        UsuarioRoleIdsResponse usuarioRole = usuarioService.buscarRoleIdsDoUsuario(UserContext.getUsuarioId());
+        return usuarioRole != null ? usuarioRole.idRole() : null;
+    }
+
+    private Permissao buscarDaEmpresa(Long id) {
+        return findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Permissão não encontrada: " + id));
+    }
+
+    private void validarNomeDisponivel(String nome) {
+        if (repository.existsByNomeIgnoreCase(nome))
             throw new IllegalArgumentException("Já existe uma permissão cadastrada com o nome informado.");
     }
 }

@@ -17,7 +17,6 @@ import br.com.unicos.ms_cliente.repository.ClienteRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -113,28 +112,22 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
     // ============================================================
 
     private Cliente buscar(Long id) {
-        Cliente entity = repository.findById(id)
+        return findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado: " + id));
-
-        if (!TenantContext.getEmpresaId().equals(entity.getEmpresaId()))
-            throw new AccessDeniedException("Acesso fora do tenant.");
-
-        return entity;
     }
 
     private boolean isUsuarioUmVendedor() {
         UsuarioRoleIdsResponse response = usuarioService.buscarRoleIdsDoUsuario(UserContext.getUsuarioId());
+
+        if (response == null || response.idRole() == null)
+            return false;
+
         return permissaoService.buscarNomeRoleById(response.idRole()).nome().toUpperCase().contains("VENDEDOR");
     }
 
     private ClienteCategoria buscarCategoria(Long id) {
-        ClienteCategoria categoria = categoriaRepository.findById(id)
+        return categoriaRepository.findByIdAndEmpresaId(id, TenantContext.getEmpresaId())
                 .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada: " + id));
-
-        if (!TenantContext.getEmpresaId().equals(categoria.getEmpresaId()))
-            throw new AccessDeniedException("Categoria fora do tenant.");
-
-        return categoria;
     }
 
     private void validarClienteDuplicado(Long pessoaId) {

@@ -1,10 +1,10 @@
 package br.com.unicos.core.tenant.service;
 
+import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -13,7 +13,8 @@ import java.util.Optional;
  *
  * <p>
  * Esta classe centraliza a lógica padrão de acesso ao repositório
- * multi-tenant, garantindo isolamento por {@code empresaId}.
+ * multi-tenant, garantindo isolamento pelo {@code empresaId} do
+ * {@link TenantContext} da requisição atual.
  * </p>
  *
  * <p>
@@ -29,12 +30,18 @@ public abstract class BaseTenantService<T, ID> {
 
     protected final BaseTenantRepository<T, ID> repository;
 
+    /**
+     * Busca a entidade pelo identificador, restrita à empresa do contexto atual.
+     */
     public Optional<T> findById(ID id) {
-        return repository.findById(id);
+        return repository.findByIdAndEmpresaId(id, TenantContext.getEmpresaId());
     }
 
+    /**
+     * Verifica a existência da entidade na empresa do contexto atual.
+     */
     public boolean existsById(ID id) {
-        return repository.existsById(id);
+        return repository.existsByIdAndEmpresaId(id, TenantContext.getEmpresaId());
     }
 
     public Page<T> findAllByEmpresaId(Long empresaId, Pageable pageable) {
@@ -45,7 +52,10 @@ public abstract class BaseTenantService<T, ID> {
         return repository.save(entity);
     }
 
+    /**
+     * Remove a entidade somente se ela pertencer à empresa do contexto atual.
+     */
     public void deleteById(ID id) {
-        repository.deleteById(id);
+        findById(id).ifPresent(repository::delete);
     }
 }

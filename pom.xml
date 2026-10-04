@@ -8,8 +8,9 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>UNICOS Backend</name>
-    <description>Agregador dos modulos UNICOS; cada aplicacao preserva seu parent Spring Boot.</description>
+    <description>Agregador (reactor) dos módulos UNICOS. As versões e a configuração de build ficam em unicos-parent.</description>
     <modules>
+        <module>unicos-parent</module>
         <module>unicos-core</module>
 
         <module>service-registry</module>

@@ -1,102 +1,67 @@
 package br.com.unicos.ms_pessoas.filter;
 
-import br.com.unicos.core.tenant.context.TenantContext;
-import br.com.unicos.core.usuario.context.UserContext;
+import br.com.unicos.core.auth.interno.TokenInternoService;
+import br.com.unicos.core.auth.service.TokenCoreService;
+import br.com.unicos.core.web.filter.ContextoRequisicaoFilter;
 import br.com.unicos.ms_pessoas.client.PermissaoService;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
-@Slf4j
-public class PessoaRequestFilter extends OncePerRequestFilter {
+public class PessoaRequestFilter extends ContextoRequisicaoFilter {
+
+    /**
+     * Prefixo da permissão exigida por recurso. A comparação é feita por segmento de caminho,
+     * de modo que {@code /v1/pessoas} não captura {@code /v1/pessoas-fisicas}.
+     */
+    private static final Map<String, String> PREFIXOS = new LinkedHashMap<>();
+
+    static {
+        PREFIXOS.put("/v1/contatos", "PESSOA_CONTATO_");
+        PREFIXOS.put("/v1/documentos", "PESSOA_DOCUMENTO_");
+        PREFIXOS.put("/v1/enderecos", "PESSOA_ENDERECO_");
+        PREFIXOS.put("/v1/municipios", "PESSOA_MUNICIPIO_");
+        PREFIXOS.put("/v1/pessoas", "PESSOA_");
+        PREFIXOS.put("/v1/pessoas-fisicas", "PESSOA_FISICA_");
+        PREFIXOS.put("/v1/pessoas-juridicas", "PESSOA_JURIDICA_");
+        PREFIXOS.put("/v1/pessoas-relacoes", "PESSOA_RELACAO_");
+        PREFIXOS.put("/v1/tipos-relacao-pessoa", "PESSOA_TIPO_RELACAO_PESSOA_");
+        PREFIXOS.put("/v1/usuarios", "USUARIO_");
+        PREFIXOS.put("/v1/verificacao-email", "USUARIO_EMAIL_");
+    }
 
     private final PermissaoService permissaoService;
 
+    public PessoaRequestFilter(
+            TokenCoreService tokenCoreService,
+            TokenInternoService tokenInternoService,
+            PermissaoService permissaoService
+    ) {
+        super(tokenCoreService, tokenInternoService);
+        this.permissaoService = permissaoService;
+    }
+
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
-        try {
-            String usuarioId = request.getHeader("X-Usuario-Id");
-            String tenantId = request.getHeader("X-Tenant-Id");
-
-            if (usuarioId != null && tenantId != null) {
-
-                UserContext.setUsuarioId(Long.valueOf(usuarioId));
-                TenantContext.setEmpresaId(Long.valueOf(tenantId));
-
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                Long.valueOf(usuarioId),
-                                null,
-                                List.of()
-                        );
-
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authentication);
-
-                validarPermissaoPorRota(request);
-            }
-
-            filterChain.doFilter(request, response);
-        } finally {
-            UserContext.clear();
-            TenantContext.clear();
-            SecurityContextHolder.clearContext();
-        }
+    protected boolean usuarioPossuiPermissao(String permissao) {
+        return permissaoService.usuarioPossuiPermissao(permissao);
     }
 
-    private void validarPermissaoPorRota(HttpServletRequest request) {
-        String permissao = resolverPermissao(request.getMethod(), request.getServletPath());
+    @Override
+    protected String resolverPermissao(String metodoHttp, String path) {
+        if ("PATCH".equals(metodoHttp) && path.matches("/v1/usuarios/[^/]+/ativar/?"))
+            return "USUARIO_ATIVAR";
+        if ("PATCH".equals(metodoHttp) && path.matches("/v1/usuarios/[^/]+/desativar/?"))
+            return "USUARIO_DESATIVAR";
 
-        if (permissao == null)
-            return;
-        if (!permissaoService.usuarioPossuiPermissao(permissao))
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não possui permissão para acessar este recurso.");
-    }
+        String prefixo = PREFIXOS.entrySet().stream()
+                .filter(entry -> path.equals(entry.getKey()) || path.startsWith(entry.getKey() + "/"))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
 
-    private String resolverPermissao(String metodoHttp, String path) {
-        String prefixo;
-
-        if (path.startsWith("/v1/contatos"))
-            prefixo = "PESSOA_CONTATO_";
-        else if (path.startsWith("/v1/documentos"))
-            prefixo = "PESSOA_DOCUMENTO_";
-        else if (path.startsWith("/v1/enderecos"))
-            prefixo = "PESSOA_ENDERECO_";
-        else if (path.startsWith("/v1/municipios"))
-            prefixo = "PESSOA_MUNICIPIO_";
-        else if (path.startsWith("/v1/pessoas"))
-            prefixo = "PESSOA_";
-        else if (path.startsWith("/v1/pessoas-fisicas"))
-            prefixo = "PESSOA_FISICA_";
-        else if (path.startsWith("/v1/pessoas-juridicas"))
-            prefixo = "PESSOA_JURIDICA_";
-        else if (path.startsWith("/v1/pessoas-relacoes"))
-            prefixo = "PESSOA_JURIDICA_";
-        else if (path.startsWith("/v1/tipos-relacao-pessoa"))
-            prefixo = "PESSOA_TIPO_RELACAO_PESSOA_";
-        else if (path.startsWith("/v1/usuarios"))
-            prefixo = "USUARIO_";
-        else if (path.startsWith("/v1/verificacao-email"))
-            prefixo = "USUARIO_EMAIL_";
-        else
+        if (prefixo == null)
             return null;
 
         return switch (metodoHttp) {
@@ -107,5 +72,4 @@ public class PessoaRequestFilter extends OncePerRequestFilter {
             default -> null;
         };
     }
-
 }

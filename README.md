@@ -1,135 +1,113 @@
 # UNICOS Backend
 
-Backend do projeto **UNICOS** organizado como um projeto Maven multi-módulo e executável em containers com Docker Compose.
+Backend do projeto **UNICOS**, organizado como um reactor Maven multi-módulo e executável em containers com Docker Compose.
 
-A infraestrutura disponibilizada na raiz inclui Service Registry (Eureka), API Gateway, microsserviços, bancos MySQL isolados por domínio e RabbitMQ para mensageria.
+A plataforma é composta por um Service Registry (Eureka), um API Gateway (Spring Cloud Gateway), microsserviços Spring Boot e um banco MySQL isolado por domínio.
 
-## Estrutura da raiz
+## Estrutura
 
-| Arquivo | Responsabilidade |
+| Caminho | Responsabilidade |
 |---|---|
-| `.dockerignore` | Exclui metadados, builds, arquivos de ambiente, logs e outros arquivos do contexto de build Docker |
-| `.gitignore` | Ignora arquivos de ambiente reais, artefatos Maven e configurações locais de IDE; permite versionar arquivos `*.example` |
-| `.env.example` | Modelo das variáveis de ambiente necessárias ao projeto |
-| `compose.yml` | Definição principal da infraestrutura, serviços, rede, volumes, bancos e healthchecks |
-| `compose.homolog.yml` | Override para publicar Gateway e Eureka no host |
-| `compose.prod.yml` | Override de produção com perfil `prod`, restrições de runtime e publicação apenas do Gateway |
-| `Dockerfile.service` | Build multi-stage dos serviços Java com Maven/JDK 21 e runtime JRE 21 |
-| `pom.xml` | POM agregador dos módulos Maven |
+| `pom.xml` | Agregador (reactor) de todos os módulos |
+| `unicos-parent/` | POM pai: versões de Spring Boot, Spring Cloud, SpringDoc, JWT e configuração de compilação |
+| `unicos-core/` | Bibliotecas compartilhadas (`core-base`, `core-auth`, `core-tenant`, `core-usuario`, `core-pessoas`, `core-web`) |
+| `service-registry/` | Eureka Server |
+| `gateway/` | API Gateway: roteamento, validação de JWT na borda, CORS e portal `/docs` |
+| `ms-*/` | Microsserviços de domínio |
+| `Dockerfile.service` | Build multi-stage único para qualquer serviço (`SERVICE_NAME`) |
+| `compose.yml` | Infraestrutura, bancos e serviços |
+| `compose.homolog.yml` | Override de homologação (publica também o Eureka) |
+| `compose.prod.yml` | Override de produção (profile `prod`, filesystem somente leitura, limites de recursos) |
+| `.env.example` | Modelo das variáveis de ambiente |
 
-## Módulos Maven
+### Versões
 
-O `pom.xml` da raiz é um agregador com os seguintes módulos padrão:
+| Componente | Versão |
+|---|---|
+| Java | 21 |
+| Spring Boot | 3.5.7 |
+| Spring Cloud | 2025.0.0 |
+| SpringDoc OpenAPI | 2.8.13 |
 
-```text
-unicos-core
-service-registry
-gateway
-ms-autenticacao
-ms-pessoas
-```
-
-Os módulos abaixo são adicionados pelo perfil Maven `complementares`:
-
-```text
-ms-cliente
-ms-empresa
-ms-estoque
-ms-permissao
-ms-produto
-```
-
-Para compilar todos os módulos complementares:
-
-```bash
-mvn -Pcomplementares clean verify
-```
-
-Para compilar apenas um módulo e suas dependências do reactor:
-
-```bash
-mvn -Pcomplementares -pl ms-permissao -am clean verify
-```
-
-> O perfil `complementares` é um **perfil Maven**. O `compose.yml` atual não declara `profiles:` do Docker Compose; portanto os serviços complementares fazem parte da composição normalmente e não dependem de `docker compose --profile complementares`.
-
-## Arquitetura da composição
-
-O `compose.yml` define os seguintes componentes.
-
-### Infraestrutura
-
-| Serviço Compose | Tecnologia | Porta interna | Porta publicada pelo Compose base |
-|---|---|---:|---|
-| `service-registry` | Eureka / Spring Boot | `8081` | Não |
-| `gateway` | Spring Cloud Gateway | `8080` | Não |
-| `rabbitmq` | RabbitMQ `4.1-management-alpine` | `5672` / `15672` | Não |
-
-As portas do Gateway e do Eureka são publicadas quando `compose.homolog.yml` é aplicado. Em produção, `compose.prod.yml` publica apenas o Gateway.
+Todas as versões são definidas apenas em `unicos-parent/pom.xml`.
 
 ### Microsserviços
 
-| Serviço Compose | Módulo usado no build | Porta interna | Banco |
-|---|---|---:|---|
-| `ms-autenticacao` | `ms-autenticacao` | `8080` | `mysql-autenticacao` |
-| `ms-pessoa` | `ms-pessoas` | `8080` | `mysql-pessoa` |
-| `ms-empresa` | `ms-empresa` | `8080` | `mysql-empresa` |
-| `ms-permissao` | `ms-permissao` | `8080` | `mysql-permissao` |
-| `ms-cliente` | `ms-cliente` | `8080` | `mysql-cliente` |
-| `ms-estoque` | `ms-estoque` | `8080` | `mysql-estoque` |
-| `ms-produto` | `ms-produto` | `8080` | `mysql-produto` |
+| Serviço | Responsabilidade | Banco |
+|---|---|---|
+| `ms-autenticacao` | Login e renovação de tokens JWT | — |
+| `ms-pessoas` | Pessoas físicas/jurídicas, endereços, contatos, documentos, usuários e verificação de e-mail | `mysql-pessoas` |
+| `ms-permissao` | Roles, permissões e vínculos role × permissão | `mysql-permissao` |
+| `ms-empresa` | Empresas (tenants), contatos, endereços, configurações, parâmetros e vínculos de usuários | `mysql-empresa` |
+| `ms-cliente` | Clientes, categorias e observações | `mysql-cliente` |
+| `ms-estoque` | Estoques, saldos por produto, movimentações, responsáveis e vínculos com filiais | `mysql-estoque` |
+| `ms-produto` | Catálogo de produtos, categorias, marcas, atributos, preços, imagens e códigos de barras | `mysql-produto` |
 
-Todos os serviços de aplicação entram na rede Docker `unicos` e recebem a URL interna do Eureka:
+### Bibliotecas core
 
-```text
-http://service-registry:8081/eureka/
-```
-
-O Gateway aguarda o `service-registry` ficar saudável antes de iniciar. Cada microsserviço aguarda o respectivo MySQL e o Service Registry conforme definido em `depends_on`.
-
-Os serviços `ms-pessoa`, `ms-empresa`, `ms-permissao`, `ms-cliente`, `ms-estoque` e `ms-produto` também recebem configuração de conexão com RabbitMQ usando o hostname interno `rabbitmq` e a porta `5672`.
-
-> Embora RabbitMQ possua healthcheck, os microsserviços não possuem `depends_on` explícito para ele no Compose atual.
-
-## Bancos de dados
-
-A composição utiliza **MySQL 8.4**, com um container e um volume persistente para cada domínio:
-
-| Serviço MySQL | Volume |
+| Módulo | Conteúdo |
 |---|---|
-| `mysql-autenticacao` | `mysql_auth_data` |
-| `mysql-empresa` | `mysql_empresa_data` |
-| `mysql-pessoa` | `mysql_pessoa_data` |
-| `mysql-permissao` | `mysql_permissao_data` |
-| `mysql-cliente` | `mysql_cliente_data` |
-| `mysql-estoque` | `mysql_estoque_data` |
-| `mysql-produto` | `mysql_produto_data` |
+| `core-base` | `EntidadeAuditavel` (auditoria JPA) e serialização de erros em Problem Details |
+| `core-auth` | Validação de JWT (`TokenCoreService`), claims padronizadas e token interno (`TokenInternoService`) |
+| `core-tenant` | `TenantContext`, entidade/repositório/serviço base multi-tenant |
+| `core-usuario` | `UserContext` e contratos de usuário trocados entre serviços |
+| `core-pessoas` | Contratos do `ms-pessoas` consumidos por outros serviços |
+| `core-web` | Filtro de contexto da requisição, segurança padrão, tratamento global de erros e interceptor Feign |
 
-Os bancos ficam acessíveis aos microsserviços pela rede Docker e **não possuem portas publicadas no host** nos arquivos fornecidos.
+## Segurança
 
-O Compose monta as URLs JDBC diretamente com os nomes dos serviços Docker e a porta `3306`, por exemplo:
+### Fluxo de autenticação
 
-```text
-jdbc:mysql://mysql-pessoa:3306/${PESSOA_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+1. O cliente chama `POST /ms-autenticacao/v1/autenticacao/login` (e-mail e senha) e recebe `tokenAccess` e `refreshToken`.
+2. As demais chamadas enviam `Authorization: Bearer <tokenAccess>` ao gateway.
+3. O gateway valida o token e encaminha a requisição ao serviço.
+4. O serviço **valida o JWT novamente** (`ContextoRequisicaoFilter`) e extrai dele o usuário e a empresa. Nenhum header de identidade enviado pelo cliente é considerado.
+5. A permissão exigida pela rota é verificada no `ms-permissao`.
+6. Quando o access token expira, o cliente chama `POST /ms-autenticacao/v1/autenticacao/atualizar-token` com o `refreshToken`. Usuários desativados ou removidos não conseguem renovar a sessão.
+
+### Comunicação interna
+
+* Endpoints `/internal/**` dos serviços são usados apenas entre serviços e exigem o header `X-Internal-Token` (`UNICOS_INTERNAL_TOKEN`), enviado automaticamente pelo interceptor Feign do `core-web`.
+* O gateway bloqueia `/{servico}/internal/**` e `/{servico}/actuator/**` vindos de fora e remove headers que só a plataforma pode definir (`X-Internal-Token`, `X-Usuario-Id`, `X-Tenant-Id`).
+* O JWT do usuário é repassado nas chamadas Feign, preservando usuário e empresa no serviço chamado.
+
+### Multi-tenant
+
+Todo dado de negócio pertence a uma empresa (`empresa_id`). Os serviços filtram leituras e escritas pela empresa do token; registros de outra empresa respondem `404`. Exceções intencionais, por serem dados de referência compartilhados:
+
+* municípios e tipos de relação (`ms-pessoas`) e o catálogo de permissões (`ms-permissao`) podem ser lidos e utilizados por qualquer empresa, mas só são alterados pela empresa que os cadastrou;
+* login e e-mail de usuário, CPF, CNPJ e número de documento são únicos em toda a base (restrição do banco).
+
+### Formato de erros
+
+Todos os serviços e o gateway respondem erros no formato [Problem Details (RFC 9457)](https://www.rfc-editor.org/rfc/rfc9457), `Content-Type: application/problem+json`:
+
+```json
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Pessoa não encontrada.",
+  "instance": "/v1/pessoas/99",
+  "timestamp": "2026-10-03T17:45:00-03:00",
+  "path": "/v1/pessoas/99"
+}
 ```
 
-### Usuários dos bancos
+Erros de validação de corpo trazem também o mapa `errors` (campo → mensagem).
 
-As variáveis `*_DB_USER` são usadas para criar o usuário no container MySQL. Entretanto, as configurações `SPRING_DATASOURCE_USERNAME` dos microsserviços estão atualmente fixadas como:
+### Rotas públicas (sem token)
 
-```text
-unicos
-```
-
-Por isso, com o Compose atual, mantenha `AUTH_DB_USER`, `EMPRESA_DB_USER`, `PESSOA_DB_USER`, `PERMISSAO_DB_USER`, `CLIENTE_DB_USER`, `ESTOQUE_DB_USER` e `PRODUTO_DB_USER` com o valor `unicos`, ou ajuste o `compose.yml` para utilizar as respectivas variáveis também no datasource.
-
-O `MYSQL_ROOT_PASSWORD` de cada banco utiliza atualmente a mesma variável de senha do usuário da aplicação daquele domínio. Não existe uma variável separada para senha de root nos arquivos atuais.
+| Rota no gateway | Uso |
+|---|---|
+| `POST /ms-autenticacao/v1/autenticacao/login` | Login |
+| `POST /ms-autenticacao/v1/autenticacao/atualizar-token` | Renovação de tokens |
+| `PATCH /ms-pessoas/v1/verificacao-email/confirmar?token=...` | Confirmação de e-mail |
+| `GET /docs` | Portal com links para o Swagger de cada serviço (desligado no profile `prod`) |
 
 ## Variáveis de ambiente
 
-Use `.env.example` como base para criar o arquivo do ambiente desejado.
-
-Exemplo:
+Crie o arquivo do ambiente a partir do modelo:
 
 ```bash
 cp .env.example .env.docker.local
@@ -141,288 +119,129 @@ No PowerShell:
 Copy-Item .env.example .env.docker.local
 ```
 
-No mínimo, o Compose principal depende de:
+Variáveis obrigatórias:
 
-- `ENV_FILE`;
-- `SPRING_PROFILES_ACTIVE`;
-- credenciais do RabbitMQ (`RABBITMQ_USER` e `RABBITMQ_PASSWORD`);
-- nome, usuário e senha de cada banco (`*_DB_NAME`, `*_DB_USER`, `*_DB_PASSWORD`);
-- `UNICOS_JWT_SECRET`, usado explicitamente pelo `ms-autenticacao`.
+* `ENV_FILE` (o próprio arquivo, ex.: `.env.docker.local`) e `SPRING_PROFILES_ACTIVE`;
+* nome, usuário e senha de cada banco (`*_DB_NAME`, `*_DB_USER`, `*_DB_PASSWORD`);
+* `UNICOS_JWT_ISSUER` e `UNICOS_JWT_SECRET` (mínimo de 32 caracteres);
+* `UNICOS_INTERNAL_TOKEN` (mínimo de 16 caracteres).
 
-Como os serviços de aplicação usam:
+Os serviços não sobem quando os segredos estão ausentes ou curtos demais.
 
-```yaml
-env_file: ${ENV_FILE}
-```
+Opcionais: `GATEWAY_BIND_ADDRESS`/`GATEWAY_PORT` (padrão `127.0.0.1:8082`), `EUREKA_BIND_ADDRESS`/`EUREKA_PORT` (homologação), `CORS_ALLOWED_ORIGINS` (padrão `*`; **restrinja em homologação e produção**), `UNICOS_DOCS_ENABLED`, `UNICOS_TEMPO_EXP_TOKEN` e `UNICOS_TEMPO_EXP_REFRESH_TOKEN` (minutos).
 
-as demais variáveis presentes no arquivo indicado por `ENV_FILE` também são carregadas no ambiente dos containers de aplicação.
+## Executando com Docker Compose
 
-### Variáveis de rede presentes no `.env`
+Pré-requisitos: Docker com Compose v2. O build usa Maven e JDK 21 dentro do próprio Docker.
 
-O `.env.example` também define `*_DB_HOST`, `*_DB_PORT`, `RABBITMQ_HOST`, `RABBITMQ_PORT`, `RABBITMQ_MANAGEMENT_PORT` e `EUREKA_URL`. O `compose.yml` atual, entretanto, monta as conexões internas diretamente com os nomes dos serviços Docker (`mysql-*`, `rabbitmq` e `service-registry`). Portanto essas variáveis não são usadas pelo Compose para construir essas conexões, embora continuem disponíveis aos containers via `env_file`.
-
-### Bind do Gateway e Eureka
-
-Os overrides aceitam duas variáveis opcionais que não aparecem atualmente no `.env.example`:
-
-```text
-GATEWAY_BIND_ADDRESS
-EUREKA_BIND_ADDRESS
-```
-
-Quando não informadas, ambas usam `127.0.0.1`.
-
-## Executando localmente
-
-Pré-requisitos:
-
-- Docker com Docker Compose v2;
-- acesso aos repositórios Maven e registries das imagens Docker.
-- Arquivo .env.docker.local presente na mesma hierarquia de pastas do projeto.
-
-O build dos containers utiliza Maven e Java 21 dentro do próprio Docker, portanto Maven/JDK no host não são necessários para `docker compose ... --build`.
-
-O `.env.docker.local` fornecido aponta `ENV_FILE=.env.docker.local` e utiliza as portas de host:
-
-```text
-Gateway: 8082
-Eureka:  8081
-```
-
-No arquivo atual, `SPRING_PROFILES_ACTIVE` está vazio. Portanto a execução local não ativa explicitamente um profile Spring por meio do Compose. Se a aplicação exigir o profile `local`, configure:
-
-```dotenv
-SPRING_PROFILES_ACTIVE=local
-```
-
-### Validar a composição
+### Local
 
 ```bash
-docker compose \
-  --env-file .env.docker.local \
-  -f compose.yml \
-  -p unicos-local \
-  config --quiet
+docker compose --env-file .env.docker.local -f compose.yml -p unicos-local config --quiet
 ```
-
-### Subir o ambiente
 
 ```bash
-docker compose \
-  --env-file .env.docker.local \
-  -f compose.yml \
-  -p unicos-local \
-  up -d --build
+docker compose --env-file .env.docker.local -f compose.yml -p unicos-local up -d --build
 ```
-
-Com o override de homologação aplicado:
 
 | Componente | Acesso pelo host |
 |---|---|
 | Gateway | `http://localhost:8082` |
-| Eureka | `http://localhost:8081` |
-| Microsserviços | apenas pela rede Docker / Gateway |
-| MySQL | apenas pela rede Docker |
-| RabbitMQ | apenas pela rede Docker |
+| Microsserviços, MySQL, Eureka | apenas pela rede Docker |
 
-O `compose.homolog.yml` publica Gateway e Eureka em `127.0.0.1` por padrão.
-
-### Status e logs
+Status e logs:
 
 ```bash
 docker compose --env-file .env.docker.local -f compose.yml -p unicos-local ps
 ```
 
 ```bash
-docker compose --env-file .env.docker.local -f compose.yml -p unicos-local logs -f
+docker compose --env-file .env.docker.local -f compose.yml -p unicos-local logs -f ms-autenticacao ms-pessoas
 ```
 
-Para acompanhar serviços específicos:
+Parar preservando os dados:
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -p unicos-local logs -f ms-autenticacao ms-pessoa
+docker compose --env-file .env.docker.local -f compose.yml -p unicos-local down
 ```
 
-### Parar o ambiente
+`down -v` remove também os volumes (dados dos bancos) e só deve ser usado quando a perda dos dados for intencional.
+
+O RabbitMQ está provisionado no profile `mensageria` do Compose, mas nenhum serviço o utiliza ainda. Para subi-lo, acrescente `--profile mensageria` aos comandos.
+
+### Homologação
+
+Use um `.env.homolog` próprio com `ENV_FILE=.env.homolog` e `SPRING_PROFILES_ACTIVE=homolog`:
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -p unicos-local down
+docker compose --env-file .env.homolog -f compose.yml -f compose.homolog.yml -p unicos-homolog up -d --build
 ```
 
-O comando acima preserva os volumes. Para remover também os dados persistidos:
+O override publica também o painel do Eureka (`EUREKA_BIND_ADDRESS:EUREKA_PORT`).
+
+### Produção
+
+Use um `.env.prod` próprio (nunca reutilize segredos de outros ambientes), com `CORS_ALLOWED_ORIGINS` restrito ao domínio do frontend:
 
 ```bash
-docker compose --env-file .env.local -f compose.yml -p unicos-local down -v
+docker compose --env-file .env.prod -f compose.yml -f compose.prod.yml -p unicos-prod config --quiet
 ```
-
-> `down -v` remove os volumes nomeados da composição e deve ser usado somente quando a perda dos dados for intencional.
-
-## Homologação
-
-O `compose.homolog.yml` é um override pequeno: ele apenas publica no host as portas do Gateway e do Service Registry.
-
-Crie um arquivo `.env.homolog` baseado no `.env.example` e configure, entre outras variáveis:
-
-```dotenv
-ENV_FILE=.env.homolog
-SPRING_PROFILES_ACTIVE=homolog
-```
-
-Validação:
 
 ```bash
-docker compose \
-  --env-file .env.homolog \
-  -f compose.yml \
-  \
-  -p unicos-homolog \
-  config --quiet
+docker compose --env-file .env.prod -f compose.yml -f compose.prod.yml -p unicos-prod up -d --build
 ```
 
-Inicialização:
+O override de produção aplica o profile `prod`, filesystem somente leitura com `/tmp` em `tmpfs`, `no-new-privileges`, limites de `768M`/`1.0` CPU e rotação de logs. Somente o Gateway é publicado.
 
-```bash
-docker compose \
-  --env-file .env.homolog \
-  -f compose.yml \
-  \
-  -p unicos-homolog \
-  up -d --build
-```
+Proxy reverso com TLS, backups, observabilidade e política de exposição pública devem ser tratados pela infraestrutura do ambiente.
 
-Para aceitar conexões de outras máquinas, configure conscientemente os binds, por exemplo `GATEWAY_BIND_ADDRESS` e `EUREKA_BIND_ADDRESS`, de acordo com a política de rede do ambiente.
+## Executando fora do Docker
 
-## Produção
-
-Use um arquivo `.env.prod` próprio e nunca reutilize segredos do ambiente local.
-
-O `compose.prod.yml`:
-
-- força `SPRING_PROFILES_ACTIVE=prod` nos serviços de aplicação definidos no override;
-- deixa o filesystem desses containers como somente leitura;
-- cria `/tmp` como `tmpfs`;
-- habilita `no-new-privileges`;
-- limita cada aplicação a `768M` e `1.0` CPU, com reserva de `256M` de memória;
-- configura rotação de logs `json-file` (`10m`, 3 arquivos);
-- publica somente o Gateway no host;
-- força `SPRING_JPA_HIBERNATE_DDL_AUTO=validate` e `SPRING_FLYWAY_ENABLED=false` especificamente em `ms-pessoa`.
-
-Valide a composição antes de subir:
-
-```bash
-docker compose \
-  --env-file .env.prod \
-  -f compose.yml \
-  -f compose.prod.yml \
-  -p unicos-prod \
-  config --quiet
-```
-
-Depois:
-
-```bash
-docker compose \
-  --env-file .env.prod \
-  -f compose.yml \
-  -f compose.prod.yml \
-  -p unicos-prod \
-  up -d --build
-```
-
-Não combine `compose.homolog.yml` e `compose.prod.yml` sem intenção explícita, pois o override de homologação publica também o Service Registry.
-
-> Os arquivos fornecidos não configuram proxy reverso, TLS, backups, observabilidade externa ou política de exposição pública. Esses itens devem ser tratados pela infraestrutura do ambiente.
-
-## Build Docker
-
-`Dockerfile.service` utiliza build multi-stage:
-
-1. `maven:3.9.9-eclipse-temurin-21` para compilar;
-2. `eclipse-temurin:21-jre-alpine` para executar a aplicação.
-
-O build recebe:
-
-```text
-SERVICE_NAME
-MAVEN_PROFILES
-```
-
-e executa, conceitualmente:
-
-```bash
-mvn -B -ntp [-Pperfil] -pl "$SERVICE_NAME" -am clean package -DskipTests
-```
-
-A imagem final instala `curl` para os healthchecks e executa a aplicação com um usuário não-root chamado `spring`.
-
-O `SERVICE_NAME` é validado pelo Dockerfile e deve ser um dos módulos de aplicação suportados.
-
-## Healthchecks
-
-As aplicações expõem healthcheck via Actuator:
-
-```text
-/actuator/health
-```
-
-- `service-registry`: `http://localhost:8081/actuator/health` dentro do container;
-- demais aplicações: `http://localhost:8080/actuator/health` dentro do container;
-- MySQL: `mysqladmin ping`;
-- RabbitMQ: `rabbitmq-diagnostics -q ping`.
-
-O Compose também configura a exposição dos endpoints Actuator:
-
-```text
-health,info,prometheus
-```
-
-## Persistência
-
-Os dados de MySQL e RabbitMQ ficam em volumes Docker nomeados. O nome final dos volumes no host normalmente recebe o prefixo do projeto informado por `-p`, por exemplo:
-
-```text
-unicos-local_mysql_pessoa_data
-unicos-local_rabbitmq_data
-```
-
-Trocar o nome do projeto (`-p`) cria outro conjunto lógico de recursos e volumes.
-
-## Segurança e arquivos locais
-
-`.gitignore` ignora `.env` e `.env.*`, mantendo versionáveis apenas `.env.example` e arquivos no formato `.env.*.example`.
-
-`.dockerignore` também exclui arquivos `.env*` do contexto de build, além de `target`, metadados de IDE, logs, ZIPs e READMEs.
-
-Não versione credenciais ou tokens reais. O `.env.local` fornecido contém valores de desenvolvimento e deve permanecer restrito ao ambiente local.
-
-### Atenções sobre os arquivos atuais
-
-1. `SPRING_PROFILES_ACTIVE` está vazio no `.env.local`; nenhum profile Spring local é ativado explicitamente.
-2. Não há `profiles:` de Docker Compose. O perfil `complementares` existente é Maven, não Compose.
-3. RabbitMQ existe na composição, porém suas portas não são publicadas no host.
-4. Os bancos são separados por domínio e todos são definidos no `compose.yml`.
-5. `SPRING_DATASOURCE_USERNAME` está fixado como `unicos`; mantenha os `*_DB_USER` consistentes ou ajuste o Compose.
-6. O usuário root de cada MySQL reutiliza a senha do usuário da aplicação.
-7. `RABBITMQ_HOST`, `RABBITMQ_PORT`, `RABBITMQ_MANAGEMENT_PORT`, `*_DB_HOST`, `*_DB_PORT` e `EUREKA_URL` existem nos arquivos de ambiente, mas não são usados pelo Compose para montar as conexões internas atuais.
-8. As variáveis Windows (`JAVA_HOME`, `MAVEN_HOME`, `OS`, `TEMP`, etc.) presentes no `.env.local` são carregadas nos containers de aplicação por causa de `env_file`; elas não são necessárias para o build Docker e podem ser removidas do arquivo de runtime se não forem utilizadas pela aplicação.
-
-## Validação dos arquivos
-
-Os arquivos YAML e o `pom.xml` podem ser validados estaticamente antes da execução. A validação efetiva do merge dos arquivos Compose deve ser feita no ambiente com Docker Compose instalado:
-
-```bash
-docker compose --env-file .env.local -f compose.yml config --quiet
-docker compose --env-file .env.docker.local -f compose.yml -p unicos-local logs -f ms-autenticacao ms-pessoa
-```
-
-Para validar o build Java fora do Docker, com JDK 21 e Maven instalados:
+Com JDK 21 e Maven instalados, compile e teste tudo a partir da raiz:
 
 ```bash
 mvn clean verify
 ```
 
-ou, incluindo os módulos complementares:
+Para um único serviço e suas dependências do reactor:
 
 ```bash
-mvn -Pcomplementares clean verify
+mvn -pl ms-pessoas -am clean package
 ```
+
+Cada serviço lê as variáveis do ambiente (por exemplo, as do `.env.local`) para Eureka, banco e segredos. Fora do Docker as portas são aleatórias (`server.port=0`), salvo quando `*_SERVER_PORT` é definido.
+
+## Banco de dados e migrações
+
+Cada serviço usa Flyway com pastas separadas por finalidade:
+
+| Pasta | Conteúdo | Aplicada em |
+|---|---|---|
+| `db/migration/common` | Estrutura (tabelas, índices, restrições) | todos os ambientes |
+| `db/migration/local` | Dados fictícios de desenvolvimento (inclui usuários de teste) | profile padrão/local |
+| `db/migration/homolog` | Dados específicos de homologação | profile `homolog` |
+| `db/migration/prod` | Dados específicos de produção | profile `prod` |
+
+Regras:
+
+* alterações de estrutura vão sempre para `common`;
+* os números de versão são globais por serviço (as pastas são lidas em conjunto): use sempre um número maior que o último existente em **qualquer** pasta;
+* nunca altere uma migração já aplicada.
+
+O Hibernate roda com `ddl-auto=validate`: o serviço não sobe se o schema divergir das entidades.
+
+> Os ambientes `homolog` e `prod` não recebem o catálogo de permissões nem roles (estão em `local`). Antes do primeiro uso, cadastre-os via API ou por migrações nas pastas do ambiente.
+
+## Healthchecks e Actuator
+
+Cada serviço expõe apenas `/actuator/health` e `/actuator/info`, sem detalhes. No Compose, o healthcheck usa `curl` dentro do container; o gateway nunca encaminha `/actuator/**` dos serviços.
+
+## Testes
+
+```bash
+mvn test
+```
+
+Os testes unitários cobrem a validação de tokens, o token interno, o filtro de contexto/permissões, o gateway (bloqueio de rotas internas, remoção de headers, 401), login/renovação de tokens e o mapeamento rota → permissão.
+
+Cada serviço possui também um teste de contexto (`ContextoAplicacaoTest`) que sobe a aplicação completa com H2 em memória (profile `test`, sem Flyway e sem Eureka) e valida pela API a cadeia de segurança, o isolamento por empresa, o tratamento de erros e as consultas dos repositórios. Esses testes não substituem a validação das migrações em MySQL, que deve ser feita subindo o ambiente com Docker Compose.

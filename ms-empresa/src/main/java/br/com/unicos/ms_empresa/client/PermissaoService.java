@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 @RequiredArgsConstructor
 public class PermissaoService {
+
     private final PermissaoClient permissaoClient;
 
     @CircuitBreaker(name = "ms-permissao", fallbackMethod = "fallbackUsuarioPossuiPermissao")
@@ -19,13 +20,7 @@ public class PermissaoService {
     }
 
     private boolean fallbackUsuarioPossuiPermissao(String nomePermissao, Throwable ex) {
-        log.error(
-                "Fallback do CircuitBreaker acionado ao verificar permissão [{}]. Causa: {}",
-                nomePermissao,
-                ex.getMessage(),
-                ex
-        );
-
+        log.error("Falha ao verificar a permissão [{}] no ms-permissao. Causa: {}", nomePermissao, ex.getMessage(), ex);
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de busca da permissão temporariamente indisponível");
     }
 }

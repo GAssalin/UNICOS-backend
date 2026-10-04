@@ -4,26 +4,15 @@ import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_permissao.model.Role;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
- * Repositório responsável pelo acesso aos dados da entidade {@link Role}.
- * <p>
- * Representa os papéis de acesso (roles) do sistema,
- * utilizados no modelo de autorização do UniCoS.
- * </p>
- *
- * <p>
- * Trata-se de um catálogo global de papéis,
- * compartilhado entre todos os tenants da plataforma.
- * </p>
+ * Repositório da entidade {@link Role}, sempre restrito à empresa (tenant).
  */
 @Repository
 public interface RoleRepository extends BaseTenantRepository<Role, Long> {
-    /**
-     * Verifica se já existe uma entidade com o nome informado.
-     *
-     * @param nome Nome da entidade.
-     * @return {@code true} se existir, {@code false} caso contrário.
-     */
-    boolean existsByNomeContainingIgnoreCaseAndEmpresaId(String nome, Long empresaId);
 
+    boolean existsByNomeIgnoreCaseAndEmpresaId(String nome, Long empresaId);
+
+    List<Role> findByEmpresaIdOrderByNomeAsc(Long empresaId);
 }

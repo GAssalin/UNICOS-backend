@@ -8,6 +8,7 @@ import br.com.unicos.ms_produto.dto.produtoprecobase.ProdutoPrecoBaseUpdateReque
 import br.com.unicos.ms_produto.mapper.ProdutoPrecoBaseMapper;
 import br.com.unicos.ms_produto.model.ProdutoPrecoBase;
 import br.com.unicos.ms_produto.repository.ProdutoPrecoBaseRepository;
+import br.com.unicos.ms_produto.repository.ProdutoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,15 +20,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProdutoPrecoBaseService extends BaseTenantService<ProdutoPrecoBase, Long> {
 
     private final ProdutoPrecoBaseRepository repository;
+    private final ProdutoRepository produtoRepository;
     private final ProdutoPrecoBaseMapper mapper;
 
-    public ProdutoPrecoBaseService(ProdutoPrecoBaseRepository repository, ProdutoPrecoBaseMapper mapper) {
+    public ProdutoPrecoBaseService(ProdutoPrecoBaseRepository repository, ProdutoRepository produtoRepository, ProdutoPrecoBaseMapper mapper) {
         super(repository);
         this.repository = repository;
+        this.produtoRepository = produtoRepository;
         this.mapper = mapper;
     }
 
     public ProdutoPrecoBaseResponse criar(ProdutoPrecoBaseCreateRequest request) {
+        validarProduto(request.produtoId());
+
         validarDuplicidadeProduto(request.produtoId());
 
         ProdutoPrecoBase preco = mapper.toEntity(request, TenantContext.getEmpresaId());
@@ -82,12 +87,17 @@ public class ProdutoPrecoBaseService extends BaseTenantService<ProdutoPrecoBase,
     // ============================================================
 
     private ProdutoPrecoBase buscarPreco(Long id) {
-        return repository.findById(id)
+        return findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Preço base não encontrado: " + id));
     }
 
     private void validarDuplicidadeProduto(Long produtoId) {
         if (repository.existsByProdutoIdAndEmpresaId(produtoId, TenantContext.getEmpresaId()))
             throw new IllegalArgumentException("Já existe preço base cadastrado para o produto informado.");
+    }
+
+    private void validarProduto(Long produtoId) {
+        if (!produtoRepository.existsByIdAndEmpresaId(produtoId, TenantContext.getEmpresaId()))
+            throw new EntityNotFoundException("Produto não encontrado: " + produtoId);
     }
 }

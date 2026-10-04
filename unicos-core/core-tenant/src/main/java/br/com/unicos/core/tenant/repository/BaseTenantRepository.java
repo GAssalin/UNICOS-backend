@@ -5,6 +5,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
+import java.util.Optional;
+
 /**
  * Repositório base para entidades que operam em contexto multi-tenant.
  * <p>
@@ -24,9 +26,9 @@ import org.springframework.data.repository.NoRepositoryBean;
  * </p>
  *
  * <p><b>Importante:</b>
- * Este repositório <strong>não deve</strong> ser instanciado diretamente.
- * Ele serve apenas como contrato para repositórios concretos que manipulam
- * entidades multi-tenant.
+ * Os métodos herdados de {@link JpaRepository} ({@code findById}, {@code findAll},
+ * {@code deleteById}...) <strong>não</strong> aplicam o filtro de tenant. Em código de negócio,
+ * prefira sempre as variantes terminadas em {@code AndEmpresaId}.
  * </p>
  *
  * @param <T>  Tipo da entidade gerenciada.
@@ -34,6 +36,15 @@ import org.springframework.data.repository.NoRepositoryBean;
  */
 @NoRepositoryBean
 public interface BaseTenantRepository<T, ID> extends JpaRepository<T, ID> {
+
+    /**
+     * Busca uma entidade pelo identificador dentro da empresa (tenant).
+     *
+     * @param id        Identificador da entidade.
+     * @param empresaId Identificador da empresa (tenant).
+     * @return Entidade encontrada, caso pertença à empresa informada.
+     */
+    Optional<T> findByIdAndEmpresaId(ID id, Long empresaId);
 
     /**
      * Verifica a existência de uma entidade dentro do contexto de uma empresa
@@ -50,7 +61,7 @@ public interface BaseTenantRepository<T, ID> extends JpaRepository<T, ID> {
      * Lista todas as entidades pertencentes a uma empresa (tenant).
      *
      * @param empresaId Identificador da empresa (tenant).
-     * @return Lista de entidades associadas à empresa informada.
+     * @return Página de entidades associadas à empresa informada.
      */
     Page<T> findAllByEmpresaId(Long empresaId, Pageable pageable);
 }

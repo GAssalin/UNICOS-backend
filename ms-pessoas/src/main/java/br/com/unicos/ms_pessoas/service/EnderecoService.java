@@ -1,5 +1,6 @@
 package br.com.unicos.ms_pessoas.service;
 
+import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.core.tenant.service.BaseTenantService;
 import br.com.unicos.ms_pessoas.dto.endereco.EnderecoListDTO;
 import br.com.unicos.ms_pessoas.dto.endereco.EnderecoRequest;
@@ -12,18 +13,16 @@ import br.com.unicos.ms_pessoas.model.Pessoa;
 import br.com.unicos.ms_pessoas.repository.EnderecoRepository;
 import br.com.unicos.ms_pessoas.repository.MunicipioRepository;
 import br.com.unicos.ms_pessoas.repository.PessoaRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
- * Implementação responsável pelas regras de negócio de endereços,
- * incluindo definição de endereço principal, validações e filtros
- * por município, tipo, CEP e pessoa.
+ * Regras de negócio aplicadas aos endereços das pessoas.
  */
 @Service
 public class EnderecoService extends BaseTenantService<Endereco, Long> {
@@ -43,72 +42,46 @@ public class EnderecoService extends BaseTenantService<Endereco, Long> {
 
     @Transactional
     public EnderecoResponse criar(EnderecoRequest request) {
-        Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
-                .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
-
-        Municipio municipio = municipioRepository.findById(request.municipioId())
-                .orElseThrow(() -> new EntityNotFoundException("Município não encontrado"));
-
-        Endereco endereco = mapper.toEntity(request, pessoa, municipio);
-        endereco.setPessoa(pessoa);
-        endereco.setMunicipio(municipio);
+        Pessoa pessoa = buscarPessoa(request.pessoaId());
+        Municipio municipio = buscarMunicipio(request.municipioId());
 
         if (Boolean.TRUE.equals(request.principal()))
-            removerPrincipalExistente(pessoa);
+            removerPrincipalExistente(pessoa, null);
 
-        repository.save(endereco);
+        Endereco endereco = mapper.toEntity(request, pessoa, municipio);
+        endereco.setEmpresaId(TenantContext.getEmpresaId());
 
-        return mapper.toResponse(endereco);
+        return mapper.toResponse(repository.save(endereco));
     }
 
     @Transactional
     public EnderecoResponse atualizar(Long id, EnderecoRequest request) {
-        Endereco endereco = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Endereço não encontrado"));
-
-        Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
-                .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
-
-        Municipio municipio = municipioRepository.findById(request.municipioId())
-                .orElseThrow(() -> new EntityNotFoundException("Município não encontrado"));
+        Endereco endereco = buscarEndereco(id);
+        Pessoa pessoa = buscarPessoa(request.pessoaId());
+        Municipio municipio = buscarMunicipio(request.municipioId());
 
         if (Boolean.TRUE.equals(request.principal()))
-            removerPrincipalExistente(pessoa);
+            removerPrincipalExistente(pessoa, id);
 
-        mapper.toEntity(request, pessoa, municipio);
-        endereco.setPessoa(pessoa);
-        endereco.setMunicipio(municipio);
+        mapper.updateEntity(endereco, request, pessoa, municipio);
 
-        repository.save(endereco);
-
-        return mapper.toResponse(endereco);
-    }
-
-    private void removerPrincipalExistente(Pessoa pessoa) {
-        repository.findByPessoaAndPrincipalTrue(pessoa)
-                .ifPresent(existing -> {
-                    existing.setPrincipal(false);
-                    repository.save(existing);
-                });
+        return mapper.toResponse(repository.save(endereco));
     }
 
     @Transactional
     public void excluir(Long id) {
-        if (!repository.existsById(id))
-            throw new EntityNotFoundException("Endereço não encontrado.");
-
-        repository.deleteById(id);
+        repository.delete(buscarEndereco(id));
     }
 
     @Transactional(readOnly = true)
     public Optional<EnderecoResponse> buscarPorId(Long id) {
-        return repository.findById(id)
+        return findById(id)
                 .map(mapper::toResponse);
     }
 
     @Transactional(readOnly = true)
     public List<EnderecoListDTO> listarTodos() {
-        return repository.findAll()
+        return repository.findByEmpresaId(TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -116,22 +89,15 @@ public class EnderecoService extends BaseTenantService<Endereco, Long> {
 
     @Transactional(readOnly = true)
     public List<EnderecoListDTO> listarPorPessoa(Long pessoaId) {
-        Pessoa pessoa = pessoaRepository.findById(pessoaId)
-                .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
-
-        return repository.findByPessoa(pessoa)
+        return repository.findByPessoaAndEmpresaId(buscarPessoa(pessoaId), TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    @CircuitBreaker(name = "pessoa-endereco-admin", fallbackMethod = "fallbackAdminListPessoaTipo")
     public List<EnderecoListDTO> listarPorPessoaETipo(Long pessoaId, String tipo) {
-        Pessoa pessoa = pessoaRepository.findById(pessoaId)
-                .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
-
-        return repository.findByPessoaAndTipo(pessoa, TipoEndereco.valueOf(tipo.toUpperCase()))
+        return repository.findByPessoaAndTipoAndEmpresaId(buscarPessoa(pessoaId), converterTipo(tipo), TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -139,10 +105,7 @@ public class EnderecoService extends BaseTenantService<Endereco, Long> {
 
     @Transactional(readOnly = true)
     public List<EnderecoListDTO> listarPorMunicipio(Long municipioId) {
-        Municipio municipio = municipioRepository.findById(municipioId)
-                .orElseThrow(() -> new EntityNotFoundException("Município não encontrado"));
-
-        return repository.findByMunicipio(municipio)
+        return repository.findByMunicipioAndEmpresaId(buscarMunicipio(municipioId), TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -150,7 +113,7 @@ public class EnderecoService extends BaseTenantService<Endereco, Long> {
 
     @Transactional(readOnly = true)
     public List<EnderecoListDTO> listarPorCep(String cep) {
-        return repository.findByCep(cep)
+        return repository.findByCepAndEmpresaId(cep, TenantContext.getEmpresaId())
                 .stream()
                 .map(mapper::toListDTO)
                 .toList();
@@ -158,11 +121,46 @@ public class EnderecoService extends BaseTenantService<Endereco, Long> {
 
     @Transactional(readOnly = true)
     public Optional<EnderecoResponse> buscarPrincipal(Long pessoaId) {
-        Pessoa pessoa = pessoaRepository.findById(pessoaId)
-                .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada"));
-
-        return repository.findByPessoaAndPrincipalTrue(pessoa)
+        return repository.findByPessoaAndPrincipalTrueAndEmpresaId(buscarPessoa(pessoaId), TenantContext.getEmpresaId())
                 .map(mapper::toResponse);
     }
 
+    // ============================================================
+    // AUXILIARES
+    // ============================================================
+
+    private Endereco buscarEndereco(Long id) {
+        return findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Endereço não encontrado."));
+    }
+
+    private Pessoa buscarPessoa(Long pessoaId) {
+        return pessoaRepository.findByIdAndEmpresaId(pessoaId, TenantContext.getEmpresaId())
+                .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada."));
+    }
+
+    /**
+     * Municípios são dados de referência compartilhados entre empresas.
+     */
+    private Municipio buscarMunicipio(Long municipioId) {
+        return municipioRepository.findById(municipioId)
+                .orElseThrow(() -> new EntityNotFoundException("Município não encontrado."));
+    }
+
+    private void removerPrincipalExistente(Pessoa pessoa, Long idAtual) {
+        repository.findByPessoaAndPrincipalTrueAndEmpresaId(pessoa, TenantContext.getEmpresaId())
+                .filter(existing -> !existing.getId().equals(idAtual))
+                .ifPresent(existing -> {
+                    existing.setPrincipal(false);
+                    repository.save(existing);
+                });
+    }
+
+    private static TipoEndereco converterTipo(String tipo) {
+        try {
+            return TipoEndereco.valueOf(tipo.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException | NullPointerException ex) {
+            throw new IllegalArgumentException("Tipo de endereço inválido: " + tipo);
+        }
+    }
 }
