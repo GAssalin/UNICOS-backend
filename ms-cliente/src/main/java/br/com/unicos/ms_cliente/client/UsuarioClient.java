@@ -1,7 +1,6 @@
 package br.com.unicos.ms_cliente.client;
 
 import br.com.unicos.core.usuario.dto.UsuarioResumoResponse;
-import br.com.unicos.core.usuario.dto.UsuarioRoleIdsResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,9 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
         contextId = "UsuarioClient"
 )
 public interface UsuarioClient {
-
-    @GetMapping("/internal/usuarios/{id}/role")
-    UsuarioRoleIdsResponse buscarRoleIdsDoUsuario(@PathVariable("id") Long id);
 
     @GetMapping("/internal/usuarios/{id}/resumo")
     UsuarioResumoResponse buscarResumo(@PathVariable("id") Long id);

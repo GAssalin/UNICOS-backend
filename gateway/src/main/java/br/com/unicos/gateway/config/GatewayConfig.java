@@ -33,6 +33,7 @@ public class GatewayConfig {
             "ms-empresa",
             "ms-estoque",
             "ms-cliente",
+            "ms-funcionario",
             "ms-produto"
     );
 

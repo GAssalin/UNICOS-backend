@@ -97,7 +97,8 @@ public class ClienteController {
 
     @Operation(
             summary = "Listar clientes",
-            description = "Lista clientes do tenant atual de forma paginada.",
+            description = "Lista clientes do tenant atual de forma paginada. Vendedores recebem apenas a própria carteira; "
+                    + "os demais podem filtrar pela carteira de um vendedor com vendedorId.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -110,14 +111,15 @@ public class ClienteController {
     )
     @GetMapping
     public ResponseEntity<Page<ClienteResponse>> listar(
+            @RequestParam(required = false) Long vendedorId,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(clienteService.listar(pageable));
+        return ResponseEntity.ok(clienteService.listar(vendedorId, pageable));
     }
 
     @Operation(
             summary = "Listar clientes por status",
-            description = "Lista clientes filtrando pelo status comercial.",
+            description = "Lista clientes filtrando pelo status comercial, com as mesmas regras de carteira da listagem.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -131,9 +133,10 @@ public class ClienteController {
     @GetMapping("/status/{status}")
     public ResponseEntity<Page<ClienteResponse>> listarPorStatus(
             @PathVariable StatusCliente status,
+            @RequestParam(required = false) Long vendedorId,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(clienteService.listarPorStatus(status, pageable));
+        return ResponseEntity.ok(clienteService.listarPorStatus(status, vendedorId, pageable));
     }
 
     @Operation(

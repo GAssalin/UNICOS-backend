@@ -31,5 +31,6 @@ services:
   ms-permissao: { <<: *prod, environment: { <<: *prod-env } }
   ms-empresa: { <<: *prod, environment: { <<: *prod-env } }
   ms-cliente: { <<: *prod, environment: { <<: *prod-env } }
+  ms-funcionario: { <<: *prod, environment: { <<: *prod-env } }
   ms-estoque: { <<: *prod, environment: { <<: *prod-env } }
   ms-produto: { <<: *prod, environment: { <<: *prod-env } }

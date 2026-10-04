@@ -28,6 +28,10 @@
         </dependency>
         <dependency>
             <groupId>br.com.unicos</groupId>
+            <artifactId>core-funcionario</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>br.com.unicos</groupId>
             <artifactId>core-auth</artifactId>
         </dependency>
         <dependency>
