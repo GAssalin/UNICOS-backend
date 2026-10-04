@@ -45,11 +45,15 @@ public class UsuarioInternalController {
 
     /**
      * Role do usuário na empresa do contexto atual (JWT repassado pelo serviço chamador).
+     *
+     * <p>Usuário desativado não possui role: perde as permissões imediatamente, mesmo que o
+     * access token emitido antes da desativação ainda não tenha expirado.</p>
      */
     @GetMapping("/usuarios/{id}/role")
     public UsuarioRoleIdsResponse buscarRoleDoUsuario(@PathVariable("id") Long id) {
         Usuario usuario = usuarioService.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado: " + id));
-        return new UsuarioRoleIdsResponse(usuario.getId(), usuario.getRoleId());
+        Long roleId = Boolean.TRUE.equals(usuario.getAtivo()) ? usuario.getRoleId() : null;
+        return new UsuarioRoleIdsResponse(usuario.getId(), roleId);
     }
 }

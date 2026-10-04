@@ -15,6 +15,11 @@ public interface RolePermissaoRepository extends BaseTenantRepository<RolePermis
 
     boolean existsByRoleIdAndPermissaoIdAndEmpresaId(Long roleId, Long permissaoId, Long empresaId);
 
+    /**
+     * Indica se a permissão está vinculada a roles de outras empresas.
+     */
+    boolean existsByPermissaoIdAndEmpresaIdNot(Long permissaoId, Long empresaId);
+
     Page<RolePermissao> findByAtivoTrueAndEmpresaId(Long empresaId, Pageable pageable);
 
     @Query("""

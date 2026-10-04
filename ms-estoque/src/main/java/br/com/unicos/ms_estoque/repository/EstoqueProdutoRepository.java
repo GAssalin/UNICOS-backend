@@ -4,6 +4,7 @@ import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_estoque.model.EstoqueProduto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Repository;
 
@@ -17,7 +18,7 @@ import java.util.Optional;
  * respeitando o contexto multi-tenant.
  */
 @Repository
-public interface EstoqueProdutoRepository extends BaseTenantRepository<EstoqueProduto, Long> {
+public interface EstoqueProdutoRepository extends BaseTenantRepository<EstoqueProduto, Long>, JpaSpecificationExecutor<EstoqueProduto> {
 
     /**
      * Lista os produtos de um estoque dentro do tenant.

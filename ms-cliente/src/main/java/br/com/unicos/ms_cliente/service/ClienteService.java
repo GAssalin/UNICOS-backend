@@ -20,6 +20,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 @Service
 @Transactional
 public class ClienteService extends BaseTenantService<Cliente, Long> {
@@ -45,7 +49,8 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
         validarClienteDuplicado(request.pessoaId());
 
         Cliente entity = mapper.toEntity(request);
-        if (entity.getVendedorId() == null)
+        // Vendedores só cadastram clientes para si mesmos.
+        if (entity.getVendedorId() == null || isUsuarioUmVendedor())
             entity.setVendedorId(UserContext.getUsuarioId());
         entity.setEmpresaId(TenantContext.getEmpresaId());
 
@@ -56,12 +61,17 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
     }
 
     public ClienteResponse atualizar(Long id, ClienteRequest request) {
-        Cliente entity = buscar(id);
+        boolean vendedor = isUsuarioUmVendedor();
+        Cliente entity = buscar(id, vendedor);
 
         if (!entity.getPessoaId().equals(request.pessoaId()))
             validarClienteDuplicado(request.pessoaId());
 
         mapper.updateEntity(entity, request);
+
+        // Vendedores não transferem seus clientes para outros vendedores.
+        if (vendedor)
+            entity.setVendedorId(UserContext.getUsuarioId());
 
         if (request.categoriaId() != null)
             entity.setCategoria(buscarCategoria(request.categoriaId()));
@@ -81,25 +91,22 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
         Long empresaId = TenantContext.getEmpresaId();
         Long usuarioId = UserContext.getUsuarioId();
 
-        if (isUsuarioUmVendedor()) {
-            return repository
-                    .findByEmpresaIdAndVendedorId(
-                            empresaId,
-                            usuarioId,
-                            pageable
-                    )
-                    .map(mapper::toResponse);
-        }
+        Page<Cliente> clientes = isUsuarioUmVendedor()
+                ? repository.findByEmpresaIdAndVendedorId(empresaId, usuarioId, pageable)
+                : findAllByEmpresaId(empresaId, pageable);
 
-        return findAllByEmpresaId(empresaId, pageable)
-                .map(mapper::toResponse);
+        return comNomesDosVendedores(clientes);
     }
 
     @Transactional(readOnly = true)
     public Page<ClienteResponse> listarPorStatus(StatusCliente status, Pageable pageable) {
-        return repository
-                .findByStatusAndEmpresaId(status, TenantContext.getEmpresaId(), pageable)
-                .map(mapper::toResponse);
+        Long empresaId = TenantContext.getEmpresaId();
+
+        Page<Cliente> clientes = isUsuarioUmVendedor()
+                ? repository.findByStatusAndEmpresaIdAndVendedorId(status, empresaId, UserContext.getUsuarioId(), pageable)
+                : repository.findByStatusAndEmpresaId(status, empresaId, pageable);
+
+        return comNomesDosVendedores(clientes);
     }
 
     public void deletar(Long id) {
@@ -112,8 +119,31 @@ public class ClienteService extends BaseTenantService<Cliente, Long> {
     // ============================================================
 
     private Cliente buscar(Long id) {
+        return buscar(id, isUsuarioUmVendedor());
+    }
+
+    /**
+     * Vendedores acessam apenas os próprios clientes; os demais respondem como inexistentes.
+     */
+    private Cliente buscar(Long id, boolean vendedor) {
         return findById(id)
+                .filter(cliente -> !vendedor || UserContext.getUsuarioId().equals(cliente.getVendedorId()))
                 .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado: " + id));
+    }
+
+    /**
+     * Resolve o nome de cada vendedor uma única vez por página, evitando uma chamada ao
+     * ms-pessoas para cada cliente.
+     */
+    private Page<ClienteResponse> comNomesDosVendedores(Page<Cliente> clientes) {
+        Map<Long, Optional<String>> nomes = new HashMap<>();
+
+        return clientes.map(cliente -> mapper.toResponse(
+                cliente,
+                cliente.getVendedorId() == null ? null : nomes
+                        .computeIfAbsent(cliente.getVendedorId(), id -> Optional.ofNullable(usuarioService.buscarNome(id)))
+                        .orElse(null)
+        ));
     }
 
     private boolean isUsuarioUmVendedor() {

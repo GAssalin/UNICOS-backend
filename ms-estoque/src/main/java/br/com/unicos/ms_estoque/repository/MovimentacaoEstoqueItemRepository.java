@@ -4,6 +4,7 @@ import br.com.unicos.core.tenant.repository.BaseTenantRepository;
 import br.com.unicos.ms_estoque.model.MovimentacaoEstoqueItem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.Optional;
  * respeitando o contexto multi-tenant.
  */
 @Repository
-public interface MovimentacaoEstoqueItemRepository extends BaseTenantRepository<MovimentacaoEstoqueItem, Long> {
+public interface MovimentacaoEstoqueItemRepository extends BaseTenantRepository<MovimentacaoEstoqueItem, Long>, JpaSpecificationExecutor<MovimentacaoEstoqueItem> {
 
     /**
      * Lista os itens de uma movimentação.

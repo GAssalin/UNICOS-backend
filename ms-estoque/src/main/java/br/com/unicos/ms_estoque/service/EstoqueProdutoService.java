@@ -10,14 +10,15 @@ import br.com.unicos.ms_estoque.mapper.EstoqueProdutoMapper;
 import br.com.unicos.ms_estoque.model.EstoqueProduto;
 import br.com.unicos.ms_estoque.repository.EstoqueProdutoRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,17 +31,20 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
 
     private final EstoqueProdutoRepository estoqueProdutoRepository;
     private final EstoqueProdutoMapper estoqueProdutoMapper;
+    private final EstoqueService estoqueService;
 
     /**
      * Construtor da service de estoque produto.
      *
      * @param estoqueProdutoRepository repositório de estoque produto
      * @param estoqueProdutoMapper mapper de conversão entre entidade e DTOs
+     * @param estoqueService service de estoque, usado para validar o estoque referenciado
      */
-    public EstoqueProdutoService(EstoqueProdutoRepository estoqueProdutoRepository, EstoqueProdutoMapper estoqueProdutoMapper) {
+    public EstoqueProdutoService(EstoqueProdutoRepository estoqueProdutoRepository, EstoqueProdutoMapper estoqueProdutoMapper, EstoqueService estoqueService) {
         super(estoqueProdutoRepository);
         this.estoqueProdutoRepository = estoqueProdutoRepository;
         this.estoqueProdutoMapper = estoqueProdutoMapper;
+        this.estoqueService = estoqueService;
     }
 
     /**
@@ -50,6 +54,7 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
      * @return registro criado
      */
     public EstoqueProdutoResponseDto salvar(EstoqueProdutoCreateRequestDto request) {
+        estoqueService.validarEstoqueDaEmpresa(request.estoqueId());
         validarDuplicidade(request.estoqueId(), request.produtoId());
         validarQuantidades(
                 request.quantidadeAtual(),
@@ -73,8 +78,10 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
     public EstoqueProdutoResponseDto atualizar(Long id, EstoqueProdutoUpdateRequestDto request) {
         EstoqueProduto entity = buscarEstoqueProduto(id);
 
-        if (chaveLogicaAlterada(entity, request.estoqueId(), request.produtoId()))
+        if (chaveLogicaAlterada(entity, request.estoqueId(), request.produtoId())) {
+            estoqueService.validarEstoqueDaEmpresa(request.estoqueId());
             validarDuplicidade(request.estoqueId(), request.produtoId());
+        }
 
         validarQuantidades(
                 request.quantidadeAtual(),
@@ -157,12 +164,7 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
     }
 
     /**
-     * Pesquisa registros com base nos filtros informados.
-     *
-     * <p>
-     * Como o repositório atual não possui consultas dinâmicas, os filtros são aplicados
-     * em memória sobre os registros do tenant corrente.
-     * </p>
+     * Pesquisa registros com base nos filtros informados (filtros nulos são ignorados).
      *
      * @param request filtros da pesquisa
      * @param pageable paginação
@@ -173,25 +175,21 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
         if (request == null)
             return listar(pageable);
 
-        List<EstoqueProduto> filtrados = findAllByEmpresaId(TenantContext.getEmpresaId(), Pageable.unpaged())
-                .stream()
-                .filter(entity -> request.estoqueId() == null
-                        || request.estoqueId().equals(entity.getEstoqueId()))
-                .filter(entity -> request.produtoId() == null
-                        || request.produtoId().equals(entity.getProdutoId()))
-                .toList();
+        Long empresaId = TenantContext.getEmpresaId();
+        Specification<EstoqueProduto> filtros = (root, query, cb) -> {
+            List<Predicate> predicados = new ArrayList<>();
+            predicados.add(cb.equal(root.get("empresaId"), empresaId));
 
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), filtrados.size());
+            if (request.estoqueId() != null)
+                predicados.add(cb.equal(root.get("estoqueId"), request.estoqueId()));
+            if (request.produtoId() != null)
+                predicados.add(cb.equal(root.get("produtoId"), request.produtoId()));
 
-        List<EstoqueProdutoResponseDto> content = start >= filtrados.size()
-                ? List.of()
-                : filtrados.subList(start, end)
-                .stream()
-                .map(estoqueProdutoMapper::toResponse)
-                .toList();
+            return cb.and(predicados.toArray(Predicate[]::new));
+        };
 
-        return new PageImpl<>(content, pageable, filtrados.size());
+        return estoqueProdutoRepository.findAll(filtros, pageable)
+                .map(estoqueProdutoMapper::toResponse);
     }
 
     /**
@@ -246,19 +244,14 @@ public class EstoqueProdutoService extends BaseTenantService<EstoqueProduto, Lon
     // ============================================================
 
     /**
-     * Busca um registro e garante que ele pertence ao tenant corrente.
+     * Busca um registro da empresa corrente. Registros de outras empresas respondem como inexistentes.
      *
      * @param id identificador do registro
      * @return entidade encontrada
      */
     private EstoqueProduto buscarEstoqueProduto(Long id) {
-        EstoqueProduto entity = estoqueProdutoRepository.findById(id)
+        return findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("EstoqueProduto não encontrado: " + id));
-
-        if (!TenantContext.getEmpresaId().equals(entity.getEmpresaId()))
-            throw new AccessDeniedException("Acesso negado ao saldo de estoque fora do tenant.");
-
-        return entity;
     }
 
     /**

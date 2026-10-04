@@ -9,15 +9,11 @@ import br.com.unicos.ms_estoque.enums.StatusResponsavelEstoque;
 import br.com.unicos.ms_estoque.mapper.ResponsavelEstoqueMapper;
 import br.com.unicos.ms_estoque.model.ResponsavelEstoque;
 import br.com.unicos.ms_estoque.repository.ResponsavelEstoqueRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 
@@ -30,17 +26,20 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
 
     private final ResponsavelEstoqueRepository responsavelRepository;
     private final ResponsavelEstoqueMapper responsavelMapper;
+    private final EstoqueService estoqueService;
 
     /**
      * Construtor da service de responsáveis de estoque.
      *
      * @param responsavelRepository repositório do vínculo de responsável por estoque
      * @param responsavelMapper mapper de conversão entre entidade e DTOs
+     * @param estoqueService service de estoque, usado para validar o estoque referenciado
      */
-    public ResponsavelEstoqueService(ResponsavelEstoqueRepository responsavelRepository, ResponsavelEstoqueMapper responsavelMapper) {
+    public ResponsavelEstoqueService(ResponsavelEstoqueRepository responsavelRepository, ResponsavelEstoqueMapper responsavelMapper, EstoqueService estoqueService) {
         super(responsavelRepository);
         this.responsavelRepository = responsavelRepository;
         this.responsavelMapper = responsavelMapper;
+        this.estoqueService = estoqueService;
     }
 
     /**
@@ -148,19 +147,15 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
     }
 
     /**
-     * Busca um vínculo de responsável e garante que ele pertence ao tenant corrente.
+     * Busca um vínculo de responsável da empresa corrente. Registros de outras empresas respondem
+     * como inexistentes.
      *
      * @param id identificador do vínculo
      * @return entidade encontrada
      */
     private ResponsavelEstoque buscarResponsavel(Long id) {
-        ResponsavelEstoque entity = responsavelRepository.findById(id)
+        return findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Responsável do estoque não encontrado: " + id));
-
-        if (!TenantContext.getEmpresaId().equals(entity.getEmpresaId()))
-            throw new AccessDeniedException("Acesso negado ao responsável fora do tenant.");
-
-        return entity;
     }
 
     /**
@@ -181,6 +176,7 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
             LocalDate vigenciaFim,
             Long ignorarId
     ) {
+        estoqueService.validarEstoqueDaEmpresa(estoqueId);
         validarVigencia(vigenciaInicio, vigenciaFim);
         validarPrincipalUnicoAtivo(estoqueId, principal, status, ignorarId);
     }
@@ -209,10 +205,13 @@ public class ResponsavelEstoqueService extends BaseTenantService<ResponsavelEsto
             return;
 
         boolean existeOutroPrincipalAtivo = responsavelRepository
-                .findByEstoqueIdAndPrincipalAndEmpresaId(estoqueId, true, TenantContext.getEmpresaId())
-                .filter(responsavel -> responsavel.getStatusResponsavelEstoque() == StatusResponsavelEstoque.ATIVO)
-                .filter(responsavel -> !responsavel.getId().equals(ignorarId))
-                .isPresent();
+                .findByEstoqueIdAndPrincipalTrueAndStatusResponsavelEstoqueAndEmpresaId(
+                        estoqueId,
+                        StatusResponsavelEstoque.ATIVO,
+                        TenantContext.getEmpresaId()
+                )
+                .stream()
+                .anyMatch(responsavel -> !responsavel.getId().equals(ignorarId));
 
         if (existeOutroPrincipalAtivo)
             throw new IllegalArgumentException("Já existe um responsável principal ativo para este estoque neste tenant.");

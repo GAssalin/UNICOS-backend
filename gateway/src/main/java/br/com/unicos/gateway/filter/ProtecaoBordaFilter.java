@@ -52,7 +52,11 @@ public class ProtecaoBordaFilter implements GlobalFilter, Ordered {
 
     /**
      * Considera os segmentos já decodificados ({@code %69nternal} equivale a {@code internal})
-     * e bloqueia caminhos não normalizados ({@code ..}).
+     * e bloqueia caminhos não normalizados ({@code ..}) ou com barras codificadas
+     * ({@code %2F}, {@code %5C}).
+     *
+     * <p>Segmentos vazios ({@code //}) não contam na posição: o {@code StripPrefix} os descarta,
+     * de modo que {@code /ms-pessoas//internal/x} chegaria ao serviço como {@code /internal/x}.</p>
      */
     static boolean isCaminhoBloqueado(PathContainer path) {
         int indiceSegmento = 0;
@@ -63,7 +67,10 @@ public class ProtecaoBordaFilter implements GlobalFilter, Ordered {
 
             String valor = segmento.valueToMatch().toLowerCase(Locale.ROOT);
 
-            if (valor.equals("..") || valor.equals("."))
+            if (valor.isEmpty())
+                continue;
+
+            if (valor.equals("..") || valor.equals(".") || valor.contains("/") || valor.contains("\\"))
                 return true;
 
             if (indiceSegmento == 1 && SEGMENTOS_BLOQUEADOS.contains(valor))
