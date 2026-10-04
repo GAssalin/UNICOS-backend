@@ -29,6 +29,15 @@ class ProtecaoBordaFilterTest {
     }
 
     @Test
+    void deveBloquearVariacoesComBarrasDuplicadasOuCodificadas() {
+        assertThat(bloqueado("/ms-pessoas//internal/auth/by-email")).isTrue();
+        assertThat(bloqueado("//ms-pessoas/internal/auth/by-email")).isTrue();
+        assertThat(bloqueado("/ms-pessoas///actuator/env")).isTrue();
+        assertThat(bloqueado("/ms-pessoas/internal%2Fauth/by-email")).isTrue();
+        assertThat(bloqueado("/ms-pessoas/v1%5Cpessoas")).isTrue();
+    }
+
+    @Test
     void devePermitirRotasDeNegocio() {
         assertThat(bloqueado("/ms-pessoas/v1/pessoas")).isFalse();
         assertThat(bloqueado("/ms-autenticacao/v1/autenticacao/login")).isFalse();

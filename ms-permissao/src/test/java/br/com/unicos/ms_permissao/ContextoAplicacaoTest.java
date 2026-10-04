@@ -26,6 +26,7 @@ import java.time.Instant;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -116,6 +117,19 @@ class ContextoAplicacaoTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(corpo))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void naoDeveExcluirPermissaoUsadaPorRolesDeOutraEmpresa() throws Exception {
+        Permissao excluir = permissaoRepository.save(Permissao.builder().nome("PERMISSAO_EXCLUIR").empresaId(1L).build());
+        rolePermissaoRepository.save(RolePermissao.builder().empresaId(1L).role(roleAdmin).permissao(excluir).build());
+
+        Role roleOutraEmpresa = roleRepository.save(Role.builder().nome("VENDAS").empresaId(2L).build());
+        Permissao compartilhada = permissaoRepository.save(Permissao.builder().nome("PRODUTO_LISTAR").empresaId(1L).build());
+        rolePermissaoRepository.save(RolePermissao.builder().empresaId(2L).role(roleOutraEmpresa).permissao(compartilhada).build());
+
+        mockMvc.perform(delete("/v1/permissoes/" + compartilhada.getId()).header(HttpHeaders.AUTHORIZATION, bearer(1L)))
+                .andExpect(status().isConflict());
     }
 
     @Test

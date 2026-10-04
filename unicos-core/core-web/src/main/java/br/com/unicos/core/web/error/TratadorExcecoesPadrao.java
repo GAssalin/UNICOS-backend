@@ -110,11 +110,23 @@ public class TratadorExcecoesPadrao extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ProblemDetail tratarIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
-        return Problemas.criar(HttpStatus.BAD_REQUEST, "Requisição inválida", ex.getMessage(), request);
+        return Problemas.criar(
+                HttpStatus.BAD_REQUEST,
+                "Requisição inválida",
+                Problemas.detalheSeguro(ex, "A requisição contém dados inválidos."),
+                request
+        );
     }
 
+    /**
+     * Regras de negócio da plataforma usam {@link IllegalStateException} para operações não
+     * permitidas no estado atual (409). Lançada por bibliotecas, indica falha interna (500).
+     */
     @ExceptionHandler(IllegalStateException.class)
     public ProblemDetail tratarIllegalState(IllegalStateException ex, HttpServletRequest request) {
+        if (!Problemas.lancadaPelaAplicacao(ex))
+            return tratarErroInesperado(ex, request);
+
         return Problemas.criar(
                 HttpStatus.CONFLICT,
                 "Operação não permitida no estado atual",

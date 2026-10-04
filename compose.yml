@@ -1,15 +1,27 @@
+# Cada container recebe apenas as variaveis de que precisa. O arquivo de ambiente
+# (--env-file) serve so para a interpolacao abaixo: senhas de banco, segredo JWT e
+# token interno nao sao repassados a servicos que nao os utilizam.
+x-common-env: &common-env
+  SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-}
+  SERVER_PORT: "8080"
+  EUREKA_URL: http://service-registry:8081/eureka/
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8081/eureka/
+  EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info
+  MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
+
+# Validacao dos tokens JWT (gateway e microsservicos).
+x-jwt-env: &jwt-env
+  UNICOS_JWT_ISSUER: ${UNICOS_JWT_ISSUER:?defina UNICOS_JWT_ISSUER}
+  UNICOS_JWT_SECRET: ${UNICOS_JWT_SECRET:?defina UNICOS_JWT_SECRET}
+
+# Chamadas internas entre microsservicos (o gateway nao recebe este segredo).
+x-internal-env: &internal-env
+  UNICOS_INTERNAL_TOKEN: ${UNICOS_INTERNAL_TOKEN:?defina UNICOS_INTERNAL_TOKEN}
+
 x-app: &app
   restart: unless-stopped
   networks: [unicos]
-  env_file: ${ENV_FILE:?defina ENV_FILE}
-  environment: &common-env
-    SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-}
-    SERVER_PORT: "8080"
-    EUREKA_URL: http://service-registry:8081/eureka/
-    EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8081/eureka/
-    EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
-    MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info
-    MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
   healthcheck: &app-health
     test: ["CMD-SHELL", "curl -fsS http://localhost:$${SERVER_PORT}/actuator/health >/dev/null || exit 1"]
     interval: 15s
@@ -23,7 +35,7 @@ x-mysql: &mysql
   networks: [unicos]
   command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
   healthcheck:
-    test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+    test: ["CMD-SHELL", "mysqladmin ping -h localhost -u\"$$MYSQL_USER\" -p\"$$MYSQL_PASSWORD\" --silent"]
     interval: 10s
     timeout: 5s
     retries: 15
@@ -45,6 +57,10 @@ services:
   gateway:
     <<: *app
     build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: gateway } }
+    environment:
+      <<: [*common-env, *jwt-env]
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-*}
+      UNICOS_DOCS_ENABLED: ${UNICOS_DOCS_ENABLED:-true}
     # Unico ponto de entrada publicado no host (por padrao apenas em 127.0.0.1).
     ports:
       - "${GATEWAY_BIND_ADDRESS:-127.0.0.1}:${GATEWAY_PORT:-8082}:8080"
@@ -78,7 +94,7 @@ services:
       MYSQL_DATABASE: "${PESSOA_DB_NAME:?defina PESSOA_DB_NAME}"
       MYSQL_USER: "${PESSOA_DB_USER:?defina PESSOA_DB_USER}"
       MYSQL_PASSWORD: "${PESSOA_DB_PASSWORD:?defina PESSOA_DB_PASSWORD}"
-      MYSQL_ROOT_PASSWORD: "${PESSOA_DB_PASSWORD:?defina PESSOA_DB_PASSWORD}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
     volumes: [mysql_pessoas_data:/var/lib/mysql]
 
   mysql-permissao:
@@ -87,7 +103,7 @@ services:
       MYSQL_DATABASE: "${PERMISSAO_DB_NAME:?defina PERMISSAO_DB_NAME}"
       MYSQL_USER: "${PERMISSAO_DB_USER:?defina PERMISSAO_DB_USER}"
       MYSQL_PASSWORD: "${PERMISSAO_DB_PASSWORD:?defina PERMISSAO_DB_PASSWORD}"
-      MYSQL_ROOT_PASSWORD: "${PERMISSAO_DB_PASSWORD:?defina PERMISSAO_DB_PASSWORD}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
     volumes: [mysql_permissao_data:/var/lib/mysql]
 
   mysql-empresa:
@@ -96,7 +112,7 @@ services:
       MYSQL_DATABASE: "${EMPRESA_DB_NAME:?defina EMPRESA_DB_NAME}"
       MYSQL_USER: "${EMPRESA_DB_USER:?defina EMPRESA_DB_USER}"
       MYSQL_PASSWORD: "${EMPRESA_DB_PASSWORD:?defina EMPRESA_DB_PASSWORD}"
-      MYSQL_ROOT_PASSWORD: "${EMPRESA_DB_PASSWORD:?defina EMPRESA_DB_PASSWORD}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
     volumes: [mysql_empresa_data:/var/lib/mysql]
 
   mysql-cliente:
@@ -105,7 +121,7 @@ services:
       MYSQL_DATABASE: "${CLIENTE_DB_NAME:?defina CLIENTE_DB_NAME}"
       MYSQL_USER: "${CLIENTE_DB_USER:?defina CLIENTE_DB_USER}"
       MYSQL_PASSWORD: "${CLIENTE_DB_PASSWORD:?defina CLIENTE_DB_PASSWORD}"
-      MYSQL_ROOT_PASSWORD: "${CLIENTE_DB_PASSWORD:?defina CLIENTE_DB_PASSWORD}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
     volumes: [mysql_cliente_data:/var/lib/mysql]
 
   mysql-estoque:
@@ -114,7 +130,7 @@ services:
       MYSQL_DATABASE: "${ESTOQUE_DB_NAME:?defina ESTOQUE_DB_NAME}"
       MYSQL_USER: "${ESTOQUE_DB_USER:?defina ESTOQUE_DB_USER}"
       MYSQL_PASSWORD: "${ESTOQUE_DB_PASSWORD:?defina ESTOQUE_DB_PASSWORD}"
-      MYSQL_ROOT_PASSWORD: "${ESTOQUE_DB_PASSWORD:?defina ESTOQUE_DB_PASSWORD}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
     volumes: [mysql_estoque_data:/var/lib/mysql]
 
   mysql-produto:
@@ -123,7 +139,7 @@ services:
       MYSQL_DATABASE: "${PRODUTO_DB_NAME:?defina PRODUTO_DB_NAME}"
       MYSQL_USER: "${PRODUTO_DB_USER:?defina PRODUTO_DB_USER}"
       MYSQL_PASSWORD: "${PRODUTO_DB_PASSWORD:?defina PRODUTO_DB_PASSWORD}"
-      MYSQL_ROOT_PASSWORD: "${PRODUTO_DB_PASSWORD:?defina PRODUTO_DB_PASSWORD}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
     volumes: [mysql_produto_data:/var/lib/mysql]
 
   # ===========================================================
@@ -132,6 +148,12 @@ services:
   ms-autenticacao:
     <<: *app
     build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-autenticacao } }
+    environment:
+      <<: [*common-env, *jwt-env, *internal-env]
+      UNICOS_TEMPO_EXP_TOKEN: ${UNICOS_TEMPO_EXP_TOKEN:-15}
+      UNICOS_TEMPO_EXP_REFRESH_TOKEN: ${UNICOS_TEMPO_EXP_REFRESH_TOKEN:-1440}
+      UNICOS_LOGIN_MAX_TENTATIVAS: ${UNICOS_LOGIN_MAX_TENTATIVAS:-5}
+      UNICOS_LOGIN_BLOQUEIO: ${UNICOS_LOGIN_BLOQUEIO:-15m}
     depends_on:
       service-registry: { condition: service_healthy }
       ms-pessoas: { condition: service_healthy }
@@ -140,7 +162,7 @@ services:
     <<: *app
     build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-pessoas } }
     environment:
-      <<: *common-env
+      <<: [*common-env, *jwt-env, *internal-env]
       SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-pessoas:3306/${PESSOA_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
       SPRING_DATASOURCE_USERNAME: "${PESSOA_DB_USER}"
       SPRING_DATASOURCE_PASSWORD: "${PESSOA_DB_PASSWORD}"
@@ -152,7 +174,7 @@ services:
     <<: *app
     build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-permissao } }
     environment:
-      <<: *common-env
+      <<: [*common-env, *jwt-env, *internal-env]
       SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-permissao:3306/${PERMISSAO_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
       SPRING_DATASOURCE_USERNAME: "${PERMISSAO_DB_USER}"
       SPRING_DATASOURCE_PASSWORD: "${PERMISSAO_DB_PASSWORD}"
@@ -164,7 +186,7 @@ services:
     <<: *app
     build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-empresa } }
     environment:
-      <<: *common-env
+      <<: [*common-env, *jwt-env, *internal-env]
       SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-empresa:3306/${EMPRESA_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
       SPRING_DATASOURCE_USERNAME: "${EMPRESA_DB_USER}"
       SPRING_DATASOURCE_PASSWORD: "${EMPRESA_DB_PASSWORD}"
@@ -176,7 +198,7 @@ services:
     <<: *app
     build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-cliente } }
     environment:
-      <<: *common-env
+      <<: [*common-env, *jwt-env, *internal-env]
       SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-cliente:3306/${CLIENTE_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
       SPRING_DATASOURCE_USERNAME: "${CLIENTE_DB_USER}"
       SPRING_DATASOURCE_PASSWORD: "${CLIENTE_DB_PASSWORD}"
@@ -188,7 +210,7 @@ services:
     <<: *app
     build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-estoque } }
     environment:
-      <<: *common-env
+      <<: [*common-env, *jwt-env, *internal-env]
       SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-estoque:3306/${ESTOQUE_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
       SPRING_DATASOURCE_USERNAME: "${ESTOQUE_DB_USER}"
       SPRING_DATASOURCE_PASSWORD: "${ESTOQUE_DB_PASSWORD}"
@@ -200,7 +222,7 @@ services:
     <<: *app
     build: { context: ., dockerfile: Dockerfile.service, args: { SERVICE_NAME: ms-produto } }
     environment:
-      <<: *common-env
+      <<: [*common-env, *jwt-env, *internal-env]
       SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-produto:3306/${PRODUTO_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
       SPRING_DATASOURCE_USERNAME: "${PRODUTO_DB_USER}"
       SPRING_DATASOURCE_PASSWORD: "${PRODUTO_DB_PASSWORD}"

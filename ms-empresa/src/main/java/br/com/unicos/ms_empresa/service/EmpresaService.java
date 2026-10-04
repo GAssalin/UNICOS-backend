@@ -1,5 +1,6 @@
 package br.com.unicos.ms_empresa.service;
 
+import br.com.unicos.core.tenant.context.TenantContext;
 import br.com.unicos.ms_empresa.dto.empresa.EmpresaCreateRequest;
 import br.com.unicos.ms_empresa.dto.empresa.EmpresaResponse;
 import br.com.unicos.ms_empresa.dto.empresa.EmpresaListDTO;
@@ -13,11 +14,17 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementação do service responsável pelas regras de negócio da entidade Empresa.
+ *
+ * <p>
+ * Cada empresa é um tenant. O usuário autenticado enxerga e altera apenas a própria empresa
+ * e as filiais vinculadas a ela; empresas fora desse escopo respondem como inexistentes (404).
+ * </p>
  */
 @Service
 @RequiredArgsConstructor
@@ -28,27 +35,31 @@ public class EmpresaService {
     private final EmpresaMapper empresaMapper;
 
     /**
-     * Cadastra uma nova empresa.
+     * Cadastra uma filial da empresa do usuário autenticado.
+     *
+     * <p>
+     * Novas matrizes são novos tenants e não podem ser criadas a partir de outra empresa:
+     * além de inacessíveis para quem as criou, permitiriam reservar o CNPJ de terceiros.
+     * </p>
      *
      * @param request dados para criação da empresa
      * @return empresa cadastrada
      */
     public EmpresaResponse criar(EmpresaCreateRequest request) {
+        if (request.tipoEmpresa() != TipoEmpresa.FILIAL)
+            throw new AccessDeniedException("Apenas filiais podem ser cadastradas a partir de uma empresa.");
+
+        Empresa matriz = buscarEntidadeNoEscopo(TenantContext.getEmpresaId());
+
+        if (matriz.getTipoEmpresa() != TipoEmpresa.MATRIZ)
+            throw new IllegalStateException("Apenas uma matriz pode cadastrar filiais.");
+
         validarCnpjDuplicado(request.cnpj());
 
         Empresa empresa = empresaMapper.toEntity(request);
+        empresa.setMatrizId(matriz.getId());
 
-        if (TipoEmpresa.MATRIZ.equals(request.tipoEmpresa()))
-            empresa.setMatrizId(null);
-
-        Empresa empresaSalva = empresaRepository.save(empresa);
-
-        if (TipoEmpresa.MATRIZ.equals(empresaSalva.getTipoEmpresa())) {
-            empresaSalva.setMatrizId(empresaSalva.getId());
-            empresaSalva = empresaRepository.save(empresaSalva);
-        }
-
-        return empresaMapper.toResponse(empresaSalva);
+        return empresaMapper.toResponse(empresaRepository.save(empresa));
     }
 
     /**
@@ -59,8 +70,7 @@ public class EmpresaService {
      */
     @Transactional(readOnly = true)
     public EmpresaResponse buscarPorId(Long id) {
-        Empresa empresa = buscarEntidadePorId(id);
-        return empresaMapper.toResponse(empresa);
+        return empresaMapper.toResponse(buscarEntidadeNoEscopo(id));
     }
 
     /**
@@ -72,6 +82,7 @@ public class EmpresaService {
     @Transactional(readOnly = true)
     public EmpresaResponse buscarPorCnpj(String cnpj) {
         Empresa empresa = empresaRepository.findByCnpj(cnpj)
+                .filter(this::pertenceAoEscopo)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Empresa não encontrada para o CNPJ informado: " + cnpj));
 
@@ -79,15 +90,14 @@ public class EmpresaService {
     }
 
     /**
-     * Lista todas as empresas de forma paginada.
+     * Lista a empresa do usuário e suas filiais de forma paginada.
      *
      * @param pageable parâmetros de paginação
      * @return página com resumo das empresas
      */
     @Transactional(readOnly = true)
     public Page<EmpresaListDTO> listarTodas(Pageable pageable) {
-        return empresaRepository.findAll(pageable)
-                .map(empresaMapper::toListDTO);
+        return pesquisar(null, null, null, pageable);
     }
 
     /**
@@ -99,8 +109,7 @@ public class EmpresaService {
      */
     @Transactional(readOnly = true)
     public Page<EmpresaListDTO> listarPorStatus(StatusEmpresa statusEmpresa, Pageable pageable) {
-        return empresaRepository.findByStatusEmpresa(statusEmpresa, pageable)
-                .map(empresaMapper::toListDTO);
+        return pesquisar(statusEmpresa, null, null, pageable);
     }
 
     /**
@@ -112,8 +121,7 @@ public class EmpresaService {
      */
     @Transactional(readOnly = true)
     public Page<EmpresaListDTO> listarPorTipo(TipoEmpresa tipoEmpresa, Pageable pageable) {
-        return empresaRepository.findByTipoEmpresa(tipoEmpresa, pageable)
-                .map(empresaMapper::toListDTO);
+        return pesquisar(null, tipoEmpresa, null, pageable);
     }
 
     /**
@@ -125,8 +133,7 @@ public class EmpresaService {
      */
     @Transactional(readOnly = true)
     public Page<EmpresaListDTO> listarPorMatriz(Long matrizId, Pageable pageable) {
-        return empresaRepository.findByMatrizId(matrizId, pageable)
-                .map(empresaMapper::toListDTO);
+        return pesquisar(null, null, matrizId, pageable);
     }
 
     /**
@@ -139,8 +146,7 @@ public class EmpresaService {
      */
     @Transactional(readOnly = true)
     public Page<EmpresaListDTO> listarPorMatrizETipo(Long matrizId, TipoEmpresa tipoEmpresa, Pageable pageable) {
-        return empresaRepository.findByMatrizIdAndTipoEmpresa(matrizId, tipoEmpresa, pageable)
-                .map(empresaMapper::toListDTO);
+        return pesquisar(null, tipoEmpresa, matrizId, pageable);
     }
 
     /**
@@ -153,49 +159,67 @@ public class EmpresaService {
      */
     @Transactional(readOnly = true)
     public Page<EmpresaListDTO> listarPorMatrizEStatus(Long matrizId, StatusEmpresa statusEmpresa, Pageable pageable) {
-        return empresaRepository.findByMatrizIdAndStatusEmpresa(matrizId, statusEmpresa, pageable)
-                .map(empresaMapper::toListDTO);
+        return pesquisar(statusEmpresa, null, matrizId, pageable);
     }
 
     /**
      * Atualiza os dados de uma empresa.
+     *
+     * <p>O tipo (matriz/filial) não pode ser alterado, pois define o vínculo entre as empresas.</p>
      *
      * @param id identificador da empresa
      * @param request dados para atualização
      * @return empresa atualizada
      */
     public EmpresaResponse atualizar(Long id, EmpresaUpdateRequest request) {
-        Empresa empresa = buscarEntidadePorId(id);
+        Empresa empresa = buscarEntidadeNoEscopo(id);
+
+        if (request.tipoEmpresa() != empresa.getTipoEmpresa())
+            throw new IllegalArgumentException("O tipo da empresa (matriz ou filial) não pode ser alterado.");
 
         empresaMapper.updateEntity(empresa, request);
 
-        if (TipoEmpresa.MATRIZ.equals(request.tipoEmpresa()))
-            empresa.setMatrizId(empresa.getId());
-
-        Empresa empresaAtualizada = empresaRepository.save(empresa);
-        return empresaMapper.toResponse(empresaAtualizada);
+        return empresaMapper.toResponse(empresaRepository.save(empresa));
     }
 
     /**
-     * Remove uma empresa pelo ID.
+     * Remove uma filial da empresa do usuário autenticado.
      *
      * @param id identificador da empresa
      */
     public void deletar(Long id) {
-        Empresa empresa = buscarEntidadePorId(id);
+        Empresa empresa = buscarEntidadeNoEscopo(id);
+
+        if (empresa.getId().equals(TenantContext.getEmpresaId()))
+            throw new IllegalStateException("A empresa do usuário autenticado não pode ser excluída.");
+
         empresaRepository.delete(empresa);
     }
 
+    private Page<EmpresaListDTO> pesquisar(StatusEmpresa status, TipoEmpresa tipo, Long matrizId, Pageable pageable) {
+        return empresaRepository.pesquisarNoEscopo(TenantContext.getEmpresaId(), status, tipo, matrizId, pageable)
+                .map(empresaMapper::toListDTO);
+    }
+
     /**
-     * Busca uma entidade Empresa pelo ID.
+     * Busca uma empresa dentro do escopo do usuário autenticado.
      *
      * @param id identificador da empresa
      * @return entidade encontrada
      */
-    private Empresa buscarEntidadePorId(Long id) {
+    private Empresa buscarEntidadeNoEscopo(Long id) {
         return empresaRepository.findById(id)
+                .filter(this::pertenceAoEscopo)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Empresa não encontrada para o ID informado: " + id));
+    }
+
+    /**
+     * A própria empresa do usuário autenticado ou uma filial vinculada a ela.
+     */
+    private boolean pertenceAoEscopo(Empresa empresa) {
+        Long empresaId = TenantContext.getEmpresaId();
+        return empresaId.equals(empresa.getId()) || empresaId.equals(empresa.getMatrizId());
     }
 
     /**

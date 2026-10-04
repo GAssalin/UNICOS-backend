@@ -61,9 +61,15 @@ Todas as versões são definidas apenas em `unicos-parent/pom.xml`.
 1. O cliente chama `POST /ms-autenticacao/v1/autenticacao/login` (e-mail e senha) e recebe `tokenAccess` e `refreshToken`.
 2. As demais chamadas enviam `Authorization: Bearer <tokenAccess>` ao gateway.
 3. O gateway valida o token e encaminha a requisição ao serviço.
-4. O serviço **valida o JWT novamente** (`ContextoRequisicaoFilter`) e extrai dele o usuário e a empresa. Nenhum header de identidade enviado pelo cliente é considerado.
-5. A permissão exigida pela rota é verificada no `ms-permissao`.
+4. O serviço **valida o JWT novamente** (`ContextoRequisicaoFilter`) e extrai dele o usuário e a empresa. Nenhum header de identidade enviado pelo cliente é considerado. Tokens sem expiração (`exp`) são recusados.
+5. A permissão exigida pela rota é verificada no `ms-permissao`. Métodos HTTP sem permissão correspondente (`OPTIONS`, `TRACE`...) são recusados com `403`; `HEAD` exige a mesma permissão do `GET`.
 6. Quando o access token expira, o cliente chama `POST /ms-autenticacao/v1/autenticacao/atualizar-token` com o `refreshToken`. Usuários desativados ou removidos não conseguem renovar a sessão.
+
+Regras adicionais:
+
+* **Força bruta no login**: após `UNICOS_LOGIN_MAX_TENTATIVAS` senhas incorretas para o mesmo e-mail (padrão 5), o login desse e-mail responde `429` por `UNICOS_LOGIN_BLOQUEIO` (padrão 15 minutos), mesmo com a senha correta. O controle fica em memória, por instância do `ms-autenticacao`; com várias réplicas, use também um limitador compartilhado (gateway + Redis, por exemplo).
+* **Usuário desativado** perde as permissões imediatamente: a role deixa de ser considerada nas verificações, mesmo que o access token ainda não tenha expirado.
+* **Cadastro de usuários**: senha com 8 a 72 caracteres; o usuário não pode alterar a própria role, desativar ou excluir a própria conta. Ao trocar o e-mail, os links de verificação pendentes são invalidados.
 
 ### Comunicação interna
 
@@ -73,10 +79,12 @@ Todas as versões são definidas apenas em `unicos-parent/pom.xml`.
 
 ### Multi-tenant
 
-Todo dado de negócio pertence a uma empresa (`empresa_id`). Os serviços filtram leituras e escritas pela empresa do token; registros de outra empresa respondem `404`. Exceções intencionais, por serem dados de referência compartilhados:
+Todo dado de negócio pertence a uma empresa (`empresa_id`). Os serviços filtram leituras e escritas pela empresa do token; registros de outra empresa respondem `404`. Identificadores referenciados no corpo das requisições (estoque de um saldo, estoques de origem/destino de uma movimentação, movimentação de um item, atributo de um produto etc.) também precisam pertencer à empresa do token. Exceções intencionais, por serem dados de referência compartilhados:
 
-* municípios e tipos de relação (`ms-pessoas`) e o catálogo de permissões (`ms-permissao`) podem ser lidos e utilizados por qualquer empresa, mas só são alterados pela empresa que os cadastrou;
+* municípios e tipos de relação (`ms-pessoas`) e o catálogo de permissões (`ms-permissao`) podem ser lidos e utilizados por qualquer empresa, mas só são alterados pela empresa que os cadastrou. Uma permissão já vinculada a roles de outras empresas não pode ser renomeada nem excluída;
 * login e e-mail de usuário, CPF, CNPJ e número de documento são únicos em toda a base (restrição do banco).
+
+No `ms-empresa`, a própria empresa é o tenant. `/v1/empresas` enxerga apenas a empresa do token e as filiais vinculadas a ela (`matrizId`). Por essa rota é possível cadastrar apenas filiais da empresa do token (somente quando ela é uma matriz); novas matrizes são novos tenants e devem ser cadastradas pela administração da plataforma. O tipo (matriz/filial) não pode ser alterado e a empresa do token não pode ser excluída.
 
 ### Formato de erros
 
@@ -96,6 +104,8 @@ Todos os serviços e o gateway respondem erros no formato [Problem Details (RFC 
 
 Erros de validação de corpo trazem também o mapa `errors` (campo → mensagem).
 
+O `detail` traz as mensagens de regra de negócio da plataforma. Mensagens de exceções de bibliotecas e frameworks (que podem conter nomes de classes, consultas ou valores internos) são substituídas por um texto genérico e registradas apenas no log.
+
 ### Rotas públicas (sem token)
 
 | Rota no gateway | Uso |
@@ -103,7 +113,7 @@ Erros de validação de corpo trazem também o mapa `errors` (campo → mensagem
 | `POST /ms-autenticacao/v1/autenticacao/login` | Login |
 | `POST /ms-autenticacao/v1/autenticacao/atualizar-token` | Renovação de tokens |
 | `PATCH /ms-pessoas/v1/verificacao-email/confirmar?token=...` | Confirmação de e-mail |
-| `GET /docs` | Portal com links para o Swagger de cada serviço (desligado no profile `prod`) |
+| `GET /docs` | Portal com links para o Swagger de cada serviço (desligado no profile `prod`, assim como o Swagger/OpenAPI dos serviços) |
 
 ## Variáveis de ambiente
 
@@ -121,14 +131,16 @@ Copy-Item .env.example .env.docker.local
 
 Variáveis obrigatórias:
 
-* `ENV_FILE` (o próprio arquivo, ex.: `.env.docker.local`) e `SPRING_PROFILES_ACTIVE`;
+* `SPRING_PROFILES_ACTIVE`;
 * nome, usuário e senha de cada banco (`*_DB_NAME`, `*_DB_USER`, `*_DB_PASSWORD`);
 * `UNICOS_JWT_ISSUER` e `UNICOS_JWT_SECRET` (mínimo de 32 caracteres);
 * `UNICOS_INTERNAL_TOKEN` (mínimo de 16 caracteres).
 
 Os serviços não sobem quando os segredos estão ausentes ou curtos demais.
 
-Opcionais: `GATEWAY_BIND_ADDRESS`/`GATEWAY_PORT` (padrão `127.0.0.1:8082`), `EUREKA_BIND_ADDRESS`/`EUREKA_PORT` (homologação), `CORS_ALLOWED_ORIGINS` (padrão `*`; **restrinja em homologação e produção**), `UNICOS_DOCS_ENABLED`, `UNICOS_TEMPO_EXP_TOKEN` e `UNICOS_TEMPO_EXP_REFRESH_TOKEN` (minutos).
+Opcionais: `GATEWAY_BIND_ADDRESS`/`GATEWAY_PORT` (padrão `127.0.0.1:8082`), `EUREKA_BIND_ADDRESS`/`EUREKA_PORT` (homologação), `CORS_ALLOWED_ORIGINS` (padrão `*`; **restrinja em homologação e produção**), `UNICOS_DOCS_ENABLED`, `UNICOS_TEMPO_EXP_TOKEN` e `UNICOS_TEMPO_EXP_REFRESH_TOKEN` (minutos), `UNICOS_LOGIN_MAX_TENTATIVAS` e `UNICOS_LOGIN_BLOQUEIO` (ex.: `15m`).
+
+O arquivo é usado pelo Compose apenas para interpolação (`--env-file`): cada container recebe somente as variáveis de que precisa. O gateway recebe apenas o segredo JWT; o Eureka, nenhum segredo; cada microsserviço, apenas a senha do próprio banco. O usuário `root` de cada MySQL recebe uma senha aleatória, exibida no log da primeira inicialização do volume (volumes já existentes mantêm a senha anterior).
 
 ## Executando com Docker Compose
 
@@ -171,7 +183,7 @@ O RabbitMQ está provisionado no profile `mensageria` do Compose, mas nenhum ser
 
 ### Homologação
 
-Use um `.env.homolog` próprio com `ENV_FILE=.env.homolog` e `SPRING_PROFILES_ACTIVE=homolog`:
+Use um `.env.homolog` próprio com `SPRING_PROFILES_ACTIVE=homolog`:
 
 ```bash
 docker compose --env-file .env.homolog -f compose.yml -f compose.homolog.yml -p unicos-homolog up -d --build
@@ -242,6 +254,6 @@ Cada serviço expõe apenas `/actuator/health` e `/actuator/info`, sem detalhes.
 mvn test
 ```
 
-Os testes unitários cobrem a validação de tokens, o token interno, o filtro de contexto/permissões, o gateway (bloqueio de rotas internas, remoção de headers, 401), login/renovação de tokens e o mapeamento rota → permissão.
+Os testes unitários cobrem a validação de tokens, o token interno, o filtro de contexto/permissões (inclusive métodos HTTP não mapeados), o tratamento seguro de mensagens de erro, o gateway (bloqueio de rotas internas, inclusive com barras duplicadas ou codificadas, remoção de headers, 401), login/renovação de tokens, a proteção contra força bruta e o mapeamento rota → permissão.
 
 Cada serviço possui também um teste de contexto (`ContextoAplicacaoTest`) que sobe a aplicação completa com H2 em memória (profile `test`, sem Flyway e sem Eureka) e valida pela API a cadeia de segurança, o isolamento por empresa, o tratamento de erros e as consultas dos repositórios. Esses testes não substituem a validação das migrações em MySQL, que deve ser feita subindo o ambiente com Docker Compose.

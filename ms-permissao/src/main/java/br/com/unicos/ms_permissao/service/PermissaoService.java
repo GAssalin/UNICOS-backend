@@ -62,8 +62,10 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
     public PermissaoResponse atualizar(Long id, PermissaoRequest request) {
         Permissao entity = buscarDaEmpresa(id);
 
-        if (!entity.getNome().equalsIgnoreCase(request.nome()))
+        if (!entity.getNome().equalsIgnoreCase(request.nome())) {
             validarNomeDisponivel(request.nome());
+            validarSemUsoPorOutrasEmpresas(entity);
+        }
 
         entity.setNome(request.nome());
         entity.setDescricao(request.descricao());
@@ -109,7 +111,9 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
 
     @Transactional
     public void deletar(Long id) {
-        repository.delete(buscarDaEmpresa(id));
+        Permissao entity = buscarDaEmpresa(id);
+        validarSemUsoPorOutrasEmpresas(entity);
+        repository.delete(entity);
     }
 
     private Long buscarRoleDoUsuarioLogado() {
@@ -120,6 +124,16 @@ public class PermissaoService extends BaseTenantService<Permissao, Long> {
     private Permissao buscarDaEmpresa(Long id) {
         return findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Permissão não encontrada: " + id));
+    }
+
+    /**
+     * As verificações dos microserviços usam o nome da permissão: renomeá-la ou excluí-la retiraria
+     * o acesso das demais empresas que a vinculam às suas roles.
+     */
+    private void validarSemUsoPorOutrasEmpresas(Permissao entity) {
+        if (rolePermissaoRepository.existsByPermissaoIdAndEmpresaIdNot(entity.getId(), TenantContext.getEmpresaId()))
+            throw new IllegalStateException(
+                    "A permissão está vinculada a roles de outras empresas e não pode ser renomeada ou excluída.");
     }
 
     private void validarNomeDisponivel(String nome) {

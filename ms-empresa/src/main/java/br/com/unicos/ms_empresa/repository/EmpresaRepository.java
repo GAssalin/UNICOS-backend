@@ -6,6 +6,8 @@ import br.com.unicos.ms_empresa.model.Empresa;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -14,8 +16,9 @@ import java.util.Optional;
  * Repositório responsável pelo acesso aos dados da entidade {@link Empresa}.
  *
  * <p>
- * Como a entidade {@link Empresa} não utiliza mais o atributo {@code empresaId},
- * este repositório não deve mais herdar de {@code BaseTenantRepository}.
+ * A empresa é o próprio tenant e por isso não possui {@code empresaId}. O isolamento é feito pelo
+ * escopo da empresa do usuário autenticado: ela mesma e as filiais vinculadas a ela
+ * ({@code matrizId}). Os métodos herdados de {@link JpaRepository} não aplicam esse escopo.
  * </p>
  */
 @Repository
@@ -38,49 +41,27 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Long> {
     boolean existsByCnpj(String cnpj);
 
     /**
-     * Lista empresas filtrando pelo status operacional.
+     * Lista a empresa informada e suas filiais, com filtros opcionais ({@code null} ignora o filtro).
      *
-     * @param statusEmpresa Status da empresa.
-     * @param pageable      Parâmetros de paginação.
-     * @return Página de empresas filtradas por status.
+     * @param empresaId empresa do usuário autenticado.
+     * @param status    status da empresa.
+     * @param tipo      tipo da empresa (MATRIZ ou FILIAL).
+     * @param matrizId  identificador da matriz.
+     * @param pageable  parâmetros de paginação.
+     * @return página de empresas dentro do escopo.
      */
-    Page<Empresa> findByStatusEmpresa(StatusEmpresa statusEmpresa, Pageable pageable);
-
-    /**
-     * Lista empresas filtrando pelo tipo (MATRIZ ou FILIAL).
-     *
-     * @param tipoEmpresa Tipo da empresa.
-     * @param pageable    Parâmetros de paginação.
-     * @return Página de empresas filtradas por tipo.
-     */
-    Page<Empresa> findByTipoEmpresa(TipoEmpresa tipoEmpresa, Pageable pageable);
-
-    /**
-     * Lista empresas de uma matriz específica.
-     *
-     * @param matrizId identificador da matriz.
-     * @param pageable parâmetros de paginação.
-     * @return página de empresas vinculadas à matriz.
-     */
-    Page<Empresa> findByMatrizId(Long matrizId, Pageable pageable);
-
-    /**
-     * Busca empresas por matriz e tipo.
-     *
-     * @param matrizId    identificador da matriz.
-     * @param tipoEmpresa tipo da empresa.
-     * @param pageable    parâmetros de paginação.
-     * @return página filtrada.
-     */
-    Page<Empresa> findByMatrizIdAndTipoEmpresa(Long matrizId, TipoEmpresa tipoEmpresa, Pageable pageable);
-
-    /**
-     * Busca empresas por matriz e status.
-     *
-     * @param matrizId      identificador da matriz.
-     * @param statusEmpresa status da empresa.
-     * @param pageable      parâmetros de paginação.
-     * @return página filtrada.
-     */
-    Page<Empresa> findByMatrizIdAndStatusEmpresa(Long matrizId, StatusEmpresa statusEmpresa, Pageable pageable);
+    @Query("""
+            select e from Empresa e
+            where (e.id = :empresaId or e.matrizId = :empresaId)
+              and (:status is null or e.statusEmpresa = :status)
+              and (:tipo is null or e.tipoEmpresa = :tipo)
+              and (:matrizId is null or e.matrizId = :matrizId)
+            """)
+    Page<Empresa> pesquisarNoEscopo(
+            @Param("empresaId") Long empresaId,
+            @Param("status") StatusEmpresa status,
+            @Param("tipo") TipoEmpresa tipo,
+            @Param("matrizId") Long matrizId,
+            Pageable pageable
+    );
 }
